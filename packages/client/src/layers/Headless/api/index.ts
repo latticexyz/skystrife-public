@@ -1,0 +1,1 @@
+export { attack } from "./attack";

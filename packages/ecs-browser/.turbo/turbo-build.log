@@ -1,0 +1,29 @@
+
+> @latticexyz/ecs-browser@1.42.0 build /Users/kooshaba/workspace/mud/packages/ecs-browser
+> pnpm run build:js
+
+
+> @latticexyz/ecs-browser@1.42.0 build:js /Users/kooshaba/workspace/mud/packages/ecs-browser
+> tsup
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v6.7.0
+CLI Using tsup config: /Users/kooshaba/workspace/mud/packages/ecs-browser/tsup.config.js
+CLI Target: es2020
+CLI Cleaning output folder
+ESM Build start
+
+ WARN  [33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mUsing direct eval with a bundler is not recommended and may cause problems[0m [direct-eval]
+
+    src/QueryBuilder/QueryBuilder.tsx:141:27:
+[37m      141 │         const queryArray = [32meval[37m(evalString) as EntityQueryFragmen...
+          ╵                            [32m~~~~[0m
+
+  You can read more about direct eval and bundling here: [4mhttps://esbuild.github.io/link/direct-eval[0m
+
+
+
+ESM dist/index.js     11.46 KB
+ESM dist/index.js.map 41.68 KB
+ESM ⚡️ Build success in 13ms

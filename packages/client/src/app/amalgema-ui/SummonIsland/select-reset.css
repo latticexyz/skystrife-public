@@ -1,0 +1,9 @@
+select {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none; /* Standard property to reset appearance */
+}
+
+select::-ms-expand {
+  display: none;
+}

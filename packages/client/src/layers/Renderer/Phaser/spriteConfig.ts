@@ -1,0 +1,214 @@
+import { Assets, Sprites } from "./phaserConstants";
+import PlayerColors from "../../Local/player-colors.json";
+
+const baseSprites = {
+  [Sprites.Boot]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/icons/boot.png",
+  },
+  [Sprites.BootConfirm]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/icons/boot-check.png",
+  },
+  [Sprites.Sword]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/icons/sword-red.png",
+  },
+  [Sprites.SwordConfirm]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/icons/sword-red-check.png",
+  },
+
+  [Sprites.Shadow]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/base/shadow-round.png",
+  },
+  [Sprites.Settlement]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/big/forward-settlement/0.png",
+  },
+  [Sprites.Village]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/big/village.png",
+  },
+  [Sprites.SpawnSettlement]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/big/home-settlement/0.png",
+  },
+  [Sprites.Ruins]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/big/ruin.png",
+  },
+  [Sprites.GoldShrine]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/small/gold-shrine.png",
+  },
+  [Sprites.Portal]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/small/portal-grayscale/0.png",
+  },
+  [Sprites.SummoningAltar]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/big/magic-portal/0.png",
+  },
+  [Sprites.WoodenWall]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/big/wooden-barricade/0.png",
+  },
+  [Sprites.SelectUI]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/icons/big-select.png",
+  },
+  [Sprites.Chain]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/icons/chain.png",
+  },
+  [Sprites.Cog]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/icons/cog.png",
+  },
+
+  [Sprites.Crystal]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/big/power-crystal/0.png",
+  },
+
+  [Sprites.BarBackground]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/bars/background.png",
+  },
+  [Sprites.HealthBar]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/bars/green.png",
+  },
+  [Sprites.HealthBarRed]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/bars/red.png",
+  },
+  [Sprites.GoldBar]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/bars/yellow.png",
+  },
+
+  [Sprites.StaminaTickBackground]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/stamina/background.png",
+  },
+  [Sprites.StaminaTick]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/stamina/tick.png",
+  },
+
+  [Sprites.Banner]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/banner/0.png",
+  },
+
+  [Sprites.Swordsman]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/swordsman/idle/0.png",
+  },
+  [Sprites.Pikeman]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/pikeman/idle/0.png",
+  },
+  [Sprites.Golem]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/golem/idle/0.png",
+  },
+
+  [Sprites.Archer]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/archer/idle/0.png",
+  },
+  [Sprites.Catapult]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/catapult/idle/0.png",
+  },
+  [Sprites.Wizard]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/wizard/idle/0.png",
+  },
+
+  [Sprites.Rider]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/rider/idle/0.png",
+  },
+  [Sprites.Knight]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/knight/idle/0.png",
+  },
+  [Sprites.Dragon]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/dragon/idle/0.png",
+  },
+  [Sprites.CrossedSwords]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/ui/icons/crossed-swords.png",
+  },
+
+  [Sprites.GoldMine]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/structures/big/generators/metal/0.png",
+  },
+  [Sprites.Gold]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/icons/gold/0.png",
+  },
+} as Record<number | string, { assetKey: Assets; frame: string }>;
+
+export const getSprites = () => {
+  // add sprites for each player color
+  Object.entries(baseSprites).forEach(([key, data]) => {
+    if (!data.frame.includes("sprites/greyscale")) return;
+
+    const colorKeys = Object.values(PlayerColors).slice(0, 5);
+
+    colorKeys.forEach((color) => {
+      const newSprite = { ...data };
+
+      newSprite.frame = `sprites/tinted_images/${color}/${newSprite.frame.replace("sprites/greyscale/", "")}`;
+      baseSprites[`${key}-${color}`] = newSprite;
+    });
+  });
+
+  /**
+   * Arrow sprites are coded depending on the neighboring arrow pieces.
+   * Neighbors are coded using this schema:
+   * 7 | 0 | 1
+   * 6 | x | 2
+   * 5 | 4 | 3
+   * i.e. A straight arrow piece pointing horizontally with neighbors on both sides would be 26.
+   * Numbers are written starting at 0 and going clockwise.
+   *
+   * Start and end are used because arrow pieces are different in these cases.
+   */
+  const arrowCodes = [
+    "0-end",
+    "0-start",
+    "02",
+    "04",
+    "06",
+    "2-end",
+    "2-start",
+    "24",
+    "26",
+    "4-end",
+    "4-start",
+    "46",
+    "6-end",
+    "6-start",
+  ];
+  for (const arrowCode of arrowCodes) {
+    baseSprites[`ArrowAttack-${arrowCode}`] = {
+      assetKey: Assets.MainAtlas,
+      frame: `sprites/arrows/attack/${arrowCode}.png`,
+    };
+    baseSprites[`ArrowMove-${arrowCode}`] = {
+      assetKey: Assets.MainAtlas,
+      frame: `sprites/arrows/move/${arrowCode}.png`,
+    };
+  }
+
+  return baseSprites;
+};

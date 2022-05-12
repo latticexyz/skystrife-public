@@ -1,0 +1,47 @@
+{
+  "name": "skystrife",
+  "version": "0.0.0",
+  "description": "A mud on-chain RTS",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/latticexyz/skystrife.git"
+  },
+  "private": true,
+  "lint-staged": {
+    "*.{ts,tsx}": "eslint --cache --fix",
+    "*.{ts,tsx,css,md,mdx,sol}": "prettier --write"
+  },
+  "scripts": {
+    "foundryup": "curl -L https://foundry.paradigm.xyz | bash && bash ~/.foundry/bin/foundryup",
+    "lint": "pnpm prettier:check && eslint . --ext .ts --ext .tsx",
+    "prepare": "husky install",
+    "prettier": "prettier --write '**/*.{ts,tsx,css,md,mdx,sol}'",
+    "prettier:check": "prettier --check '**/*.{ts,tsx,css,md,mdx,sol}'",
+    "MUD SCRIPTS": "---",
+    "mud:up": "pnpm recursive exec mud set-version -v canary && pnpm install",
+    "mud:link": "pnpm recursive exec mud set-version -l ../../../mud && pnpm install",
+    "---": "---",
+    "dev": "pnpm --filter ecs-browser run build && pnpm --filter phaserx run build && run-pty % % pnpm run dev:client % pnpm run dev:contracts % pnpm run dev:upload-map % pnpm run dev:copy-maps % pnpm run dev:create-debug-matches",
+    "dev:client": "pnpm --filter client run dev",
+    "dev:contracts": "DEBUG=mud:* pnpm --filter contracts run dev",
+    "dev:upload-map": "wait-port localhost:8545 && sleep 60 && pnpm --filter bots run upload-map:dev",
+    "dev:copy-maps": "wait-port localhost:8545 && sleep 70 && pnpm --filter bots run copy-maps:dev",
+    "dev:create-debug-matches": "wait-port localhost:8545 && pnpm --filter bots run create-debug-matches:dev"
+  },
+  "devDependencies": {
+    "@latticexyz/cli": "2.0.0-main-5ab67e33",
+    "@typescript-eslint/eslint-plugin": "5.46.1",
+    "@typescript-eslint/parser": "6.6.0",
+    "eslint": "8.29.0",
+    "husky": ">=6",
+    "lint-staged": ">=10",
+    "prettier": "^2.8.8",
+    "prettier-plugin-solidity": "^1.1.3",
+    "rimraf": "^3.0.2",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "run-pty": "^4.1.0",
+    "wait-port": "1.0.4"
+  }
+}

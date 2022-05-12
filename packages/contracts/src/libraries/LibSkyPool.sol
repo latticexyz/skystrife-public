@@ -1,0 +1,180 @@
+// SPDX-License-Identifier: Unlicense
+pragma solidity >=0.8.0;
+
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import { MatchSweepstake, MatchConfig, MatchRewardPercentages, MatchIndexToEntity, LastMatchIndex, MatchIndex, MatchRanking, MatchReward, SkyPoolConfig, MatchSky, MatchSkyTableId, MatchSkyData, OwnedBy } from "../codegen/index.sol";
+
+import { entityToAddress, getMatch, getLevelSpawnIndices } from "./LibUtils.sol";
+import { Transactor } from "./Transactor.sol";
+
+uint256 constant DENOMINATOR = 100;
+
+function transferTokenFromEscrow(address escrowAddress, address to, uint256 value) {
+  IERC20 token = IERC20(SkyPoolConfig.getOrbToken());
+  Transactor escrowContract = Transactor(escrowAddress);
+  (bool success, ) = escrowContract.CALL(address(token), abi.encodeCall(IERC20.transfer, (to, value)), 0);
+  require(success, "token transfer from escrow failed");
+}
+
+function dispenseRewards(bytes32 matchEntity) {
+  bytes32[] memory ranking = MatchRanking.get(matchEntity);
+
+  Transactor escrowContract = Transactor(MatchConfig.getEscrowContract(matchEntity));
+
+  // Send basic rewards to owner of the ranking player entities
+  for (uint256 i; i < ranking.length; i++) {
+    // Transfer tokens from the world to the owner of the player entity
+    bytes32 owner = OwnedBy.get(matchEntity, ranking[i]);
+    transferTokenFromEscrow(address(escrowContract), entityToAddress(owner), MatchReward.get(matchEntity, i));
+  }
+
+  (uint256 fee, uint256[] memory rewardPercentages) = MatchSweepstake.get(matchEntity);
+
+  // Send sweepstake rewards
+  if (fee > 0) {
+    uint256 baseReward = fee * ranking.length;
+
+    for (uint256 i; i < ranking.length; i++) {
+      bytes32 owner = OwnedBy.get(matchEntity, ranking[i]);
+
+      if (fee > 0) {
+        uint256 reward = (rewardPercentages[i] * baseReward) / DENOMINATOR;
+        transferTokenFromEscrow(address(escrowContract), entityToAddress(owner), reward);
+      }
+    }
+
+    // Match creator gets the final reward slot
+    {
+      uint256 reward = (rewardPercentages[ranking.length] * baseReward) / DENOMINATOR;
+      transferTokenFromEscrow(address(escrowContract), entityToAddress(MatchConfig.getCreatedBy(matchEntity)), reward);
+    }
+  }
+}
+
+// Match reward multiplier is inversely proportional to
+// the `numberOfMatches` that took place in the previous X blocks.
+function getReward(uint256 numberOfMatches) view returns (uint256) {
+  uint256 cost = SkyPoolConfig.getCost();
+
+  if (numberOfMatches < 100) {
+    return 5 * cost;
+  } else if (numberOfMatches < 200) {
+    return 4 * cost;
+  } else if (numberOfMatches < 300) {
+    return 3 * cost;
+  } else if (numberOfMatches < 400) {
+    return 2 * cost;
+  } else if (numberOfMatches < 500) {
+    return cost;
+  } else if (numberOfMatches < 600) {
+    return (4 * cost) / 5;
+  } else if (numberOfMatches < 700) {
+    return (3 * cost) / 5;
+  } else if (numberOfMatches < 800) {
+    return (2 * cost) / 5;
+  } else if (numberOfMatches < 900) {
+    return (1 * cost) / 5;
+  } else if (numberOfMatches < 10000) {
+    return (1 * cost) / 10;
+  }
+
+  return 0;
+}
+
+function getStartTimeOfWindow(uint256 window) view returns (uint256) {
+  uint256 currentBlock = block.timestamp;
+  uint256 startBlock = currentBlock > window ? currentBlock - window : 0;
+
+  return startBlock;
+}
+
+function previousMatchIsBeforeTime(uint32 matchIndex, uint256 timestamp) view returns (bool) {
+  uint32 previousMatchIndex = matchIndex - 1;
+  if (previousMatchIndex == 0) return true;
+
+  bytes32 previousMatchEntity = getMatch(previousMatchIndex);
+  uint256 previousMatchCreatedAt = MatchSky.getCreatedAt(previousMatchEntity);
+
+  return previousMatchCreatedAt < timestamp;
+}
+
+function getFirstMatchInWindow(bytes32 claimedFirstMatchInWindow) view returns (bool, bytes32) {
+  uint256 windowStartTime = getStartTimeOfWindow(SkyPoolConfig.getWindow());
+  uint256 matchCreatedAtTime = MatchSky.getCreatedAt(claimedFirstMatchInWindow);
+
+  uint32 matchIndex = MatchIndex.get(claimedFirstMatchInWindow);
+  bytes32 firstMatchEntityInWindow = claimedFirstMatchInWindow;
+
+  bool previousMatchOutsideWindow = previousMatchIsBeforeTime(matchIndex, windowStartTime);
+  bool matchInsideWindow = matchCreatedAtTime == 0 || matchCreatedAtTime >= windowStartTime;
+
+  if (matchInsideWindow && previousMatchOutsideWindow) {
+    return (true, claimedFirstMatchInWindow);
+  }
+
+  // we fail here because if we check ahead on a match that is already inside the window
+  // we will get a false positive
+  if (!previousMatchOutsideWindow && matchInsideWindow) {
+    return (false, claimedFirstMatchInWindow);
+  }
+
+  // check ahead 3 matches
+  for (uint32 i = 1; i < 4; i++) {
+    firstMatchEntityInWindow = getMatch(matchIndex + i);
+    matchCreatedAtTime = MatchSky.getCreatedAt(firstMatchEntityInWindow);
+
+    if (matchCreatedAtTime >= windowStartTime) {
+      return (true, firstMatchEntityInWindow);
+    }
+  }
+}
+
+function createMatchSkyPool(bytes32 matchEntity, bytes32 claimedFirstMatchInWindow) {
+  // Fetch the index of the next match to be created
+  uint32 matchIndex = LastMatchIndex.get() + 1;
+  MatchIndex.set(matchEntity, matchIndex);
+  LastMatchIndex.set(matchIndex);
+
+  bytes32 levelId = MatchConfig.getLevelId(matchEntity);
+
+  uint256 numSpawns = getLevelSpawnIndices(levelId).length;
+  uint256[] memory matchRewardPercentages = MatchRewardPercentages.get(numSpawns);
+
+  // the first match ever
+  bytes32 firstMatchEntityInWindow;
+  if (matchIndex == 1) {
+    firstMatchEntityInWindow = matchEntity;
+  } else {
+    // Fetch the closest match in the window
+    (bool success, bytes32 foundMatch) = getFirstMatchInWindow(claimedFirstMatchInWindow);
+    require(success, "could not find first match in window");
+
+    firstMatchEntityInWindow = foundMatch;
+  }
+
+  uint32 earliestMatchIndex = MatchIndex.get(firstMatchEntityInWindow);
+
+  // Calculate the number of matches in the past X blocks by subtracting indices
+  uint256 numberOfMatches = uint256(matchIndex - earliestMatchIndex);
+
+  // Calculate the reward based on number of passed matches
+  uint256 reward = getReward(numberOfMatches);
+
+  IERC20 token = IERC20(SkyPoolConfig.getOrbToken());
+  token.transfer(MatchConfig.getEscrowContract(matchEntity), reward);
+
+  // Set the match info
+  MatchSky.set(matchEntity, block.timestamp, reward);
+
+  // Set match rewards for each place
+  for (uint256 i; i < matchRewardPercentages.length; i++) {
+    uint256 rewardValue = (matchRewardPercentages[i] * reward) / DENOMINATOR;
+
+    MatchReward.set(matchEntity, i, rewardValue);
+  }
+
+  // Increment the index
+  LastMatchIndex.set(matchIndex);
+  MatchIndexToEntity.set(matchIndex, matchEntity);
+}
