@@ -44,9 +44,9 @@ export const UnitTypeNames: Record<number, string> = {
 export const UnitTypeDescriptions: Record<number, string> = {
   [UnitTypes.Unknown]: "Unknown",
 
-  [UnitTypes.Golem]: "Melee Hero",
+  [UnitTypes.Golem]: "Infantry Hero",
   [UnitTypes.Wizard]: "Ranged Hero",
-  [UnitTypes.Dragon]: "Melee Hero",
+  [UnitTypes.Dragon]: "Cavalry Hero",
 };
 
 export enum CombatTypes {

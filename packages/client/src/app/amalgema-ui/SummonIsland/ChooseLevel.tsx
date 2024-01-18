@@ -83,9 +83,9 @@ export function ChooseLevel({
         <div className="relative z-10">
           <DropdownMenu.Root>
             <DropdownMenu.Trigger className="w-full">
-              <button className="w-full p-2 border rounded-md bg-white text-ss-text-default">
+              <div className="w-full p-2 border rounded-md bg-white text-ss-text-default">
                 <LevelName levelId={levelId as Hex} />
-              </button>
+              </div>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content>
               <DropdownMenu.RadioGroup value={levelId} onValueChange={setLevelId}>

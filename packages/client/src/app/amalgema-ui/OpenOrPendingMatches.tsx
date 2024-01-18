@@ -28,15 +28,24 @@ export function OpenOrPendingMatches() {
   const allMatches = openMatches.concat(pendingMatches);
 
   const openOrPendingMatches = useMemo(() => {
-    return allMatches.filter((matchEntity) => {
-      if (BUGGED_MATCHES.includes(matchEntity)) return false;
+    return allMatches
+      .filter((matchEntity) => {
+        if (BUGGED_MATCHES.includes(matchEntity)) return false;
 
-      const matchIsNotLive = !matchIsLive(matchEntity);
-      const registrationOpen =
-        getComponentValueStrict(MatchConfig, matchEntity).registrationTime <= BigInt(Math.floor(currentTime));
+        const matchIsNotLive = !matchIsLive(matchEntity);
+        const registrationOpen =
+          getComponentValueStrict(MatchConfig, matchEntity).registrationTime <= BigInt(Math.floor(currentTime));
 
-      return matchIsNotLive && registrationOpen;
-    });
+        return matchIsNotLive && registrationOpen;
+      })
+      .sort((a, b) => {
+        const aConfig = getComponentValueStrict(MatchConfig, a);
+        const bConfig = getComponentValueStrict(MatchConfig, b);
+
+        // This sort is purely so that Sky Pool created matches are shown on the first page
+        // Registration time is currently only in the admin UI so no one else can set it easily
+        return Number(bConfig.registrationTime - aConfig.registrationTime);
+      });
   }, [MatchConfig, allMatches, currentTime, matchIsLive]);
 
   const totalMatches = openOrPendingMatches.length;

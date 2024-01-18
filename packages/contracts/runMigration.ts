@@ -65,9 +65,13 @@ import worlds from "./worlds.json";
   const worldAddress = worlds[chainChoice.chain.id as keyof typeof worlds]?.address;
   if (!worldAddress) throw new Error(`No world address found for chain ${chainChoice.chain.id}`);
 
-  const forgeScriptCommand = `forge script --sig "run(address)" --rpc-url "${
-    chainChoice.chain.rpcUrls.default.http[0]
-  }"${broadcast.value ? " --broadcast" : ""} migrations/${migrationName}:${contractName} ${worldAddress}`;
+  const forgeScriptCommand = `${
+    chainChoice.chain.id === foundryChain?.id
+      ? "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 "
+      : ""
+  }forge script --sig "run(address)" --rpc-url "${chainChoice.chain.rpcUrls.default.http[0]}"${
+    broadcast.value ? " --broadcast" : ""
+  } migrations/${migrationName}:${contractName} ${worldAddress}`;
 
   // exec command
   console.log(`Running: ${forgeScriptCommand}`);

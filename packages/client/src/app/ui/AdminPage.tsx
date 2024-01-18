@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAmalgema } from "../../useAmalgema";
-import { Entity, Has, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { Entity, Has, Not, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { CreateMatch } from "./CreateMatch";
 import { Button } from "./Theme/SkyStrife/Button";
 import { Hex, hexToString } from "viem";
 import { MatchNumber } from "./MatchNumber";
 import { getMatchUrl } from "../../getMatchUrl";
-import { decodeEntity } from "@latticexyz/store-sync/recs";
 import { Levels } from "./Levels";
 import { Players } from "./Players";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -17,6 +16,7 @@ import { Delegations } from "./Delegations";
 import { DateTime } from "luxon";
 import { SEASON_PASS_ONLY_SYSTEM_ID } from "../../constants";
 import { usePagination } from "../amalgema-ui/hooks/usePagination";
+import { Checkbox } from "./Theme/SkyStrife/Checkbox";
 
 const CopyButton = ({ matchEntity }: { matchEntity: Entity }) => {
   const {
@@ -57,11 +57,6 @@ const Row = ({ matchEntity }: { matchEntity: Entity }) => {
 
   const readyTime = useComponentValue(MatchReady, matchEntity);
   const finished = getComponentValue(MatchFinished, matchEntity);
-  const reserved = useEntityQuery([Has(SpawnReservedBy)]).filter((entity) => {
-    const key = decodeEntity(SpawnReservedBy.metadata.keySchema, entity);
-
-    return key.matchEntity === matchEntity;
-  });
   const levelName = matchConfig?.levelId ? hexToString(matchConfig.levelId as Hex, { size: 32 }) : "N/A";
   const matchName = getComponentValue(MatchName, matchEntity)?.value ?? "";
 
@@ -75,9 +70,7 @@ const Row = ({ matchEntity }: { matchEntity: Entity }) => {
         (<MatchNumber matchEntity={matchEntity} />) <span className="text-bold text-black">{matchName}</span>
       </td>
       <td>{levelName}</td>
-      <td>
-        {reserved.length} / {spawns.length}
-      </td>
+      <td>{spawns.length} players max</td>
       <td>{finished ? "Yes" : "No"}</td>
       <td>{isSeasonPassOnly ? "Yes" : "No"}</td>
       <td>
@@ -112,14 +105,50 @@ const Row = ({ matchEntity }: { matchEntity: Entity }) => {
   );
 };
 
-const Matches = () => {
-  const {
-    components: { MatchConfig, MatchIndex },
-  } = useAmalgema();
-
+const MatchTable = ({ matches }: { matches: Entity[] }) => {
   const [visible, setVisible] = useState(false);
 
-  const matches = useEntityQuery([Has(MatchConfig)]);
+  return (
+    <div>
+      <div className="flex flex-row">
+        <div className="w-full text-3xl text-left p-1">Matches</div>
+        <Button buttonType="primary" onClick={() => setVisible(true)}>
+          Create match
+        </Button>
+      </div>
+
+      <table className="w-full text-lg text-left text-gray-500 dark:text-gray-400">
+        <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th>Lobby</th>
+            <th>Map</th>
+            <th>Players</th>
+            <th>Finished?</th>
+            <th>Season Pass Only?</th>
+            <th>Registration Time</th>
+            <th />
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {matches.map((match) => (
+            <Row key={match} matchEntity={match} />
+          ))}
+        </tbody>
+      </table>
+      {visible && <CreateMatch close={() => setVisible(false)} />}
+    </div>
+  );
+};
+
+const Matches = () => {
+  const {
+    components: { MatchConfig, MatchIndex, MatchFinished },
+  } = useAmalgema();
+
+  const [showFinished, setShowFinished] = useState(false);
+
+  const matches = useEntityQuery([Has(MatchConfig), showFinished ? Has(MatchFinished) : Not(MatchFinished)]);
   matches.sort((a, b) => {
     const aIndex = getComponentValueStrict(MatchIndex, a).matchIndex;
     const bIndex = getComponentValueStrict(MatchIndex, b).matchIndex;
@@ -137,34 +166,20 @@ const Matches = () => {
 
   return (
     <div>
-      <div className="flex flex-row">
-        <div className="w-full text-3xl text-left p-1">Matches</div>
-        <Button buttonType="primary" onClick={() => setVisible(true)}>
-          Create match
-        </Button>
+      <div className="flex">
+        {paginationForm}
+
+        <div className="w-8" />
+
+        <Checkbox
+          checkedLabel="Show finished matches"
+          uncheckedLabel="Hide finished matches"
+          isChecked={showFinished}
+          setIsChecked={setShowFinished}
+        />
       </div>
 
-      {paginationForm}
-      <table className="w-full text-lg text-left text-gray-500 dark:text-gray-400">
-        <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-          <tr>
-            <th>Lobby</th>
-            <th>Map</th>
-            <th>Players</th>
-            <th>Finished?</th>
-            <th>Season Pass Only?</th>
-            <th>Registration Time</th>
-            <th />
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {visibleMatches.map((match) => (
-            <Row key={match} matchEntity={match} />
-          ))}
-        </tbody>
-      </table>
-      {visible && <CreateMatch close={() => setVisible(false)} />}
+      <MatchTable matches={visibleMatches} />
     </div>
   );
 };

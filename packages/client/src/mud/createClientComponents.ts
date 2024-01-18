@@ -25,5 +25,8 @@ export function createClientComponents({ components, world }: SetupNetworkResult
       submittedTimestamp: Type.OptionalBigInt,
       completedTimestamp: Type.OptionalBigInt,
     }),
+    MatchJoinable: defineComponent(world, {
+      value: Type.Boolean,
+    }),
   };
 }

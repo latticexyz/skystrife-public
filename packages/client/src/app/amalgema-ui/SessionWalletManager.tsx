@@ -1,5 +1,5 @@
-import { formatEther, parseEther } from "viem";
-import { LabeledOrbInput, ReadOnlyTextInput } from "./SummonIsland/common";
+import { parseEther } from "viem";
+import { EthInput, ReadOnlyTextInput } from "./SummonIsland/common";
 import { LOW_BALANCE_THRESHOLD, useBurnerBalance } from "./hooks/useBurnerBalance";
 import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Modal } from "./Modal";
@@ -64,75 +64,115 @@ export function SessionWalletManager() {
   const [transferAmount, setTransferAmount] = useState<number | null>(0);
 
   return (
-    <>
-      <div>
-        <LabeledOrbInput
-          amount={parseFloat(parseFloat(formatEther(burnerBalance?.value || 0n)).toFixed(6))}
-          className="pr-2"
-          label="Session Wallet Balance"
-          symbol="ETH"
-        />
+    <div>
+      <EthInput
+        amount={burnerBalance.value ? burnerBalance.value : 0n}
+        className="pr-2"
+        label="Session Wallet Balance"
+      />
+
+      {burnerBalance?.belowMinimum && (
+        <>
+          <div className="h-2" />
+          <LowBalanceWarning />
+        </>
+      )}
+
+      <div className="h-3" />
+
+      <Modal
+        title="Manage Session Wallet"
+        trigger={
+          <Button buttonType={burnerBalance?.belowMinimum ? "secondary" : "tertiary"} className="w-full">
+            {burnerBalance?.belowMinimum ? "transfer to session wallet" : "Manage session wallet"}
+          </Button>
+        }
+      >
+        <ReadOnlyTextInput value={burnerWalletAddress} className="pr-2 text-right" label="Session Wallet" />
+
+        <div className="h-3" />
+
+        <ReadOnlyTextInput value={mainWalletAddress} className="pr-2 text-right" label="Main Wallet" />
+
+        <div className="h-8" />
+
+        <Body className="text-ss-text-default">
+          For your security, matches of Sky Strife use a <strong>temporary session wallet</strong> — stored in local
+          storage — with a small amount of funds instead of your primary wallet. It will be used for every action you
+          make during the match.
+          <br></br>
+          <br></br>
+          We recommend storing <strong>about 0.001 ETH in your match wallet at all times</strong> — the amount required
+          to safely be able to complete five average matches of Sky Strife.
+        </Body>
+
+        <div className="h-8" />
+
+        <div className="flex flex-row space-x-6">
+          <EthInput amount={burnerBalance.value ? burnerBalance.value : 0n} className="pr-2" label="Session Wallet" />
+          <EthInput
+            amount={mainWalletBalance.value ? mainWalletBalance.value : 0n}
+            className="pr-2"
+            label="Main Wallet"
+          />
+        </div>
 
         {burnerBalance?.belowMinimum && (
           <>
-            <div className="h-2" />
+            <div className="h-3" />
             <LowBalanceWarning />
           </>
         )}
 
+        <div className="h-4" />
+
+        <PromiseButton
+          promise={async () => {
+            if (!externalWalletClient || !externalWalletClient.account) {
+              throw new Error("No external wallet connected");
+            }
+
+            await externalWalletClient.sendTransaction({
+              chain: walletClient.chain,
+              account: externalWalletClient.account,
+              to: walletClient.account.address,
+              value: parseEther("0.001"),
+            });
+          }}
+          disabled={!burnerBalance?.belowMinimum || (mainWalletBalance?.value ?? 0n) < LOW_BALANCE_THRESHOLD}
+          className="w-full"
+          buttonType="primary"
+        >
+          top up session wallet
+        </PromiseButton>
+
         <div className="h-3" />
 
-        <Modal
-          title="Manage Session Wallet"
-          trigger={
-            <Button buttonType={burnerBalance?.belowMinimum ? "secondary" : "tertiary"} className="w-full">
-              {burnerBalance?.belowMinimum ? "transfer to session wallet" : "Manage session wallet"}
-            </Button>
-          }
-        >
-          <ReadOnlyTextInput value={burnerWalletAddress} className="pr-2 text-right" label="Session Wallet" />
+        <div className="mx-auto w-fit text-ss-text-x-light">or</div>
 
-          <div className="h-3" />
+        <div className="h-3" />
 
-          <ReadOnlyTextInput value={mainWalletAddress} className="pr-2 text-right" label="Main Wallet" />
+        <div className="flex space-x-3">
+          <div className="grow flex items-center space-x-2">
+            <input
+              className={twMerge("w-full bg-white px-4 py-2 border border-[#DDDAD0] grow")}
+              type="number"
+              placeholder="Transfer custom amount"
+              value={transferAmount ?? ""}
+              min={0}
+              onChange={(e) => {
+                const n = parseFloat(e.target.value);
+                if (isNaN(n)) {
+                  setTransferAmount(null);
+                  return;
+                }
 
-          <div className="h-8" />
-
-          <Body className="text-ss-text-default">
-            For your security, matches of Sky Strife use a <strong>temporary session wallet</strong> — stored in local
-            storage — with a small amount of funds instead of your primary wallet. It will be used for every action you
-            make during the match.
-            <br></br>
-            <br></br>
-            We recommend storing <strong>about 0.001 ETH in your match wallet at all times</strong> — the amount
-            required to safely be able to complete five average matches of Sky Strife.
-          </Body>
-
-          <div className="h-8" />
-
-          <div className="flex flex-row space-x-6">
-            <LabeledOrbInput
-              amount={parseFloat(parseFloat(formatEther(burnerBalance?.value || 0n)).toFixed(6))}
-              className="pr-2"
-              label="Session Wallet"
-              symbol="ETH"
+                setTransferAmount(n);
+              }}
             />
-            <LabeledOrbInput
-              amount={parseFloat(parseFloat(formatEther(mainWalletBalance?.value || 0n)).toFixed(6))}
-              className="pr-2"
-              label="Main Wallet"
-              symbol="ETH"
-            />
+
+            <div className="">ETH</div>
           </div>
-
-          {burnerBalance?.belowMinimum && (
-            <>
-              <div className="h-3" />
-              <LowBalanceWarning />
-            </>
-          )}
-
-          <div className="h-4" />
 
           <PromiseButton
             promise={async () => {
@@ -144,68 +184,54 @@ export function SessionWalletManager() {
                 chain: walletClient.chain,
                 account: externalWalletClient.account,
                 to: walletClient.account.address,
-                value: parseEther("0.001"),
+                value: parseEther((transferAmount ?? 0).toString()),
               });
             }}
-            disabled={!burnerBalance?.belowMinimum || (mainWalletBalance?.value ?? 0n) < LOW_BALANCE_THRESHOLD}
-            className="w-full"
-            buttonType="primary"
+            buttonType="secondary"
+            disabled={
+              (transferAmount ?? 0) <= 0 ||
+              (mainWalletBalance?.value ?? 0n) < parseEther((transferAmount ?? 0).toString())
+            }
           >
-            top up session wallet
+            transfer
           </PromiseButton>
+        </div>
 
-          <div className="h-3" />
+        <div className="h-3" />
 
-          <div className="mx-auto w-fit text-ss-text-x-light">or</div>
+        <div className="mx-auto w-fit text-ss-text-x-light">or</div>
 
-          <div className="h-3" />
+        <div className="h-3" />
 
-          <div className="flex space-x-3 mb-[-64px]">
-            <div className="grow flex items-center space-x-2">
-              <input
-                className={twMerge("w-full bg-white px-4 py-2 border border-[#DDDAD0] grow")}
-                type="number"
-                placeholder="Transfer custom amount"
-                value={transferAmount ?? ""}
-                min={0}
-                onChange={(e) => {
-                  const n = parseFloat(e.target.value);
-                  if (isNaN(n)) {
-                    setTransferAmount(null);
-                    return;
-                  }
-
-                  setTransferAmount(n);
-                }}
-              />
-
-              <div className="">ETH</div>
-            </div>
-
-            <PromiseButton
-              promise={async () => {
-                if (!externalWalletClient || !externalWalletClient.account) {
-                  throw new Error("No external wallet connected");
-                }
-
-                await externalWalletClient.sendTransaction({
-                  chain: walletClient.chain,
-                  account: externalWalletClient.account,
-                  to: walletClient.account.address,
-                  value: parseEther((transferAmount ?? 0).toString()),
-                });
-              }}
-              buttonType="secondary"
-              disabled={
-                (transferAmount ?? 0) <= 0 ||
-                (mainWalletBalance?.value ?? 0n) < parseEther((transferAmount ?? 0).toString())
+        <div className="flex space-x-3 w-full mb-[-64px]">
+          <PromiseButton
+            promise={async () => {
+              if (!externalWalletClient || !externalWalletClient.account) {
+                throw new Error("No external wallet connected");
               }
-            >
-              transfer
-            </PromiseButton>
-          </div>
-        </Modal>
-      </div>
-    </>
+
+              let value = burnerBalance.value ?? 0n;
+              if (value <= 0n) {
+                return;
+              }
+
+              value -= parseEther("0.0001");
+
+              await walletClient.sendTransaction({
+                chain: walletClient.chain,
+                account: walletClient.account,
+                to: mainWalletAddress,
+                value,
+              });
+            }}
+            buttonType="danger"
+            className="w-full"
+            disabled={(burnerBalance?.value ?? 0n) <= parseEther("0.0001")}
+          >
+            transfer all ETH back to main wallet
+          </PromiseButton>
+        </div>
+      </Modal>
+    </div>
   );
 }

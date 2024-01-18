@@ -9,8 +9,8 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { Admin, Match, MatchName, MatchIndex, MatchSweepstake, LevelTemplatesIndex, LevelInStandardRotation, LevelInSeasonPassRotation, MatchAccessControl, MatchConfig, MatchSky, MatchConfigData, SkyPoolConfig } from "../codegen/index.sol";
 import { SpawnSettlementTemplateId } from "../codegen/Templates.sol";
 
-import { addressToEntity } from "../libraries/LibUtils.sol";
-import { DENOMINATOR, createMatchSkyPool } from "../libraries/LibSkyPool.sol";
+import { addressToEntity, entityToAddress } from "../libraries/LibUtils.sol";
+import { DENOMINATOR, createMatchSkyPool, transferTokenFromEscrow, skyKeyHolderOnly } from "../libraries/LibSkyPool.sol";
 import { Transactor } from "../libraries/Transactor.sol";
 import { transferToken } from "../transferToken.sol";
 import { hasSeasonPass, hasToken } from "../hasToken.sol";
@@ -136,7 +136,7 @@ contract MatchSystem is System {
     uint256[] memory rewardPercentages,
     uint256 registrationTime
   ) public {
-    require(hasToken(SkyPoolConfig.getSkyKeyToken(), _msgSender()), "caller does not have the sky key");
+    skyKeyHolderOnly(_msgSender());
 
     _createMatchSeasonPass(
       name,
@@ -150,9 +150,29 @@ contract MatchSystem is System {
     );
   }
 
+  /**
+   * Destroying matches in general is a pretty big problem. Especially now that it refunds the creator.
+   * This is only here during development to allow us to destroy bugged matches and refund players.
+   * Problem 1. Creating a match increments the match index. Destroying a match cannot decrement the match index.
+   *         This means that repeatedly creating and destroying matches affects the reward curve. It is a way
+   *         to attack the protocol by tanking reward curves without actually playing the game.
+   * Problem 2. Destroying a match refunds the creator. SkyKey holder does not pay to create matches.
+   *         This means you could create a match as the SkyKey holder, transfer away the SkyKey, and then
+   *         destroy it to get a refund, draining the Sky Pool.
+   * All in all I don't know if match destruction ever makes sense. It's better if we allow people
+   * to modify matches after they've been created instead (also a huge pain, but I think easier to solve).
+   */
   function adminDestroyMatch(bytes32 matchEntity) public {
     bytes32 entity = addressToEntity(_msgSender());
     require(Admin.get(entity), "caller is not admin");
+
+    // This leaves extra tokens in the escrow contract that were used for rewards.
+    // Punting on this for now, the highest priority is to prevent people from
+    // losing tokens when a match gets bugged for some reason.
+    bytes32 createdBy = MatchConfig.getCreatedBy(matchEntity);
+    Transactor escrowContract = Transactor(MatchConfig.getEscrowContract(matchEntity));
+    address createdByAddress = entityToAddress(createdBy);
+    transferTokenFromEscrow(address(escrowContract), createdByAddress, SkyPoolConfig.getCost());
 
     MatchName.deleteRecord(matchEntity);
     MatchIndex.deleteRecord(matchEntity);

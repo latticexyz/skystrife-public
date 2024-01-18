@@ -30,28 +30,30 @@ export const Modal = ({
   title,
   children,
   footer,
-  open,
+  isOpen,
   setOpen,
 }: {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   title: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  open?: boolean;
+  isOpen?: boolean;
   setOpen?: (open: boolean) => void;
 }) => {
   return (
-    <Dialog.Root open={open}>
-      <Dialog.Trigger
-        onClick={() => {
-          if (setOpen) {
-            setOpen(true);
-          }
-        }}
-        asChild={true}
-      >
-        {trigger}
-      </Dialog.Trigger>
+    <Dialog.Root open={isOpen}>
+      {trigger && (
+        <Dialog.Trigger
+          onClick={() => {
+            if (setOpen) {
+              setOpen(true);
+            }
+          }}
+          asChild={true}
+        >
+          {trigger}
+        </Dialog.Trigger>
+      )}
       <Dialog.Portal>
         <Dialog.Overlay
           style={{
@@ -60,7 +62,7 @@ export const Modal = ({
           }}
           className="fixed top-0 left-0 w-screen h-screen flex flex-col justify-around"
         >
-          <Dialog.Content className="mx-auto w-[640px] min-h-min max-h-3/4">
+          <Dialog.Content className="mx-auto w-[640px] min-h-min max-h-3/4 overflow-y-scroll">
             <Card className="relative w-full h-full p-0">
               <div className="absolute top-0 left-0 flex flex-row justify-between items-center bg-white w-full pt-8 p-6 pb-4 border-b border-ss-stroke z-50">
                 <Dialog.Title asChild>
@@ -69,7 +71,7 @@ export const Modal = ({
 
                 <div className="w-10" />
 
-                {open && !setOpen ? (
+                {isOpen && !setOpen ? (
                   <></>
                 ) : (
                   <Dialog.Close

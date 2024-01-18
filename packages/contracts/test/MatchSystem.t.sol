@@ -457,4 +457,28 @@ contract MatchSystemTest is BaseTest, GasReporter {
     endGasReport();
     vm.stopPrank();
   }
+
+  function testSenderHasNoSkyKey() public {
+    bytes32 matchEntity;
+    ResourceId systemId;
+    uint256 entranceFee = 100;
+    uint256[] memory rewardPercentages = new uint256[](1);
+    rewardPercentages[0] = 100;
+
+    bytes32 firstMatchInWindow = findFirstMatchInWindow();
+
+    vm.startPrank(alice);
+    vm.expectRevert("caller does not have the sky key");
+    world.createMatchSkyKey(
+      "match",
+      firstMatchInWindow,
+      matchEntity,
+      LEVEL_ID,
+      systemId,
+      entranceFee,
+      rewardPercentages,
+      0
+    );
+    vm.stopPrank();
+  }
 }

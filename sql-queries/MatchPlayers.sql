@@ -51,13 +51,13 @@ FROM
                                             __last_updated_block_number DESC
                                     )
                                 FROM
-                                    match_ranking
+                                    "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__".match_ranking
                             ) AS rankings_ordered_by_block
                         WHERE
                             row_number = 1
                     ) as rankings
-                    INNER JOIN owned_by ON rankings.match_entity = owned_by.match_entity
-                    AND rankings.player = owned_by.entity
+                    INNER JOIN "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__".owned_by ON rankings.match_entity = "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__".owned_by.match_entity
+                    AND rankings.player = "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__".owned_by.entity
             ) AS match_players
             LEFT JOIN "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__SeasonPass".balances AS season_pass_balances ON season_pass_balances.account = match_players.player
     ) AS match_players_and_balances

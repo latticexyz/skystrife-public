@@ -1,6 +1,7 @@
 import { Entity, Has, getComponentValue, getComponentValueStrict, runQuery } from "@latticexyz/recs";
 import { NetworkLayer } from "../../../layers/Network";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
+import { DateTime } from "luxon";
 
 export function getOldestMatchInWindow(layer: NetworkLayer, currentTimestamp: bigint, window: bigint) {
   const {
@@ -23,6 +24,16 @@ export function getOldestMatchInWindow(layer: NetworkLayer, currentTimestamp: bi
 
   return foundMatch;
 }
+
+export const findOldestMatchInWindow = (networkLayer: NetworkLayer) => {
+  const skypoolConfig = getSkypoolConfig(networkLayer);
+  if (!skypoolConfig) return;
+
+  const now = BigInt(Math.floor(DateTime.now().toUTC().toSeconds()));
+  const oldestMatchInWindow = getOldestMatchInWindow(networkLayer, BigInt(now), skypoolConfig.window);
+
+  return oldestMatchInWindow;
+};
 
 const getReward = (cost: bigint, numberOfMatches: number) => {
   if (numberOfMatches < 100) {

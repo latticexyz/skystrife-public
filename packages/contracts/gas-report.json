@@ -33,25 +33,25 @@
     "file": "test/MatchSystem.t.sol",
     "test": "testCanCreateAMatchWithNoEntranceFee",
     "name": "create public match with season pass",
-    "gasUsed": 911879
+    "gasUsed": 911938
   },
   {
     "file": "test/MatchSystem.t.sol",
     "test": "testCreateMatch",
     "name": "create public match",
-    "gasUsed": 897268
+    "gasUsed": 897327
   },
   {
     "file": "test/MatchSystem.t.sol",
     "test": "testCreateMatchSeasonPass",
     "name": "create public match with season pass",
-    "gasUsed": 976632
+    "gasUsed": 976691
   },
   {
     "file": "test/MatchSystem.t.sol",
     "test": "testCreateMatchSkyKey",
     "name": "create public match with sky key",
-    "gasUsed": 965784
+    "gasUsed": 965843
   },
   {
     "file": "test/MoveSystem.t.sol",
@@ -81,7 +81,7 @@
     "file": "test/PlayerRegisterSystem.t.sol",
     "test": "testRegister",
     "name": "Register for a match",
-    "gasUsed": 1802390
+    "gasUsed": 1804116
   },
   {
     "file": "test/Templates.t.sol",

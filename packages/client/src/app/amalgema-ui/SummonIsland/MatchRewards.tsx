@@ -1,6 +1,6 @@
-import { Hex, formatEther, padHex } from "viem";
+import { Hex, padHex } from "viem";
 import { Body, OverlineSmall } from "../../ui/Theme/SkyStrife/Typography";
-import { OrbInput } from "./common";
+import { OrbInput, PercentageInput } from "./common";
 import { useAmalgema } from "../../../useAmalgema";
 import { twMerge } from "tailwind-merge";
 import { ordinalSuffix } from "../MatchRewardsFooter";
@@ -32,7 +32,7 @@ export function MatchRewards({
   const totalFees = BigInt(numPlayers) * entranceFee;
   const creatorReward = rewardPercentages[rewardPercentages.length - 1] ?? 0n;
 
-  const currentDefaultMatchReward = BigInt(formatEther(useCurrentMatchReward(), "wei"));
+  const currentDefaultMatchReward = useCurrentMatchReward();
   const defaultRewardPercentages =
     useComponentValue(MatchRewardPercentages, padHex(numPlayers.toString(16) as Hex, { size: 32 }) as Entity)
       ?.percentages ?? [];
@@ -91,7 +91,7 @@ export function MatchRewards({
             <Body className="text-ss-text-default underline">Your earnings</Body>
           </div>
           <div className="w-1/2 flex">
-            <OrbInput
+            <PercentageInput
               className="bg-white"
               amount={creatorReward}
               setAmount={(a) => {
@@ -99,7 +99,6 @@ export function MatchRewards({
                 newRewardPercentages[rewardPercentages.length - 1] = a;
                 setRewardPercentages(newRewardPercentages);
               }}
-              label="%"
             />
             <OrbInput amount={(creatorReward * totalFees) / 100n} />
           </div>
@@ -121,7 +120,7 @@ export function MatchRewards({
                 </div>
               </div>
               <div className="w-1/2 flex">
-                <OrbInput
+                <PercentageInput
                   className="bg-white"
                   amount={percentage}
                   setAmount={(a) => {
@@ -129,7 +128,6 @@ export function MatchRewards({
                     newRewardPercentages[index] = a;
                     setRewardPercentages(newRewardPercentages);
                   }}
-                  label="%"
                 />
                 <OrbInput amount={amount} />
               </div>
@@ -143,10 +141,9 @@ export function MatchRewards({
           </div>
           <div className="w-1/2">
             <div className="flex">
-              <OrbInput
+              <PercentageInput
                 className={twMerge(error && "border border-red-500 text-red-500")}
                 amount={totalPercentage}
-                label="%"
               />
               <OrbInput
                 className={twMerge(error && "border border-red-500 text-red-500")}

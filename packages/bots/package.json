@@ -81,7 +81,9 @@
     "upload-map:testnet": "CHAIN_ID=4243 pnpm tsx src/mapUploader.ts",
     "copy-maps:testnet": "CHAIN_ID=4243 pnpm tsx src/mapCopier.ts",
     "create-bot:testnet": "CHAIN_ID=4243 pnpm tsx src/createBotPlayer.ts",
-    "create-matches:testnet": "CHAIN_ID=4243 pnpm tsx src/matchCreator.ts"
+    "create-matches:testnet": "CHAIN_ID=4243 pnpm tsx src/matchCreator.ts",
+
+    "create-matches:redstone": "CHAIN_ID=17001 pnpm tsx src/matchCreator.ts"
   },
   "devDependencies": {
     "tsx": "^3.13.0"

@@ -1,6 +1,6 @@
 import { useEntityQuery } from "@latticexyz/react";
 import { Entity, Has } from "@latticexyz/recs";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAmalgema } from "../../useAmalgema";
 import { BrutalistCard } from "./Theme/BrutalistCard";
 import { DisplayLevel } from "./DisplayLevel";
@@ -10,17 +10,22 @@ import useOnClickOutside from "./hooks/useOnClickOutside";
 import { OverlineLarge } from "./Theme/SkyStrife/Typography";
 import { CrossIcon } from "./Theme/CrossIcon";
 import { Button } from "./Theme/SkyStrife/Button";
-import { useOldestMatchInWindow } from "../amalgema-ui/hooks/useOldestMatchInWindow";
 import { MATCH_SYSTEM_ID, SEASON_PASS_ONLY_SYSTEM_ID, SYSTEMBOUND_DELEGATION } from "../../constants";
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 import useLocalStorageState from "use-local-storage-state";
 import { PromiseButton } from "./hooks/PromiseButton";
 import { useExternalAccount } from "./hooks/useExternalAccount";
 import { DelegationAbi } from "./Admin/delegationAbi";
 import { encodeSystemCallFrom } from "@latticexyz/world";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
+import { findOldestMatchInWindow } from "../amalgema-ui/utils/skypool";
+
+function nowGmt() {
+  return DateTime.now().setZone("GMT");
+}
 
 export const CreateMatch = ({ close }: { close: () => void }) => {
+  const networkLayer = useAmalgema();
   const {
     externalWorldContract,
     network: {
@@ -30,7 +35,36 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
       worldContract,
     },
     utils: { hasSystemDelegation },
-  } = useAmalgema();
+  } = networkLayer;
+
+  const [now, setNow] = useState(nowGmt());
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setNow(nowGmt());
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const midday = useMemo(() => {
+    let time = nowGmt();
+    if (time.hour >= 12) {
+      time = time.plus(Duration.fromObject({ days: 1 }));
+    }
+    time = time.set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
+
+    return time;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [now]);
+
+  const midnight = useMemo(() => {
+    let time = nowGmt();
+    time = time.set({ hour: 24, minute: 0, second: 0, millisecond: 0 });
+
+    return time;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [now]);
 
   const [matchName, setMatchName] = useState<string>("");
   const [level, setLevel] = useState<string | undefined>();
@@ -45,7 +79,6 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
 
   const ref = useRef<HTMLDivElement>(null);
 
-  const oldestMatchInWindow = useOldestMatchInWindow();
   const names = useEntityQuery([Has(LevelTemplates)]).map((id) => {
     return { id, name: hexToString(id as Hex, { size: 32 }) };
   });
@@ -151,6 +184,27 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                   onChange={(e) => setRegistrationTime(Number(e.target.value))}
                   min={DateTime.now().toSeconds()}
                 />
+
+                <div className="flex w-full">
+                  <Button
+                    buttonType="secondary"
+                    onClick={() => {
+                      setRegistrationTime(midnight.toSeconds());
+                    }}
+                  >
+                    Set to Midnight GMT
+                  </Button>
+
+                  <Button
+                    buttonType="secondary"
+                    onClick={() => {
+                      setRegistrationTime(midday.toSeconds());
+                    }}
+                  >
+                    Set to Midday GMT
+                  </Button>
+                </div>
+
                 <div>
                   Local Time:{" "}
                   <span className="text-ss-blue-hover bg-grey-500">
@@ -205,7 +259,7 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                         functionName: "createMatchSkyKey",
                         args: [
                           matchName,
-                          oldestMatchInWindow ? (oldestMatchInWindow as Hex) : matchEntity,
+                          (findOldestMatchInWindow(networkLayer) ?? matchEntity) as Hex,
                           matchEntity,
                           level as Hex,
                           seasonPassOnly ? SEASON_PASS_ONLY_SYSTEM_ID : padHex("0x"),

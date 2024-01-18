@@ -7,7 +7,6 @@ import {
   getComponentValue,
   getComponentValueStrict,
   Has,
-  Not,
   removeComponent,
   UpdateType,
 } from "@latticexyz/recs";
@@ -62,6 +61,7 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
     const { entity, type } = update;
 
     const lastAttackArrowGroup = attackArrowsByEntity.get(entity);
+    attackArrowsByEntity.delete(entity);
     lastAttackArrowGroup?.destroy(true);
 
     const spriteId = `${entity}-nextPosition` as Entity;
@@ -102,7 +102,7 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
         nextPosition,
         intendedTargetPosition,
         100_000,
-        (coord) => 0,
+        (_coord) => 0,
         () => false
       );
 

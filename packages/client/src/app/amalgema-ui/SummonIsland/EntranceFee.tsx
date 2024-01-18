@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Body, OverlineSmall } from "../../ui/Theme/SkyStrife/Typography";
 import { OrbInput } from "./common";
 import { twMerge } from "tailwind-merge";
-import { Hex } from "viem";
+import { Hex, formatEther } from "viem";
 import { useAmalgema } from "../../../useAmalgema";
 import { Tooltip } from "react-tooltip";
 import { Checkbox } from "../../ui/Theme/SkyStrife/Checkbox";
 import { SeasonPassIcon } from "../SeasonPassIcon";
+
+const INITIAL_FEE = 50_000_000_000_000_000_000n;
 
 export function EntranceFee({
   entranceFee,
@@ -29,7 +31,7 @@ export function EntranceFee({
 
   // Default entrance fee of 50
   useEffect(() => {
-    if (hasFee) setEntranceFee(BigInt(50));
+    if (hasFee) setEntranceFee(INITIAL_FEE);
   }, [hasFee, setEntranceFee]);
 
   return (
@@ -69,7 +71,7 @@ export function EntranceFee({
                 <input
                   className={twMerge("w-full bg-ss-bg-2 px-4 py-2 border border-[#DDDAD0]")}
                   type="text"
-                  value={`x${numPlayers} = ${Number(totalFees)}`}
+                  value={`x${numPlayers} = ${formatEther(totalFees)}`}
                   readOnly={true}
                 />
 

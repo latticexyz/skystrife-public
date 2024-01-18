@@ -108,4 +108,18 @@ contract PlayerRegisterSystemTest is BaseTest, GasReporter {
     world.register(matchEntity, 0, GolemTemplateId);
     vm.stopPrank();
   }
+
+  function testCannotRegisterTwice() public {
+    setupRegister();
+    setupRegister();
+
+    vm.startPrank(alice);
+
+    world.register(matchEntity, 0, GolemTemplateId);
+
+    vm.expectRevert("this account has already registered for the match");
+    world.register(matchEntity, 1, GolemTemplateId);
+
+    vm.stopPrank();
+  }
 }

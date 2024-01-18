@@ -1,6 +1,6 @@
-import { formatEther, parseEther } from "viem";
+import { parseEther } from "viem";
 import { Modal } from "../../amalgema-ui/Modal";
-import { LabeledOrbInput } from "../../amalgema-ui/SummonIsland/common";
+import { EthInput } from "../../amalgema-ui/SummonIsland/common";
 import { useBurnerBalance } from "../../amalgema-ui/hooks/useBurnerBalance";
 import { useMainWalletBalance } from "../../amalgema-ui/hooks/useMainWalletBalance";
 import { Button } from "../Theme/SkyStrife/Button";
@@ -76,7 +76,7 @@ export function SessionWallet() {
               }}
               className="text-ss-text-default"
             >
-              {parseFloat(burnerBalance?.formatted ?? "0").toFixed(6)} ETH
+              {parseFloat(burnerBalance.formatted ?? "0").toFixed(6)} ETH
             </OverlineLarge>
           </div>
 
@@ -85,7 +85,7 @@ export function SessionWallet() {
           <TopUpButton />
 
           <Modal
-            open={burnerBalance?.belowDanger}
+            open={burnerBalance.belowDanger}
             title="no more session wallet funds"
             trigger={<></>}
             footer={
@@ -101,23 +101,21 @@ export function SessionWallet() {
             }
           >
             <div className="flex flex-row space-x-6">
-              <LabeledOrbInput
-                amount={parseFloat(parseFloat(formatEther(mainWalletBalance?.value || 0n)).toFixed(6))}
+              <EthInput
+                amount={mainWalletBalance.value ? mainWalletBalance.value : 0n}
                 className="pr-2"
                 label="Main Wallet"
-                symbol="ETH"
               />
-              <LabeledOrbInput
-                amount={parseFloat(parseFloat(formatEther(burnerBalance?.value || 0n)).toFixed(6))}
+              <EthInput
+                amount={burnerBalance.value ? burnerBalance.value : 0n}
                 className="pr-2"
                 label="Session Wallet"
-                symbol="ETH"
               />
             </div>
 
             <div className="h-4" />
 
-            {burnerBalance?.belowDanger && (
+            {burnerBalance.belowDanger && (
               <Body>
                 You do not have enough ETH in your session wallet to play this match of Sky Strife. If you would like to
                 continue playing, you must top up your session wallet or transfer a custom amount.

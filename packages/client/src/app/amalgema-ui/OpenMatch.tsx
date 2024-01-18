@@ -295,13 +295,13 @@ export function OpenMatch({ matchEntity }: { matchEntity: Entity }) {
                   <div className="flex justify-around">
                     <div className="grow">
                       <OverlineSmall className="text-ss-text-x-light font-light">Your Resources</OverlineSmall>
-                      <OrbInput amount={BigInt(formatEther(orbBalance ?? "0"))} />
+                      <OrbInput amount={orbBalance} />
                     </div>
                     <div className="w-4" />
 
                     <div className="grow">
                       <OverlineSmall className="text-ss-text-x-light font-light">Entrance Fee</OverlineSmall>
-                      <OrbInput amount={BigInt(formatEther(matchSweepstake?.entranceFee ?? 0n))} />
+                      <OrbInput amount={matchSweepstake ? matchSweepstake.entranceFee : 0n} />
                     </div>
                   </div>
 
@@ -376,7 +376,7 @@ export function OpenMatch({ matchEntity }: { matchEntity: Entity }) {
                           <OverlineSmall className="text-ss-text-x-light font-light">
                             {ordinalSuffix(i + 1)}
                           </OverlineSmall>
-                          <OrbInput amount={BigInt(formatEther(reward.value))} />
+                          <OrbInput amount={reward.value} />
                         </div>
                       );
                     })}
@@ -384,7 +384,7 @@ export function OpenMatch({ matchEntity }: { matchEntity: Entity }) {
                     {sweepstakeRewards[totalRewards.length]?.value > 0n && (
                       <div className="flex-grow">
                         <OverlineSmall className="text-ss-text-x-light font-light">Creator</OverlineSmall>
-                        <OrbInput amount={BigInt(formatEther(sweepstakeRewards[totalRewards.length].value))} />
+                        <OrbInput amount={sweepstakeRewards[totalRewards.length].value} />
                       </div>
                     )}
                   </div>

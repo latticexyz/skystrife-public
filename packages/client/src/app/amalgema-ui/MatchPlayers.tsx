@@ -48,7 +48,7 @@ export function MatchPlayers({ matchEntity }: { matchEntity: Entity }) {
       <Tooltip
         id={`match-players-tooltip-${matchEntity}`}
         variant="light"
-        place="right"
+        place="top"
         opacity={1}
         render={() => {
           return (

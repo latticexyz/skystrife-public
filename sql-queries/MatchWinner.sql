@@ -34,5 +34,5 @@ FROM
         ORDER BY
             value DESC
     ) AS rankings
-    INNER JOIN owned_by ON rankings.match_entity = owned_by.match_entity
-    AND rankings.winner = owned_by.entity;
+    INNER JOIN "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__".owned_by ON rankings.match_entity = "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__".owned_by.match_entity
+    AND rankings.winner = "0x7203e7adfdf38519e1ff4f8da7dcdc969371f377__".owned_by.entity;

@@ -1,0 +1,17 @@
+# Sky Strife Contracts
+
+This package contains all of the contracts that make up a Sky Strife [MUD](https://mud.dev) World.
+
+## Overview
+
+- The [mud.config.ts](./mud.config.ts) file gives a high-level overview of the tables the World is composed of. All tables here are documented, as well as the fields that make up each table.
+- The `systems` folder contains all of the contracts that compose the Sky Strife World. Every player action is routed through a publicly available System.
+- [PostDeploy.s.sol](./script/PostDeploy.s.sol) is the script that is run after the contracts are deployed. This is where the initial state of the World is set up.
+
+## Match Systems
+
+There are only 3 systems that handle all gameplay within a Sky Strife match:
+
+[MoveSystem](./src/systems/MoveSystem.sol): handles attacking with and moving units
+[BuildSystem](./src/systems/BuildSystem.sol): handles building new units
+[LobbySystem](./src/systems/LobbySystem.sol): handles "readying" for a match beforing it begins

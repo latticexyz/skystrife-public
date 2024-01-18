@@ -1,17 +1,14 @@
-import { OpenOrPendingMatches } from "./OpenOrPendingMatches";
-import { LiveMatches } from "./LiveMatches";
-import { SummonIsland } from "./SummonIsland/SummonIsland";
 import { Header } from "./Header";
 import { useStore } from "../../useStore";
 import { InventorySidebar } from "./InventorySidebar";
 import { Transactions } from "./Transactions";
 import { ChooseUsernameModal } from "./ChooseUsernameModal";
-import { HistoricalMatches } from "./HistoricalMatches";
 import { ComponentBrowser } from "./Admin/ComponentBrowser";
 import { DevTools } from "../../app/DevTools";
 import { MatchCountdown } from "./SummonIsland/MatchCountdown";
 import { Welcome } from "./SummonIsland/WelcomeBanner";
 import { DateTime } from "luxon";
+import { MatchTable } from "./MatchTable";
 
 const RELEASE_TIME = DateTime.fromSeconds(1701086400).setZone("GMT");
 
@@ -44,15 +41,10 @@ export const AmalgemaUIRoot = () => {
   }
 
   return (
-    <div
-      className="relative grid"
-      style={{
-        gridTemplateColumns: "1fr 420px",
-      }}
-    >
+    <div className="flex h-screen">
       <DevTools />
 
-      <div className="h-screen overflow-hidden">
+      <div className="h-screen flex flex-col grow">
         <Header />
 
         <div
@@ -66,27 +58,14 @@ export const AmalgemaUIRoot = () => {
           className="fixed top-0 left-0 h-screen w-screen bg-cover"
         />
 
-        <div className="px-8 py-6 h-full overflow-y-auto">
-          <SummonIsland />
-
-          <div className="h-8" />
-
+        <div className="grow px-8 py-6 flex flex-col">
           <Welcome />
-
-          <div className="h-4" />
 
           <MatchCountdown />
 
-          <div className="h-8" />
-          <OpenOrPendingMatches />
+          <div className="h-6" />
 
-          <div className="h-8" />
-          <LiveMatches />
-
-          <div className="h-8" />
-          <HistoricalMatches />
-
-          <div className="h-20" />
+          <MatchTable />
         </div>
       </div>
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { Button } from "../../ui/Theme/SkyStrife/Button";
 import { createMatchEntity } from "../../../createMatchEntity";
-import { Hex, padHex, parseEther, stringToHex } from "viem";
+import { Hex, padHex, stringToHex } from "viem";
 import { SystemCall, encodeSystemCalls } from "@latticexyz/world";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { getMatchUrl } from "../../../getMatchUrl";
@@ -18,8 +18,7 @@ import {
 } from "../../../constants";
 import { getDelegationSystemCalls } from "../../../getDelegationSystemCalls";
 import { useHasSkyKeyExternalWallet } from "../hooks/useHasSkyKey";
-import { DateTime } from "luxon";
-import { getOldestMatchInWindow, getSkypoolConfig } from "../utils/skypool";
+import { findOldestMatchInWindow } from "../utils/skypool";
 
 export function Footer({
   matchName,
@@ -47,16 +46,6 @@ export function Footer({
     executeSystemWithExternalWallet,
   } = networkLayer;
 
-  const findOldestMatchInWindow = () => {
-    const skypoolConfig = getSkypoolConfig(networkLayer);
-    if (!skypoolConfig) return;
-
-    const now = BigInt(Math.floor(DateTime.now().toUTC().toSeconds()));
-    const oldestMatchInWindow = getOldestMatchInWindow(networkLayer, BigInt(now), skypoolConfig.window);
-
-    return oldestMatchInWindow;
-  };
-
   const skypoolConfig = useSkyPoolConfig();
   const orbBalance = useOrbBalance();
 
@@ -66,8 +55,6 @@ export function Footer({
 
   const spawnsInLevel = getLevelSpawns(levelId);
   const numPlayers = spawnsInLevel.length;
-
-  const entranceFeeInWei = parseEther(entranceFee.toString(), "wei");
 
   const executeMatchSystem = async (systemFunc: () => Promise<unknown>) => {
     if (txPending || !externalWorldContract) return;
@@ -88,9 +75,25 @@ export function Footer({
   const createPublicMatch = async () => {
     executeMatchSystem(async () => {
       const matchEntity = createMatchEntity();
+
+      const systemCalls: readonly Omit<SystemCall<typeof IWorldAbi>, "abi">[] = [
+        // create a match
+        {
+          systemId: MATCH_SYSTEM_ID,
+          functionName: "createMatch",
+          args: [matchName, (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex, matchEntity, levelId],
+        },
+        {
+          systemId: COPY_MAP_SYSTEM_ID,
+          functionName: "copyMap",
+          args: [matchEntity],
+        },
+      ];
+
       await executeSystemWithExternalWallet({
-        systemCall: "createMatch",
-        args: [[matchName, (findOldestMatchInWindow() || matchEntity) as Hex, matchEntity, levelId]],
+        systemCall: "batchCall",
+        systemId: "CreateMatch",
+        args: [[encodeSystemCalls(IWorldAbi, systemCalls).map(([systemId, callData]) => ({ systemId, callData }))]],
       });
     });
   };
@@ -98,19 +101,32 @@ export function Footer({
   const createSeasonPassHolderOnlyMatch = async () => {
     executeMatchSystem(async () => {
       const matchEntity = createMatchEntity();
-      await executeSystemWithExternalWallet({
-        systemCall: "createMatchSeasonPass",
-        args: [
-          [
+
+      const systemCalls: readonly Omit<SystemCall<typeof IWorldAbi>, "abi">[] = [
+        {
+          systemId: MATCH_SYSTEM_ID,
+          functionName: "createMatchSeasonPass",
+          args: [
             matchName,
-            (findOldestMatchInWindow() || matchEntity) as Hex,
+            (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex,
             matchEntity,
             levelId,
             SEASON_PASS_ONLY_SYSTEM_ID,
-            entranceFeeInWei,
+            entranceFee,
             rewardPercentages,
           ],
-        ],
+        },
+        {
+          systemId: COPY_MAP_SYSTEM_ID,
+          functionName: "copyMap",
+          args: [matchEntity],
+        },
+      ];
+
+      await executeSystemWithExternalWallet({
+        systemCall: "batchCall",
+        systemId: "CreateMatch",
+        args: [[encodeSystemCalls(IWorldAbi, systemCalls).map(([systemId, callData]) => ({ systemId, callData }))]],
       });
     });
   };
@@ -130,7 +146,7 @@ export function Footer({
         {
           systemId: MATCH_SYSTEM_ID,
           functionName: "createMatch",
-          args: [matchName, (findOldestMatchInWindow() || matchEntity) as Hex, matchEntity, levelId],
+          args: [matchName, (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex, matchEntity, levelId],
         },
         // register the match creator
         {
@@ -178,11 +194,11 @@ export function Footer({
                 functionName: "createMatchSeasonPass",
                 args: [
                   matchName,
-                  (findOldestMatchInWindow() || matchEntity) as Hex,
+                  (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex,
                   matchEntity,
                   levelId,
                   ALLOW_LIST_SYSTEM_ID,
-                  entranceFeeInWei,
+                  entranceFee,
                   rewardPercentages,
                 ],
               },
@@ -191,6 +207,11 @@ export function Footer({
                 systemId: ALLOW_LIST_SYSTEM_ID,
                 functionName: "setMembers",
                 args: [matchEntity, allowedAddresses],
+              },
+              {
+                systemId: COPY_MAP_SYSTEM_ID,
+                functionName: "copyMap",
+                args: [matchEntity],
               },
             ]).map(([systemId, callData]) => ({ systemId, callData })),
           ],
@@ -202,18 +223,34 @@ export function Footer({
   const createPublicMatchSeasonPass = async () => {
     executeMatchSystem(async () => {
       const matchEntity = createMatchEntity();
-      await executeSystemWithExternalWallet({
-        systemCall: "createMatchSeasonPass",
-        args: [
-          [
+
+      const systemCalls: readonly Omit<SystemCall<typeof IWorldAbi>, "abi">[] = [
+        // create a match
+        {
+          systemId: MATCH_SYSTEM_ID,
+          functionName: "createMatchSeasonPass",
+          args: [
             matchName,
-            (findOldestMatchInWindow() || matchEntity) as Hex,
+            (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex,
             matchEntity,
             levelId,
             padHex("0x", { size: 32 }),
-            entranceFeeInWei,
+            entranceFee,
             rewardPercentages,
           ],
+        },
+        {
+          systemId: COPY_MAP_SYSTEM_ID,
+          functionName: "copyMap",
+          args: [matchEntity],
+        },
+      ];
+
+      await executeSystemWithExternalWallet({
+        systemCall: "batchCall",
+        systemId: "CreateMatch",
+        args: [
+          [encodeSystemCalls(IWorldAbi, [...systemCalls]).map(([systemId, callData]) => ({ systemId, callData }))],
         ],
       });
     });
@@ -235,11 +272,11 @@ export function Footer({
           functionName: "createMatchSeasonPass",
           args: [
             matchName,
-            (findOldestMatchInWindow() || matchEntity) as Hex,
+            (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex,
             matchEntity,
             levelId,
             padHex("0x", { size: 32 }),
-            entranceFeeInWei,
+            entranceFee,
             rewardPercentages,
           ],
         },
@@ -290,11 +327,11 @@ export function Footer({
           functionName: "createMatchSeasonPass",
           args: [
             matchName,
-            (findOldestMatchInWindow() || matchEntity) as Hex,
+            (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex,
             matchEntity,
             levelId,
             ALLOW_LIST_SYSTEM_ID,
-            entranceFeeInWei,
+            entranceFee,
             rewardPercentages,
           ],
         },
@@ -351,11 +388,11 @@ export function Footer({
           functionName: "createMatchSeasonPass",
           args: [
             matchName,
-            (findOldestMatchInWindow() || matchEntity) as Hex,
+            (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex,
             matchEntity,
             levelId,
             SEASON_PASS_ONLY_SYSTEM_ID,
-            entranceFeeInWei,
+            entranceFee,
             rewardPercentages,
           ],
         },

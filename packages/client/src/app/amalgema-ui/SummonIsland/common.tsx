@@ -1,6 +1,9 @@
 import { DetailedHTMLProps, HTMLAttributes } from "react";
 import { twMerge } from "tailwind-merge";
 import { Body } from "../../ui/Theme/SkyStrife/Typography";
+import { formatEther } from "viem";
+
+const ETHER_TO_WEI = 1000000000000000000n;
 
 export function RequiredAsterisk() {
   return <span className="text-red-500">*</span>;
@@ -17,16 +20,16 @@ export function ChevronDown() {
   );
 }
 
-type Props = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
+export function PercentageInput({
+  amount,
+  className,
+  setAmount,
+}: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
   amount: bigint | number;
   setAmount?: (amount: bigint) => void;
-  containerClassName?: string;
-  label?: React.ReactNode | string;
-};
-
-export function OrbInput({ amount, className, containerClassName, setAmount, label }: Props) {
+}) {
   return (
-    <div className={twMerge("relative w-full", containerClassName)}>
+    <div className={"relative w-full"}>
       <input
         className={twMerge("w-full bg-ss-bg-2 px-4 py-2 border border-[#DDDAD0]", className)}
         type="text"
@@ -45,7 +48,42 @@ export function OrbInput({ amount, className, containerClassName, setAmount, lab
         }}
       />
 
-      <span className="absolute right-3 top-[8px]">{label || "🔮"}</span>
+      <span className="absolute right-3 top-[8px]">%</span>
+    </div>
+  );
+}
+
+export function OrbInput({
+  amount,
+  setAmount,
+  className,
+  containerClassName,
+}: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
+  amount: bigint | number;
+  setAmount?: (amount: bigint) => void;
+  containerClassName?: string;
+}) {
+  return (
+    <div className={twMerge("relative w-full", containerClassName)}>
+      <input
+        className={twMerge("w-full bg-ss-bg-2 px-4 py-2 border border-[#DDDAD0]", className)}
+        type="text"
+        value={formatEther(BigInt(amount))}
+        readOnly={!setAmount}
+        disabled={!setAmount}
+        onChange={(e) => {
+          if (!setAmount) return;
+
+          const valueNum = parseInt(e.target.value);
+          if (valueNum >= 0) {
+            setAmount(BigInt(valueNum) * ETHER_TO_WEI);
+          } else {
+            setAmount(0n);
+          }
+        }}
+      />
+
+      <span className="absolute right-3 top-[8px]">🔮</span>
     </div>
   );
 }
@@ -53,12 +91,15 @@ export function OrbInput({ amount, className, containerClassName, setAmount, lab
 export function ReadOnlyTextInput({
   value,
   className,
-  containerClassName,
   label,
   symbol,
-}: Omit<Props, "amount"> & { value: string; symbol?: string | React.ReactNode }) {
+}: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
+  value: string;
+  label?: string;
+  symbol?: React.ReactNode;
+}) {
   return (
-    <div className={twMerge("relative w-full", containerClassName)}>
+    <div className="relative w-full">
       <span
         style={{
           fontSize: "14px",
@@ -83,18 +124,13 @@ export function ReadOnlyTextInput({
 export function LabeledOrbInput({
   amount,
   className,
-  containerClassName,
-  setAmount,
   label,
-  symbol,
-}: Props & { symbol?: string }) {
+}: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
+  amount: bigint | number;
+  label?: React.ReactNode | string;
+}) {
   return (
-    <div
-      className={twMerge(
-        "flex flex-row items-baseline w-full h-[36px] bg-ss-bg-2 px-4 py-1 border border-[#DDDAD0] align-middle",
-        containerClassName
-      )}
-    >
+    <div className="flex flex-row items-baseline w-full h-[36px] bg-ss-bg-2 px-4 py-1 border border-[#DDDAD0] align-middle">
       <span
         style={{
           fontSize: "14px",
@@ -107,22 +143,42 @@ export function LabeledOrbInput({
       <input
         className={twMerge(" w-[100px] align-middle	shrink text-right pr-3 bg-ss-bg-2", className)}
         type="text"
-        value={Number(amount)}
-        readOnly={!setAmount}
-        disabled={!setAmount}
-        onChange={(e) => {
-          if (!setAmount) return;
-
-          const valueNum = parseInt(e.target.value);
-          if (valueNum >= 0) {
-            setAmount(BigInt(valueNum));
-          } else {
-            setAmount(0n);
-          }
-        }}
+        readOnly
+        value={formatEther(BigInt(amount))}
       />
 
-      <Body className="text-ss-text-default right-3">{symbol ?? "🔮"}</Body>
+      <Body className="text-ss-text-default right-3">🔮</Body>
+    </div>
+  );
+}
+
+export function EthInput({
+  amount,
+  className,
+  label,
+}: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
+  amount: bigint;
+  label?: React.ReactNode | string;
+}) {
+  return (
+    <div className="flex flex-row items-baseline w-full h-[36px] bg-ss-bg-2 px-4 py-1 border border-[#DDDAD0] align-middle">
+      <span
+        style={{
+          fontSize: "12px",
+        }}
+        className=" w-full left-3 text-ss-text-x-light uppercase"
+      >
+        {label}
+      </span>
+
+      <input
+        className={twMerge(" w-[100px] align-middle	shrink text-right pr-3 bg-ss-bg-2", className)}
+        type="text"
+        readOnly
+        value={parseFloat(formatEther(amount)).toFixed(3)}
+      />
+
+      <Body className="text-ss-text-default right-3">ETH</Body>
     </div>
   );
 }

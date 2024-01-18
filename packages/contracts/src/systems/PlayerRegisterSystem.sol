@@ -6,7 +6,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 
 import { SkyPoolConfig, MatchAccessControl, MatchSweepstake, LevelTemplates, MatchConfig, Player, SpawnPoint, SpawnReservedBy, Position, PositionTableId, PositionData, MapCenterTableId, PlayerTableId, MatchSpawnPoints } from "../codegen/index.sol";
-import { MatchAccessControl, LevelTemplates, MatchConfig, Player, SpawnPoint, SpawnReservedBy, Position, PositionTableId, PositionData, MapCenterTableId, PlayerTableId, MatchSpawnPoints, HeroInRotation, HeroInSeasonPassRotation } from "../codegen/index.sol";
+import { MatchAccessControl, LevelTemplates, MatchConfig, Player, SpawnPoint, SpawnReservedBy, Position, PositionTableId, PositionData, MapCenterTableId, PlayerTableId, MatchSpawnPoints, HeroInRotation, HeroInSeasonPassRotation, MatchPlayer } from "../codegen/index.sol";
 import { SpawnSettlementTemplateId } from "../codegen/Templates.sol";
 
 import { createMatchEntity } from "../createMatchEntity.sol";
@@ -38,6 +38,7 @@ contract PlayerRegisterSystem is System {
   function register(bytes32 matchEntity, uint256 spawnIndex, bytes32 heroChoice) public returns (bytes32) {
     require(checkAccessControl(matchEntity, _msgSender()), "caller is not allowed");
     require(SpawnReservedBy.get(matchEntity, spawnIndex) == 0, "spawn point already reserved");
+    require(MatchPlayer.get(matchEntity, _msgSender()) == 0, "this account has already registered for the match");
 
     bool inRotation = HeroInRotation.get(heroChoice);
     require(

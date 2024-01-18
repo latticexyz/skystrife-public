@@ -119,7 +119,7 @@ contract PostDeploy is Script {
       );
       IERC721Mintable seasonPass = registerERC721(
         world,
-        "SeasonPass",
+        "SeasonPass 2",
         ERC721MetadataData({ name: "Season Pass", symbol: unicode"🎫", baseURI: "" })
       );
       IERC721Mintable skyKey = registerERC721(
@@ -160,10 +160,10 @@ contract PostDeploy is Script {
     NoTransferHook subscriber = new NoTransferHook();
 
     // Register the non-transferability hook
-    world.registerSystemHook(_erc721SystemId("SeasonPass"), subscriber, BEFORE_CALL_SYSTEM);
+    world.registerSystemHook(_erc721SystemId("SeasonPass 2"), subscriber, BEFORE_CALL_SYSTEM);
 
     // Transfer season pass namespace to World
-    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace("SeasonPass");
+    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace("SeasonPass 2");
     world.transferOwnership(namespaceId, worldAddress);
 
     vm.stopBroadcast();

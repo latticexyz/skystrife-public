@@ -26,19 +26,12 @@ import { encodeSystemCallFrom } from "@latticexyz/world";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { matchIdFromEntity } from "../../matchIdFromEntity";
 import { matchIdToEntity } from "../../matchIdToEntity";
-import {
-  BUILD_SYSTEM_ID,
-  BYTES32_ZERO,
-  MOVE_SYSTEM_ID,
-  SPAWN_SETTLEMENT,
-  SYSTEMBOUND_DELEGATION,
-  UNLIMITED_DELEGATION,
-} from "../../constants";
+import { BUILD_SYSTEM_ID, BYTES32_ZERO, MOVE_SYSTEM_ID, SPAWN_SETTLEMENT, UNLIMITED_DELEGATION } from "../../constants";
 import { decodeMatchEntity } from "../../decodeMatchEntity";
 import { encodeMatchEntity } from "../../encodeMatchEntity";
 import { ANALYTICS_URL } from "./utils";
-import { uniqueId } from "lodash";
 import { uuid } from "@latticexyz/utils";
+import { createJoinableMatchSystem } from "./systems/JoinableMatchSystem";
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -559,6 +552,8 @@ export async function createNetworkLayer(config: NetworkConfig) {
     const txDb = new TransactionDB(network.networkConfig.worldAddress, network.networkConfig.chainId);
     createTransactionCacheSystem(layer, txDb);
   }
+
+  createJoinableMatchSystem(layer);
 
   return layer;
 }

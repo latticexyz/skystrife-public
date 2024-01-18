@@ -1,6 +1,5 @@
-import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { useAmalgema } from "../../../useAmalgema";
-import { Entity, Has, getComponentValueStrict } from "@latticexyz/recs";
+import { Entity, Has, getComponentValueStrict, runQuery, getComponentValue } from "@latticexyz/recs";
 import { decodeEntity } from "@latticexyz/store-sync/recs";
 import { isDefined } from "@latticexyz/common/utils";
 import { EMOJI } from "../../../constants";
@@ -12,7 +11,7 @@ export function useMatchRewards(matchEntity: Entity) {
     utils: { getLevelSpawns },
   } = useAmalgema();
 
-  const skypoolRewards = useEntityQuery([Has(MatchReward)])
+  const skypoolRewards = [...runQuery([Has(MatchReward)])]
     .map((key) => {
       const { entity, rank } = decodeEntity(MatchReward.metadata.keySchema, key);
       if (entity !== matchEntity) return;
@@ -25,10 +24,10 @@ export function useMatchRewards(matchEntity: Entity) {
     })
     .filter(isDefined);
 
-  const matchConfig = useComponentValue(MatchConfig, matchEntity);
+  const matchConfig = getComponentValue(MatchConfig, matchEntity);
   const levelSpawns = getLevelSpawns(matchConfig?.levelId ?? "0");
 
-  const matchSweepstake = useComponentValue(MatchSweepstake, matchEntity);
+  const matchSweepstake = getComponentValue(MatchSweepstake, matchEntity);
   const entranceFee = matchSweepstake?.entranceFee ?? 0n;
   const totalSweepstakeRewardPool = entranceFee * BigInt(levelSpawns.length);
   const sweepstakeRewards = times(levelSpawns.length + 1, (i) => {

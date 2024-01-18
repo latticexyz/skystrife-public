@@ -82,8 +82,6 @@ export function registerCameraControls(layer: PhaserLayer) {
       const { direction } = state;
       const yDirection = direction[1];
 
-      console.log(`inside wheelStream$ ${yDirection}`);
-
       lerpZoom(yDirection > 0 ? "out" : "in");
     });
 

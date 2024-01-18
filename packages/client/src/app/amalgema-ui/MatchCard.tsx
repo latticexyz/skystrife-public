@@ -1,4 +1,4 @@
-import { Entity } from "@latticexyz/recs";
+import { Entity, getComponentValue } from "@latticexyz/recs";
 import { useAmalgema } from "../../useAmalgema";
 import { useComponentValue } from "@latticexyz/react";
 import { PendingMatch } from "./PendingMatch";
@@ -13,7 +13,7 @@ export function MatchCard({ matchEntity }: { matchEntity: Entity }) {
   } = useAmalgema();
 
   const matchReady = useComponentValue(MatchReady, matchEntity);
-  const matchFinished = useComponentValue(MatchFinished, matchEntity);
+  const matchFinished = getComponentValue(MatchFinished, matchEntity);
 
   const isPending = Boolean(!matchReady);
   const isOpen = Boolean(matchReady) && !matchIsLive(matchEntity);

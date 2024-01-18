@@ -5,10 +5,15 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import { MatchSweepstake, MatchConfig, MatchRewardPercentages, MatchIndexToEntity, LastMatchIndex, MatchIndex, MatchRanking, MatchReward, SkyPoolConfig, MatchSky, MatchSkyTableId, MatchSkyData, OwnedBy } from "../codegen/index.sol";
 
+import { hasToken } from "../hasToken.sol";
 import { entityToAddress, getMatch, getLevelSpawnIndices } from "./LibUtils.sol";
 import { Transactor } from "./Transactor.sol";
 
 uint256 constant DENOMINATOR = 100;
+
+function skyKeyHolderOnly(address sender) {
+  require(hasToken(SkyPoolConfig.getSkyKeyToken(), sender), "caller does not have the sky key");
+}
 
 function transferTokenFromEscrow(address escrowAddress, address to, uint256 value) {
   IERC20 token = IERC20(SkyPoolConfig.getOrbToken());

@@ -2,12 +2,11 @@ import { Entity } from "@latticexyz/recs";
 import { useAmalgema } from "../../useAmalgema";
 import { IconButton } from "../ui/Theme/SkyStrife/IconButton";
 import { Discord } from "../ui/Theme/SkyStrife/Icons/Discord";
-import { Body, OverlineSmall, Caption } from "../ui/Theme/SkyStrife/Typography";
+import { Body, OverlineSmall } from "../ui/Theme/SkyStrife/Typography";
 import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Twitter } from "../ui/Theme/SkyStrife/Icons/Twitter";
 import { DISCORD_URL, FEEDBACK_URL, HOW_TO_PLAY_URL, TWITTER_URL } from "../links";
 import { CurrentProfile } from "./CurrentProfile";
-import { formatEther } from "viem";
 import { addressToEntityID } from "../../mud/setupNetwork";
 import { Tutorial } from "../ui/Theme/SkyStrife/Icons/Tutorial";
 import { useComponentValue } from "@latticexyz/react";
@@ -17,6 +16,7 @@ import { SessionWalletManager } from "./SessionWalletManager";
 import { SeasonPass } from "./SeasonPass";
 import { useExternalAccount } from "./hooks/useExternalAccount";
 import { HoleskyEth } from "./HoleskyEth";
+import { MATCH_COST } from "./SummonIsland/MatchCost";
 
 const DECIMALS = 18;
 
@@ -51,7 +51,7 @@ function Resources() {
         }
       }}
     >
-      <LabeledOrbInput amount={BigInt(formatEther(balance?.value || 0n))} label="My Resources" />
+      <LabeledOrbInput amount={balance ? balance.value : 0n} label="My Resources" />
     </div>
   );
 }
@@ -60,7 +60,7 @@ export function InventorySidebar() {
   const { address } = useExternalAccount();
 
   return (
-    <div className="flex flex-col flex-1 bg-ss-bg-1 border-l border-ss-stroke h-screen overflow-y-auto w-full p-8 pt-4 items-stretch">
+    <div className="flex flex-col bg-ss-bg-1 border-l border-ss-stroke h-screen overflow-y-auto p-8 pt-4 items-stretch w-[420px] shrink-0">
       <CurrentProfile />
       <div className="h-4 shrink-0" />
 
@@ -84,7 +84,7 @@ export function InventorySidebar() {
 
       <div className="h-2 shrink-0" />
 
-      <LabeledOrbInput amount={100n} label="Match Creation Cost" />
+      <LabeledOrbInput amount={MATCH_COST} label="Match Creation Cost" />
 
       <div className="h-2 shrink-0" />
 

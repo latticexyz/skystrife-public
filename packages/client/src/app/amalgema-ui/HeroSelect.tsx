@@ -113,7 +113,7 @@ function HeroPreview({
         <div className="text-ss-text-x-light text-[14px]">{heroDescription}</div>
       </div>
 
-      <div className="h-3 " />
+      <div className="h-3" />
 
       <div
         className={twMerge(
@@ -191,6 +191,7 @@ export function HeroSelect({ hero, setHero }: { hero: Hex; setHero: (hero: Hex) 
   const allHeroes = [...freeHeroes, ...seasonPassHeroes];
 
   const unitType = getTemplateValueStrict(UnitType.id as Hex, hero as Hex).value as UnitTypes;
+  const description = UnitTypeDescriptions[unitType];
   const name = UnitTypeNames[unitType];
   const sprite = UnitTypeSprites[unitType];
 
@@ -199,9 +200,12 @@ export function HeroSelect({ hero, setHero }: { hero: Hex; setHero: (hero: Hex) 
       <OverlineSmall>select a hero</OverlineSmall>
 
       <div className="flex space-x-4">
-        <div className="flex items-center rounded grow bg-white px-3 space-x-1">
-          <SpriteImage spriteKey={sprite} colorName="blue" scale={1} />
-          <span>{name}</span>
+        <div className="flex items-center rounded grow bg-white p-3 space-x-1">
+          <SpriteImage spriteKey={sprite} colorName="blue" scale={2} />
+          <div>
+            <div className="text-lg">{name}</div>
+            <div className="text-ss-text-x-light">{description}</div>
+          </div>
         </div>
         <Modal
           title="select a hero"
