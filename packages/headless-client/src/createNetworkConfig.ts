@@ -1,5 +1,5 @@
 import { NetworkConfig, getChain, getWorldFromChainId } from "client/src/mud/utils";
-import { env } from "./headlessSetup";
+import { env } from "./createSkyStrife";
 
 export function createNetworkConfig(chainId: number, disableIndexer?: boolean): NetworkConfig {
   const chain = getChain(chainId);

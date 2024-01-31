@@ -1,11 +1,11 @@
 import { Entity, Has, Not, getComponentValue, runQuery } from "@latticexyz/recs";
-import { env, headlessSetup } from "./headlessSetup";
+import { env, createSkyStrife } from "../src/createSkyStrife";
 import { Hex, padHex, stringToHex } from "viem";
 import { sleep } from "@latticexyz/utils";
 import { createMatchEntity } from "client/src/createMatchEntity";
 import { getOldestMatchInWindow, getSkypoolConfig } from "client/src/app/amalgema-ui/utils/skypool";
 
-const { networkLayer } = await headlessSetup();
+const { networkLayer } = await createSkyStrife();
 
 const {
   components: { MatchConfig, MatchFinished, LevelTemplates },

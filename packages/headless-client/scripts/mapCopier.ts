@@ -1,9 +1,9 @@
 import { Hex } from "viem";
 import { Has, Not, getComponentValue, getComponentValueStrict, runQuery } from "@latticexyz/recs";
 import { sleep } from "@latticexyz/utils";
-import { env, headlessSetup } from "./headlessSetup";
+import { env, createSkyStrife } from "../src/createSkyStrife";
 
-const { networkLayer, createPlayer } = await headlessSetup();
+const { networkLayer, createPlayer } = await createSkyStrife();
 
 const mapCopier = createPlayer(env.PRIVATE_KEY);
 

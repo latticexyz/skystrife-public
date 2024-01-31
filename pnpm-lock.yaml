@@ -249,208 +249,6 @@ importers:
         specifier: ^1.6.11
         version: 1.6.11
 
-  packages/bots:
-    dependencies:
-      '@ethersproject/providers':
-        specifier: ^5.7.2
-        version: 5.7.2
-      '@latticexyz/block-logs-stream':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
-      '@latticexyz/common':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
-      '@latticexyz/dev-tools':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(@latticexyz/common@2.0.0-main-5ab67e33)(@latticexyz/recs@2.0.0-main-5ab67e33)(@latticexyz/store-sync@2.0.0-main-5ab67e33)(@latticexyz/store@2.0.0-main-5ab67e33)(@latticexyz/utils@2.0.0-main-5ab67e33)(@latticexyz/world@2.0.0-main-5ab67e33)(@types/react@18.2.24)(typescript@5.2.2)(zod@3.22.2)
-      '@latticexyz/phaserx':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33
-      '@latticexyz/protocol-parser':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
-      '@latticexyz/react':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
-      '@latticexyz/recs':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
-      '@latticexyz/schema-type':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
-      '@latticexyz/store':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(typescript@5.2.2)
-      '@latticexyz/store-sync':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(@types/react@18.2.24)(react@18.2.0)(typescript@5.2.2)
-      '@latticexyz/utils':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33
-      '@latticexyz/world':
-        specifier: 2.0.0-main-5ab67e33
-        version: 2.0.0-main-5ab67e33(typescript@5.2.2)
-      '@protobuf-ts/grpcweb-transport':
-        specifier: ^2.9.1
-        version: 2.9.1
-      '@protobuf-ts/plugin':
-        specifier: ^2.9.1
-        version: 2.9.1
-      '@protobuf-ts/runtime-rpc':
-        specifier: ^2.9.1
-        version: 2.9.1
-      '@solidstate/contracts':
-        specifier: ^0.0.52
-        version: 0.0.52
-      '@types/color':
-        specifier: ^3.0.4
-        version: 3.0.4
-      '@types/lodash':
-        specifier: ^4.14.199
-        version: 4.14.199
-      '@types/luxon':
-        specifier: 3.3.1
-        version: 3.3.1
-      '@types/react':
-        specifier: ^18.2.24
-        version: 18.2.24
-      '@types/styled-components':
-        specifier: ^5.1.28
-        version: 5.1.28
-      '@vitejs/plugin-react':
-        specifier: ^4.1.0
-        version: 4.1.0(vite@4.4.9)
-      '@wagmi/chains':
-        specifier: ^1.8.0
-        version: 1.8.0(typescript@5.2.2)
-      async-mutex:
-        specifier: ^0.3.2
-        version: 0.3.2
-      autoprefixer:
-        specifier: ^10.4.16
-        version: 10.4.16
-      client:
-        specifier: workspace:*
-        version: link:../client
-      color:
-        specifier: ^4.2.3
-        version: 4.2.3
-      contracts:
-        specifier: workspace:*
-        version: link:../contracts
-      csv:
-        specifier: 6.3.1
-        version: 6.3.1
-      debug:
-        specifier: ^4.3.4
-        version: 4.3.4(supports-color@5.5.0)
-      ecs-browser:
-        specifier: workspace:*
-        version: link:../ecs-browser
-      ethers:
-        specifier: ^5.7.2
-        version: 5.7.2
-      heap-js:
-        specifier: ^2.3.0
-        version: 2.3.0
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
-      long:
-        specifier: ^5.2.3
-        version: 5.2.3
-      luxon:
-        specifier: 3.3.0
-        version: 3.3.0
-      mobx:
-        specifier: ^6.10.2
-        version: 6.10.2
-      mobx-react-lite:
-        specifier: ^3.4.3
-        version: 3.4.3(mobx@6.10.2)(react-dom@18.2.0)(react@18.2.0)
-      mobx-utils:
-        specifier: ^6.0.8
-        version: 6.0.8(mobx@6.10.2)
-      nice-grpc-web:
-        specifier: ^2.0.2
-        version: 2.0.2
-      phaser:
-        specifier: 3.60.0-beta.14
-        version: 3.60.0-beta.14
-      protobufjs:
-        specifier: ^6.11.4
-        version: 6.11.4
-      proxy-deep:
-        specifier: ^3.1.1
-        version: 3.1.1
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-collapse:
-        specifier: ^5.1.1
-        version: 5.1.1(react@18.2.0)
-      react-csv-downloader:
-        specifier: 2.9.1
-        version: 2.9.1(react@18.2.0)
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-is:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-router-dom:
-        specifier: ^6.16.0
-        version: 6.16.0(react-dom@18.2.0)(react@18.2.0)
-      react-syntax-highlighter:
-        specifier: ^15.5.0
-        version: 15.5.0(react@18.2.0)
-      rxjs:
-        specifier: 7.5.5
-        version: 7.5.5
-      styled-components:
-        specifier: ^5.3.11
-        version: 5.3.11(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
-      tailwind-merge:
-        specifier: ^1.14.0
-        version: 1.14.0
-      tailwindcss:
-        specifier: ^3.3.3
-        version: 3.3.3
-      tailwindcss-animate:
-        specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.3.3)
-      threads:
-        specifier: ^1.7.0
-        version: 1.7.0
-      use-file-picker:
-        specifier: ^1.7.0
-        version: 1.7.0(react@18.2.0)
-      use-local-storage-state:
-        specifier: 18.3.3
-        version: 18.3.3(react-dom@18.2.0)(react@18.2.0)
-      use-resize-observer:
-        specifier: 9.1.0-alpha.1
-        version: 9.1.0-alpha.1(react-dom@18.2.0)(react@18.2.0)
-      uuid:
-        specifier: ^8.3.2
-        version: 8.3.2
-      viem:
-        specifier: 1.14.0
-        version: 1.14.0(typescript@5.2.2)(zod@3.22.2)
-      vite:
-        specifier: ^4.4.9
-        version: 4.4.9
-      zod:
-        specifier: ^3.22.2
-        version: 3.22.2
-      zustand:
-        specifier: ^4.4.2
-        version: 4.4.2(@types/react@18.2.24)(react@18.2.0)
-    devDependencies:
-      tsx:
-        specifier: ^3.13.0
-        version: 3.13.0
-
   packages/client:
     dependencies:
       '@ethersproject/providers':
@@ -802,6 +600,208 @@ importers:
       tsup:
         specifier: ^6.7.0
         version: 6.7.0(typescript@5.2.2)
+
+  packages/headless-client:
+    dependencies:
+      '@ethersproject/providers':
+        specifier: ^5.7.2
+        version: 5.7.2
+      '@latticexyz/block-logs-stream':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
+      '@latticexyz/common':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
+      '@latticexyz/dev-tools':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(@latticexyz/common@2.0.0-main-5ab67e33)(@latticexyz/recs@2.0.0-main-5ab67e33)(@latticexyz/store-sync@2.0.0-main-5ab67e33)(@latticexyz/store@2.0.0-main-5ab67e33)(@latticexyz/utils@2.0.0-main-5ab67e33)(@latticexyz/world@2.0.0-main-5ab67e33)(@types/react@18.2.24)(typescript@5.2.2)(zod@3.22.2)
+      '@latticexyz/phaserx':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33
+      '@latticexyz/protocol-parser':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
+      '@latticexyz/react':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
+      '@latticexyz/recs':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
+      '@latticexyz/schema-type':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(typescript@5.2.2)(zod@3.22.2)
+      '@latticexyz/store':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(typescript@5.2.2)
+      '@latticexyz/store-sync':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(@types/react@18.2.24)(react@18.2.0)(typescript@5.2.2)
+      '@latticexyz/utils':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33
+      '@latticexyz/world':
+        specifier: 2.0.0-main-5ab67e33
+        version: 2.0.0-main-5ab67e33(typescript@5.2.2)
+      '@protobuf-ts/grpcweb-transport':
+        specifier: ^2.9.1
+        version: 2.9.1
+      '@protobuf-ts/plugin':
+        specifier: ^2.9.1
+        version: 2.9.1
+      '@protobuf-ts/runtime-rpc':
+        specifier: ^2.9.1
+        version: 2.9.1
+      '@solidstate/contracts':
+        specifier: ^0.0.52
+        version: 0.0.52
+      '@types/color':
+        specifier: ^3.0.4
+        version: 3.0.4
+      '@types/lodash':
+        specifier: ^4.14.199
+        version: 4.14.199
+      '@types/luxon':
+        specifier: 3.3.1
+        version: 3.3.1
+      '@types/react':
+        specifier: ^18.2.24
+        version: 18.2.24
+      '@types/styled-components':
+        specifier: ^5.1.28
+        version: 5.1.28
+      '@vitejs/plugin-react':
+        specifier: ^4.1.0
+        version: 4.1.0(vite@4.4.9)
+      '@wagmi/chains':
+        specifier: ^1.8.0
+        version: 1.8.0(typescript@5.2.2)
+      async-mutex:
+        specifier: ^0.3.2
+        version: 0.3.2
+      autoprefixer:
+        specifier: ^10.4.16
+        version: 10.4.16
+      client:
+        specifier: workspace:*
+        version: link:../client
+      color:
+        specifier: ^4.2.3
+        version: 4.2.3
+      contracts:
+        specifier: workspace:*
+        version: link:../contracts
+      csv:
+        specifier: 6.3.1
+        version: 6.3.1
+      debug:
+        specifier: ^4.3.4
+        version: 4.3.4(supports-color@5.5.0)
+      ecs-browser:
+        specifier: workspace:*
+        version: link:../ecs-browser
+      ethers:
+        specifier: ^5.7.2
+        version: 5.7.2
+      heap-js:
+        specifier: ^2.3.0
+        version: 2.3.0
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      long:
+        specifier: ^5.2.3
+        version: 5.2.3
+      luxon:
+        specifier: 3.3.0
+        version: 3.3.0
+      mobx:
+        specifier: ^6.10.2
+        version: 6.10.2
+      mobx-react-lite:
+        specifier: ^3.4.3
+        version: 3.4.3(mobx@6.10.2)(react-dom@18.2.0)(react@18.2.0)
+      mobx-utils:
+        specifier: ^6.0.8
+        version: 6.0.8(mobx@6.10.2)
+      nice-grpc-web:
+        specifier: ^2.0.2
+        version: 2.0.2
+      phaser:
+        specifier: 3.60.0-beta.14
+        version: 3.60.0-beta.14
+      protobufjs:
+        specifier: ^6.11.4
+        version: 6.11.4
+      proxy-deep:
+        specifier: ^3.1.1
+        version: 3.1.1
+      react:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-collapse:
+        specifier: ^5.1.1
+        version: 5.1.1(react@18.2.0)
+      react-csv-downloader:
+        specifier: 2.9.1
+        version: 2.9.1(react@18.2.0)
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.2.0(react@18.2.0)
+      react-is:
+        specifier: ^18.2.0
+        version: 18.2.0
+      react-router-dom:
+        specifier: ^6.16.0
+        version: 6.16.0(react-dom@18.2.0)(react@18.2.0)
+      react-syntax-highlighter:
+        specifier: ^15.5.0
+        version: 15.5.0(react@18.2.0)
+      rxjs:
+        specifier: 7.5.5
+        version: 7.5.5
+      styled-components:
+        specifier: ^5.3.11
+        version: 5.3.11(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
+      tailwind-merge:
+        specifier: ^1.14.0
+        version: 1.14.0
+      tailwindcss:
+        specifier: ^3.3.3
+        version: 3.3.3
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.3.3)
+      threads:
+        specifier: ^1.7.0
+        version: 1.7.0
+      use-file-picker:
+        specifier: ^1.7.0
+        version: 1.7.0(react@18.2.0)
+      use-local-storage-state:
+        specifier: 18.3.3
+        version: 18.3.3(react-dom@18.2.0)(react@18.2.0)
+      use-resize-observer:
+        specifier: 9.1.0-alpha.1
+        version: 9.1.0-alpha.1(react-dom@18.2.0)(react@18.2.0)
+      uuid:
+        specifier: ^8.3.2
+        version: 8.3.2
+      viem:
+        specifier: 1.14.0
+        version: 1.14.0(typescript@5.2.2)(zod@3.22.2)
+      vite:
+        specifier: ^4.4.9
+        version: 4.4.9
+      zod:
+        specifier: ^3.22.2
+        version: 3.22.2
+      zustand:
+        specifier: ^4.4.2
+        version: 4.4.2(@types/react@18.2.24)(react@18.2.0)
+    devDependencies:
+      tsx:
+        specifier: ^3.13.0
+        version: 3.13.0
 
   packages/phaserx:
     dependencies:

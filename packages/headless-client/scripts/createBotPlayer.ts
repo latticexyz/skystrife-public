@@ -17,7 +17,7 @@ import {
   runQuery,
   setComponent,
 } from "@latticexyz/recs";
-import { HeadlessSetupResult, env, headlessSetup } from "./headlessSetup";
+import { SkyStrife, env, createSkyStrife } from "../src/createSkyStrife";
 import { sleep } from "@latticexyz/utils";
 import { encodeSystemCalls } from "@latticexyz/world";
 import { BFS } from "client/src/utils/pathfinding";
@@ -30,8 +30,8 @@ const { curry, sample } = lodash;
 
 type MatchCoord = { x: number; y: number };
 
-async function createBotPlayer(headlessSetup: HeadlessSetupResult) {
-  const { networkLayer, headlessLayer, createPlayer } = headlessSetup;
+async function createBotPlayer(skyStrife: SkyStrife) {
+  const { networkLayer, headlessLayer, createPlayer } = skyStrife;
 
   let activeMatch: Entity | undefined;
   let activePlayerEntity: Entity | undefined;
@@ -354,7 +354,7 @@ async function createBotPlayer(headlessSetup: HeadlessSetupResult) {
   };
 }
 
-const headlessClient = await headlessSetup();
+const headlessClient = await createSkyStrife();
 const botPlayer = await createBotPlayer(headlessClient);
 
 botPlayer.start();

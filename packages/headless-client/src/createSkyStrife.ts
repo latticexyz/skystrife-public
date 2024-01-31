@@ -46,9 +46,9 @@ export const env = z
     }),
   });
 
-export type HeadlessSetupResult = Awaited<ReturnType<typeof headlessSetup>>;
+export type SkyStrife = Awaited<ReturnType<typeof createSkyStrife>>;
 
-export async function headlessSetup(): Promise<{
+export async function createSkyStrife(): Promise<{
   networkLayer: NetworkLayer;
   headlessLayer: HeadlessLayer;
   createPlayer: (privateKey?: Hex) => {
@@ -64,6 +64,8 @@ export async function headlessSetup(): Promise<{
   };
 }> {
   const networkConfig = createNetworkConfig(env.CHAIN_ID, env.DISABLE_INDEXER);
+
+  console.log(`Connecting to ${networkConfig.chain.name}...`);
   const networkLayer = await createNetworkLayer(networkConfig);
   const headlessLayer = await createHeadlessLayer(networkLayer);
 
@@ -75,6 +77,11 @@ export async function headlessSetup(): Promise<{
     const live$ = SyncProgress.update$.pipe(
       filter((progress) => {
         const [val] = progress.value;
+
+        if (val) {
+          console.log(val.message);
+        }
+
         return val?.step === SyncStep.LIVE;
       }),
       take(1)
@@ -117,6 +124,7 @@ export async function headlessSetup(): Promise<{
     };
   }
 
+  console.log("Waiting for sync...");
   await waitForSync();
   console.log("Synced!");
 

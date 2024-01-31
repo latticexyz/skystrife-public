@@ -1,5 +1,5 @@
 import { bulkUploadMap } from "client/src/app/ui/Admin/bulkUploadMap";
-import { headlessSetup } from "./headlessSetup";
+import { createSkyStrife } from "../src/createSkyStrife";
 import debug from "../../../maps/debug.json" assert { type: "json" };
 import Cauldron from "../../../maps/4p-cauldron.json" assert { type: "json" };
 import KnifeFight from "../../../maps/2p-knife-fight.json" assert { type: "json" };
@@ -11,7 +11,7 @@ export type Level = Array<{
   values: object;
 }>;
 
-const { networkLayer } = await headlessSetup();
+const { networkLayer } = await createSkyStrife();
 
 await Promise.all([
   bulkUploadMap(networkLayer, debug as Level, "debug"),
