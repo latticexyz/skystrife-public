@@ -109,7 +109,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
       systemId: "Attack",
       confirmCompletionCallback: () => {
         return new Promise((resolve) => {
-          const sub = components.CombatResult.update$.subscribe((update) => {
+          const sub = components.CombatOutcome.update$.subscribe((update) => {
             if (update.entity !== attacker) return;
 
             const [val] = update.value;
@@ -150,7 +150,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
       systemId: "MoveAndAttack",
       confirmCompletionCallback: () => {
         return new Promise((resolve) => {
-          const sub = components.CombatResult.update$.subscribe((update) => {
+          const sub = components.CombatOutcome.update$.subscribe((update) => {
             if (update.entity !== attacker) return;
 
             const [val] = update.value;

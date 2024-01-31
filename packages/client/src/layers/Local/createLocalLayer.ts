@@ -67,7 +67,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
           Untraversable,
           Range,
           Combat,
-          CombatResult,
+          CombatOutcome,
           OwnedBy,
         },
         utils: { getOwningPlayer, isOwnedByCurrentPlayer, getLevelSpawns },
@@ -386,7 +386,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
     }) => void
   ) => {
     const stoppedMoving$ = defineExitQuery([Has(Path)]);
-    const triggerMoveAndAttack$ = merge(CombatResult.update$).pipe(
+    const triggerMoveAndAttack$ = merge(CombatOutcome.update$).pipe(
       concatMap(async (update) => {
         const { value } = update;
         const [combatResult] = value;

@@ -1,6 +1,6 @@
 import { useEntityQuery } from "@latticexyz/react";
 import { Has } from "@latticexyz/recs";
-import { useAmalgema } from "../../useAmalgema";
+import { useAmalgema } from "../../../useAmalgema";
 import { decodeEntity } from "@latticexyz/store-sync/recs";
 import { Coord, range } from "@latticexyz/utils";
 import { Hex } from "viem";

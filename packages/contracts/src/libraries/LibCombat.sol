@@ -5,7 +5,7 @@ import { Bytes } from "@latticexyz/store/src/Bytes.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 
-import { MatchConfig, LevelTemplatesIndex, Capturable, Combat, Charger, CombatData, CombatResult, CombatResultData, Range, OwnedBy, RangeData, Position, PositionData, ArmorModifierTableId, StructureType, SpawnPointTableId, OwnedBy, Stamina, LastAction, MatchRanking, SpawnPoint, StaminaOnKill, StructureType } from "../codegen/index.sol";
+import { MatchConfig, LevelTemplatesIndex, Capturable, Combat, Charger, CombatData, Range, OwnedBy, RangeData, Position, PositionData, ArmorModifierTableId, StructureType, SpawnPointTableId, OwnedBy, Stamina, LastAction, MatchRanking, SpawnPoint, StaminaOnKill, StructureType } from "../codegen/index.sol";
 import { SpawnSettlementTemplateId } from "../codegen/Templates.sol";
 import { StructureTypes } from "../codegen/common.sol";
 

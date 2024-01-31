@@ -14,15 +14,15 @@ export function createUnitKillSystem(layer: AnalyticsLayer) {
   const {
     world,
     networkLayer: {
-      components: { CombatResult, Match, Position, UnitType, StructureType },
+      components: { CombatOutcome, Match, Position, UnitType, StructureType },
     },
     clock,
     utils: { getCurrentBlockNumber, storePlayerTotalUnitSnapshot, storePlayerTotalStructureSnapshot, getTurnAtTime },
     components: { UnitKill, UnitDeath, StructureCapture, StructureKill, PreviousOwner },
   } = layer;
 
-  defineSystem(world, [Has(CombatResult)], ({ entity }) => {
-    const combatResult = getComponentValueStrict(CombatResult, entity);
+  defineSystem(world, [Has(CombatOutcome)], ({ entity }) => {
+    const combatResult = getComponentValueStrict(CombatOutcome, entity);
     const { attacker: _attacker, defender: _defender, attackerDied, defenderDied, defenderCaptured } = combatResult;
 
     const attacker = _attacker as Entity;

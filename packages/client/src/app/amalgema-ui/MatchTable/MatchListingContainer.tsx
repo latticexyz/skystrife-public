@@ -26,7 +26,7 @@ export function MatchListingContainer({
 
         <div className="w-[100px] text-center shrink-0">Players</div>
 
-        <div className="w-[100px] text-center shrink-0">Map</div>
+        <div className="w-[120px] text-center shrink-0">Map</div>
 
         <div className="w-[100px] text-center shrink-0">Entrance Fee</div>
 
@@ -77,6 +77,8 @@ export function ViewOnlyMatchListingContainer({
 
       <div className="flex flex-row gap-x-8 w-full items-center bg-white h-[48px] px-4 text-ss-text-light text-sm uppercase border-b border-ss-stroke">
         <div className="grow min-w-[120px] text-left">Match Name</div>
+
+        <div className="w-[120px] text-center">Date Played</div>
 
         <div className="w-[120px] text-center shrink-0">Map</div>
 

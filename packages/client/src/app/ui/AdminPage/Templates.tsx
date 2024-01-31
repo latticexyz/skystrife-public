@@ -1,9 +1,9 @@
-import { useAmalgema } from "../../useAmalgema";
+import { useAmalgema } from "../../../useAmalgema";
 import { Entity, Has, getComponentValueStrict } from "@latticexyz/recs";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { Hex, hexToString } from "viem";
 import { hexToResource } from "@latticexyz/common";
-import { Button } from "./Theme/SkyStrife/Button";
+import { Button } from "../Theme/SkyStrife/Button";
 import { SchemaToPrimitives } from "@latticexyz/store";
 
 function StandardHero({ templateId }: { templateId: Entity }) {

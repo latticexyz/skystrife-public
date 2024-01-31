@@ -21,15 +21,15 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { RESOURCE_TABLE, RESOURCE_OFFCHAIN_TABLE } from "@latticexyz/store/src/storeResourceTypes.sol";
 
 ResourceId constant _tableId = ResourceId.wrap(
-  bytes32(abi.encodePacked(RESOURCE_OFFCHAIN_TABLE, bytes14(""), bytes16("CombatResult")))
+  bytes32(abi.encodePacked(RESOURCE_TABLE, bytes14(""), bytes16("CombatOutcome")))
 );
-ResourceId constant CombatResultTableId = _tableId;
+ResourceId constant CombatOutcomeTableId = _tableId;
 
 FieldLayout constant _fieldLayout = FieldLayout.wrap(
-  0x00540a0020200404040401010101000000000000000000000000000000000000
+  0x00940c0020200404040401010101202000000000000000000000000000000000
 );
 
-struct CombatResultData {
+struct CombatOutcomeData {
   bytes32 attacker;
   bytes32 defender;
   int32 attackerDamageReceived;
@@ -40,9 +40,11 @@ struct CombatResultData {
   bool attackerDied;
   bool defenderDied;
   bool defenderCaptured;
+  uint256 blockNumber;
+  uint256 timestamp;
 }
 
-library CombatResult {
+library CombatOutcome {
   /**
    * @notice Get the table values' field layout.
    * @return _fieldLayout The field layout for the table.
@@ -68,7 +70,7 @@ library CombatResult {
    * @return _valueSchema The value schema for the table.
    */
   function getValueSchema() internal pure returns (Schema) {
-    SchemaType[] memory _valueSchema = new SchemaType[](10);
+    SchemaType[] memory _valueSchema = new SchemaType[](12);
     _valueSchema[0] = SchemaType.BYTES32;
     _valueSchema[1] = SchemaType.BYTES32;
     _valueSchema[2] = SchemaType.INT32;
@@ -79,6 +81,8 @@ library CombatResult {
     _valueSchema[7] = SchemaType.BOOL;
     _valueSchema[8] = SchemaType.BOOL;
     _valueSchema[9] = SchemaType.BOOL;
+    _valueSchema[10] = SchemaType.UINT256;
+    _valueSchema[11] = SchemaType.UINT256;
 
     return SchemaLib.encode(_valueSchema);
   }
@@ -98,7 +102,7 @@ library CombatResult {
    * @return fieldNames An array of strings with the names of value fields.
    */
   function getFieldNames() internal pure returns (string[] memory fieldNames) {
-    fieldNames = new string[](10);
+    fieldNames = new string[](12);
     fieldNames[0] = "attacker";
     fieldNames[1] = "defender";
     fieldNames[2] = "attackerDamageReceived";
@@ -109,6 +113,8 @@ library CombatResult {
     fieldNames[7] = "attackerDied";
     fieldNames[8] = "defenderDied";
     fieldNames[9] = "defenderCaptured";
+    fieldNames[10] = "blockNumber";
+    fieldNames[11] = "timestamp";
   }
 
   /**
@@ -123,6 +129,30 @@ library CombatResult {
    */
   function _register() internal {
     StoreCore.registerTable(_tableId, _fieldLayout, getKeySchema(), getValueSchema(), getKeyNames(), getFieldNames());
+  }
+
+  /**
+   * @notice Get attacker.
+   */
+  function getAttacker(bytes32 matchEntity, bytes32 entity) internal view returns (bytes32 attacker) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Get attacker.
+   */
+  function _getAttacker(bytes32 matchEntity, bytes32 entity) internal view returns (bytes32 attacker) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 0, _fieldLayout);
+    return (bytes32(_blob));
   }
 
   /**
@@ -148,6 +178,30 @@ library CombatResult {
   }
 
   /**
+   * @notice Get defender.
+   */
+  function getDefender(bytes32 matchEntity, bytes32 entity) internal view returns (bytes32 defender) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
+   * @notice Get defender.
+   */
+  function _getDefender(bytes32 matchEntity, bytes32 entity) internal view returns (bytes32 defender) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 1, _fieldLayout);
+    return (bytes32(_blob));
+  }
+
+  /**
    * @notice Set defender.
    */
   function setDefender(bytes32 matchEntity, bytes32 entity, bytes32 defender) internal {
@@ -167,6 +221,36 @@ library CombatResult {
     _keyTuple[1] = entity;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 1, abi.encodePacked((defender)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get attackerDamageReceived.
+   */
+  function getAttackerDamageReceived(
+    bytes32 matchEntity,
+    bytes32 entity
+  ) internal view returns (int32 attackerDamageReceived) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (int32(uint32(bytes4(_blob))));
+  }
+
+  /**
+   * @notice Get attackerDamageReceived.
+   */
+  function _getAttackerDamageReceived(
+    bytes32 matchEntity,
+    bytes32 entity
+  ) internal view returns (int32 attackerDamageReceived) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 2, _fieldLayout);
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
@@ -192,6 +276,36 @@ library CombatResult {
   }
 
   /**
+   * @notice Get defenderDamageReceived.
+   */
+  function getDefenderDamageReceived(
+    bytes32 matchEntity,
+    bytes32 entity
+  ) internal view returns (int32 defenderDamageReceived) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (int32(uint32(bytes4(_blob))));
+  }
+
+  /**
+   * @notice Get defenderDamageReceived.
+   */
+  function _getDefenderDamageReceived(
+    bytes32 matchEntity,
+    bytes32 entity
+  ) internal view returns (int32 defenderDamageReceived) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 3, _fieldLayout);
+    return (int32(uint32(bytes4(_blob))));
+  }
+
+  /**
    * @notice Set defenderDamageReceived.
    */
   function setDefenderDamageReceived(bytes32 matchEntity, bytes32 entity, int32 defenderDamageReceived) internal {
@@ -211,6 +325,30 @@ library CombatResult {
     _keyTuple[1] = entity;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 3, abi.encodePacked((defenderDamageReceived)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get attackerDamage.
+   */
+  function getAttackerDamage(bytes32 matchEntity, bytes32 entity) internal view returns (int32 attackerDamage) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (int32(uint32(bytes4(_blob))));
+  }
+
+  /**
+   * @notice Get attackerDamage.
+   */
+  function _getAttackerDamage(bytes32 matchEntity, bytes32 entity) internal view returns (int32 attackerDamage) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 4, _fieldLayout);
+    return (int32(uint32(bytes4(_blob))));
   }
 
   /**
@@ -236,6 +374,30 @@ library CombatResult {
   }
 
   /**
+   * @notice Get defenderDamage.
+   */
+  function getDefenderDamage(bytes32 matchEntity, bytes32 entity) internal view returns (int32 defenderDamage) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    return (int32(uint32(bytes4(_blob))));
+  }
+
+  /**
+   * @notice Get defenderDamage.
+   */
+  function _getDefenderDamage(bytes32 matchEntity, bytes32 entity) internal view returns (int32 defenderDamage) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 5, _fieldLayout);
+    return (int32(uint32(bytes4(_blob))));
+  }
+
+  /**
    * @notice Set defenderDamage.
    */
   function setDefenderDamage(bytes32 matchEntity, bytes32 entity, int32 defenderDamage) internal {
@@ -255,6 +417,30 @@ library CombatResult {
     _keyTuple[1] = entity;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 5, abi.encodePacked((defenderDamage)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get ranged.
+   */
+  function getRanged(bytes32 matchEntity, bytes32 entity) internal view returns (bool ranged) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 6, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
+  }
+
+  /**
+   * @notice Get ranged.
+   */
+  function _getRanged(bytes32 matchEntity, bytes32 entity) internal view returns (bool ranged) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 6, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
@@ -280,6 +466,30 @@ library CombatResult {
   }
 
   /**
+   * @notice Get attackerDied.
+   */
+  function getAttackerDied(bytes32 matchEntity, bytes32 entity) internal view returns (bool attackerDied) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
+  }
+
+  /**
+   * @notice Get attackerDied.
+   */
+  function _getAttackerDied(bytes32 matchEntity, bytes32 entity) internal view returns (bool attackerDied) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 7, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
+  }
+
+  /**
    * @notice Set attackerDied.
    */
   function setAttackerDied(bytes32 matchEntity, bytes32 entity, bool attackerDied) internal {
@@ -299,6 +509,30 @@ library CombatResult {
     _keyTuple[1] = entity;
 
     StoreCore.setStaticField(_tableId, _keyTuple, 7, abi.encodePacked((attackerDied)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get defenderDied.
+   */
+  function getDefenderDied(bytes32 matchEntity, bytes32 entity) internal view returns (bool defenderDied) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
+  }
+
+  /**
+   * @notice Get defenderDied.
+   */
+  function _getDefenderDied(bytes32 matchEntity, bytes32 entity) internal view returns (bool defenderDied) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 8, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
   }
 
   /**
@@ -324,6 +558,30 @@ library CombatResult {
   }
 
   /**
+   * @notice Get defenderCaptured.
+   */
+  function getDefenderCaptured(bytes32 matchEntity, bytes32 entity) internal view returns (bool defenderCaptured) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 9, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
+  }
+
+  /**
+   * @notice Get defenderCaptured.
+   */
+  function _getDefenderCaptured(bytes32 matchEntity, bytes32 entity) internal view returns (bool defenderCaptured) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 9, _fieldLayout);
+    return (_toBool(uint8(bytes1(_blob))));
+  }
+
+  /**
    * @notice Set defenderCaptured.
    */
   function setDefenderCaptured(bytes32 matchEntity, bytes32 entity, bool defenderCaptured) internal {
@@ -346,6 +604,130 @@ library CombatResult {
   }
 
   /**
+   * @notice Get blockNumber.
+   */
+  function getBlockNumber(bytes32 matchEntity, bytes32 entity) internal view returns (uint256 blockNumber) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 10, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Get blockNumber.
+   */
+  function _getBlockNumber(bytes32 matchEntity, bytes32 entity) internal view returns (uint256 blockNumber) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 10, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Set blockNumber.
+   */
+  function setBlockNumber(bytes32 matchEntity, bytes32 entity, uint256 blockNumber) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 10, abi.encodePacked((blockNumber)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set blockNumber.
+   */
+  function _setBlockNumber(bytes32 matchEntity, bytes32 entity, uint256 blockNumber) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 10, abi.encodePacked((blockNumber)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get timestamp.
+   */
+  function getTimestamp(bytes32 matchEntity, bytes32 entity) internal view returns (uint256 timestamp) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreSwitch.getStaticField(_tableId, _keyTuple, 11, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Get timestamp.
+   */
+  function _getTimestamp(bytes32 matchEntity, bytes32 entity) internal view returns (uint256 timestamp) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    bytes32 _blob = StoreCore.getStaticField(_tableId, _keyTuple, 11, _fieldLayout);
+    return (uint256(bytes32(_blob)));
+  }
+
+  /**
+   * @notice Set timestamp.
+   */
+  function setTimestamp(bytes32 matchEntity, bytes32 entity, uint256 timestamp) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    StoreSwitch.setStaticField(_tableId, _keyTuple, 11, abi.encodePacked((timestamp)), _fieldLayout);
+  }
+
+  /**
+   * @notice Set timestamp.
+   */
+  function _setTimestamp(bytes32 matchEntity, bytes32 entity, uint256 timestamp) internal {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    StoreCore.setStaticField(_tableId, _keyTuple, 11, abi.encodePacked((timestamp)), _fieldLayout);
+  }
+
+  /**
+   * @notice Get the full data.
+   */
+  function get(bytes32 matchEntity, bytes32 entity) internal view returns (CombatOutcomeData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    (bytes memory _staticData, PackedCounter _encodedLengths, bytes memory _dynamicData) = StoreSwitch.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
+   * @notice Get the full data.
+   */
+  function _get(bytes32 matchEntity, bytes32 entity) internal view returns (CombatOutcomeData memory _table) {
+    bytes32[] memory _keyTuple = new bytes32[](2);
+    _keyTuple[0] = matchEntity;
+    _keyTuple[1] = entity;
+
+    (bytes memory _staticData, PackedCounter _encodedLengths, bytes memory _dynamicData) = StoreCore.getRecord(
+      _tableId,
+      _keyTuple,
+      _fieldLayout
+    );
+    return decode(_staticData, _encodedLengths, _dynamicData);
+  }
+
+  /**
    * @notice Set the full data using individual values.
    */
   function set(
@@ -360,7 +742,9 @@ library CombatResult {
     bool ranged,
     bool attackerDied,
     bool defenderDied,
-    bool defenderCaptured
+    bool defenderCaptured,
+    uint256 blockNumber,
+    uint256 timestamp
   ) internal {
     bytes memory _staticData = encodeStatic(
       attacker,
@@ -372,7 +756,9 @@ library CombatResult {
       ranged,
       attackerDied,
       defenderDied,
-      defenderCaptured
+      defenderCaptured,
+      blockNumber,
+      timestamp
     );
 
     PackedCounter _encodedLengths;
@@ -400,7 +786,9 @@ library CombatResult {
     bool ranged,
     bool attackerDied,
     bool defenderDied,
-    bool defenderCaptured
+    bool defenderCaptured,
+    uint256 blockNumber,
+    uint256 timestamp
   ) internal {
     bytes memory _staticData = encodeStatic(
       attacker,
@@ -412,7 +800,9 @@ library CombatResult {
       ranged,
       attackerDied,
       defenderDied,
-      defenderCaptured
+      defenderCaptured,
+      blockNumber,
+      timestamp
     );
 
     PackedCounter _encodedLengths;
@@ -428,7 +818,7 @@ library CombatResult {
   /**
    * @notice Set the full data using the data struct.
    */
-  function set(bytes32 matchEntity, bytes32 entity, CombatResultData memory _table) internal {
+  function set(bytes32 matchEntity, bytes32 entity, CombatOutcomeData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.attacker,
       _table.defender,
@@ -439,7 +829,9 @@ library CombatResult {
       _table.ranged,
       _table.attackerDied,
       _table.defenderDied,
-      _table.defenderCaptured
+      _table.defenderCaptured,
+      _table.blockNumber,
+      _table.timestamp
     );
 
     PackedCounter _encodedLengths;
@@ -455,7 +847,7 @@ library CombatResult {
   /**
    * @notice Set the full data using the data struct.
    */
-  function _set(bytes32 matchEntity, bytes32 entity, CombatResultData memory _table) internal {
+  function _set(bytes32 matchEntity, bytes32 entity, CombatOutcomeData memory _table) internal {
     bytes memory _staticData = encodeStatic(
       _table.attacker,
       _table.defender,
@@ -466,7 +858,9 @@ library CombatResult {
       _table.ranged,
       _table.attackerDied,
       _table.defenderDied,
-      _table.defenderCaptured
+      _table.defenderCaptured,
+      _table.blockNumber,
+      _table.timestamp
     );
 
     PackedCounter _encodedLengths;
@@ -497,7 +891,9 @@ library CombatResult {
       bool ranged,
       bool attackerDied,
       bool defenderDied,
-      bool defenderCaptured
+      bool defenderCaptured,
+      uint256 blockNumber,
+      uint256 timestamp
     )
   {
     attacker = (Bytes.slice32(_blob, 0));
@@ -519,6 +915,10 @@ library CombatResult {
     defenderDied = (_toBool(uint8(Bytes.slice1(_blob, 82))));
 
     defenderCaptured = (_toBool(uint8(Bytes.slice1(_blob, 83))));
+
+    blockNumber = (uint256(Bytes.slice32(_blob, 84)));
+
+    timestamp = (uint256(Bytes.slice32(_blob, 116)));
   }
 
   /**
@@ -531,7 +931,7 @@ library CombatResult {
     bytes memory _staticData,
     PackedCounter,
     bytes memory
-  ) internal pure returns (CombatResultData memory _table) {
+  ) internal pure returns (CombatOutcomeData memory _table) {
     (
       _table.attacker,
       _table.defender,
@@ -542,7 +942,9 @@ library CombatResult {
       _table.ranged,
       _table.attackerDied,
       _table.defenderDied,
-      _table.defenderCaptured
+      _table.defenderCaptured,
+      _table.blockNumber,
+      _table.timestamp
     ) = decodeStatic(_staticData);
   }
 
@@ -582,7 +984,9 @@ library CombatResult {
     bool ranged,
     bool attackerDied,
     bool defenderDied,
-    bool defenderCaptured
+    bool defenderCaptured,
+    uint256 blockNumber,
+    uint256 timestamp
   ) internal pure returns (bytes memory) {
     return
       abi.encodePacked(
@@ -595,7 +999,9 @@ library CombatResult {
         ranged,
         attackerDied,
         defenderDied,
-        defenderCaptured
+        defenderCaptured,
+        blockNumber,
+        timestamp
       );
   }
 
@@ -615,7 +1021,9 @@ library CombatResult {
     bool ranged,
     bool attackerDied,
     bool defenderDied,
-    bool defenderCaptured
+    bool defenderCaptured,
+    uint256 blockNumber,
+    uint256 timestamp
   ) internal pure returns (bytes memory, PackedCounter, bytes memory) {
     bytes memory _staticData = encodeStatic(
       attacker,
@@ -627,7 +1035,9 @@ library CombatResult {
       ranged,
       attackerDied,
       defenderDied,
-      defenderCaptured
+      defenderCaptured,
+      blockNumber,
+      timestamp
     );
 
     PackedCounter _encodedLengths;

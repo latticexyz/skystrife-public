@@ -3,7 +3,7 @@ import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Modal } from "./Modal";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useAmalgema } from "../../useAmalgema";
-import { Entity, Has } from "@latticexyz/recs";
+import { Entity, HasValue } from "@latticexyz/recs";
 import { UnitTypes } from "../../layers/Network";
 import { UnitTypeSprites } from "../../layers/Renderer/Phaser/phaserConstants";
 import { SpriteImage } from "../ui/Theme/SpriteImage";
@@ -14,6 +14,7 @@ import { UnitTypeDescriptions, UnitTypeNames } from "../../layers/Network/types"
 import { useSeasonPassExternalWallet } from "./hooks/useSeasonPass";
 import { Tooltip } from "react-tooltip";
 import { OverlineSmall } from "../ui/Theme/SkyStrife/Typography";
+import { uniq } from "lodash";
 
 const UnitTypeStatBars = {
   [UnitTypes.Golem]: {
@@ -179,16 +180,54 @@ function HeroPreview({
   );
 }
 
-export function HeroSelect({ hero, setHero }: { hero: Hex; setHero: (hero: Hex) => void }) {
+export function HeroModal({
+  hero,
+  setHero,
+  footer,
+  trigger,
+}: {
+  hero: Hex;
+  setHero: (hero: Hex) => void;
+  footer: React.ReactNode;
+  trigger?: React.ReactNode;
+}) {
   const {
     components: { HeroInRotation, HeroInSeasonPassRotation, UnitType },
     utils: { getTemplateValueStrict },
   } = useAmalgema();
 
-  const freeHeroes = useEntityQuery([Has(HeroInRotation)]);
-  const seasonPassHeroes = useEntityQuery([Has(HeroInSeasonPassRotation)]);
+  const freeHeroes = useEntityQuery([HasValue(HeroInRotation, { value: true })]);
+  const seasonPassHeroes = useEntityQuery([HasValue(HeroInSeasonPassRotation, { value: true })]);
 
-  const allHeroes = [...freeHeroes, ...seasonPassHeroes];
+  const allHeroes = uniq([...freeHeroes, ...seasonPassHeroes]);
+
+  return (
+    <Modal title="select a hero" footer={footer} trigger={trigger || <Button buttonType="primary">switch hero</Button>}>
+      <div className="w-full">
+        <div className="flex justify-around space-x-6">
+          {allHeroes.map((heroEntity, i) => {
+            return (
+              <HeroPreview
+                key={`${heroEntity}-${i}`}
+                heroEntity={heroEntity}
+                setHero={setHero}
+                selected={(heroEntity as Hex) === hero}
+              />
+            );
+          })}
+        </div>
+
+        <div className="h-3" />
+      </div>
+    </Modal>
+  );
+}
+
+export function HeroSelect({ hero, setHero }: { hero: Hex; setHero: (hero: Hex) => void }) {
+  const {
+    components: { UnitType },
+    utils: { getTemplateValueStrict },
+  } = useAmalgema();
 
   const unitType = getTemplateValueStrict(UnitType.id as Hex, hero as Hex).value as UnitTypes;
   const description = UnitTypeDescriptions[unitType];
@@ -207,8 +246,9 @@ export function HeroSelect({ hero, setHero }: { hero: Hex; setHero: (hero: Hex) 
             <div className="text-ss-text-x-light">{description}</div>
           </div>
         </div>
-        <Modal
-          title="select a hero"
+        <HeroModal
+          hero={hero}
+          setHero={setHero}
           footer={
             <Dialog.Close asChild>
               <Button className="w-full" buttonType="primary">
@@ -216,25 +256,7 @@ export function HeroSelect({ hero, setHero }: { hero: Hex; setHero: (hero: Hex) 
               </Button>
             </Dialog.Close>
           }
-          trigger={<Button buttonType="primary">switch hero</Button>}
-        >
-          <div className="w-full">
-            <div className="flex justify-around space-x-6">
-              {allHeroes.map((heroEntity, i) => {
-                return (
-                  <HeroPreview
-                    key={`${heroEntity}-${i}`}
-                    heroEntity={heroEntity}
-                    setHero={setHero}
-                    selected={(heroEntity as Hex) === hero}
-                  />
-                );
-              })}
-            </div>
-
-            <div className="h-3" />
-          </div>
-        </Modal>
+        />
       </div>
     </div>
   );

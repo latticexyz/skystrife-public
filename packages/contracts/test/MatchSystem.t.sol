@@ -168,30 +168,7 @@ contract MatchSystemTest is BaseTest, GasReporter {
     vm.stopPrank();
   }
 
-  // remove for now since we do not need this
-  // function testBuySeasonPassMax() public {
-  //   prankAdmin();
-  //   // Decrease the multiplier to avoid overflow
-  //   SeasonPassConfig.setMultiplier(1);
-  //   vm.stopPrank();
-
-  //   uint256 price;
-
-  //   vm.startPrank(alice);
-
-  //   for (uint256 i = 1; i < MAX_TOKEN_ID + 1; i++) {
-  //     price = calculateCurrentPrice();
-  //     world.buySeasonPass{ value: price }(address(uint160(i)));
-  //   }
-
-  //   price = calculateCurrentPrice();
-
-  //   // Attempt to buy too many season passes
-  //   vm.expectRevert("all season passes have been minted");
-  //   world.buySeasonPass{ value: price }(alice);
-
-  //   vm.stopPrank();
-  // }
+  function testCreateSeasonPass() public {}
 
   function _createMatchSeasonPass(
     bytes32 matchEntity,

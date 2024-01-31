@@ -2,11 +2,11 @@
 pragma solidity >=0.8.0;
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Combat, CombatData, CombatResult, CombatResultData, Range, Capturable } from "../codegen/index.sol";
+import { CombatOutcome, CombatOutcomeData, Range } from "../codegen/index.sol";
 import { LibCombat } from "../libraries/LibCombat.sol";
 import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 
-import { CombatResultSystem } from "./CombatResultSystem.sol";
+import { CombatOutcomeSystem } from "./CombatOutcomeSystem.sol";
 
 // internal system
 contract AttackSystem is System {
@@ -31,11 +31,10 @@ contract AttackSystem is System {
 
     SystemSwitch.call(
       abi.encodeCall(
-        CombatResultSystem.setCombatResult,
+        CombatOutcomeSystem.setCombatOutcome,
         (
           matchEntity,
-          attacker,
-          CombatResultData({
+          CombatOutcomeData({
             attacker: attacker,
             defender: defender,
             attackerDamageReceived: defenderDamage,
@@ -45,7 +44,9 @@ contract AttackSystem is System {
             ranged: ranged,
             attackerDied: attackerDied,
             defenderDied: defenderDied,
-            defenderCaptured: defenderCaptured
+            defenderCaptured: defenderCaptured,
+            blockNumber: block.number,
+            timestamp: block.timestamp
           })
         )
       )

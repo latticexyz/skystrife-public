@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { LevelInStandardRotation, LevelInSeasonPassRotation } from "../codegen/index.sol";
-import { addressToEntity, isAdmin } from "../libraries/LibUtils.sol";
 import { skyKeyHolderOnly } from "../libraries/LibSkyPool.sol";
 
 contract LevelRotationSystem is System {

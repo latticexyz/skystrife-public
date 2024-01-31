@@ -1,17 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Entity, getComponentValue, Has, HasValue } from "@latticexyz/recs";
+import { Entity, getComponentValue, Has, HasValue, runQuery } from "@latticexyz/recs";
 import { useMUD } from "../../../useMUD";
 import { useCurrentPlayer } from "../hooks/useCurrentPlayer";
 import { Button } from "../Theme/SkyStrife/Button";
 import { Heading, OverlineSmall } from "../Theme/SkyStrife/Typography";
 import { addressToEntityID } from "../../../mud/setupNetwork";
-import { Hex, hexToString, stringToHex } from "viem";
+import { Hex, formatEther, stringToHex } from "viem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useMatchInfo } from "../hooks/useMatchInfo";
 import { CreatedBy } from "../../amalgema-ui/CreatedBy";
 import { SendTxButton } from "../hooks/SendTxButton";
-import { MatchNumber } from "../MatchNumber";
 import { getMatchUrl } from "../../../getMatchUrl";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { SystemCall, encodeSystemCallFrom, encodeSystemCalls } from "@latticexyz/world";
@@ -19,6 +18,14 @@ import { LOBBY_SYSTEM_ID, NAME_SYSTEM_ID, PLAYER_REGISTER_SYSTEM_ID } from "../.
 import { SessionWalletManager } from "../../amalgema-ui/SessionWalletManager";
 import { useExternalAccount } from "../hooks/useExternalAccount";
 import { getDelegationSystemCalls } from "../../../getDelegationSystemCalls";
+import { useBurnerBalance } from "../../amalgema-ui/hooks/useBurnerBalance";
+import { useMatchRewards } from "../../amalgema-ui/hooks/useMatchRewards";
+import { useOrbBalance } from "../../amalgema-ui/hooks/useOrbBalance";
+import { LabeledOrbInput } from "../../amalgema-ui/SummonIsland/common";
+import { HeroSelect } from "../../amalgema-ui/HeroSelect";
+import { useIsAllowed } from "../../amalgema-ui/MatchTable/hooks";
+import { SeasonPassIcon } from "../../amalgema-ui/SeasonPassIcon";
+import { JoinModal } from "../../amalgema-ui/MatchTable/JoinModal";
 
 function ChainSVG({ onClick }: { onClick?: () => void }) {
   const [hover, setHover] = useState(false);
@@ -63,20 +70,23 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
     externalWorldContract,
     networkLayer: {
       network,
-      components: { PlayerReady, MatchName },
+      components: { PlayerReady },
       utils: { getAvailableLevelSpawns, hasSystemDelegation },
       executeSystemWithExternalWallet,
     },
   } = useMUD();
 
   const {
-    components: { Name, Match, MatchConfig },
+    components: { Name, Match, MatchConfig, HeroInRotation },
     walletClient,
     worldContract,
   } = network;
 
   const name = useComponentValue(Name, addressToEntityID(address || ("0x00" as Hex)));
   const [newName, setNewName] = useState(name ? name.value : "");
+
+  const freeHero = [...runQuery([HasValue(HeroInRotation, { value: true })])][0] ?? stringToHex("Golem", { size: 32 });
+  const [hero, setHero] = useState(freeHero as Hex);
 
   const [pendingTx, setPendingTx] = useState(false);
 
@@ -86,10 +96,17 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
 
   const otherNames = useEntityQuery([Has(Name)]).map((entity) => getComponentValue(Name, entity)?.value);
   const nameTaken = otherNames.includes(newName);
-  const registerDisabled = newName.length === 0 || newName.length > 32 || (nameTaken && name?.value !== newName);
 
   const matchConfig = useComponentValue(MatchConfig, matchEntity);
   const levelId = matchConfig?.levelId;
+
+  const burnerBalance = useBurnerBalance();
+  const matchRewards = useMatchRewards(matchEntity);
+  const entranceFeeEth = formatEther(matchRewards.entranceFee);
+
+  const orbBalance = useOrbBalance();
+
+  const { isAllowed, isSeasonPassOnly, hasAllowList } = useIsAllowed(matchEntity);
 
   const availableSpawns = levelId ? getAvailableLevelSpawns(levelId, matchEntity as Hex) : [];
 
@@ -110,7 +127,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
           {
             systemId: PLAYER_REGISTER_SYSTEM_ID,
             functionName: "register",
-            args: [matchEntity as Hex, availableSpawns[0], stringToHex("Golem", { size: 32 })],
+            args: [matchEntity as Hex, availableSpawns[0], hero as Hex],
           },
           {
             systemId: NAME_SYSTEM_ID,
@@ -167,11 +184,20 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
   };
 
   let disabledMessage = "";
-  if (newName.length === 0) disabledMessage = "Join";
+  if (newName.length === 0) disabledMessage = "Pick a name";
   if (newName.length > 32) disabledMessage = "Name too long";
   if (nameTaken) disabledMessage = "Name taken";
+  if (orbBalance < matchRewards.entranceFee) disabledMessage = `Cannot pay ${entranceFeeEth}🔮`;
+  if (!isAllowed && isSeasonPassOnly) disabledMessage = "Season Pass hodlers only";
+  if (!isAllowed && hasAllowList) disabledMessage = "You are not on the access list";
 
-  let joinButtonText = "Join";
+  let registerDisabled = false;
+  if (newName.length === 0 || newName.length > 32 || (nameTaken && name?.value !== newName)) registerDisabled = true;
+  if (orbBalance < matchRewards.entranceFee) registerDisabled = true;
+  if (!isAllowed) registerDisabled = true;
+
+  let joinButtonText = `Join - Free`;
+  if (matchRewards.entranceFee > 0n) joinButtonText = `Join - ${entranceFeeEth}🔮`;
   if (registerDisabled) joinButtonText = disabledMessage;
   if (pendingTx) joinButtonText = "Joining...";
 
@@ -179,40 +205,56 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
 
   return (
     <div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          register();
-        }}
-        className="w-full"
-      >
-        <div className="relative h-fit">
-          <input
-            type={"text"}
-            className="w-full py-2 px-3 rounded border border-1 border-white bg-[#F4F3F1] flex flex-row"
-            placeholder="Enter a name"
-            disabled={Boolean(pendingTx || currentPlayer?.player)}
-            value={newName}
-            onChange={(e) => {
-              let name = e.target.value;
-              if (name.length > 32) name = name.slice(0, 32);
+      {!currentPlayer.player && (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            register();
+          }}
+          className="w-full"
+        >
+          <div className="relative h-fit">
+            <input
+              type={"text"}
+              className="w-full py-2 px-3 rounded border border-1 border-white bg-[#F4F3F1] flex flex-row"
+              placeholder="Enter a name"
+              disabled={Boolean(pendingTx || currentPlayer?.player)}
+              value={newName}
+              onChange={(e) => {
+                let name = e.target.value;
+                if (name.length > 32) name = name.slice(0, 32);
 
-              setNewName(name);
-              return false;
-            }}
-          ></input>
+                setNewName(name);
+                return false;
+              }}
+            ></input>
 
-          <div
-            style={{
-              pointerEvents: "none",
-              top: `calc(50% - 11px)`,
-            }}
-            className="absolute right-3 text-ss-text-x-light uppercase"
-          >
-            {address?.slice(0, 6)}...{address?.slice(-4)}
+            <div
+              style={{
+                pointerEvents: "none",
+                top: `calc(50% - 11px)`,
+              }}
+              className="absolute right-3 text-ss-text-x-light uppercase"
+            >
+              {address?.slice(0, 6)}...{address?.slice(-4)}
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      )}
+
+      {!currentPlayer.player && !registerDisabled && (
+        <>
+          <HeroSelect hero={hero} setHero={setHero} />
+
+          <div className="h-4"></div>
+        </>
+      )}
+
+      <div className="flex">
+        <LabeledOrbInput label="Your Balance" amount={orbBalance} />
+      </div>
+
+      <div className="h-4"></div>
 
       <div className="flex row">
         {!currentPlayer?.player && (
@@ -224,7 +266,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
                 className="w-full"
                 onClick={() => register()}
               >
-                {joinButtonText}
+                {registerDisabled ? disabledMessage : joinButtonText}
               </Button>
             ) : (
               <Button disabled buttonType="secondary" className="text-2xl w-full">
@@ -251,9 +293,12 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
         )}
       </div>
 
-      <div className="h-4"></div>
-
-      <SessionWalletManager />
+      {burnerBalance?.belowDanger && (
+        <>
+          <div className="h-4"></div>
+          <SessionWalletManager />
+        </>
+      )}
     </div>
   );
 };
@@ -273,13 +318,17 @@ export const JoinGame = ({ matchEntity }: { matchEntity: Entity }) => {
   }, [showCopyNotification]);
 
   const matchInfo = useMatchInfo(matchEntity);
+  const allowInfo = useIsAllowed(matchEntity);
 
   const { address } = useExternalAccount();
 
   return (
     <div className="w-full">
       <div className="flex flex-row">
-        <Heading>{matchInfo.matchName}</Heading>
+        <Heading className="flex flex-row items-center gap-x-1">
+          {allowInfo.isSeasonPassOnly && <SeasonPassIcon />}
+          {matchInfo.matchName}
+        </Heading>
         <div className="w-3"></div>
         <div className="flex flex-row items-center bg-[#F4F3F1] hover:bg-gray border border-1 border-[#DDDAD0] rounded py-1 px-1">
           <ChainSVG
@@ -301,6 +350,12 @@ export const JoinGame = ({ matchEntity }: { matchEntity: Entity }) => {
         ></input>
         <div className="w-3"></div>
         {showCopyNotification && <div className="text-ss-text-x-light animate-bounce">Copied!</div>}
+
+        <div className="flex-grow"></div>
+
+        <JoinModal viewOnly matchEntity={matchEntity}>
+          <Button buttonType="tertiary">Match Info</Button>
+        </JoinModal>
       </div>
       {matchInfo?.matchConfig?.createdBy && <CreatedBy createdBy={matchInfo.matchConfig.createdBy as Hex} />}
 

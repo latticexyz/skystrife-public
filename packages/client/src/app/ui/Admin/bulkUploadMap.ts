@@ -13,20 +13,35 @@ export async function bulkUploadMap(layer: NetworkLayer, level: Level, name: str
   console.log(`Uploading ${name} level`);
 
   const chunkedState = Array.from(chunk(level, STATE_UPDATES_PER_TX));
-  const txs = await Promise.all(
-    chunkedState.map((stateChunk) => {
+  await Promise.all(
+    chunkedState.map(async (stateChunk) => {
       const levelId = stringToHex(name, { size: 32 });
       const templateIds = stateChunk.map((s) => stringToHex(s.templateId, { size: 32 }));
       const xs = stateChunk.map((s) => s.values.Position.x);
       const ys = stateChunk.map((s) => s.values.Position.y);
 
-      return layer.network.worldContract.write.uploadLevel([levelId, templateIds, xs, ys]);
+      let success = false;
+      let retryCount = 0;
+
+      while (!success && retryCount < 3) {
+        try {
+          const tx = await layer.network.worldContract.write.uploadLevel([levelId, templateIds, xs, ys]);
+          await layer.network.waitForTransaction(tx);
+          success = true;
+        } catch (e) {
+          console.log(e);
+          retryCount++;
+          continue;
+        }
+      }
+
+      if (!success) {
+        throw new Error(`Failed to upload ${name} level`);
+      }
+
+      return true;
     })
   );
-
-  for (const tx of txs) {
-    await layer.network.waitForTransaction(tx);
-  }
 
   console.log(`Uploaded ${name} level!`);
 }

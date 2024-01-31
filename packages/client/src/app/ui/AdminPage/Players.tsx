@@ -1,13 +1,13 @@
-import { useAmalgema } from "../../useAmalgema";
+import { useAmalgema } from "../../../useAmalgema";
 import { Entity, Has } from "@latticexyz/recs";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { toEthAddress } from "@latticexyz/utils";
-import { useSeasonPass } from "../amalgema-ui/hooks/useSeasonPass";
+import { useSeasonPass } from "../../amalgema-ui/hooks/useSeasonPass";
 import { Hex, formatEther } from "viem";
 import { decodeEntity } from "@latticexyz/store-sync/recs";
-import { addressToEntityID } from "../../mud/setupNetwork";
+import { addressToEntityID } from "../../../mud/setupNetwork";
 import { uniq } from "lodash";
-import { SeasonPassIcon } from "../amalgema-ui/SeasonPassIcon";
+import { SeasonPassIcon } from "../../amalgema-ui/SeasonPassIcon";
 
 function Player({ entity, index, matchesJoined }: { entity: Entity; index: number; matchesJoined: number }) {
   const {

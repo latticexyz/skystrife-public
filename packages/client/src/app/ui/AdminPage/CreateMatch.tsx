@@ -1,24 +1,24 @@
 import { useEntityQuery } from "@latticexyz/react";
 import { Entity, Has } from "@latticexyz/recs";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useAmalgema } from "../../useAmalgema";
-import { BrutalistCard } from "./Theme/BrutalistCard";
+import { useAmalgema } from "../../../useAmalgema";
+import { BrutalistCard } from "../Theme/BrutalistCard";
 import { DisplayLevel } from "./DisplayLevel";
 import { Hex, encodeFunctionData, hexToString, maxUint256, padHex } from "viem";
-import { createMatchEntity } from "../../createMatchEntity";
-import useOnClickOutside from "./hooks/useOnClickOutside";
-import { OverlineLarge } from "./Theme/SkyStrife/Typography";
-import { CrossIcon } from "./Theme/CrossIcon";
-import { Button } from "./Theme/SkyStrife/Button";
-import { MATCH_SYSTEM_ID, SEASON_PASS_ONLY_SYSTEM_ID, SYSTEMBOUND_DELEGATION } from "../../constants";
+import { createMatchEntity } from "../../../createMatchEntity";
+import useOnClickOutside from "../hooks/useOnClickOutside";
+import { OverlineLarge } from "../Theme/SkyStrife/Typography";
+import { CrossIcon } from "../Theme/CrossIcon";
+import { Button } from "../Theme/SkyStrife/Button";
+import { MATCH_SYSTEM_ID, SEASON_PASS_ONLY_SYSTEM_ID, SYSTEMBOUND_DELEGATION } from "../../../constants";
 import { DateTime, Duration } from "luxon";
 import useLocalStorageState from "use-local-storage-state";
-import { PromiseButton } from "./hooks/PromiseButton";
-import { useExternalAccount } from "./hooks/useExternalAccount";
-import { DelegationAbi } from "./Admin/delegationAbi";
+import { PromiseButton } from "../hooks/PromiseButton";
+import { useExternalAccount } from "../hooks/useExternalAccount";
+import { DelegationAbi } from "../Admin/delegationAbi";
 import { encodeSystemCallFrom } from "@latticexyz/world";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
-import { findOldestMatchInWindow } from "../amalgema-ui/utils/skypool";
+import { findOldestMatchInWindow } from "../../amalgema-ui/utils/skypool";
 
 function nowGmt() {
   return DateTime.now().setZone("GMT");
@@ -249,8 +249,11 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                   if (!externalWorldContract || !address) return;
 
                   const creationTxs = [];
+                  const matchEntities = [];
                   for (let i = 0; i < numToCreate; i++) {
                     const matchEntity = createMatchEntity();
+                    matchEntities.push(matchEntity);
+
                     const hash = await worldContract.write.callFrom(
                       encodeSystemCallFrom({
                         abi: IWorldAbi,
@@ -275,6 +278,11 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                   }
 
                   await Promise.all(creationTxs);
+
+                  for (const matchEntity of matchEntities) {
+                    await worldContract.write.copyMap([matchEntity]);
+                  }
+
                   close();
                 }}
               >

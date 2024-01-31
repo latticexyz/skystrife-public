@@ -8,7 +8,7 @@ import { LibCombat } from "../src/libraries/LibCombat.sol";
 import { LibStamina } from "../src/libraries/LibStamina.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
-import { Combat, CombatData, Charger, Position, PositionData, Range, RangeData, OwnedBy, SpawnPoint, Stamina, Capturable, StructureType, Match, MatchRanking, StaminaOnKill, MatchConfig, Chargers, CombatResultData } from "../src/codegen/index.sol";
+import { Combat, CombatData, Charger, Position, PositionData, Range, RangeData, OwnedBy, SpawnPoint, Stamina, Capturable, StructureType, Match, MatchRanking, StaminaOnKill, MatchConfig, Chargers, CombatOutcomeData } from "../src/codegen/index.sol";
 
 import { StructureTypes } from "../src/codegen/common.sol";
 
@@ -246,13 +246,12 @@ contract CombatSystemTest is BaseTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testCombatResultSystemIsInternal() public {
+  function testCombatOutcomeSystemIsInternal() public {
     vm.startPrank(alice);
     vm.expectRevert();
-    world.setCombatResult(
+    world.setCombatOutcome(
       0,
-      attacker,
-      CombatResultData({
+      CombatOutcomeData({
         attacker: attacker,
         defender: defender,
         attackerDamageReceived: 0,
@@ -262,7 +261,9 @@ contract CombatSystemTest is BaseTest, GasReporter {
         ranged: false,
         attackerDied: false,
         defenderDied: false,
-        defenderCaptured: false
+        defenderCaptured: false,
+        blockNumber: 0,
+        timestamp: 0
       })
     );
     vm.stopPrank();

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { Button } from "../../ui/Theme/SkyStrife/Button";
 import { createMatchEntity } from "../../../createMatchEntity";
-import { Hex, padHex, stringToHex } from "viem";
+import { Hex, padHex } from "viem";
 import { SystemCall, encodeSystemCalls } from "@latticexyz/world";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { getMatchUrl } from "../../../getMatchUrl";
@@ -19,6 +19,9 @@ import {
 import { getDelegationSystemCalls } from "../../../getDelegationSystemCalls";
 import { useHasSkyKeyExternalWallet } from "../hooks/useHasSkyKey";
 import { findOldestMatchInWindow } from "../utils/skypool";
+import { HeroModal } from "../HeroSelect";
+import * as Dialog from "@radix-ui/react-dialog";
+import { HasValue, runQuery } from "@latticexyz/recs";
 
 export function Footer({
   matchName,
@@ -44,6 +47,7 @@ export function Footer({
     utils: { getLevelSpawns, hasSystemDelegation },
     externalWorldContract,
     executeSystemWithExternalWallet,
+    components: { HeroInRotation },
   } = networkLayer;
 
   const skypoolConfig = useSkyPoolConfig();
@@ -52,6 +56,9 @@ export function Footer({
   const hasSkyKey = useHasSkyKeyExternalWallet();
 
   const [txPending, setTxPending] = useState(false);
+
+  const freeHero = [...runQuery([HasValue(HeroInRotation, { value: true })])][0];
+  const [hero, setHero] = useState(freeHero as Hex);
 
   const spawnsInLevel = getLevelSpawns(levelId);
   const numPlayers = spawnsInLevel.length;
@@ -152,7 +159,7 @@ export function Footer({
         {
           systemId: PLAYER_REGISTER_SYSTEM_ID,
           functionName: "register",
-          args: [matchEntity, spawnsInLevel[0], stringToHex("Golem", { size: 32 })],
+          args: [matchEntity, spawnsInLevel[0], hero],
         },
         {
           systemId: COPY_MAP_SYSTEM_ID,
@@ -284,7 +291,7 @@ export function Footer({
         {
           systemId: PLAYER_REGISTER_SYSTEM_ID,
           functionName: "register",
-          args: [matchEntity, spawnsInLevel[0], stringToHex("Golem", { size: 32 })],
+          args: [matchEntity, spawnsInLevel[0], hero],
         },
         {
           systemId: COPY_MAP_SYSTEM_ID,
@@ -345,7 +352,7 @@ export function Footer({
         {
           systemId: PLAYER_REGISTER_SYSTEM_ID,
           functionName: "register",
-          args: [matchEntity, spawnsInLevel[0], stringToHex("Golem", { size: 32 })],
+          args: [matchEntity, spawnsInLevel[0], hero],
         },
         {
           systemId: COPY_MAP_SYSTEM_ID,
@@ -400,7 +407,7 @@ export function Footer({
         {
           systemId: PLAYER_REGISTER_SYSTEM_ID,
           functionName: "register",
-          args: [matchEntity, spawnsInLevel[0], stringToHex("Golem", { size: 32 })],
+          args: [matchEntity, spawnsInLevel[0], hero],
         },
         {
           systemId: COPY_MAP_SYSTEM_ID,
@@ -463,9 +470,27 @@ export function Footer({
 
       <div className="w-8" />
 
-      <Button onClick={createAndJoinAction} disabled={disabled} buttonType="secondary" className="w-full">
-        {txPending ? "creating..." : "create and join match"}
-      </Button>
+      <HeroModal
+        hero={hero}
+        setHero={setHero}
+        trigger={
+          <Button disabled={disabled} buttonType="secondary" className="w-full">
+            create and join match
+          </Button>
+        }
+        footer={
+          <div className="flex w-full gap-x-4 justify-between">
+            <Dialog.Close asChild>
+              <Button className="w-full" buttonType="tertiary">
+                cancel
+              </Button>
+            </Dialog.Close>
+            <Button onClick={createAndJoinAction} disabled={disabled} buttonType="primary" className="w-full">
+              {txPending ? "creating..." : "create and join match"}
+            </Button>
+          </div>
+        }
+      />
     </div>
   );
 }

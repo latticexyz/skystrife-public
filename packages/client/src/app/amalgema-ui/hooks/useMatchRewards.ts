@@ -46,5 +46,6 @@ export function useMatchRewards(matchEntity: Entity) {
     skypoolRewards,
     sweepstakeRewards,
     totalRewards,
+    entranceFee,
   };
 }

@@ -13,7 +13,7 @@ import { Charger, ChargerTableId } from "./tables/Charger.sol";
 import { ChargeCap, ChargeCapData, ChargeCapTableId } from "./tables/ChargeCap.sol";
 import { Combat, CombatData, CombatTableId } from "./tables/Combat.sol";
 import { StaminaOnKill, StaminaOnKillTableId } from "./tables/StaminaOnKill.sol";
-import { CombatResult, CombatResultData, CombatResultTableId } from "./tables/CombatResult.sol";
+import { CombatOutcome, CombatOutcomeData, CombatOutcomeTableId } from "./tables/CombatOutcome.sol";
 import { Factory, FactoryData, FactoryTableId } from "./tables/Factory.sol";
 import { ItemType, ItemTypeTableId } from "./tables/ItemType.sol";
 import { LastAction, LastActionTableId } from "./tables/LastAction.sol";
@@ -41,6 +41,7 @@ import { HeroInRotation, HeroInRotationTableId } from "./tables/HeroInRotation.s
 import { HeroInSeasonPassRotation, HeroInSeasonPassRotationTableId } from "./tables/HeroInSeasonPassRotation.sol";
 import { SkyPoolConfig, SkyPoolConfigData, SkyPoolConfigTableId } from "./tables/SkyPoolConfig.sol";
 import { MatchRewardPercentages, MatchRewardPercentagesTableId } from "./tables/MatchRewardPercentages.sol";
+import { OfficialLevel, OfficialLevelTableId } from "./tables/OfficialLevel.sol";
 import { LevelInStandardRotation, LevelInStandardRotationTableId } from "./tables/LevelInStandardRotation.sol";
 import { LevelInSeasonPassRotation, LevelInSeasonPassRotationTableId } from "./tables/LevelInSeasonPassRotation.sol";
 import { LastMatchIndex, LastMatchIndexTableId } from "./tables/LastMatchIndex.sol";

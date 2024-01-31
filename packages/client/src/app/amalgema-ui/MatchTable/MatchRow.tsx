@@ -2,59 +2,35 @@ import { Entity, getComponentValue } from "@latticexyz/recs";
 import { useAmalgema } from "../../../useAmalgema";
 import { ALLOW_LIST_SYSTEM_ID, SEASON_PASS_ONLY_SYSTEM_ID } from "../../../constants";
 import { SeasonPassIcon } from "../SeasonPassIcon";
-import { Hex, hexToString } from "viem";
-import { CreatedBy, DisplayNameWithLink } from "../CreatedBy";
-import { encodeMatchEntity } from "../../../encodeMatchEntity";
+import { MatchPlayers } from "../MatchPlayers";
+import { Hex, formatEther, hexToString } from "viem";
+import { useMatchRewards } from "../hooks/useMatchRewards";
+import { Button } from "../../ui/Theme/SkyStrife/Button";
+import { OrbDisplay } from "./common";
+import { JoinModal } from "./JoinModal";
+import { CreatedBy } from "../CreatedBy";
 import { ConfirmedCheck } from "../../ui/Theme/SkyStrife/Icons/ConfirmedCheck";
-import { DateTime } from "luxon";
 
-const PlayerName = ({ entity }: { entity: Entity }) => {
+export function MatchRow({ matchEntity }: { matchEntity: Entity }) {
   const {
-    components: { OwnedBy },
-  } = useAmalgema();
-
-  const owner = getComponentValue(OwnedBy, entity);
-
-  return <DisplayNameWithLink entity={(owner?.value ?? "") as Entity} />;
-};
-
-function MatchRanking({ matchEntity }: { matchEntity: Entity }) {
-  const {
-    components: { MatchRanking },
-  } = useAmalgema();
-
-  const matchRanking = getComponentValue(MatchRanking, matchEntity)?.value ?? [];
-
-  return (
-    <div className="w-full flex flex-wrap">
-      {matchRanking.map((playerEntity, i) => {
-        return (
-          <span key={`rank-${i}`} className="w-1/2 flex items-baseline gap-x-1 text-ss-text-default overflow-auto">
-            {i + 1} <PlayerName entity={encodeMatchEntity(matchEntity, playerEntity)} />
-          </span>
-        );
-      })}
-    </div>
-  );
-}
-
-export function ViewOnlyMatchRow({ matchEntity }: { matchEntity: Entity }) {
-  const {
-    components: { MatchConfig, MatchName, MatchAccessControl, MatchIndex, OfficialLevel },
+    components: { MatchConfig, MatchSweepstake, MatchName, MatchAccessControl, MatchIndex, OfficialLevel },
   } = useAmalgema();
 
   const matchAccessControl = getComponentValue(MatchAccessControl, matchEntity);
   const matchConfig = getComponentValue(MatchConfig, matchEntity);
   const matchIndex = getComponentValue(MatchIndex, matchEntity)?.matchIndex ?? 0;
-  const startTime = DateTime.fromSeconds(Number(matchConfig?.startTime ?? 0n));
 
-  const levelId = matchConfig?.levelId ?? "0x";
-  const levelName = hexToString(levelId as Hex, { size: 32 });
-  const levelOfficial = getComponentValue(OfficialLevel, levelId as Entity)?.value;
+  const levelName = hexToString((matchConfig?.levelId ?? "0x") as Hex, { size: 32 });
+  const levelOfficial = getComponentValue(OfficialLevel, matchConfig?.levelId as Entity)?.value;
   const matchName = getComponentValue(MatchName, matchEntity)?.value ?? levelName;
 
   const hasAllowList = matchAccessControl && matchAccessControl.systemId === ALLOW_LIST_SYSTEM_ID;
   const isSeasonPassOnly = matchAccessControl && matchAccessControl.systemId === SEASON_PASS_ONLY_SYSTEM_ID;
+
+  const { totalRewards } = useMatchRewards(matchEntity);
+  const totalReward = totalRewards.reduce((acc, reward) => acc + reward.value, 0n);
+
+  const sweepstake = getComponentValue(MatchSweepstake, matchEntity);
 
   return (
     <div
@@ -72,9 +48,8 @@ export function ViewOnlyMatchRow({ matchEntity }: { matchEntity: Entity }) {
         </div>
       </div>
 
-      <div className="w-[120px] flex flex-col text-center shrink-0">
-        <span className="text-ss-text-light">{startTime.toLocaleString(DateTime.DATE_SHORT)}</span>
-        <span className="text-sm">{startTime.toFormat("h:mm a")}</span>
+      <div className="w-[100px] text-center shrink-0">
+        <MatchPlayers matchEntity={matchEntity} />
       </div>
 
       <div className="w-[120px] flex items-center gap-x-1 text-center shrink-0">
@@ -82,8 +57,24 @@ export function ViewOnlyMatchRow({ matchEntity }: { matchEntity: Entity }) {
         {levelName}
       </div>
 
-      <div className="w-[240px] text-center shrink-0">
-        <MatchRanking matchEntity={matchEntity} />
+      <div className="w-[100px] text-center shrink-0">
+        {sweepstake && sweepstake.entranceFee ? (
+          <OrbDisplay amount={parseFloat(formatEther(sweepstake?.entranceFee))} />
+        ) : (
+          <span>-</span>
+        )}
+      </div>
+
+      <div className="w-[100px] text-center shrink-0">
+        <OrbDisplay amount={parseFloat(formatEther(totalReward))} />
+      </div>
+
+      <div className="w-[100px] text-center shrink-0">
+        <JoinModal matchEntity={matchEntity}>
+          <Button buttonType={"secondary"} className="w-full py-1 px-2">
+            open
+          </Button>
+        </JoinModal>
       </div>
     </div>
   );

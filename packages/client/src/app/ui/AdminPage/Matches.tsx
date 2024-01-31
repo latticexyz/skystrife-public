@@ -1,22 +1,16 @@
-import { useEffect, useState } from "react";
-import { useAmalgema } from "../../useAmalgema";
+import { useState } from "react";
+import { useAmalgema } from "../../../useAmalgema";
 import { Entity, Has, Not, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { CreateMatch } from "./CreateMatch";
-import { Button } from "./Theme/SkyStrife/Button";
+import { Button } from "../Theme/SkyStrife/Button";
 import { Hex, hexToString } from "viem";
-import { MatchNumber } from "./MatchNumber";
-import { getMatchUrl } from "../../getMatchUrl";
-import { Levels } from "./Levels";
-import { Players } from "./Players";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
-import { Templates } from "./Templates";
-import { Delegations } from "./Delegations";
+import { MatchNumber } from "../MatchNumber";
+import { getMatchUrl } from "../../../getMatchUrl";
 import { DateTime } from "luxon";
-import { SEASON_PASS_ONLY_SYSTEM_ID } from "../../constants";
-import { usePagination } from "../amalgema-ui/hooks/usePagination";
-import { Checkbox } from "./Theme/SkyStrife/Checkbox";
+import { SEASON_PASS_ONLY_SYSTEM_ID } from "../../../constants";
+import { usePagination } from "../../amalgema-ui/hooks/usePagination";
+import { Checkbox } from "../Theme/SkyStrife/Checkbox";
 
 const CopyButton = ({ matchEntity }: { matchEntity: Entity }) => {
   const {
@@ -141,7 +135,7 @@ const MatchTable = ({ matches }: { matches: Entity[] }) => {
   );
 };
 
-const Matches = () => {
+export const Matches = () => {
   const {
     components: { MatchConfig, MatchIndex, MatchFinished },
   } = useAmalgema();
@@ -180,44 +174,6 @@ const Matches = () => {
       </div>
 
       <MatchTable matches={visibleMatches} />
-    </div>
-  );
-};
-
-export const AdminPage = () => {
-  const {
-    network: { initialiseWallet },
-  } = useAmalgema();
-
-  const [page, setPage] = useState("Matches");
-
-  const externalAccount = useAccount();
-  const { address } = externalAccount;
-
-  useEffect(() => {
-    if (!address) return;
-
-    initialiseWallet(address);
-  }, [address, initialiseWallet]);
-
-  let pageComponent = null;
-  if (page === "Matches") pageComponent = <Matches />;
-  if (page === "Templates") pageComponent = <Templates />;
-  if (page === "Levels") pageComponent = <Levels />;
-  if (page === "Players") pageComponent = <Players />;
-  if (page === "Delegations") pageComponent = <Delegations />;
-
-  return (
-    <div>
-      <ConnectButton />
-      <div>
-        {["Matches", "Templates", "Levels", "Players", "Delegations"].map((p) => (
-          <Button buttonType="tertiary" key={p} onClick={() => setPage(p)}>
-            {p}
-          </Button>
-        ))}
-      </div>
-      {pageComponent}
     </div>
   );
 };

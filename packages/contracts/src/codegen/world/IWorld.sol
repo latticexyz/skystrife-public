@@ -8,8 +8,9 @@ import { IBaseWorld } from "@latticexyz/world/src/codegen/interfaces/IBaseWorld.
 import { IAllowListSystem } from "./IAllowListSystem.sol";
 import { IAttackSystem } from "./IAttackSystem.sol";
 import { IBuildSystem } from "./IBuildSystem.sol";
-import { ICombatResultSystem } from "./ICombatResultSystem.sol";
+import { ICombatOutcomeSystem } from "./ICombatOutcomeSystem.sol";
 import { ICopyMapSystem } from "./ICopyMapSystem.sol";
+import { ICreateSeasonPassSystem } from "./ICreateSeasonPassSystem.sol";
 import { IFinishSystem } from "./IFinishSystem.sol";
 import { IHeroConfigSystem } from "./IHeroConfigSystem.sol";
 import { ILevelRotationSystem } from "./ILevelRotationSystem.sol";
@@ -18,10 +19,12 @@ import { ILobbySystem } from "./ILobbySystem.sol";
 import { IMatchSystem } from "./IMatchSystem.sol";
 import { IMoveSystem } from "./IMoveSystem.sol";
 import { INameSystem } from "./INameSystem.sol";
+import { IOfficialLevelSystem } from "./IOfficialLevelSystem.sol";
 import { IPlayerRegisterSystem } from "./IPlayerRegisterSystem.sol";
 import { IPlayerSetupSystem } from "./IPlayerSetupSystem.sol";
 import { ISeasonPassSystem } from "./ISeasonPassSystem.sol";
 import { ITemplateSpawnSystem } from "./ITemplateSpawnSystem.sol";
+import { IWithdrawSystem } from "./IWithdrawSystem.sol";
 
 /**
  * @title IWorld
@@ -34,8 +37,9 @@ interface IWorld is
   IAllowListSystem,
   IAttackSystem,
   IBuildSystem,
-  ICombatResultSystem,
+  ICombatOutcomeSystem,
   ICopyMapSystem,
+  ICreateSeasonPassSystem,
   IFinishSystem,
   IHeroConfigSystem,
   ILevelRotationSystem,
@@ -44,10 +48,12 @@ interface IWorld is
   IMatchSystem,
   IMoveSystem,
   INameSystem,
+  IOfficialLevelSystem,
   IPlayerRegisterSystem,
   IPlayerSetupSystem,
   ISeasonPassSystem,
-  ITemplateSpawnSystem
+  ITemplateSpawnSystem,
+  IWithdrawSystem
 {
 
 }

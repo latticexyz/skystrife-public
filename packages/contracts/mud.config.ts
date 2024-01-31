@@ -71,10 +71,10 @@ export default mudConfig({
       accessList: [],
       name: "AttackSystem",
     },
-    CombatResultSystem: {
+    CombatOutcomeSystem: {
       openAccess: false,
       accessList: [],
-      name: "CombatResultSystem",
+      name: "CombatOutcomeSystem",
     },
     FinishSystem: {
       openAccess: false,
@@ -215,8 +215,7 @@ export default mudConfig({
     /**
      * Emitted during combat to inform client animations.
      */
-    CombatResult: {
-      offchainOnly: true,
+    CombatOutcome: {
       keySchema: {
         matchEntity: "bytes32",
         entity: "bytes32",
@@ -232,6 +231,8 @@ export default mudConfig({
         attackerDied: "bool",
         defenderDied: "bool",
         defenderCaptured: "bool",
+        blockNumber: "uint256",
+        timestamp: "uint256",
       },
     },
     /**
@@ -526,6 +527,20 @@ export default mudConfig({
       },
     },
 
+    /**
+     * Used to differentiate between dev-made and community-made levels.
+     */
+    OfficialLevel: {
+      offchainOnly: true,
+      keySchema: {
+        levelId: "bytes32",
+      },
+      valueSchema: "bool",
+    },
+
+    /**
+     * Level can be used to create a match.
+     */
     LevelInStandardRotation: {
       keySchema: {
         levelId: "bytes32",
@@ -533,6 +548,9 @@ export default mudConfig({
       valueSchema: "bool",
     },
 
+    /**
+     * Only Season Pass holders can create a match with this level.
+     */
     LevelInSeasonPassRotation: {
       keySchema: {
         levelId: "bytes32",

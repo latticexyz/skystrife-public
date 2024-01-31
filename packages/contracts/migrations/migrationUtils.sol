@@ -9,12 +9,15 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 
-import "forge-std/console.sol";
-
 function redeploySystem(IWorld world, System systemContract, bytes16 systemName) {
   ResourceId systemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, "", systemName);
   (address addr, bool publicAccess) = Systems.get(systemId);
 
   world.registerSystem(systemId, systemContract, publicAccess);
   (addr, publicAccess) = Systems.get(systemId);
+}
+
+function deploySystem(IWorld world, System systemContract, bytes16 systemName, bool publicAccess) {
+  ResourceId systemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, "", systemName);
+  world.registerSystem(systemId, systemContract, publicAccess);
 }

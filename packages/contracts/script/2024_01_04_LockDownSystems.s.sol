@@ -12,7 +12,7 @@ import { WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
 import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 
 import { AttackSystem } from "../src/systems/AttackSystem.sol";
-import { CombatResultSystem } from "../src/systems/CombatResultSystem.sol";
+// import { CombatResultSystem } from "../src/systems/CombatResultSystem.sol";
 import { FinishSystem } from "../src/systems/FinishSystem.sol";
 import { PlayerSetupSystem } from "../src/systems/PlayerSetupSystem.sol";
 
@@ -34,13 +34,13 @@ contract LockDownSystems is Script {
     (addr, publicAccess) = Systems.get(attackSystemId);
     console.log("new AttackSystem address: %s, public access: %s", addr, publicAccess);
 
-    ResourceId combatResultSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, "", "CombatResultSyst");
-    (addr, publicAccess) = Systems.get(combatResultSystemId);
-    console.log("Found existing CombatResultSystem address: %s, public access: %s", addr, publicAccess);
+    // ResourceId combatResultSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, "", "CombatResultSyst");
+    // (addr, publicAccess) = Systems.get(combatResultSystemId);
+    // console.log("Found existing CombatResultSystem address: %s, public access: %s", addr, publicAccess);
 
-    world.registerSystem(combatResultSystemId, new CombatResultSystem(), false);
-    (addr, publicAccess) = Systems.get(combatResultSystemId);
-    console.log("new CombatResultSystem address: %s, public access: %s", addr, publicAccess);
+    // world.registerSystem(combatResultSystemId, new CombatResultSystem(), false);
+    // (addr, publicAccess) = Systems.get(combatResultSystemId);
+    // console.log("new CombatResultSystem address: %s, public access: %s", addr, publicAccess);
 
     ResourceId finishSystemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, "", "FinishSystem");
     (addr, publicAccess) = Systems.get(finishSystemId);

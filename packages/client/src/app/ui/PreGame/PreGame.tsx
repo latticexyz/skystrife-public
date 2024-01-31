@@ -7,7 +7,6 @@ import { OverlineLarge } from "../Theme/SkyStrife/Typography";
 import { useMatchInfo } from "../hooks/useMatchInfo";
 import { JoinGame } from "./JoinGame";
 import { MatchLobby } from "./MatchLobby";
-import { MatchRewards } from "./MatchRewards";
 import { useEffect } from "react";
 import { useMUD } from "../../../useMUD";
 import { useComponentValue } from "@latticexyz/react";
@@ -75,22 +74,6 @@ export function PreGame({ matchEntity }: { matchEntity: Entity }) {
         />
 
         <MatchLobby matchEntity={matchEntity} />
-
-        <div
-          style={{
-            width: "calc(100% + 48px)",
-          }}
-          className="h-[2px] w-full bg-ss-stroke"
-        />
-
-        <div
-          style={{
-            borderRadius: "0 0 8px 8px",
-          }}
-          className="bg-white -mb-4"
-        >
-          <MatchRewards matchEntity={matchEntity} />
-        </div>
       </Card>
     </ClickWrapper>
   );

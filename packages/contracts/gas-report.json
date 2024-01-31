@@ -9,19 +9,19 @@
     "file": "test/CombatSystem.t.sol",
     "test": "testCapturing",
     "name": "Attack unit and capturing",
-    "gasUsed": 312434
+    "gasUsed": 445614
   },
   {
     "file": "test/CombatSystem.t.sol",
     "test": "testCapturingCharger",
     "name": "Attack unit and capturing a charger",
-    "gasUsed": 449282
+    "gasUsed": 582465
   },
   {
     "file": "test/CombatSystem.t.sol",
     "test": "testKilling",
     "name": "Attack unit and killing",
-    "gasUsed": 348791
+    "gasUsed": 481973
   },
   {
     "file": "test/MatchSystem.t.sol",
@@ -51,13 +51,13 @@
     "file": "test/MatchSystem.t.sol",
     "test": "testCreateMatchSkyKey",
     "name": "create public match with sky key",
-    "gasUsed": 965843
+    "gasUsed": 965872
   },
   {
     "file": "test/MoveSystem.t.sol",
     "test": "testMoveAndAttack",
     "name": "Move and attack unit",
-    "gasUsed": 394042
+    "gasUsed": 527218
   },
   {
     "file": "test/MoveSystem.t.sol",

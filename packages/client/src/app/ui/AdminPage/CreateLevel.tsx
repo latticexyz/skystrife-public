@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
-import { BrutalistCard } from "./Theme/BrutalistCard";
-import useOnClickOutside from "./hooks/useOnClickOutside";
-import { OverlineLarge } from "./Theme/SkyStrife/Typography";
-import { CrossIcon } from "./Theme/CrossIcon";
-import { Button } from "./Theme/SkyStrife/Button";
-import { MapUpload } from "./Admin/MapUpload";
+import { BrutalistCard } from "../Theme/BrutalistCard";
+import useOnClickOutside from "../hooks/useOnClickOutside";
+import { OverlineLarge } from "../Theme/SkyStrife/Typography";
+import { CrossIcon } from "../Theme/CrossIcon";
+import { Button } from "../Theme/SkyStrife/Button";
+import { MapUpload } from "../Admin/MapUpload";
 
 export const CreateLevel = ({ close }: { close: () => void }) => {
   const ref = useRef<HTMLDivElement>(null);

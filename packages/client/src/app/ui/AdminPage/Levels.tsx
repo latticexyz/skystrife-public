@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useAmalgema } from "../../useAmalgema";
+import { useAmalgema } from "../../../useAmalgema";
 import { Entity, Has, getComponentValueStrict } from "@latticexyz/recs";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Button } from "./Theme/SkyStrife/Button";
+import { Button } from "../Theme/SkyStrife/Button";
 import { Hex, hexToString } from "viem";
 import { DisplayLevel } from "./DisplayLevel";
 import { CreateLevel } from "./CreateLevel";
@@ -61,6 +61,33 @@ function SeasonPassRotation({ levelId }: { levelId: Entity }) {
   );
 }
 
+function OfficialLevel({ levelId }: { levelId: Entity }) {
+  const {
+    components: { OfficialLevel },
+    externalWorldContract,
+  } = useAmalgema();
+
+  const value = useComponentValue(OfficialLevel, levelId);
+
+  const inRotation = value && value.value;
+
+  return (
+    <td>
+      <Button
+        buttonType="secondary"
+        onClick={() => {
+          if (!externalWorldContract) return;
+
+          externalWorldContract.write.setOfficial([levelId as Hex, !inRotation]);
+        }}
+        style={{ color: inRotation ? "green" : "darkred" }}
+      >
+        {inRotation ? "true" : "false"}
+      </Button>
+    </td>
+  );
+}
+
 export function Levels() {
   const {
     components: { LevelTemplates },
@@ -88,6 +115,7 @@ export function Levels() {
             <th>Size</th>
             <th>In standard rotation?</th>
             <th>In season pass rotation?</th>
+            <th>Official Level?</th>
             <th>Preview</th>
           </tr>
         </thead>
@@ -96,12 +124,9 @@ export function Levels() {
             <tr key={levelId} className="border-4">
               <td>{hexToString(levelId as Hex)}</td>
               <td>{value.length}</td>
-              <td>
-                <StandardRotation levelId={levelId} />
-              </td>
-              <td>
-                <SeasonPassRotation levelId={levelId} />
-              </td>
+              <StandardRotation levelId={levelId} />
+              <SeasonPassRotation levelId={levelId} />
+              <OfficialLevel levelId={levelId} />
               <td>
                 <div className="w-64 h-64">
                   <DisplayLevel level={levelId as Hex} />

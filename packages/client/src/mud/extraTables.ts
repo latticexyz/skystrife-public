@@ -1,9 +1,11 @@
 import { resourceToHex } from "@latticexyz/common";
 import { SyncFilter } from "@latticexyz/store-sync";
 
+const SEASON_PASS_NAMESPACE = "SeasonPass 2";
+
 const ERC20RegistryTableId = resourceToHex({ type: "table", namespace: "erc20-puppet", name: "ERC20Registry" });
 const OrbBalancesTableId = resourceToHex({ type: "table", namespace: "Orb", name: "Balances" });
-const SeasonPassBalancesTableId = resourceToHex({ type: "table", namespace: "SeasonPass 2", name: "Balances" });
+const SeasonPassBalancesTableId = resourceToHex({ type: "table", namespace: SEASON_PASS_NAMESPACE, name: "Balances" });
 const SkyKeyBalancesTableId = resourceToHex({ type: "table", namespace: "SkyKey", name: "Balances" });
 const UserDelegationControlTableId = resourceToHex({ type: "table", namespace: "", name: "UserDelegationControl" });
 const SystemboundDelegationsTableId = resourceToHex({ type: "table", namespace: "", name: "SystemboundDelegations" });
@@ -53,7 +55,7 @@ export const tables = {
     },
   },
   SeasonPass_Balances: {
-    namespace: "SeasonPass 2",
+    namespace: SEASON_PASS_NAMESPACE,
     name: "Balances",
     tableId: SeasonPassBalancesTableId,
     keySchema: {

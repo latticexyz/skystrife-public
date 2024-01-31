@@ -1,5 +1,5 @@
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Entity, Has, HasValue } from "@latticexyz/recs";
+import { Entity, Has, HasValue, getComponentValue } from "@latticexyz/recs";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useAmalgema } from "../../../useAmalgema";
 import { Hex, hexToString } from "viem";
@@ -9,28 +9,36 @@ import { useEffect } from "react";
 import { LevelDisplay } from "./LevelDisplay";
 import { twMerge } from "tailwind-merge";
 import { SeasonPassIcon } from "../SeasonPassIcon";
+import { ConfirmedCheck } from "../../ui/Theme/SkyStrife/Icons/ConfirmedCheck";
 
 function LevelName({ levelId }: { levelId: Hex }) {
   const {
     network: {
-      components: { LevelInSeasonPassRotation },
+      components: { LevelInSeasonPassRotation, OfficialLevel },
     },
     utils: { getLevelSpawns },
   } = useAmalgema();
 
   const name = hexToString(levelId, { size: 32 });
+  const official = getComponentValue(OfficialLevel, levelId as Entity)?.value;
 
-  const inRotation = useComponentValue(LevelInSeasonPassRotation, levelId as Entity);
+  const seasonPassOnly = useComponentValue(LevelInSeasonPassRotation, levelId as Entity);
   const numSpawns = getLevelSpawns(levelId as Entity).length;
 
   return (
     <div className="flex flex-row items-center">
-      {inRotation && inRotation.value ? (
+      {seasonPassOnly && seasonPassOnly.value ? (
         <>
           <SeasonPassIcon />
-          <div className="w-2" />
+          <div className="w-1" />
         </>
       ) : null}
+      {official && (
+        <>
+          <ConfirmedCheck />
+          <div className="w-1" />
+        </>
+      )}
       <span className="font-bold">{name}</span> &nbsp;({numSpawns} players)
     </div>
   );
@@ -49,7 +57,7 @@ export function ChooseLevel({
 }) {
   const {
     network: {
-      components: { LevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation },
+      components: { LevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation, OfficialLevel },
     },
     utils: { getLevelSpawns },
   } = useAmalgema();

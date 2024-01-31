@@ -54,7 +54,7 @@ export const redstoneHolesky = {
     },
   },
   // faucetUrl: "https://17001-faucet.quarry.linfra.xyz/trpc",
-  indexerUrl: "https://17001-postgres-indexer.quarry.linfra.xyz",
+  indexerUrl: "https://indexer.skystrife.xyz",
   testnet: true,
 };
 

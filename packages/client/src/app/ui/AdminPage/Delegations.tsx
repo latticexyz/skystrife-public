@@ -1,12 +1,12 @@
-import { useAmalgema } from "../../useAmalgema";
+import { useAmalgema } from "../../../useAmalgema";
 import { Has, getComponentValueStrict, runQuery } from "@latticexyz/recs";
 import { useEntityQuery } from "@latticexyz/react";
 import { decodeEntity } from "@latticexyz/store-sync/recs";
-import { DisplayNameUnformatted } from "../amalgema-ui/CreatedBy";
-import { addressToEntityID } from "../../mud/setupNetwork";
+import { DisplayNameUnformatted } from "../../amalgema-ui/CreatedBy";
+import { addressToEntityID } from "../../../mud/setupNetwork";
 import { hexToResource } from "@latticexyz/common";
 import { Hex } from "viem";
-import { SYSTEMBOUND_DELEGATION } from "../../constants";
+import { SYSTEMBOUND_DELEGATION } from "../../../constants";
 
 export function Delegations() {
   const {

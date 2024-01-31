@@ -1,5 +1,5 @@
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Entity, Has, HasValue, getComponentValue } from "@latticexyz/recs";
+import { Entity, Has, HasValue, getComponentValue, runQuery } from "@latticexyz/recs";
 import { useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { Hex, formatEther, hexToString, stringToHex } from "viem";
@@ -21,21 +21,32 @@ import { Button } from "../../ui/Theme/SkyStrife/Button";
 import { useCanAffordEntrance, useIsAllowed, useJoinMatch } from "./hooks";
 import { useExternalAccount } from "../hooks/useExternalAccount";
 import { useBurnerBalance } from "../hooks/useBurnerBalance";
+import { twMerge } from "tailwind-merge";
+import { ConfirmedCheck } from "../../ui/Theme/SkyStrife/Icons/ConfirmedCheck";
 
 /**
  * Don't ask me why, but managing the open state outside
  * of the modal is broken. I'm letting the Modal handle its own
  * state and passing the children as a trigger.
  */
-export function JoinModal({ matchEntity, children }: { matchEntity: Entity; children: React.ReactNode }) {
+export function JoinModal({
+  matchEntity,
+  children,
+  viewOnly,
+}: {
+  matchEntity: Entity;
+  children: React.ReactNode;
+  viewOnly?: boolean;
+}) {
   const {
     network: {
-      components: { MatchSweepstake, Player, Match, OwnedBy },
+      components: { MatchSweepstake, Player, Match, OwnedBy, OfficialLevel, HeroInRotation },
     },
     components: { MatchJoinable },
   } = useAmalgema();
 
-  const [hero, setHero] = useState(stringToHex("Golem", { size: 32 }));
+  const freeHero = [...runQuery([HasValue(HeroInRotation, { value: true })])][0];
+  const [hero, setHero] = useState(freeHero);
   const [previewLevel, setPreviewLevel] = useState(false);
   const [showAccessList, setShowAccessList] = useState(false);
 
@@ -46,6 +57,10 @@ export function JoinModal({ matchEntity, children }: { matchEntity: Entity; chil
   const matchConfig = matchInfo.matchConfig;
   const matchSweepstake = getComponentValue(MatchSweepstake, matchEntity);
   const matchJoinable = useComponentValue(MatchJoinable, matchEntity)?.value;
+
+  const levelId = (matchConfig?.levelId ?? "0x") as Hex;
+  const levelName = hexToString(levelId, { size: 32 });
+  const levelOfficial = getComponentValue(OfficialLevel, levelId as Entity)?.value;
 
   const { isAllowed, hasAllowList, isSeasonPassOnly } = useIsAllowed(matchEntity);
   const { canAffordEntrance } = useCanAffordEntrance(matchEntity);
@@ -82,45 +97,47 @@ export function JoinModal({ matchEntity, children }: { matchEntity: Entity; chil
       trigger={children}
       title={`${matchInfo.matchName}`}
       footer={
-        <div className="w-full flex gap-x-4">
-          {!currentPlayerInMatch && (
-            <a href={getMatchUrl(matchEntity)} target="_blank" rel="noopener noreferrer" className="grow">
-              <Button buttonType={"tertiary"} className="w-full">
-                Spectate
-              </Button>
-            </a>
-          )}
+        viewOnly ? null : (
+          <div className="w-full flex gap-x-4">
+            {!currentPlayerInMatch && (
+              <a href={getMatchUrl(matchEntity)} target="_blank" rel="noopener noreferrer" className="grow">
+                <Button buttonType={"tertiary"} className="w-full">
+                  Spectate
+                </Button>
+              </a>
+            )}
 
-          {currentPlayerInMatch && (
-            <a href={getMatchUrl(matchEntity)} target="_blank" rel="noopener noreferrer" className="grow">
-              <Button buttonType={"tertiary"} className="w-full">
-                Play
-              </Button>
-            </a>
-          )}
+            {currentPlayerInMatch && (
+              <a href={getMatchUrl(matchEntity)} target="_blank" rel="noopener noreferrer" className="grow">
+                <Button buttonType={"tertiary"} className="w-full">
+                  Play
+                </Button>
+              </a>
+            )}
 
-          {!currentPlayerInMatch && matchJoinable && (
-            <PromiseButton
-              disabled={!isAllowed || !canAffordEntrance}
-              buttonType={"secondary"}
-              className="grow"
-              promise={() => joinMatch()}
-            >
-              {joinButtonMessage}{" "}
-              {matchSweepstake?.entranceFee ? `- pay ${formatEther(matchSweepstake.entranceFee)} 🔮` : null}
-            </PromiseButton>
-          )}
-        </div>
+            {!currentPlayerInMatch && matchJoinable && (
+              <PromiseButton
+                disabled={!isAllowed || !canAffordEntrance}
+                buttonType={"secondary"}
+                className="grow"
+                promise={() => joinMatch()}
+              >
+                {joinButtonMessage}{" "}
+                {matchSweepstake?.entranceFee ? `- pay ${formatEther(matchSweepstake.entranceFee)} 🔮` : null}
+              </PromiseButton>
+            )}
+          </div>
+        )
       }
     >
       <div className="flex flex-col justify-around">
-        {burnerBalance.belowMinimum && (
+        {!viewOnly && burnerBalance.belowMinimum && (
           <>
             <SessionWalletManager /> <div className="h-4" />
           </>
         )}
 
-        {matchJoinable && (
+        {!viewOnly && matchJoinable && (
           <>
             <HeroSelect hero={hero} setHero={setHero} />
             <div className="h-4" />
@@ -130,14 +147,29 @@ export function JoinModal({ matchEntity, children }: { matchEntity: Entity; chil
         <div className="flex justify-around">
           <div className="grow">
             <OverlineSmall className="text-ss-text-x-light font-light">Map</OverlineSmall>
-            <ReadOnlyTextInput
-              value={hexToString((matchConfig?.levelId ?? "0x") as Hex, { size: 32 })}
-              symbol={
+            <div className="relative w-full">
+              <span
+                style={{
+                  fontSize: "14px",
+                }}
+                className="absolute left-[6px] top-[13px] text-ss-text-x-light uppercase"
+              >
+                {levelOfficial && <ConfirmedCheck />}
+              </span>
+
+              <input
+                className={twMerge("w-full bg-ss-bg-2 px-6 py-2 border border-[#DDDAD0]")}
+                type="text"
+                readOnly
+                value={levelName}
+              />
+
+              <span className="absolute right-3 top-[8px]">
                 <div onClick={() => setPreviewLevel(!previewLevel)}>
                   <Link>Map Preview</Link>
                 </div>
-              }
-            />
+              </span>
+            </div>
           </div>
 
           <div className="w-4" />
@@ -206,6 +238,21 @@ export function JoinModal({ matchEntity, children }: { matchEntity: Entity; chil
             </div>
           )}
         </div>
+
+        {viewOnly && matchSweepstake?.entranceFee ? (
+          <>
+            <div className="h-4" />
+
+            <div className="flex justify-around">
+              <div className="grow">
+                <OverlineSmall className="text-ss-text-x-light font-light">Entrance Fee</OverlineSmall>
+                <ReadOnlyTextInput value={`${formatEther(matchSweepstake.entranceFee)} 🔮`} />
+              </div>
+            </div>
+          </>
+        ) : (
+          <></>
+        )}
       </div>
     </Modal>
   );
