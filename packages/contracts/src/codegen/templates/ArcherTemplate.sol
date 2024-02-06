@@ -32,12 +32,12 @@ function ArcherTemplate() {
   tableIds[5] = ResourceId.unwrap(TierTableId);
   tableIds[6] = ResourceId.unwrap(UnitTypeTableId);
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(80000, 80000, 0, 60000, 45000, 0);
+  (staticData, encodedLengths, dynamicData) = Combat.encode(100000, 80000, 0, 60000, 30000, 0);
   staticDatas[0] = staticData;
   encodedLengthss[0] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(550);
+  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(275);
   staticDatas[1] = staticData;
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;

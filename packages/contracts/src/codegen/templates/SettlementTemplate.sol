@@ -47,17 +47,17 @@ function SettlementTemplate() {
   encodedLengthss[2] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Charger.encode(50);
+  (staticData, encodedLengths, dynamicData) = Charger.encode(100);
   staticDatas[3] = staticData;
   encodedLengthss[3] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(1000, 0);
+  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(2000, 0);
   staticDatas[4] = staticData;
   encodedLengthss[4] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[4] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(200000, 200000, 10000, 0, 0, 0);
+  (staticData, encodedLengths, dynamicData) = Combat.encode(250000, 200000, 0, 0, 0, 0);
   staticDatas[5] = staticData;
   encodedLengthss[5] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[5] = dynamicData;
@@ -68,7 +68,7 @@ function SettlementTemplate() {
   factory_prototypeIds[3] = 0x4172636865720000000000000000000000000000000000000000000000000000;
   factory_prototypeIds[4] = 0x50696b656d616e00000000000000000000000000000000000000000000000000;
   int32[] memory factory_staminaCosts = new int32[](5);
-  factory_staminaCosts[0] = 400;
+  factory_staminaCosts[0] = 500;
   factory_staminaCosts[1] = 700;
   factory_staminaCosts[2] = 900;
   factory_staminaCosts[3] = 1100;

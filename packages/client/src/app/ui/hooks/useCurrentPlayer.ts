@@ -25,7 +25,8 @@ export const useCurrentPlayer = (matchEntity: Entity) => {
     Has(Player),
   ])[0];
 
-  const name = useComponentValue(Name, playerEntity)?.value;
+  const mainWallet = (useComponentValue(OwnedBy, playerEntity)?.value ?? "0x00") as Entity;
+  const name = useComponentValue(Name, mainWallet)?.value;
   const playerColor = playerEntity
     ? getOwnerColor(playerEntity)
     : {
@@ -34,6 +35,7 @@ export const useCurrentPlayer = (matchEntity: Entity) => {
       };
 
   return {
+    mainWallet,
     player: playerEntity,
     playerColor,
     name,

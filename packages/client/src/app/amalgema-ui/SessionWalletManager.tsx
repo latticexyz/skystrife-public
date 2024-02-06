@@ -9,6 +9,7 @@ import { Body } from "../ui/Theme/SkyStrife/Typography";
 import { PromiseButton } from "../ui/hooks/PromiseButton";
 import { useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { Tooltip } from "react-tooltip";
 
 function WarningSvg() {
   return (
@@ -52,7 +53,8 @@ function LowBalanceWarning() {
 export function SessionWalletManager() {
   const {
     externalWalletClient,
-    network: { walletClient },
+    externalWorldContract,
+    network: { walletClient, waitForTransaction },
   } = useAmalgema();
 
   const mainWalletAddress = externalWalletClient?.account?.address ?? "0x00";
@@ -204,33 +206,45 @@ export function SessionWalletManager() {
         <div className="h-3" />
 
         <div className="flex space-x-3 w-full mb-[-64px]">
-          <PromiseButton
-            promise={async () => {
-              if (!externalWalletClient || !externalWalletClient.account) {
-                throw new Error("No external wallet connected");
-              }
-
-              let value = burnerBalance.value ?? 0n;
-              if (value <= 0n) {
-                return;
-              }
-
-              value -= parseEther("0.0001");
-
-              await walletClient.sendTransaction({
-                chain: walletClient.chain,
-                account: walletClient.account,
-                to: mainWalletAddress,
-                value,
-              });
-            }}
-            buttonType="danger"
+          <div
             className="w-full"
-            disabled={(burnerBalance?.value ?? 0n) <= parseEther("0.0001")}
+            data-tooltip-id="new-session-wallet-tooltip"
+            data-tooltip-content={`This will transfer your funds to your main wallet and generate a new session wallet. YOU WILL BE UNABLE TO FINISH ANY MATCHES IN PROGRESS.`}
           >
-            transfer all ETH back to main wallet
-          </PromiseButton>
+            <PromiseButton
+              promise={async () => {
+                if (!externalWorldContract || !externalWalletClient || !externalWalletClient.account) {
+                  throw new Error("No external wallet connected");
+                }
+
+                let value = burnerBalance.value ?? 0n;
+                if (value > parseEther("0.0001")) {
+                  value -= parseEther("0.0001");
+
+                  const tx = await walletClient.sendTransaction({
+                    chain: walletClient.chain,
+                    account: walletClient.account,
+                    to: mainWalletAddress,
+                    value,
+                  });
+                  waitForTransaction(tx);
+                }
+
+                const tx = await externalWorldContract.write.unregisterDelegation([walletClient.account.address]);
+                waitForTransaction(tx);
+
+                localStorage.removeItem("mud:burnerWallet");
+                window.location.reload();
+              }}
+              buttonType="danger"
+              className="w-full"
+            >
+              generate new session wallet
+            </PromiseButton>
+          </div>
         </div>
+
+        <Tooltip variant="light" place="top" style={{ width: "300px" }} opacity={1} id="new-session-wallet-tooltip" />
       </Modal>
     </div>
   );

@@ -43,5 +43,10 @@
   "dependencies": {
     "run-pty": "^4.1.0",
     "wait-port": "1.0.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "@libp2p/multistream-select": "4.0.9"
+    }
   }
 }

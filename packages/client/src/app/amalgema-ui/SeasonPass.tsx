@@ -232,7 +232,7 @@ export function SeasonPass({ account }: { account?: Hex }) {
             <div className="flex w-full space-x-4">
               <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2 grow">
                 <span className="text-ss-text-x-light">Starting Price</span>
-                <span>0.005 ETH</span>
+                <span>0.01 ETH</span>
               </div>
 
               <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2 grow">

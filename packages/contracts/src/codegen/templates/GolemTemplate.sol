@@ -37,7 +37,7 @@ function GolemTemplate() {
   encodedLengthss[0] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(2500);
+  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(1000);
   staticDatas[1] = staticData;
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;

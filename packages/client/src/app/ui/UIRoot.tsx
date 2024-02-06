@@ -6,7 +6,6 @@ import { Factory } from "./Factory";
 import { GameOutcome } from "./GameOutcome";
 import { Leaderboard } from "./Leaderboard";
 import { TurnInfo } from "./TurnInfo";
-import { OptionsBar } from "./OptionsBar";
 import { PreGame } from "./PreGame";
 import { SyncStatus } from "./SyncStatus";
 import { PlayerNameHover } from "./PlayerNameHover";
@@ -15,8 +14,8 @@ import { useComponentValue } from "@latticexyz/react";
 import { Entity } from "@latticexyz/recs";
 import { useEffect } from "react";
 import { Body } from "./Theme/SkyStrife/Typography";
-import { SessionWallet } from "./SessionWallet";
 import { TopRight } from "./TopRight";
+import { Chat } from "./Chat";
 
 const MatchPageTitle = ({ matchEntity }: { matchEntity: Entity }) => {
   const {
@@ -54,7 +53,7 @@ export const UIRoot = () => {
 
   return (
     <div>
-      <Layer style={{ inset: "24px" }}>
+      <Layer style={{ inset: "24px", overflow: "hidden" }}>
         {matchEntity ? (
           <div>
             <MatchPageTitle matchEntity={matchEntity} />
@@ -67,6 +66,8 @@ export const UIRoot = () => {
             <TurnInfo matchEntity={matchEntity} />
 
             <TopRight />
+
+            <Chat />
 
             <PlayerNameHover />
           </div>

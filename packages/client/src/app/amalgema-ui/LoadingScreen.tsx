@@ -81,6 +81,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
     setStartGameProgress(true);
   }, [loadingState, networkLayer, prepareGameProgress, usePrepTime]);
 
+  const prepTimeSeconds = import.meta.env.PROD ? 10 : 1;
   useEffect(() => {
     if (!startGameProgress) return;
 
@@ -92,10 +93,10 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
         }
         return prev + 1;
       });
-    }, 100);
+    }, (prepTimeSeconds * 1000) / 100);
 
     return () => clearInterval(interval);
-  }, [networkLayer, startGameProgress, usePrepTime]);
+  }, [networkLayer, prepTimeSeconds, startGameProgress, usePrepTime]);
 
   if (hide) {
     return null;

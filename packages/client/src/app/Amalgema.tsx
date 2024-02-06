@@ -17,6 +17,12 @@ const wagmiConfig = createConfig({
 });
 
 export const Amalgema = () => {
+  const LOCK_CLIENT = false;
+
+  return LOCK_CLIENT ? <AmalgemaLockScreen /> : <AmalgemaMenu />;
+};
+
+const AmalgemaMenu = () => {
   const networkLayer = useNetworkLayer();
 
   useEffect(() => {
@@ -26,9 +32,21 @@ export const Amalgema = () => {
     }
   }, [networkLayer]);
 
-  const LOCK_CLIENT = false;
+  return (
+    <WagmiConfig config={networkLayer ? networkLayer.network.wagmiConfig : wagmiConfig}>
+      <RainbowKitProvider chains={networkLayer ? networkLayer.network.chains : []}>
+        <div>
+          <LoadingScreen networkLayer={networkLayer} />
 
-  return LOCK_CLIENT ? (
+          <AmalgemaUIRoot />
+        </div>
+      </RainbowKitProvider>
+    </WagmiConfig>
+  );
+};
+
+const AmalgemaLockScreen = () => {
+  return (
     <div className="h-screen w-screen flex flex-col justify-center items-center">
       <div
         style={{
@@ -43,7 +61,7 @@ export const Amalgema = () => {
       <div className="text-4xl font-bold">Sky Strife will be back next season!</div>
       <div className="h-3" />
       <div className="text-xl text-ss-text-light text-center">
-        <span className="font-bold">{SEASON_NAME} starts on January 8th, 2024</span>
+        <span className="font-bold">{SEASON_NAME} starts on February 6th, 2024</span>
 
         <div>
           Follow along on{" "}
@@ -54,15 +72,5 @@ export const Amalgema = () => {
         </div>
       </div>
     </div>
-  ) : (
-    <WagmiConfig config={networkLayer ? networkLayer.network.wagmiConfig : wagmiConfig}>
-      <RainbowKitProvider chains={networkLayer ? networkLayer.network.chains : []}>
-        <div>
-          <LoadingScreen networkLayer={networkLayer} />
-
-          <AmalgemaUIRoot />
-        </div>
-      </RainbowKitProvider>
-    </WagmiConfig>
   );
 };

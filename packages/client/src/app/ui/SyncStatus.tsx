@@ -39,7 +39,7 @@ export function SyncStatus() {
   const statusColor = syncStatus === "ok" ? "green" : syncStatus === "concerning" ? "yellow" : "red";
 
   return (
-    <Body className={`fixed text-black bg-ss-bg-0 bottom-8 left-8 rounded-lg p-4`}>
+    <Body className={`fixed text-black bg-ss-bg-0 bottom-4 right-4 rounded-lg p-4`}>
       <div className={`flex items-center`}>
         <div
           className={`animate-pulse rounded-full w-4 h-4 mr-2`}

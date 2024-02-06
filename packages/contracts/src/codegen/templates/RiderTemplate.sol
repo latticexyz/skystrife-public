@@ -32,12 +32,12 @@ function RiderTemplate() {
   tableIds[5] = ResourceId.unwrap(TierTableId);
   tableIds[6] = ResourceId.unwrap(UnitTypeTableId);
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(120000, 120000, 0, 30000, 70000, 50);
+  (staticData, encodedLengths, dynamicData) = Combat.encode(120000, 120000, 0, 30000, 110000, 50);
   staticDatas[0] = staticData;
   encodedLengthss[0] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(350);
+  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(175);
   staticDatas[1] = staticData;
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;

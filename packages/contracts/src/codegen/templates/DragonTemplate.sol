@@ -32,12 +32,12 @@ function DragonTemplate() {
   tableIds[5] = ResourceId.unwrap(TierTableId);
   tableIds[6] = ResourceId.unwrap(UnitTypeTableId);
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(350000, 350000, 10000, 110000, 50000, 70);
+  (staticData, encodedLengths, dynamicData) = Combat.encode(350000, 350000, 10000, 110000, 40000, 70);
   staticDatas[0] = staticData;
   encodedLengthss[0] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(2500);
+  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(1000);
   staticDatas[1] = staticData;
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;

@@ -552,8 +552,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
     const txDb = new TransactionDB(network.networkConfig.worldAddress, network.networkConfig.chainId);
     createTransactionCacheSystem(layer, txDb);
   }
-
-  createJoinableMatchSystem(layer);
+  if (!currentMatchEntity) createJoinableMatchSystem(layer);
 
   return layer;
 }

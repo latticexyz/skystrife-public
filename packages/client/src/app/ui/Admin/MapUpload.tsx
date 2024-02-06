@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { useFilePicker } from "use-file-picker";
 import { useAmalgema } from "../../../useAmalgema";
-import { Level } from "./bulkUploadMap";
+import { Level, bulkUploadMap } from "./bulkUploadMap";
 import { Button } from "../Theme/SkyStrife/Button";
 import { OverlineSmall } from "../Theme/SkyStrife/Typography";
 import { encodeFunctionData, maxUint256 } from "viem";
-import { bulkUploadMapDelegation } from "./bulkUploadMapDelegation";
 import { LEVEL_UPLOAD_SYSTEM_ID, SYSTEMBOUND_DELEGATION } from "../../../constants";
 import { useExternalAccount } from "../../amalgema-ui/hooks/useExternalAccount";
 import { DelegationAbi } from "./delegationAbi";
@@ -40,7 +39,7 @@ export const MapUpload = () => {
         if (externalWalletClient && externalWalletClient.account) {
           setSendingTxs(true);
           try {
-            await bulkUploadMapDelegation(
+            await bulkUploadMap(
               networkLayer,
               externalWalletClient.account.address,
               JSON.parse(filesContent[0].content) as Level,

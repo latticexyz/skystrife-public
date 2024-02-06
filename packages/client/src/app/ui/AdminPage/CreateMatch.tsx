@@ -1,5 +1,5 @@
 import { useEntityQuery } from "@latticexyz/react";
-import { Entity, Has } from "@latticexyz/recs";
+import { Entity, Has, getComponentValue } from "@latticexyz/recs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { BrutalistCard } from "../Theme/BrutalistCard";
@@ -11,7 +11,7 @@ import { OverlineLarge } from "../Theme/SkyStrife/Typography";
 import { CrossIcon } from "../Theme/CrossIcon";
 import { Button } from "../Theme/SkyStrife/Button";
 import { MATCH_SYSTEM_ID, SEASON_PASS_ONLY_SYSTEM_ID, SYSTEMBOUND_DELEGATION } from "../../../constants";
-import { DateTime, Duration } from "luxon";
+import { DateTime } from "luxon";
 import useLocalStorageState from "use-local-storage-state";
 import { PromiseButton } from "../hooks/PromiseButton";
 import { useExternalAccount } from "../hooks/useExternalAccount";
@@ -19,6 +19,7 @@ import { DelegationAbi } from "../Admin/delegationAbi";
 import { encodeSystemCallFrom } from "@latticexyz/world";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { findOldestMatchInWindow } from "../../amalgema-ui/utils/skypool";
+import { createMatchTimes } from "../../amalgema-ui/utils/matchSchedule";
 
 function nowGmt() {
   return DateTime.now().setZone("GMT");
@@ -29,7 +30,7 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
   const {
     externalWorldContract,
     network: {
-      components: { LevelTemplates },
+      components: { LevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation },
       waitForTransaction,
       walletClient,
       worldContract,
@@ -38,6 +39,7 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
   } = networkLayer;
 
   const [now, setNow] = useState(nowGmt());
+  const matchTimes = useMemo(() => createMatchTimes(now), [now]);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -46,25 +48,6 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
 
     return () => clearInterval(intervalId);
   }, []);
-
-  const midday = useMemo(() => {
-    let time = nowGmt();
-    if (time.hour >= 12) {
-      time = time.plus(Duration.fromObject({ days: 1 }));
-    }
-    time = time.set({ hour: 12, minute: 0, second: 0, millisecond: 0 });
-
-    return time;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [now]);
-
-  const midnight = useMemo(() => {
-    let time = nowGmt();
-    time = time.set({ hour: 24, minute: 0, second: 0, millisecond: 0 });
-
-    return time;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [now]);
 
   const [matchName, setMatchName] = useState<string>("");
   const [level, setLevel] = useState<string | undefined>();
@@ -79,9 +62,16 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
 
   const ref = useRef<HTMLDivElement>(null);
 
-  const names = useEntityQuery([Has(LevelTemplates)]).map((id) => {
-    return { id, name: hexToString(id as Hex, { size: 32 }) };
-  });
+  const names = useEntityQuery([Has(LevelTemplates)])
+    .filter((levelId) => {
+      const inRotation =
+        getComponentValue(LevelInStandardRotation, levelId)?.value ||
+        getComponentValue(LevelInSeasonPassRotation, levelId)?.value;
+      return inRotation;
+    })
+    .map((id) => {
+      return { id, name: hexToString(id as Hex, { size: 32 }) };
+    });
 
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
@@ -186,23 +176,17 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                 />
 
                 <div className="flex w-full">
-                  <Button
-                    buttonType="secondary"
-                    onClick={() => {
-                      setRegistrationTime(midnight.toSeconds());
-                    }}
-                  >
-                    Set to Midnight GMT
-                  </Button>
-
-                  <Button
-                    buttonType="secondary"
-                    onClick={() => {
-                      setRegistrationTime(midday.toSeconds());
-                    }}
-                  >
-                    Set to Midday GMT
-                  </Button>
+                  {matchTimes.map((time) => (
+                    <Button
+                      key={time.toSeconds()}
+                      buttonType="secondary"
+                      onClick={() => {
+                        setRegistrationTime(time.toSeconds());
+                      }}
+                    >
+                      {time.toFormat("HH:mm:ss")}
+                    </Button>
+                  ))}
                 </div>
 
                 <div>

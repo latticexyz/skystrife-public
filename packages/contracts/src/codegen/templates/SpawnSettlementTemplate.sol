@@ -49,17 +49,17 @@ function SpawnSettlementTemplate() {
   encodedLengthss[2] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Charger.encode(200);
+  (staticData, encodedLengths, dynamicData) = Charger.encode(100);
   staticDatas[3] = staticData;
   encodedLengthss[3] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(6400, 0);
+  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(2000, 0);
   staticDatas[4] = staticData;
   encodedLengthss[4] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[4] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(300000, 300000, 20000, 0, 0, 0);
+  (staticData, encodedLengths, dynamicData) = Combat.encode(500000, 500000, 0, 0, 0, 0);
   staticDatas[5] = staticData;
   encodedLengthss[5] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[5] = dynamicData;
@@ -70,7 +70,7 @@ function SpawnSettlementTemplate() {
   factory_prototypeIds[3] = 0x4172636865720000000000000000000000000000000000000000000000000000;
   factory_prototypeIds[4] = 0x50696b656d616e00000000000000000000000000000000000000000000000000;
   int32[] memory factory_staminaCosts = new int32[](5);
-  factory_staminaCosts[0] = 400;
+  factory_staminaCosts[0] = 500;
   factory_staminaCosts[1] = 700;
   factory_staminaCosts[2] = 900;
   factory_staminaCosts[3] = 1100;
@@ -85,7 +85,7 @@ function SpawnSettlementTemplate() {
   encodedLengthss[7] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[7] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(2500);
+  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(1000);
   staticDatas[8] = staticData;
   encodedLengthss[8] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[8] = dynamicData;

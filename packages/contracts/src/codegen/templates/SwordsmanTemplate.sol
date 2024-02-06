@@ -32,12 +32,12 @@ function SwordsmanTemplate() {
   tableIds[5] = ResourceId.unwrap(TierTableId);
   tableIds[6] = ResourceId.unwrap(UnitTypeTableId);
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(100000, 100000, 10000, 40000, 35000, 70);
+  (staticData, encodedLengths, dynamicData) = Combat.encode(140000, 140000, 10000, 50000, 40000, 70);
   staticDatas[0] = staticData;
   encodedLengthss[0] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(200);
+  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(125);
   staticDatas[1] = staticData;
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;
@@ -47,7 +47,7 @@ function SwordsmanTemplate() {
   encodedLengthss[2] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Movable.encode(4000);
+  (staticData, encodedLengths, dynamicData) = Movable.encode(3500);
   staticDatas[3] = staticData;
   encodedLengthss[3] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;

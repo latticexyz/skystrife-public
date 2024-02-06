@@ -11,6 +11,7 @@ import { IBuildSystem } from "./IBuildSystem.sol";
 import { ICombatOutcomeSystem } from "./ICombatOutcomeSystem.sol";
 import { ICopyMapSystem } from "./ICopyMapSystem.sol";
 import { ICreateSeasonPassSystem } from "./ICreateSeasonPassSystem.sol";
+import { IDelegationSystem } from "./IDelegationSystem.sol";
 import { IFinishSystem } from "./IFinishSystem.sol";
 import { IHeroConfigSystem } from "./IHeroConfigSystem.sol";
 import { ILevelRotationSystem } from "./ILevelRotationSystem.sol";
@@ -40,6 +41,7 @@ interface IWorld is
   ICombatOutcomeSystem,
   ICopyMapSystem,
   ICreateSeasonPassSystem,
+  IDelegationSystem,
   IFinishSystem,
   IHeroConfigSystem,
   ILevelRotationSystem,

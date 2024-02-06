@@ -36,25 +36,25 @@ export const findOldestMatchInWindow = (networkLayer: NetworkLayer) => {
 };
 
 const getReward = (cost: bigint, numberOfMatches: number) => {
-  if (numberOfMatches < 100) {
+  if (numberOfMatches < 200) {
     return 5n * cost;
-  } else if (numberOfMatches < 200) {
-    return 4n * cost;
-  } else if (numberOfMatches < 300) {
-    return 3n * cost;
   } else if (numberOfMatches < 400) {
-    return 2n * cost;
-  } else if (numberOfMatches < 500) {
-    return cost;
+    return 4n * cost;
   } else if (numberOfMatches < 600) {
-    return (4n * cost) / 5n;
-  } else if (numberOfMatches < 700) {
-    return (3n * cost) / 5n;
+    return 3n * cost;
   } else if (numberOfMatches < 800) {
+    return 2n * cost;
+  } else if (numberOfMatches < 1000) {
+    return cost;
+  } else if (numberOfMatches < 1200) {
+    return (4n * cost) / 5n;
+  } else if (numberOfMatches < 1400) {
+    return (3n * cost) / 5n;
+  } else if (numberOfMatches < 1600) {
     return (2n * cost) / 5n;
-  } else if (numberOfMatches < 900) {
+  } else if (numberOfMatches < 1800) {
     return (1n * cost) / 5n;
-  } else if (numberOfMatches < 10000) {
+  } else if (numberOfMatches < 2000) {
     return (1n * cost) / 10n;
   }
 

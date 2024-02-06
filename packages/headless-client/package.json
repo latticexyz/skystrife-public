@@ -77,10 +77,12 @@
     "upload-map:dev": "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 CHAIN_ID=31337 pnpm tsx scripts/mapUploader.ts",
     "create-bot:dev": "CHAIN_ID=31337 pnpm tsx scripts/createBotPlayer.ts",
     "create-debug-matches:dev": "CHAIN_ID=31337 pnpm tsx scripts/matchCreator.ts",
-    
+    "schedule-matches:dev": "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 CHAIN_ID=31337 pnpm tsx scripts/matchScheduler.ts",
+    "--Redstone--": "Redstone scripts",
     "example:redstone": "CHAIN_ID=17001 pnpm tsx scripts/example.ts",
     "copy-maps:redstone": "CHAIN_ID=17001 pnpm tsx scripts/mapCopier.ts",
-    "create-matches:redstone": "CHAIN_ID=17001 pnpm tsx scripts/matchCreator.ts"
+    "create-matches:redstone": "CHAIN_ID=17001 pnpm tsx scripts/matchCreator.ts",
+    "match-scheduler:redstone": "CHAIN_ID=17001 pnpm tsx scripts/matchScheduler.ts"
   },
   "devDependencies": {
     "tsx": "^3.13.0"

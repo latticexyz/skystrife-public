@@ -32,12 +32,12 @@ function PikemanTemplate() {
   tableIds[5] = ResourceId.unwrap(TierTableId);
   tableIds[6] = ResourceId.unwrap(UnitTypeTableId);
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(200000, 200000, 20000, 80000, 70000, 70);
+  (staticData, encodedLengths, dynamicData) = Combat.encode(200000, 200000, 15000, 80000, 50000, 70);
   staticDatas[0] = staticData;
   encodedLengthss[0] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(900);
+  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(450);
   staticDatas[1] = staticData;
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;

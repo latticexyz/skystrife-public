@@ -1,7 +1,7 @@
 import { twMerge } from "tailwind-merge";
 
 export function SeasonPassImg({ colored = true, className }: { colored?: boolean; className?: string }) {
-  const imgName = colored ? "season-pass-0.1" : "season-pass-0.1-bw";
+  const imgName = colored ? "season-pass-0.2" : "season-pass-0.2-bw";
 
   return (
     <img

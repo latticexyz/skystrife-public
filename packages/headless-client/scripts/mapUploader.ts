@@ -11,14 +11,19 @@ export type Level = Array<{
   values: object;
 }>;
 
-const { networkLayer } = await createSkyStrife();
+const {
+  networkLayer,
+  networkLayer: {
+    network: { walletClient },
+  },
+} = await createSkyStrife();
 
 await Promise.all([
-  bulkUploadMap(networkLayer, debug as Level, "debug"),
-  bulkUploadMap(networkLayer, Cauldron as Level, "Cauldron"),
-  bulkUploadMap(networkLayer, KnifeFight as Level, "KnifeFight"),
-  bulkUploadMap(networkLayer, Aviary as Level, "Aviary"),
-  bulkUploadMap(networkLayer, Antelope as Level, "Antelope"),
+  bulkUploadMap(networkLayer, walletClient.account.address, debug as Level, "debug"),
+  bulkUploadMap(networkLayer, walletClient.account.address, Cauldron as Level, "Cauldron"),
+  bulkUploadMap(networkLayer, walletClient.account.address, KnifeFight as Level, "KnifeFight"),
+  bulkUploadMap(networkLayer, walletClient.account.address, Aviary as Level, "Aviary"),
+  bulkUploadMap(networkLayer, walletClient.account.address, Antelope as Level, "Antelope"),
 ]);
 
 process.exit(0);

@@ -1,6 +1,9 @@
-import { stringToHex } from "viem";
+import { Hex, stringToHex } from "viem";
 import { NetworkLayer } from "../../../layers/Network";
 import { chunk } from "@latticexyz/common/utils";
+import { LEVEL_UPLOAD_SYSTEM_ID } from "../../../constants";
+import { encodeSystemCallFrom } from "@latticexyz/world";
+import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 
 export type Level = Array<{
   templateId: string;
@@ -9,7 +12,7 @@ export type Level = Array<{
 
 const STATE_UPDATES_PER_TX = 25;
 
-export async function bulkUploadMap(layer: NetworkLayer, level: Level, name: string) {
+export async function bulkUploadMap(layer: NetworkLayer, from: Hex, level: Level, name: string) {
   console.log(`Uploading ${name} level`);
 
   const chunkedState = Array.from(chunk(level, STATE_UPDATES_PER_TX));
@@ -25,7 +28,15 @@ export async function bulkUploadMap(layer: NetworkLayer, level: Level, name: str
 
       while (!success && retryCount < 3) {
         try {
-          const tx = await layer.network.worldContract.write.uploadLevel([levelId, templateIds, xs, ys]);
+          const tx = await layer.network.worldContract.write.callFrom(
+            encodeSystemCallFrom({
+              abi: IWorldAbi,
+              from,
+              systemId: LEVEL_UPLOAD_SYSTEM_ID,
+              functionName: "uploadLevel",
+              args: [levelId, templateIds, xs, ys],
+            })
+          );
           await layer.network.waitForTransaction(tx);
           success = true;
         } catch (e) {
