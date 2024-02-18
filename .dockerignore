@@ -1,0 +1,66 @@
+node_modules
+**/node_modules
+.gitignore
+*.md
+dist
+**/dist
+**/out/
+**/cache/
+**/bindings/
+**/artifacts/
+**/broadcast/
+**/deploys/
+
+# Build outputs
+dist
+build
+tmp
+
+# Version control
+.git
+.gitignore
+.svn
+.hg
+.hgignore
+.hgcheck
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# NPM files
+npm-debug.log
+npm-error.log
+
+# Configuration files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.idea
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional tsc cache
+*.tsbuildinfo
+
+# Optional IDE files
+.vscode
+*.sln
+*.suo
+*.ntvs*
+*.njsproj
+*.suo
+*.user
+*.userprefs

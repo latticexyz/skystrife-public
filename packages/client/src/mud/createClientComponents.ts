@@ -28,5 +28,6 @@ export function createClientComponents({ components, world }: SetupNetworkResult
     MatchJoinable: defineComponent(world, {
       value: Type.Boolean,
     }),
+    OwnedByCurrentPlayer: defineComponent(world, { value: Type.Boolean }, { id: "OwnedByCurrentPlayer" }),
   };
 }

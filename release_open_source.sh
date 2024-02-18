@@ -16,7 +16,7 @@ git checkout open-source
 git stash pop
 git add .
 git commit -m "$COMMIT_MSG"
-# git push public HEAD:main
+git push public HEAD:main
 git checkout main
 git pull origin
 git tag -d open-source

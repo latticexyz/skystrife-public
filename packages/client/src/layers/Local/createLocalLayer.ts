@@ -47,6 +47,7 @@ import { decodeMatchEntity } from "../../decodeMatchEntity";
 import { formatAddress } from "../../app/amalgema-ui/CurrentProfile";
 import { Hex } from "viem";
 import { encodeMatchEntity } from "../../encodeMatchEntity";
+import { createUnitOwnedByCurrentPlayerSystem } from "./systems/UnitOwnedByCurrentPlayerSystem";
 
 /**
  * The Local layer is the thrid layer in the client architecture and extends the Headless layer.
@@ -503,6 +504,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
   createAttackableEntitiesSystem(layer);
   createPositionErrorFallbackSystem(layer);
   createMatchStartSystem(layer);
+  createUnitOwnedByCurrentPlayerSystem(layer);
 
   return layer;
 }

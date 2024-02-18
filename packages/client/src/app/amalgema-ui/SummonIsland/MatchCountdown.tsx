@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Card } from "../../ui/Theme/SkyStrife/Card";
 import { OverlineSmall } from "../../ui/Theme/SkyStrife/Typography";
 import { SEASON_NAME } from "../../../constants";
-import { createMatchTimes } from "../utils/matchSchedule";
+import { HOURS_BETWEEN_MATCHES, createMatchTimes } from "../utils/matchSchedule";
 
 function nowGmt() {
   return DateTime.now().setZone("GMT");
@@ -31,8 +31,8 @@ export function MatchCountdown() {
       </div>
       <div className="flex flex-row justify-between">
         <div className="w-[640px]">
-          Matches are created every four hours starting at 12:00 AM GMT. There are normal, free matches, and matches
-          exclusive to Season Pass holders.
+          Matches are created every {HOURS_BETWEEN_MATCHES} hours starting at 12:00 AM GMT. There are normal, free
+          matches, and matches exclusive to Season Pass holders.
         </div>
         <div className="text-4xl font-medium font-mono">{durationToClosestMatch.toFormat("hh:mm:ss")}</div>
       </div>

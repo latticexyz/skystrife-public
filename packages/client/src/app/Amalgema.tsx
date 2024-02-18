@@ -58,10 +58,10 @@ const AmalgemaLockScreen = () => {
         }}
         className="fixed top-0 left-0 h-screen w-screen bg-cover"
       />
-      <div className="text-4xl font-bold">Sky Strife will be back next season!</div>
+      <div className="text-4xl font-bold">Sky Strife is in maintenance mode.</div>
       <div className="h-3" />
       <div className="text-xl text-ss-text-light text-center">
-        <span className="font-bold">{SEASON_NAME} starts on February 6th, 2024</span>
+        {/* <span className="font-bold">{SEASON_NAME} starts on February 6th, 2024</span> */}
 
         <div>
           Follow along on{" "}

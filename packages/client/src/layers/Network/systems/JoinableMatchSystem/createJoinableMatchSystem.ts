@@ -37,6 +37,10 @@ export function createJoinableMatchSystem(layer: NetworkLayer) {
   updateJoinableMatches();
   setInterval(updateJoinableMatches, 5_000);
 
-  defineSystem(world, [Has(MatchConfig), Has(MatchReady)], ({ entity }) => setMatchJoinable(entity));
-  defineSystem(world, [Has(MatchConfig), Not(MatchReady)], ({ entity }) => setMatchJoinable(entity));
+  defineSystem(world, [Has(MatchConfig), Has(MatchReady), Not(MatchFinished)], ({ entity }) =>
+    setMatchJoinable(entity)
+  );
+  defineSystem(world, [Has(MatchConfig), Not(MatchReady), Not(MatchFinished)], ({ entity }) =>
+    setMatchJoinable(entity)
+  );
 }

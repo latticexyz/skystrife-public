@@ -258,17 +258,33 @@ export async function createNetworkLayer(config: NetworkConfig) {
     return playerEntity;
   }
 
+  let currentPlayerEntity: Entity | undefined;
   function getCurrentPlayerEntity(): Entity | undefined {
+    if (currentPlayerEntity) return currentPlayerEntity;
+
     const { externalWalletClient } = useStore.getState();
 
     if (externalWalletClient && externalWalletClient.account) {
-      return getPlayerEntity(addressToEntityID(externalWalletClient.account.address));
+      currentPlayerEntity = getPlayerEntity(addressToEntityID(externalWalletClient.account.address));
+      return currentPlayerEntity;
     }
 
     return;
   }
 
+  /**
+   * THE PERFORMANCE ON THIS IS FUCKED
+   * NEED TO FIND OUT WHY
+   */
   function isOwnedByCurrentPlayer(entity: Entity): boolean {
+    // Units do not change ownership, so we can calculate
+    // and cache the result inside of the UnitOwnedByCurrentPlayerSystem
+    const isUnit = hasComponent(components.UnitType, entity);
+    const ownedByCurrentPlayerAlreadySet = hasComponent(components.OwnedByCurrentPlayer, entity);
+    if (isUnit && ownedByCurrentPlayerAlreadySet) {
+      return getComponentValueStrict(components.OwnedByCurrentPlayer, entity).value;
+    }
+
     const x = getCurrentPlayerEntity();
     if (!x) {
       return false;
@@ -276,7 +292,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
 
     const player = decodeEntity(components.Player.metadata.keySchema, x).entity;
     if (player) {
-      return isOwnedBy(entity, player as Entity);
+      return Boolean(isOwnedBy(entity, player as Entity));
     }
 
     return false;
@@ -333,6 +349,13 @@ export async function createNetworkLayer(config: NetworkConfig) {
     return getLevelIndices(levelId, SPAWN_SETTLEMENT);
   };
 
+  const getMaxPlayers = (matchEntity: Entity) => {
+    const matchConfig = getComponentValue(components.MatchConfig, matchEntity);
+    if (!matchConfig) return 0;
+
+    return getLevelSpawns(matchConfig.levelId).length;
+  };
+
   const getLevelIndices = (levelId: string, templateId: string) => {
     const { LevelTemplates } = components;
 
@@ -363,14 +386,13 @@ export async function createNetworkLayer(config: NetworkConfig) {
   };
 
   const matchIsLive = (matchEntity: Entity) => {
-    const { Match, MatchConfig, MatchReady, Player } = components;
+    const { MatchConfig, MatchFinished } = components;
+    if (hasComponent(MatchFinished, matchEntity)) return false;
 
-    const playersInMatch = runQuery([Has(Player), HasValue(Match, { matchEntity })]);
+    const matchConfig = getComponentValue(MatchConfig, matchEntity);
+    if (!matchConfig) return false;
 
-    const { levelId } = getComponentValueStrict(MatchConfig, matchEntity);
-    const spawns = getLevelSpawns(levelId);
-
-    return playersInMatch.size === spawns.length && getComponentValue(MatchReady, matchEntity);
+    return matchConfig.startTime > 0;
   };
 
   function decodeData(tableId: Hex, staticData: Hex) {
@@ -535,6 +557,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
       getLevelSpawns,
       getAvailableLevelSpawns,
       matchIsLive,
+      getMaxPlayers,
 
       getVirtualLevelData,
       getAnalyticsConsent,

@@ -1,6 +1,6 @@
 import { useEntityQuery } from "@latticexyz/react";
 import { Entity, getComponentValueStrict, Has, HasValue, removeComponent } from "@latticexyz/recs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { UnitTypeSprites } from "../../../layers/Renderer/Phaser/phaserConstants";
 import { useMUD } from "../../../useMUD";
@@ -29,7 +29,13 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
   } = useMUD();
 
   const [buildingUnit, setBuildingUnit] = useState<BuildData | null>(null);
-  const playerEntity = getCurrentPlayerEntity();
+
+  // for performance, don't worry about it
+  const selectedAnyFactory = useEntityQuery([Has(Selected), Has(Factory), Has(LocalPosition)])[0];
+  const playerEntity = useMemo(() => {
+    if (!selectedAnyFactory) return null;
+    return getCurrentPlayerEntity();
+  }, [getCurrentPlayerEntity, selectedAnyFactory]);
 
   const selectedFactory = useEntityQuery([
     Has(Selected),

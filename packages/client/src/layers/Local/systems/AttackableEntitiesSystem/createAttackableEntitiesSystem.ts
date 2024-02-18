@@ -37,6 +37,7 @@ export function createAttackableEntitiesSystem(layer: LocalLayer) {
     world,
     [Has(Selected), Has(LocalPosition), Has(Combat), Has(PotentialPath), Not(OnCooldown)],
     ({ type, entity, component, value }) => {
+      if (type === UpdateType.Update && component.id === OnCooldown.id) return;
       if (type === UpdateType.Exit) {
         removeComponent(AttackableEntities, entity);
         return;

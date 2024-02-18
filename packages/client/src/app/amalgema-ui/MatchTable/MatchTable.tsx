@@ -10,7 +10,7 @@ import { OpenMatches } from "./OpenMatches";
 import { SpectateMatches } from "./SpectateMatches";
 import { HistoricalMatches } from "./HistoricalMatches";
 import { useEntityQuery } from "@latticexyz/react";
-import { Has, HasValue, Not, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
+import { Entity, Has, HasValue, Not, getComponentValue } from "@latticexyz/recs";
 
 enum Tabs {
   Play = "play",
@@ -18,9 +18,11 @@ enum Tabs {
   Historical = "historical",
 }
 
+const BUGGED_MATCHES = ["0x72ae50e300000000000000000000000000000000000000000000000000000000"] as Entity[];
+
 export function MatchTable() {
   const {
-    components: { MatchConfig, MatchFinished, MatchJoinable, MatchReady },
+    components: { MatchConfig, MatchFinished, MatchJoinable, MatchReady, MatchPlayers },
   } = useAmalgema();
 
   const [currentTab, setCurrentTab] = useState<Tabs>(Tabs.Play);
@@ -37,18 +39,25 @@ export function MatchTable() {
     Not(MatchReady),
     Not(MatchFinished),
   ]);
-  const allMatches = openMatches.concat(pendingMatches);
+  const allMatches = openMatches.concat(pendingMatches).filter((match) => !BUGGED_MATCHES.includes(match));
 
   const joinableMatches = useMemo(() => {
     return allMatches.sort((a, b) => {
-      const aConfig = getComponentValueStrict(MatchConfig, a);
-      const bConfig = getComponentValueStrict(MatchConfig, b);
+      const numPlayersA = getComponentValue(MatchPlayers, a)?.value.length ?? 0;
+      const numPlayersB = getComponentValue(MatchPlayers, b)?.value.length ?? 0;
+
+      if (numPlayersA !== numPlayersB) {
+        return numPlayersB - numPlayersA;
+      }
+
+      const aConfig = getComponentValue(MatchConfig, a);
+      const bConfig = getComponentValue(MatchConfig, b);
 
       // This sort is purely so that Sky Pool created matches are shown on the first page
       // Registration time is currently only in the admin UI so no one else can set it easily
-      return Number(bConfig.registrationTime - aConfig.registrationTime);
+      return Number((bConfig?.registrationTime ?? 0n) - (aConfig?.registrationTime ?? 0n));
     });
-  }, [MatchConfig, allMatches]);
+  }, [MatchConfig, MatchPlayers, allMatches]);
 
   const historicalMatches = useEntityQuery([Has(MatchConfig), Has(MatchFinished)]);
   historicalMatches.sort((a, b) => {
@@ -63,16 +72,15 @@ export function MatchTable() {
     return liveMatches
       .filter((matchEntity) => {
         return (
-          getComponentValueStrict(MatchConfig, matchEntity)?.startTime + oneHour > BigInt(Math.floor(Date.now() / 1000))
+          (getComponentValue(MatchConfig, matchEntity)?.startTime ?? 0n) + oneHour >
+          BigInt(Math.floor(Date.now() / 1000))
         );
       })
       .sort((a, b) => {
-        const aConfig = getComponentValueStrict(MatchConfig, a);
-        const bConfig = getComponentValueStrict(MatchConfig, b);
+        const aConfig = getComponentValue(MatchConfig, a);
+        const bConfig = getComponentValue(MatchConfig, b);
 
-        // This sort is purely so that Sky Pool created matches are shown on the first page
-        // Registration time is currently only in the admin UI so no one else can set it easily
-        return Number(bConfig.startTime - aConfig.startTime);
+        return Number((bConfig?.startTime ?? 0n) - (aConfig?.startTime ?? 0n));
       });
   }, [MatchConfig, liveMatches, oneHour]);
 

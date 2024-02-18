@@ -141,11 +141,19 @@ export const Matches = () => {
   } = useAmalgema();
 
   const [showFinished, setShowFinished] = useState(false);
+  const [hideFutureScheduled, setHideFutureScheduled] = useState(false);
 
-  const matches = useEntityQuery([Has(MatchConfig), showFinished ? Has(MatchFinished) : Not(MatchFinished)]);
+  const matches = useEntityQuery([Has(MatchConfig), showFinished ? Has(MatchFinished) : Not(MatchFinished)]).filter(
+    (m) => {
+      if (!hideFutureScheduled) return true;
+
+      const matchConfig = getComponentValue(MatchConfig, m);
+      return Number(matchConfig?.registrationTime ?? 0) < DateTime.now().toUTC().toSeconds();
+    }
+  );
   matches.sort((a, b) => {
-    const aIndex = getComponentValueStrict(MatchIndex, a).matchIndex;
-    const bIndex = getComponentValueStrict(MatchIndex, b).matchIndex;
+    const aIndex = getComponentValue(MatchIndex, a)?.matchIndex || 0;
+    const bIndex = getComponentValue(MatchIndex, b)?.matchIndex || 0;
 
     return Number(bIndex) - Number(aIndex);
   });
@@ -170,6 +178,13 @@ export const Matches = () => {
           uncheckedLabel="Hide finished matches"
           isChecked={showFinished}
           setIsChecked={setShowFinished}
+        />
+
+        <Checkbox
+          checkedLabel="Hide matches scheduled in the future"
+          uncheckedLabel="Show"
+          isChecked={hideFutureScheduled}
+          setIsChecked={setHideFutureScheduled}
         />
       </div>
 

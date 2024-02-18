@@ -161,7 +161,9 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
     }
 
     // not hovering over attackable entity, clear the NextPosition
-    if (nextPosition && !nextPosition.userCommittedToPosition) removeComponent(NextPosition, selectedEntity);
+    if (nextPosition && !nextPosition.userCommittedToPosition) {
+      removeComponent(NextPosition, selectedEntity);
+    }
 
     const hoveringNextPosition =
       nextPosition && nextPosition.userCommittedToPosition && worldCoordEq(hoveredPosition, nextPosition);
@@ -192,7 +194,8 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
       }), // Map pointer to pointer pixel cood
       map((pixel) => {
         const newWorldCoord = pixelToWorldCoord(maps.Main, pixel);
-        if (newWorldCoord === lastPointerWorldCoord) {
+
+        if (worldCoordEq(newWorldCoord, lastPointerWorldCoord)) {
           return null;
         }
 

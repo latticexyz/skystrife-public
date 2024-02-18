@@ -1,0 +1,52 @@
+{
+  "name": "discord-bot",
+  "version": "0.2.0",
+  "private": "true",
+  "type": "module",
+  "description": "Sky Strife Discord bot.",
+  "dependencies": {
+    "@ethersproject/providers": "^5.7.2",
+    "@latticexyz/block-logs-stream": "2.0.0-main-5ab67e33",
+    "@latticexyz/common": "2.0.0-main-5ab67e33",
+    "@latticexyz/dev-tools": "2.0.0-main-5ab67e33",
+    "@latticexyz/phaserx": "2.0.0-main-5ab67e33",
+    "@latticexyz/protocol-parser": "2.0.0-main-5ab67e33",
+    "@latticexyz/react": "2.0.0-main-5ab67e33",
+    "@latticexyz/recs": "2.0.0-main-5ab67e33",
+    "@latticexyz/schema-type": "2.0.0-main-5ab67e33",
+    "@latticexyz/store": "2.0.0-main-5ab67e33",
+    "@latticexyz/store-sync": "2.0.0-main-5ab67e33",
+    "@latticexyz/utils": "2.0.0-main-5ab67e33",
+    "@latticexyz/world": "2.0.0-main-5ab67e33",
+    "@types/lodash": "^4.14.199",
+    "@types/luxon": "3.3.1",
+    "color": "^4.2.3",
+    "contracts": "workspace:*",
+    "client": "workspace:*",
+    "debug": "^4.3.4",
+    "discord.js": "14.14.1",
+    "dotenv": "16.4.4",
+    "ecs-browser": "workspace:*",
+    "ethers": "^5.7.2",
+    "headless-client": "workspace:*",
+    "lodash": "^4.17.21",
+    "luxon": "3.3.0",
+    "nice-grpc-web": "^2.0.2",
+    "phaser": "3.60.0-beta.14",
+    "protobufjs": "^6.11.4",
+    "proxy-deep": "^3.1.1",
+    "uuid": "^8.3.2",
+    "viem": "1.14.0",
+    "zod": "^3.22.2"
+  },
+  "scripts": {
+    "dev": "CHAIN_ID=31337 pnpm tsx src/index.ts",
+    "redstone": "CHAIN_ID=17001 pnpm tsx src/index.ts",
+    "render:forge-install": "curl -L https://foundry.paradigm.xyz | bash && ~/.foundry/bin/foundryup",
+    "render:build": "pnpm install && pnpm run render:forge-install && cd ../contracts && ~/.foundry/bin/forge build && cd ../discord-bot",
+    "render:start": "pnpm run redstone"
+  },
+  "devDependencies": {
+    "tsx": "^3.13.0"
+  }
+}
