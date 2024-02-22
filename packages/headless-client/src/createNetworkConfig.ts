@@ -1,7 +1,17 @@
 import { NetworkConfig, getChain, getWorldFromChainId } from "client/src/mud/utils";
 import { env } from "./createSkyStrife";
+import { Entity } from "@latticexyz/recs";
 
-export function createNetworkConfig(chainId: number, disableIndexer?: boolean): NetworkConfig {
+export function createNetworkConfig(
+  chainId: number,
+  {
+    disableIndexer,
+    matchEntity,
+  }: {
+    disableIndexer?: boolean;
+    matchEntity?: Entity;
+  } = {}
+): NetworkConfig {
   const chain = getChain(chainId);
   const world = getWorldFromChainId(chain.id);
   const worldAddress = world?.address;
@@ -31,7 +41,7 @@ export function createNetworkConfig(chainId: number, disableIndexer?: boolean): 
     worldAddress,
     initialBlockNumber,
     disableCache: true,
-    matchEntity: null,
+    matchEntity: matchEntity ?? null,
     chain,
     indexerUrl,
     useBurner: false,

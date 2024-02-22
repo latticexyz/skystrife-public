@@ -26,6 +26,7 @@ import {
 } from "viem";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { HeadlessLayer, createHeadlessLayer } from "client/src/layers/Headless";
+import { Entity } from "@latticexyz/recs";
 
 export const env = z
   .object({
@@ -39,6 +40,7 @@ export const env = z
       .optional()
       .transform((val) => (val ? val === "true" : undefined)),
     LEVEL_ID: z.string().optional(),
+    MATCH_ENTITY: z.string().optional(),
   })
   .parse(process.env, {
     errorMap: (issue) => ({
@@ -63,9 +65,16 @@ export async function createSkyStrife(): Promise<{
     entity: Hex;
   };
 }> {
-  const networkConfig = createNetworkConfig(env.CHAIN_ID, env.DISABLE_INDEXER);
+  const networkConfig = createNetworkConfig(env.CHAIN_ID, {
+    disableIndexer: env.DISABLE_INDEXER,
+    matchEntity: env.MATCH_ENTITY as Entity | undefined,
+  });
 
   console.log(`Connecting to ${networkConfig.chain.name}...`);
+  if (env.MATCH_ENTITY) {
+    console.log(`Loading Match: ${env.MATCH_ENTITY}`);
+  }
+
   const networkLayer = await createNetworkLayer(networkConfig);
   const headlessLayer = await createHeadlessLayer(networkLayer);
 

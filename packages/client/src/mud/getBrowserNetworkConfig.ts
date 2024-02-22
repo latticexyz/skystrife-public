@@ -1,7 +1,6 @@
 import { getBurnerWallet } from "../getBurnerWallet";
 import { Wallet } from "ethers";
 import { getChain, getWorldFromChainId } from "./utils";
-import { Hex } from "viem";
 import { Entity } from "@latticexyz/recs";
 import { redstoneHolesky } from "./supportedChains";
 
@@ -26,7 +25,7 @@ export async function getNetworkConfig() {
 
   // TODO: validate match entity param is hex and the shape of hex we expect
   const matchParam = params.get("match");
-  const matchEntity = matchParam != null ? (matchParam as Entity & Hex) : null;
+  const matchEntity = matchParam != null ? (matchParam as Entity) : null;
 
   return {
     clock: {
