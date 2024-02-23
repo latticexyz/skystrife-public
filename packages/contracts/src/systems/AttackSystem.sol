@@ -20,7 +20,7 @@ contract AttackSystem is System {
     bool ranged = Range.getMax(matchEntity, attacker) != 1;
     // If the attacker is in melee range and the defender is not passive,
     // the defender counterattacks
-    if (!ranged && !LibCombat.isPassive(matchEntity, defender)) {
+    if (!ranged) {
       (attackerDied, ) = LibCombat.dealDamage(matchEntity, defender, attacker, defenderDamage);
     }
 

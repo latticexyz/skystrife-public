@@ -1,5 +1,5 @@
 import { PhaserLayer } from "../../types";
-import { Entity, getComponentValue, getComponentValueStrict, Has, HasValue, runQuery } from "@latticexyz/recs";
+import { Entity, getComponentValue, Has, HasValue, runQuery } from "@latticexyz/recs";
 import { registerCameraControls } from "./registerCameraControls";
 import { registerClicks } from "./registerClicks";
 import { registerHotkeys } from "./registerHotkeys";
@@ -9,8 +9,8 @@ import { WorldCoord } from "phaserx/src/types";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
 
 export type InputUtils = {
-  getSelectedEntity: () => Entity;
-  getHighlightedEntity: () => Entity;
+  getSelectedEntity: () => Entity | undefined;
+  getHighlightedEntity: () => Entity | undefined;
   getHoverPosition: () => WorldCoord | undefined;
 };
 
@@ -30,7 +30,9 @@ export function createInputSystem(layer: PhaserLayer) {
   const inputUtils: InputUtils = {
     getSelectedEntity: () => [...runQuery([Has(Selected)])][0],
     getHighlightedEntity: () => {
-      const hoverHighlight = getComponentValueStrict(HoverHighlight, singletonEntity);
+      const hoverHighlight = getComponentValue(HoverHighlight, singletonEntity);
+      if (!hoverHighlight) return;
+
       const highlightedEntity = [
         ...runQuery([
           Has(InCurrentMatch),

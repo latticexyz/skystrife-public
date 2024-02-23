@@ -7,16 +7,33 @@ export default mudConfig({
   },
   enums: {
     UnitTypes: [
-      "Unknown",
-      "Swordsman",
-      "Pikeman",
-      "Golem",
-      "Rider",
-      "Knight",
-      "Dragon",
-      "Archer",
-      "Catapult",
-      "Wizard",
+      "Unknown", // 0
+      "Swordsman", // 1
+      "Pikeman", // 2
+      "Golem", // 3
+      "Rider", // 4
+      "Knight", // 5
+      "Dragon", // 6
+      "Archer", // 7
+      "Catapult", // 8
+      "Wizard", // 9
+      "Brute", // 10
+    ],
+    CombatArchetypes: [
+      "Unknown", // 0
+      "Swordsman", // 1
+      "Pikeman", // 2
+      "Golem", // 3
+      "Rider", // 4
+      "Knight", // 5
+      "Dragon", // 6
+      "Archer", // 7
+      "Catapult", // 8
+      "Wizard", // 9
+      "Settlement", // 10
+      "SpawnSettlement", // 11
+      "GoldMine", // 12
+      "Brute", // 13
     ],
     TerrainTypes: [
       "Unknown",
@@ -110,7 +127,7 @@ export default mudConfig({
         matchEntity: "bytes32",
         entity: "bytes32",
       },
-      valueSchema: "int32",
+      valueSchema: "int32", // expressed as a percentage
     },
     /**
      * Marks an entity as capturable.
@@ -196,10 +213,40 @@ export default mudConfig({
       valueSchema: {
         health: "int32",
         maxHealth: "int32",
-        armor: "int32",
+        armor: "int32", // LEGACY, unused
         strength: "int32",
-        structureStrength: "int32",
+        structureStrength: "int32", // LEGACY, unused
         counterStrength: "int32",
+      },
+    },
+    /**
+     * Marks what CombatArchetype an entity is.
+     * This is used to determine bonuses and penalties in combat.
+     */
+    CombatArchetype: {
+      keySchema: {
+        matchEntity: "bytes32",
+        entity: "bytes32",
+      },
+      valueSchema: "CombatArchetypes",
+    },
+    /**
+     * Set a value for a specific Archetype combat matchup.
+     * The value is a percentage bonus or penalty.
+     * i,e. 30 = 30% bonus, -30 = 30% penalty
+     */
+    ArchetypeModifier: {
+      keySchema: {
+        attacker: "CombatArchetypes",
+        defender: "CombatArchetypes",
+      },
+      valueSchema: {
+        // expressed as a percentage
+        mod: "int32",
+        // We store the keys here to aid in offchain lookups
+        // this all fits in one storage slot so it's not a big deal
+        attackerArchetype: "CombatArchetypes",
+        defenderArchetype: "CombatArchetypes",
       },
     },
     /**
@@ -371,6 +418,16 @@ export default mudConfig({
         min: "int32",
         max: "int32",
       },
+    },
+    /**
+     * Marks a unit as unable to Move and Attack in the same turn.
+     */
+    RequiresSetup: {
+      keySchema: {
+        matchEntity: "bytes32",
+        entity: "bytes32",
+      },
+      valueSchema: "bool",
     },
     /**
      * Set during Player registration to reserve a specific SpawnPoint in a level for a player entity.

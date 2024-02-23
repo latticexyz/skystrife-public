@@ -18,6 +18,7 @@ export function createPotentialPathSystem(layer: LocalLayer) {
     components: { Selected, PotentialPath, LocalPosition, Path },
     parentLayers: {
       headless: {
+        components: { NextPosition },
         api: { getMoveSpeed, getMovementDifficulty, isUntraversable },
       },
       network: {
@@ -29,7 +30,7 @@ export function createPotentialPathSystem(layer: LocalLayer) {
   defineSystem(
     world,
     // Not(Path) makes sure PotentialPaths are not rendered while a unit is moving.
-    [Has(Selected), Has(LocalPosition), Not(Path)],
+    [Has(Selected), Has(LocalPosition), Not(Path), Not(NextPosition)],
     ({ type, entity }) => {
       if (type === UpdateType.Exit) {
         removeComponent(PotentialPath, entity);

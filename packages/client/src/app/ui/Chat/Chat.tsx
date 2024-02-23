@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ClickWrapper } from "../Theme/ClickWrapper";
 import { Contract } from "@canvas-js/core";
 import { SIWESigner } from "@canvas-js/chain-ethereum";
 import { useLiveQuery, useCanvas } from "@canvas-js/hooks";
@@ -83,11 +82,13 @@ export function Chat() {
     setLastInteraction(DateTime.now());
   }, [disableMapInteraction]);
   const blurInput = useCallback(() => {
+    if (!inputFocused) return;
+
     inputRef.current?.blur();
     enableMapInteraction();
     setInputFocused(false);
     setLastInteraction(DateTime.now());
-  }, [enableMapInteraction]);
+  }, [enableMapInteraction, inputFocused]);
 
   const currentPlayer = useCurrentPlayer(matchEntity ?? ("" as Entity));
 
@@ -158,7 +159,7 @@ export function Chat() {
     return () => {
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [blurInput, disableMapInteraction, enableMapInteraction, focusInput]);
+  }, [blurInput, focusInput]);
 
   return (
     <div
@@ -168,9 +169,9 @@ export function Chat() {
       onMouseMove={() => {
         setLastInteraction(DateTime.now());
       }}
-      className="absolute bottom-12 left-6 h-[160px] w-[300px] rounded border border-ss-stroke bg-black/25 transition-all duration-300"
+      className="absolute bottom-12 left-0 h-[160px] w-[300px] rounded border border-ss-stroke bg-black/25 transition-all duration-300"
     >
-      <ClickWrapper className="h-full w-full">
+      <div className="h-full w-full">
         <div className="w-full overflow-y-auto">
           <ul
             style={{
@@ -247,7 +248,7 @@ export function Chat() {
               <div className="absolute top-[9px] right-2 w-4 h-4 rounded-full animate-pulse bg-red-500" />
             ))}
         </form>
-      </ClickWrapper>
+      </div>
     </div>
   );
 }

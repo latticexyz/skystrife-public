@@ -13,7 +13,7 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 // table imports
 import {
-  ...
+  MatchConfig
 } from "../src/codegen/index.sol";
 
 contract <%= name %> is Script {

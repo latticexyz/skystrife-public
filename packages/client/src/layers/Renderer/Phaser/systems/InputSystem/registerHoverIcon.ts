@@ -117,17 +117,17 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
         // for ranged we ignore this rule since we always attack from a distance
         const previouslyHoveredPosition = getComponentValue(PreviousHoverHighlight, singletonEntity);
         preferredEndPosition = previouslyHoveredPosition ?? currentPosition;
-        if (worldCoordEq(previouslyHoveredPosition, currentPosition)) {
-          const canAttackInMelee = canAttack(selectedEntity, hoveredAttackableEntity);
-          if (canAttackInMelee) {
-            setNextPositionToCurrentLocationAndAssignHoveredEntityAsTarget();
-            return;
-          }
-
-          return;
-        }
       } else {
         if (canAttack(selectedEntity, hoveredAttackableEntity)) {
+          setNextPositionToCurrentLocationAndAssignHoveredEntityAsTarget();
+          return;
+        }
+      }
+
+      // if we intentionally do not want to move when attacking, we can skip the path calculation
+      if (worldCoordEq(preferredEndPosition, currentPosition)) {
+        const canAttackInMelee = canAttack(selectedEntity, hoveredAttackableEntity);
+        if (canAttackInMelee) {
           setNextPositionToCurrentLocationAndAssignHoveredEntityAsTarget();
           return;
         }
@@ -141,6 +141,14 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
         hoveredAttackableEntity,
         preferredEndPosition
       );
+      // if path calculation fails on preferred position, fall back to attacking from current position
+      if (moveAndAttackPath.length === 0) {
+        const canAttackInMelee = canAttack(selectedEntity, hoveredAttackableEntity);
+        if (canAttackInMelee) {
+          setNextPositionToCurrentLocationAndAssignHoveredEntityAsTarget();
+          return;
+        }
+      }
 
       const newNextPositionData = {
         x: moveAndAttackPath[moveAndAttackPath.length - 1].x,

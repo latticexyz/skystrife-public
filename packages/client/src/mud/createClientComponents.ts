@@ -29,5 +29,10 @@ export function createClientComponents({ components, world }: SetupNetworkResult
       value: Type.Boolean,
     }),
     OwnedByCurrentPlayer: defineComponent(world, { value: Type.Boolean }, { id: "OwnedByCurrentPlayer" }),
+    BuildingUnit: defineComponent(
+      world,
+      { factory: Type.Entity, unitType: Type.Number, staminaCost: Type.Number, prototypeId: Type.Entity },
+      { id: "BuildingUnit" }
+    ),
   };
 }

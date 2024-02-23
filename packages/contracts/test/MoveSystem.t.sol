@@ -225,9 +225,9 @@ contract MoveSystemTest is BaseTest, GasReporter {
       CombatData({
         health: 100_000,
         maxHealth: 100_000,
-        armor: 5_000,
+        armor: 0,
         strength: 20_000,
-        structureStrength: 20_000,
+        structureStrength: 0,
         counterStrength: 100
       })
     );
@@ -241,9 +241,9 @@ contract MoveSystemTest is BaseTest, GasReporter {
       CombatData({
         health: 100_000,
         maxHealth: 100_000,
-        armor: 5_000,
+        armor: 0,
         strength: 20_000,
-        structureStrength: 20_000,
+        structureStrength: 0,
         counterStrength: 100
       })
     );
@@ -265,6 +265,6 @@ contract MoveSystemTest is BaseTest, GasReporter {
     assertEq(position.y, 2, "y should be 2");
 
     CombatData memory combat = Combat.get(testMatch, enemy);
-    assertEq(combat.health, 85_000, "enemy was not attacked");
+    assertEq(combat.health, 80_000, "enemy was not attacked");
   }
 }

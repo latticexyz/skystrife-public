@@ -44,46 +44,15 @@ export enum Assets {
 export enum Sprites {
   Settlement,
   SpawnSettlement,
-  Village,
   Gold,
   GoldMine,
-  Container,
-  GoldShrine,
-  EmberCrown,
-  Portal,
-  Donkey,
-  Soldier,
-  Spear,
   SelectUI,
-  Longbowman,
-  Ballista,
   SummoningAltar,
   WoodenWall,
   Crystal,
 
-  Widget,
-  WidgetGenerator,
-
-  Ruins,
-
-  Zero,
-  One,
-  Two,
-  Three,
-  Four,
-  Five,
-  Six,
-  Seven,
-  Eight,
-  Nine,
-
   Chain,
   Cog,
-
-  ZeroCircle,
-  OneCircle,
-  TwoCircle,
-  ThreeCircle,
 
   Swordsman,
   Pikeman,
@@ -97,61 +66,35 @@ export enum Sprites {
   Knight,
   Dragon,
 
+  Brute,
+
   BarBackground,
   HealthBar,
   HealthBarRed,
   GoldBar,
 
-  StaminaTickBackground,
-  StaminaTick,
-
   Banner,
 
   ResourceBar,
 
-  GreenTick,
-  YellowTick,
-  OrangeTick,
-  RedTick,
-
-  CombatPreview,
-  CrossedSwords,
-  PercentGreen,
-  PercentRed,
-  BuildFrame,
-  UnitFrame,
-
-  ZeroGreen,
-  OneGreen,
-  TwoGreen,
-  ThreeGreen,
-  FourGreen,
-  FiveGreen,
-  SixGreen,
-  SevenGreen,
-  EightGreen,
-  NineGreen,
-
-  ZeroRed,
-  OneRed,
-  TwoRed,
-  ThreeRed,
-  FourRed,
-  FiveRed,
-  SixRed,
-  SevenRed,
-  EightRed,
-  NineRed,
-
   Shadow,
-
-  EmberCrownShrineRisingBackground,
-  EmberCrownShrineRisingForeground,
 
   Boot,
   BootConfirm,
+
   Sword,
   SwordConfirm,
+  SwordUp,
+  SwordDown,
+
+  Armor,
+  NoArmor,
+
+  GrassPreview,
+  MountainPreview,
+  ForestPreview,
+
+  Skull,
 }
 
 export enum Animations {
@@ -216,6 +159,10 @@ export enum Animations {
   KnightDeath = "KnightDeath",
   DragonDeath = "DragonDeath",
 
+  BruteIdle = "BruteIdle",
+  BruteAttack = "BruteAttack",
+  BruteDeath = "BruteDeath",
+
   Capture = "Capture",
   // Terrain
   LongGrass = "LongGrass",
@@ -232,6 +179,7 @@ function createWalkAnimations() {
     UnitTypes.Rider,
     UnitTypes.Knight,
     UnitTypes.Dragon,
+    UnitTypes.Brute,
   ].reduce((anims, unitType) => {
     anims[unitType] = [`${unitType}WalkUp`, `${unitType}WalkDown`, `${unitType}WalkLeft`, `${unitType}WalkRight`];
 
@@ -255,28 +203,15 @@ export const UnitTypeSprites: Record<number, Sprites> = {
   [UnitTypes.Rider]: Sprites.Rider,
   [UnitTypes.Knight]: Sprites.Knight,
   [UnitTypes.Dragon]: Sprites.Dragon,
-};
 
-export const ItemTypeSprites: Record<number, Sprites> = {
-  [ItemTypes.Gold]: Sprites.Gold,
-  [ItemTypes.EmberCrown]: Sprites.EmberCrown,
+  [UnitTypes.Brute]: Sprites.Brute,
 };
 
 export const StructureTypeSprites: Record<number, Sprites> = {
   [StructureTypes.Settlement]: Sprites.Settlement,
   [StructureTypes.SpawnSettlement]: Sprites.SpawnSettlement,
-  [StructureTypes.GoldShrine]: Sprites.GoldShrine,
-  [StructureTypes.BlazingHeartShrine]: Sprites.GoldShrine,
-  [StructureTypes.EscapePortal]: Sprites.Portal,
-  [StructureTypes.Portal]: Sprites.Portal,
-  [StructureTypes.Container]: Sprites.Container,
-  [StructureTypes.SummoningAltar]: Sprites.SummoningAltar,
   [StructureTypes.WoodenWall]: Sprites.WoodenWall,
   [StructureTypes.GoldMine]: Sprites.GoldMine,
-  [StructureTypes.Village]: Sprites.Village,
-
-  // Client Only
-  [StructureTypes.EmberCrownShrineRuins]: Sprites.Ruins,
 };
 
 export const UnitTypeAnimations: Record<number, Animations> = {
@@ -291,6 +226,8 @@ export const UnitTypeAnimations: Record<number, Animations> = {
   [UnitTypes.Rider]: Animations.RiderIdle,
   [UnitTypes.Knight]: Animations.KnightIdle,
   [UnitTypes.Dragon]: Animations.DragonIdle,
+
+  [UnitTypes.Brute]: Animations.BruteIdle,
 };
 
 export const UnitTypeAttackAnimations: Record<number, Animations> = {
@@ -305,6 +242,8 @@ export const UnitTypeAttackAnimations: Record<number, Animations> = {
   [UnitTypes.Rider]: Animations.RiderAttack,
   [UnitTypes.Knight]: Animations.KnightAttack,
   [UnitTypes.Dragon]: Animations.DragonAttack,
+
+  [UnitTypes.Brute]: Animations.BruteAttack,
 };
 
 export const UnitTypeDeathAnimations: Record<number, Animations> = {
@@ -319,6 +258,8 @@ export const UnitTypeDeathAnimations: Record<number, Animations> = {
   [UnitTypes.Rider]: Animations.RiderDeath,
   [UnitTypes.Knight]: Animations.KnightDeath,
   [UnitTypes.Dragon]: Animations.DragonDeath,
+
+  [UnitTypes.Brute]: Animations.BruteDeath,
 };
 
 export const StructureTypeAnimations: Record<number, Animations> = {

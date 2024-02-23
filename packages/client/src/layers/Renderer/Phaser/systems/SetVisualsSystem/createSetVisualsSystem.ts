@@ -12,7 +12,6 @@ import { PhaserLayer } from "../../types";
 import {
   UnitTypeSprites,
   StructureTypeSprites,
-  ItemTypeSprites,
   StructureTypeAnimations,
   UnitTypeAnimations,
   Animations,
@@ -26,7 +25,7 @@ export function createSetVisualsSystem(layer: PhaserLayer) {
     world,
     parentLayers: {
       network: {
-        components: { UnitType, StructureType, ItemType },
+        components: { UnitType, StructureType },
       },
       local: {
         components: { LocalPosition, Path },
@@ -53,16 +52,6 @@ export function createSetVisualsSystem(layer: PhaserLayer) {
 
     setComponent(Appearance, entity, {
       value: StructureTypeSprites[entityType],
-    });
-  });
-
-  defineSystem(world, [Has(ItemType), Has(LocalPosition)], ({ entity, type }) => {
-    const entityType = getComponentValueStrict(ItemType, entity).value;
-
-    if (type === UpdateType.Exit) removeComponent(Appearance, entity);
-
-    setComponent(Appearance, entity, {
-      value: ItemTypeSprites[entityType],
     });
   });
 

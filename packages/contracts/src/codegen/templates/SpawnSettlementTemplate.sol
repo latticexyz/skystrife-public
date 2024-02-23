@@ -6,13 +6,13 @@ pragma solidity >=0.8.21;
 import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { createTemplate } from "../../libraries/templates/createTemplate.sol";
-import { UnitTypes, TerrainTypes, StructureTypes, ItemTypes } from "../common.sol";
+import { UnitTypes, CombatArchetypes, TerrainTypes, StructureTypes, ItemTypes } from "../common.sol";
 
-import { StructureType, StructureTypeTableId, Untraversable, UntraversableTableId, Capturable, CapturableTableId, Charger, ChargerTableId, ChargeCap, ChargeCapTableId, Combat, CombatTableId, Factory, FactoryTableId, SpawnPoint, SpawnPointTableId, StaminaOnKill, StaminaOnKillTableId } from "../index.sol";
+import { Combat, CombatTableId, StructureType, StructureTypeTableId, CombatArchetype, CombatArchetypeTableId, Untraversable, UntraversableTableId, Capturable, CapturableTableId, Charger, ChargerTableId, ChargeCap, ChargeCapTableId, Factory, FactoryTableId, SpawnPoint, SpawnPointTableId, StaminaOnKill, StaminaOnKillTableId } from "../index.sol";
 
 bytes32 constant templateId = "SpawnSettlement";
 bytes32 constant SpawnSettlementTemplateId = templateId;
-uint256 constant LENGTH = 9;
+uint256 constant LENGTH = 10;
 
 function SpawnSettlementTemplate() {
   bytes32[] memory tableIds = new bytes32[](LENGTH);
@@ -24,71 +24,81 @@ function SpawnSettlementTemplate() {
   PackedCounter encodedLengths;
   bytes memory dynamicData;
 
-  tableIds[0] = ResourceId.unwrap(StructureTypeTableId);
-  tableIds[1] = ResourceId.unwrap(UntraversableTableId);
-  tableIds[2] = ResourceId.unwrap(CapturableTableId);
-  tableIds[3] = ResourceId.unwrap(ChargerTableId);
-  tableIds[4] = ResourceId.unwrap(ChargeCapTableId);
-  tableIds[5] = ResourceId.unwrap(CombatTableId);
-  tableIds[6] = ResourceId.unwrap(FactoryTableId);
-  tableIds[7] = ResourceId.unwrap(SpawnPointTableId);
-  tableIds[8] = ResourceId.unwrap(StaminaOnKillTableId);
+  tableIds[0] = ResourceId.unwrap(CombatTableId);
+  tableIds[1] = ResourceId.unwrap(StructureTypeTableId);
+  tableIds[2] = ResourceId.unwrap(CombatArchetypeTableId);
+  tableIds[3] = ResourceId.unwrap(UntraversableTableId);
+  tableIds[4] = ResourceId.unwrap(CapturableTableId);
+  tableIds[5] = ResourceId.unwrap(ChargerTableId);
+  tableIds[6] = ResourceId.unwrap(ChargeCapTableId);
+  tableIds[7] = ResourceId.unwrap(FactoryTableId);
+  tableIds[8] = ResourceId.unwrap(SpawnPointTableId);
+  tableIds[9] = ResourceId.unwrap(StaminaOnKillTableId);
 
-  (staticData, encodedLengths, dynamicData) = StructureType.encode(StructureTypes(uint8(2)));
+  (staticData, encodedLengths, dynamicData) = Combat.encode(500000, 500000, 0, 0, 0, 0);
   staticDatas[0] = staticData;
   encodedLengthss[0] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Untraversable.encode(true);
+  (staticData, encodedLengths, dynamicData) = StructureType.encode(StructureTypes(uint8(2)));
   staticDatas[1] = staticData;
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Capturable.encode(false);
+  (staticData, encodedLengths, dynamicData) = CombatArchetype.encode(CombatArchetypes(uint8(11)));
   staticDatas[2] = staticData;
   encodedLengthss[2] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Charger.encode(100);
+  (staticData, encodedLengths, dynamicData) = Untraversable.encode(true);
   staticDatas[3] = staticData;
   encodedLengthss[3] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(2000, 0);
+  (staticData, encodedLengths, dynamicData) = Capturable.encode(false);
   staticDatas[4] = staticData;
   encodedLengthss[4] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[4] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(500000, 500000, 0, 0, 0, 0);
+  (staticData, encodedLengths, dynamicData) = Charger.encode(25);
   staticDatas[5] = staticData;
   encodedLengthss[5] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[5] = dynamicData;
-  bytes32[] memory factory_prototypeIds = new bytes32[](5);
-  factory_prototypeIds[0] = 0x53776f7264736d616e0000000000000000000000000000000000000000000000;
-  factory_prototypeIds[1] = 0x5269646572000000000000000000000000000000000000000000000000000000;
-  factory_prototypeIds[2] = 0x4b6e696768740000000000000000000000000000000000000000000000000000;
-  factory_prototypeIds[3] = 0x4172636865720000000000000000000000000000000000000000000000000000;
-  factory_prototypeIds[4] = 0x50696b656d616e00000000000000000000000000000000000000000000000000;
-  int32[] memory factory_staminaCosts = new int32[](5);
-  factory_staminaCosts[0] = 500;
-  factory_staminaCosts[1] = 700;
-  factory_staminaCosts[2] = 900;
-  factory_staminaCosts[3] = 1100;
-  factory_staminaCosts[4] = 1800;
-  (staticData, encodedLengths, dynamicData) = Factory.encode(factory_prototypeIds, factory_staminaCosts);
+
+  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(750, 0);
   staticDatas[6] = staticData;
   encodedLengthss[6] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[6] = dynamicData;
-
-  (staticData, encodedLengths, dynamicData) = SpawnPoint.encode(true);
+  bytes32[] memory factory_prototypeIds = new bytes32[](7);
+  factory_prototypeIds[0] = 0x53776f7264736d616e0000000000000000000000000000000000000000000000;
+  factory_prototypeIds[1] = 0x50696b656d616e00000000000000000000000000000000000000000000000000;
+  factory_prototypeIds[2] = 0x5269646572000000000000000000000000000000000000000000000000000000;
+  factory_prototypeIds[3] = 0x4172636865720000000000000000000000000000000000000000000000000000;
+  factory_prototypeIds[4] = 0x4b6e696768740000000000000000000000000000000000000000000000000000;
+  factory_prototypeIds[5] = 0x4272757465000000000000000000000000000000000000000000000000000000;
+  factory_prototypeIds[6] = 0x4361746170756c74000000000000000000000000000000000000000000000000;
+  int32[] memory factory_staminaCosts = new int32[](7);
+  factory_staminaCosts[0] = 100;
+  factory_staminaCosts[1] = 175;
+  factory_staminaCosts[2] = 200;
+  factory_staminaCosts[3] = 250;
+  factory_staminaCosts[4] = 375;
+  factory_staminaCosts[5] = 525;
+  factory_staminaCosts[6] = 700;
+  (staticData, encodedLengths, dynamicData) = Factory.encode(factory_prototypeIds, factory_staminaCosts);
   staticDatas[7] = staticData;
   encodedLengthss[7] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[7] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(1000);
+  (staticData, encodedLengths, dynamicData) = SpawnPoint.encode(true);
   staticDatas[8] = staticData;
   encodedLengthss[8] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[8] = dynamicData;
+
+  (staticData, encodedLengths, dynamicData) = StaminaOnKill.encode(500);
+  staticDatas[9] = staticData;
+  encodedLengthss[9] = PackedCounter.unwrap(encodedLengths);
+  dynamicDatas[9] = dynamicData;
 
   createTemplate(templateId, tableIds, staticDatas, encodedLengthss, dynamicDatas);
 }

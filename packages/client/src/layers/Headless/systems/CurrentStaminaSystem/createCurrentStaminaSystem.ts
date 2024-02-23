@@ -25,6 +25,8 @@ export function createCurrentStaminaSystem(layer: HeadlessLayer) {
     turn$,
     parentLayers: {
       network: {
+        components: { Transaction },
+
         network: {
           clock,
           components: {
@@ -33,6 +35,7 @@ export function createCurrentStaminaSystem(layer: HeadlessLayer) {
             ChargedByStart,
             Chargee,
             Charger,
+            UnitType,
 
             Combat,
             StructureType,
@@ -155,5 +158,12 @@ export function createCurrentStaminaSystem(layer: HeadlessLayer) {
   defineSystem(world, [Has(NetworkChargeCap), Has(InCurrentMatch), Not(ChargeCap)], ({ entity }) => {
     const val = getComponentValueStrict(NetworkChargeCap, entity);
     setComponent(ChargeCap, entity, val);
+  });
+
+  defineEnterSystem(world, [Has(Transaction), HasValue(Transaction, { status: "completed" })], ({ entity }) => {
+    const txData = getComponentValue(Transaction, entity);
+    if (!txData) return;
+
+    if (txData.entity && hasComponent(UnitType, txData.entity)) setLocalStaminaToCurrentTurn(txData.entity);
   });
 }

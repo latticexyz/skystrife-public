@@ -13,6 +13,7 @@ import { DragonTemplate, DragonTemplateId } from "./templates/DragonTemplate.sol
 import { ArcherTemplate, ArcherTemplateId } from "./templates/ArcherTemplate.sol";
 import { CatapultTemplate, CatapultTemplateId } from "./templates/CatapultTemplate.sol";
 import { WizardTemplate, WizardTemplateId } from "./templates/WizardTemplate.sol";
+import { BruteTemplate, BruteTemplateId } from "./templates/BruteTemplate.sol";
 import { GrassTemplate, GrassTemplateId } from "./templates/GrassTemplate.sol";
 import { MountainTemplate, MountainTemplateId } from "./templates/MountainTemplate.sol";
 import { WaterTemplate, WaterTemplateId } from "./templates/WaterTemplate.sol";

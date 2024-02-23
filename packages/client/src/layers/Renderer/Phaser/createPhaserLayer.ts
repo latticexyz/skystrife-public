@@ -56,6 +56,8 @@ import { UnitTypes } from "../../Network";
 import PLAYER_COLORS from "../../Local/player-colors.json";
 import { createArrowPainter } from "./createArrowPainter";
 import { createDepthSystem } from "./systems/DepthSystem";
+import { createSkullSystem } from "./systems/SkullSystem";
+import { createShieldSystem } from "./systems/ShieldSystem";
 
 type PhaserEngineConfig = Parameters<typeof createPhaserEngine>[0];
 
@@ -86,12 +88,12 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
 
   // Create phaser engine
   const { game, scenes, dispose: disposePhaser } = await createPhaserEngine(phaserConfig);
-  game.canvas.hidden = true;
+  // game.canvas.hidden = true;
   world.registerDisposer(disposePhaser);
 
   const sounds = await createSounds(scenes.Main.phaserScene);
   sounds["field-battle"].play();
-  game.canvas.hidden = false;
+  // game.canvas.hidden = false;
 
   game.scene.start(Scenes.UI);
   // Disable zoom on UI
@@ -153,8 +155,12 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     let enabled = true;
 
     return {
-      disableMapInteraction: () => (enabled = false),
-      enableMapInteraction: () => (enabled = true),
+      disableMapInteraction: () => {
+        enabled = false;
+      },
+      enableMapInteraction: () => {
+        enabled = true;
+      },
       mapInteractionEnabled: () => {
         return enabled;
       },
@@ -261,7 +267,13 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     return tileCoordToPixelCoord(position, tileWidth, tileHeight);
   }
 
-  const drawSpriteAtTile = (id: string, spriteId: Sprites, tileCoord: WorldCoord, depth: RenderDepth) => {
+  const drawSpriteAtTile = (
+    id: string,
+    spriteId: Sprites,
+    tileCoord: WorldCoord,
+    depth: RenderDepth,
+    options?: { depthPosition?: WorldCoord; yOffset?: number; xOffset?: number }
+  ) => {
     const {
       objectPool,
       maps: {
@@ -280,8 +292,8 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
       id: `draw-sprite-at-tile-${id}`,
       once: (obj) => {
         obj.setOrigin(0, 0);
-        obj.setPosition(pixelCoord.x, pixelCoord.y);
-        obj.setDepth(depthFromPosition(tileCoord, depth));
+        obj.setPosition(pixelCoord.x + (options?.xOffset ?? 0), pixelCoord.y + (options?.yOffset ?? 0));
+        obj.setDepth(depthFromPosition(options?.depthPosition ?? tileCoord, depth));
         obj.setTexture(sprite.assetKey, sprite.frame);
 
         spriteObj = obj;
@@ -324,6 +336,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
 
     const buildGhostEntity = world.registerEntity({ idSuffix: "build-ghost" });
     setComponent(OwnedBy, buildGhostEntity, { value: currentPlayer });
+    setComponent(UnitType, buildGhostEntity, { value: unitType });
     setComponent(components.SpriteAnimation, buildGhostEntity, { value: animation });
     setComponent(NextPosition, buildGhostEntity, {
       x: position.x,
@@ -436,6 +449,8 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
   createTintNoStaminaSystem(layer);
   createCaptureAnimationSystem(layer);
   createDepthSystem(layer);
+  createSkullSystem(layer);
+  createShieldSystem(layer);
 
   createHideBlackBoxSystem(layer);
 

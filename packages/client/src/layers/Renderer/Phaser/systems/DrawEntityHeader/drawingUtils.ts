@@ -1,5 +1,12 @@
 import { tileCoordToPixelCoord } from "phaserx";
-import { ComponentUpdate, Entity, getComponentValueStrict, isComponentUpdate, UpdateType } from "@latticexyz/recs";
+import {
+  ComponentUpdate,
+  Entity,
+  getComponentValueStrict,
+  hasComponent,
+  isComponentUpdate,
+  UpdateType,
+} from "@latticexyz/recs";
 import { Animations, Sprites } from "../../phaserConstants";
 import { PhaserLayer, RenderDepth } from "../../types";
 
@@ -39,7 +46,7 @@ export function drawPlayerColorBanner(layer: PhaserLayer, entity: Entity, type: 
     id: "player-color-banner",
     once: (banner) => {
       const pixelCoord = tileCoordToPixelCoord(position, tileWidth, tileHeight);
-      banner.setPosition(pixelCoord.x, pixelCoord.y + yOffset);
+      banner.setPosition(pixelCoord.x + 4, pixelCoord.y + yOffset);
       banner.setDepth(depthFromPosition(position, RenderDepth.UI5));
     },
   });
@@ -102,7 +109,7 @@ export function drawGoldBar(
     id: `${entity}-gold-bar`,
     once: (gold) => {
       gold.setTexture(goldBarSprite.assetKey, goldBarSprite.frame);
-      gold.setPosition(pixelCoord.x + xOffset, pixelCoord.y + yOffset);
+      gold.setPosition(pixelCoord.x + xOffset, pixelCoord.y + yOffset + 2);
       gold.setDepth(depthFromPosition(position, RenderDepth.UI5 + 6));
       gold.setScale(percent, 1);
     },
@@ -126,6 +133,9 @@ export function drawHealthBar(
       local: {
         components: { LocalPosition, LocalHealth },
       },
+      headless: {
+        components: { NextPosition },
+      },
     },
     scenes: {
       Main: {
@@ -147,10 +157,12 @@ export function drawHealthBar(
     objectPool.remove(`${entity}-health-bar`);
     objectPool.remove(`${entity}-health-loss`);
   } else if ([UpdateType.Enter, UpdateType.Update].includes(type)) {
+    let position = getComponentValueStrict(LocalPosition, entity);
+    if (hasComponent(NextPosition, entity)) position = getComponentValueStrict(NextPosition, entity);
+
     const maxHealth = getComponentValueStrict(Combat, entity).maxHealth;
     const health = getComponentValueStrict(LocalHealth, entity).value;
     const currentHealthPercentage = health / maxHealth;
-    const position = getComponentValueStrict(LocalPosition, entity);
     const healthBarFrameSprite = config.sprites[Sprites.BarBackground as 0];
     const healthBarSprite = config.sprites[Sprites.HealthBar];
     const pixelCoord = tileCoordToPixelCoord(position, tileWidth, tileHeight);
@@ -186,7 +198,7 @@ export function drawHealthBar(
 
       const percentLoss = Math.min(damage, health) / maxHealth;
       const healthBarRedSprite = config.sprites[Sprites.HealthBarRed];
-      const startX = pixelCoord.x + xOffset + (1 - percentLoss) * 26 - (1 - currentHealthPercentage) * 26;
+      const startX = pixelCoord.x + xOffset + (1 - percentLoss) * 19 - (1 - currentHealthPercentage) * 19;
 
       const healthLoss = objectPool.get(`${entity}-health-loss`, "Sprite");
       healthLoss.setComponent({
@@ -201,8 +213,8 @@ export function drawHealthBar(
           phaserScene.tweens.add({
             targets: healthLoss,
             alpha: 0.5,
-            duration: 300,
-            ease: "Linear",
+            duration: 500,
+            ease: Phaser.Math.Easing.Quadratic.InOut,
             repeat: -1,
             yoyo: true,
           });
@@ -220,7 +232,7 @@ export function drawHealthBar(
 
         const previousHealthPercentage = previous / maxHealth;
         const percentDifference = previousHealthPercentage - currentHealthPercentage;
-        const startX = pixelCoord.x + xOffset + currentHealthPercentage * 25;
+        const startX = pixelCoord.x + xOffset + currentHealthPercentage * 19;
 
         const healthBarRedSprite = config.sprites[Sprites.HealthBarRed];
 
@@ -237,39 +249,10 @@ export function drawHealthBar(
             phaserScene.tweens.add({
               targets: redBar,
               scaleX: 0,
-              duration: 1000,
-              ease: Phaser.Math.Easing.Quadratic.InOut,
+              duration: 800,
+              ease: Phaser.Math.Easing.Quadratic.Out,
               onComplete: () => {
                 objectPool.remove(`${entity}-red-bar`);
-              },
-            });
-          },
-        });
-
-        // Need bitmap font for this to look good
-
-        const damageText = objectPool.get(`${entity}-damage`, "Text");
-        damageText.setComponent({
-          id: "damage-text",
-          once: (damageText) => {
-            const pixelCoord = tileCoordToPixelCoord(position, tileWidth, tileHeight);
-            damageText.setText(`${Math.abs(Math.round((previous - current) / 1000))}`);
-            damageText.setPosition(pixelCoord.x + xOffset, pixelCoord.y + yOffset - 10);
-            damageText.setDepth(RenderDepth.UI5 + 7);
-            damageText.setAlpha(1);
-
-            damageText.setFontSize(16);
-            damageText.setStyle({ color: "#ff8a8a" });
-            damageText.setStroke("#ff0000", 2);
-
-            phaserScene.tweens.add({
-              targets: damageText,
-              delay: 250,
-              y: pixelCoord.y + yOffset - 26,
-              alpha: 0,
-              duration: 250,
-              onComplete: () => {
-                objectPool.remove(`${entity}-damage`);
               },
             });
           },

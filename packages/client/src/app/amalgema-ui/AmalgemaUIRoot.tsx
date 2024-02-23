@@ -9,6 +9,7 @@ import { MatchCountdown } from "./SummonIsland/MatchCountdown";
 import { Welcome } from "./SummonIsland/WelcomeBanner";
 import { DateTime } from "luxon";
 import { MatchTable } from "./MatchTable";
+import { AnnouncementModal } from "./AnnouncementModal";
 
 const RELEASE_TIME = DateTime.fromSeconds(1701086400).setZone("GMT");
 
@@ -73,6 +74,8 @@ export const AmalgemaUIRoot = () => {
 
       <Transactions />
       <ChooseUsernameModal />
+
+      <AnnouncementModal />
 
       <ComponentBrowser />
     </div>

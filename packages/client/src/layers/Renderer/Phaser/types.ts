@@ -16,6 +16,8 @@ export interface PixelCoord {
 }
 
 export enum RenderDepth {
+  AlwaysOnTop = 10_000,
+
   UI1 = 75,
   UI2 = 70,
   UI3 = 65,

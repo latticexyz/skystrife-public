@@ -1,4 +1,5 @@
 import {
+  ComponentUpdate,
   defineSystem,
   Entity,
   getComponentValue,
@@ -44,26 +45,26 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
     },
   } = layer;
 
-  defineSystem(world, [Has(PotentialPath), Has(LocalPosition)], (update) => {
-    if (isComponentUpdate(update, LocalPosition) && update.type === UpdateType.Exit) {
-      const paths = getComponentValueStrict(PotentialPath, update.entity);
-      for (let i = 0; i < paths.x.length; i++) {
-        objectPool.remove(`${update.entity}-path-highlight-${i}`);
-      }
+  function removePathObjects(entity: Entity, paths: { x: number[]; y: number[] }) {
+    for (let i = 0; i < paths.x.length; i++) {
+      objectPool.remove(`${entity}-path-highlight-${i}`);
+    }
+  }
 
+  function highlightPotentialPaths(update: ComponentUpdate & { type: UpdateType }) {
+    const { entity } = update;
+
+    // idgaf just wipe every path
+    removePathObjects(entity, {
+      x: Array.from({ length: 250 }, () => 0),
+      y: Array.from({ length: 250 }, () => 0),
+    });
+
+    if (update.type === UpdateType.Exit) {
       return;
     }
 
-    if (!isComponentUpdate(update, PotentialPath)) return;
-    const { value, entity } = update;
-
-    const [potentialPaths, previousPaths] = value;
-
-    if (previousPaths) {
-      for (let i = 0; i < previousPaths.x.length; i++) {
-        objectPool.remove(`${entity}-path-highlight-${i}`);
-      }
-    }
+    const potentialPaths = getComponentValue(PotentialPath, entity);
 
     if (potentialPaths) {
       const currentPlayerEntity = isOwnedByCurrentPlayer(entity);
@@ -81,6 +82,10 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
         drawTileHighlight(`${entity}-path-highlight-${i}`, position, pathColor, alpha);
       }
     }
+  }
+
+  defineSystem(world, [Has(PotentialPath), Has(LocalPosition)], (update) => {
+    highlightPotentialPaths(update);
   });
 
   const draw = (from: Coord, to: Coord, player: Entity) => {
@@ -120,6 +125,7 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
     }
   }
 
+  // draw movement arrow over hovering position
   defineSystem(world, [Has(PotentialPath), Has(LocalPosition)], ({ entity, type }) => {
     initializePathObjects(entity);
     const pathObjects = entityToPathObjects[entity];
@@ -173,6 +179,7 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
     });
   });
 
+  // draw movement arrow to next position ghost
   defineSystem(world, [Has(LocalPosition), Has(NextPosition)], ({ entity, type }) => {
     initializePathObjects(entity);
     const pathObjects = entityToPathObjects[entity];

@@ -17,6 +17,7 @@ import { SeasonPass } from "./SeasonPass";
 import { useExternalAccount } from "./hooks/useExternalAccount";
 import { HoleskyEth } from "./HoleskyEth";
 import { MATCH_COST } from "./SummonIsland/MatchCost";
+import { useCurrentMatchReward } from "./hooks/useCurrentMatchReward";
 
 const DECIMALS = 18;
 
@@ -58,6 +59,7 @@ function Resources() {
 
 export function InventorySidebar() {
   const { address } = useExternalAccount();
+  const matchReward = useCurrentMatchReward();
 
   return (
     <div className="flex flex-col bg-ss-bg-1 border-l border-ss-stroke h-screen overflow-y-auto p-8 pt-4 items-stretch w-[420px] shrink-0">
@@ -85,6 +87,10 @@ export function InventorySidebar() {
       <div className="h-2 shrink-0" />
 
       <LabeledOrbInput amount={MATCH_COST} label="Match Creation Cost" />
+
+      <div className="h-2 shrink-0" />
+
+      <LabeledOrbInput amount={matchReward} label="Current Match Reward" />
 
       <div className="h-2 shrink-0" />
 

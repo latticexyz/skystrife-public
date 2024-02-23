@@ -1,7 +1,6 @@
 import { useMatchInfo } from "../hooks/useMatchInfo";
 import { useAllPlayerDetails } from "../hooks/usePlayerDetails";
 import { Card } from "../Theme/SkyStrife/Card";
-import { ClickWrapper } from "../Theme/ClickWrapper";
 import { PlayerCard } from "./PlayerCard";
 import { Entity } from "@latticexyz/recs";
 import { useMatchStarted } from "../hooks/useMatchStarted";
@@ -16,7 +15,7 @@ export const Leaderboard = ({ matchEntity }: { matchEntity: Entity }) => {
   return (
     <div className="absolute flex h-fit w-[340px] flex-col items-center">
       <Card primary className="p-2 border-[#181710]">
-        <ClickWrapper>
+        <div>
           <ul
             style={{
               width: "100%",
@@ -43,7 +42,7 @@ export const Leaderboard = ({ matchEntity }: { matchEntity: Entity }) => {
               return <PlayerCard key={`${player.player}`} playerData={player} />;
             })}
           </ul>
-        </ClickWrapper>
+        </div>
       </Card>
     </div>
   );

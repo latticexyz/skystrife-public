@@ -16,6 +16,7 @@ import { UNIT_OFFSET } from "../../../../Local/constants";
 import { Animations, Sprites } from "../../phaserConstants";
 import { aStar } from "../../../../../utils/pathfinding";
 import { worldCoordEq } from "../../../../../utils/coords";
+import { UnitTypes } from "../../../../Network";
 
 export function createDrawNextPositionSystem(layer: PhaserLayer) {
   const {
@@ -33,7 +34,7 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
         components: { LocalPosition, Path },
       },
       network: {
-        components: { Transaction },
+        components: { Transaction, UnitType },
       },
     },
     scenes: {
@@ -49,7 +50,6 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
       playTintedAnimation,
       arrowPainter: { paintArrowAlongPath },
       drawSpriteAtTile,
-      drawTileHighlight,
       depthFromPosition,
     },
   } = layer;
@@ -66,12 +66,11 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
 
     const spriteId = `${entity}-nextPosition` as Entity;
     const attackSpriteId = `${entity}-attack` as Entity;
-    const attackOutlineId = `${entity}-attack-outline` as Entity;
+
+    objectPool.remove(spriteId);
+    objectPool.remove(attackSpriteId);
 
     if (type === UpdateType.Exit) {
-      objectPool.remove(spriteId);
-      objectPool.remove(attackSpriteId);
-      objectPool.remove(attackOutlineId);
       return;
     }
 
@@ -88,6 +87,11 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
         attackSprite.setPosition(pixelCoord.x, pixelCoord.y - UNIT_OFFSET);
         attackSprite.setDepth(depthFromPosition({ x: nextPosition.x, y: nextPosition.y }, RenderDepth.Foreground3));
         attackSprite.setAlpha(0.65);
+
+        const unitType = getComponentValue(UnitType, entity)?.value;
+        if (unitType === UnitTypes.Brute) {
+          attackSprite.setOrigin(0.18, 0.18);
+        }
       });
     }
 
@@ -126,10 +130,6 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
           });
         }
       }
-
-      // draw attack icon on target
-      drawSpriteAtTile(attackSpriteId, Sprites.SwordConfirm, intendedTargetPosition, RenderDepth.UI2);
-      drawTileHighlight(attackOutlineId, intendedTargetPosition, "red");
     }
   }
 
@@ -150,7 +150,17 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
         const intendedTargetPosition = getComponentValue(LocalPosition, nextPosition.intendedTarget);
         if (intendedTargetPosition) {
           const attackSpriteId = `${entity}-attack` as Entity;
-          drawSpriteAtTile(attackSpriteId, Sprites.Sword, intendedTargetPosition, RenderDepth.UI2);
+          const sprite = drawSpriteAtTile(attackSpriteId, Sprites.Sword, intendedTargetPosition, RenderDepth.UI2, {
+            yOffset: -1 * UNIT_OFFSET,
+          });
+          phaserScene.add.tween({
+            targets: sprite,
+            ease: "Linear",
+            duration: 250,
+            repeat: -1,
+            alpha: 0,
+            yoyo: true,
+          });
         }
       }
 

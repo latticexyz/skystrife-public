@@ -6,7 +6,7 @@ pragma solidity >=0.8.21;
 import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { createTemplate } from "../../libraries/templates/createTemplate.sol";
-import { UnitTypes, TerrainTypes, StructureTypes, ItemTypes } from "../common.sol";
+import { UnitTypes, CombatArchetypes, TerrainTypes, StructureTypes, ItemTypes } from "../common.sol";
 
 import { StructureType, StructureTypeTableId, Combat, CombatTableId, Untraversable, UntraversableTableId } from "../index.sol";
 

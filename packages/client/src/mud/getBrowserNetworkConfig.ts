@@ -31,7 +31,7 @@ export async function getNetworkConfig() {
     clock: {
       period: 1000,
       initialTime: 0,
-      syncInterval: 5000,
+      syncInterval: 2000,
     },
     provider: {
       chainId,

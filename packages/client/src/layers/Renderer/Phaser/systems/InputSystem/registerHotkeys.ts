@@ -1,11 +1,11 @@
 import { PhaserLayer } from "../../types";
 import { InputUtils } from "./createInputSystem";
 
-export function registerHotkeys(layer: PhaserLayer, { getSelectedEntity, getHighlightedEntity }: InputUtils) {
+export function registerHotkeys(layer: PhaserLayer, inputUtils: InputUtils) {
   const {
     parentLayers: {
-      headless: {
-        api: { attack },
+      local: {
+        api: { resetSelection },
       },
     },
     scenes: {
@@ -14,15 +14,9 @@ export function registerHotkeys(layer: PhaserLayer, { getSelectedEntity, getHigh
   } = layer;
 
   input.onKeyPress(
-    (keys) => keys.has("A"),
+    (keys) => keys.has(Phaser.Input.Keyboard.KeyCodes.ESC as any),
     () => {
-      const selectedEntity = getSelectedEntity();
-      if (!selectedEntity) return;
-
-      const highlightedEntity = getHighlightedEntity();
-      if (!highlightedEntity) return;
-
-      attack(selectedEntity, highlightedEntity);
+      resetSelection();
     }
   );
 }

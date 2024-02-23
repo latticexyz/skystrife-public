@@ -25,7 +25,7 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
   const clientOptions = {
     chain: networkConfig.chain,
     transport: transportObserver(fallback([webSocket(), http()], { retryCount: 0 })),
-    pollingInterval: 1000,
+    pollingInterval: 250,
   } as const satisfies ClientConfig;
 
   const publicClient = createPublicClient(clientOptions);
@@ -49,6 +49,7 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
   const txReceiptClient = createPublicClient({
     ...clientOptions,
     transport: http(),
+    pollingInterval: 250,
   });
 
   const waitForTransaction = createWaitForTransaction({
@@ -56,9 +57,29 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
     client: txReceiptClient,
   });
 
+  // time it takes to receive events from a sent tx
+  let meanResponseTime = 2000;
+  const updateMeanResponseTime = (newResponseTime: number) => {
+    meanResponseTime = newResponseTime;
+  };
+  const getMeanResponseTime = () => meanResponseTime;
+
   latestBlock$
     .pipe(
-      map((block) => Number(block.timestamp) * 1000), // Map to timestamp in ms
+      map((block) => {
+        // accelerate the player's clock to compensate for the time it
+        // takes for their tx to be included in a block. this has the
+        // effect of making the beginnings of turns feel more responsive
+        // as you can "pre-send" your txs to arrive at the start of the
+        // next turn. this will hopefully alleviate the latency advantage
+        // at the beginning of turns.
+        // unfortunately, we can only change the player's clock by whole seconds
+        // because that is the granularity of the block timestamps.
+        // in my manual testing 2 second acceleration was possible with a response time
+        // around 3600 ms.
+        const clientTimeAhead = Math.ceil(getMeanResponseTime() / 2 / 1000) * 1000;
+        return Number(block.timestamp) * 1000 + clientTimeAhead;
+      }), // Map to timestamp in ms
       filter((blockTimestamp) => blockTimestamp !== clock.lastUpdateTime), // Ignore if the clock was already refreshed with this block
       filter((blockTimestamp) => blockTimestamp !== clock.currentTime) // Ignore if the current local timestamp is correct
     )
@@ -165,5 +186,9 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
     storedBlockLogs$,
     chains,
     wagmiConfig,
+    responseTime: {
+      updateMeanResponseTime,
+      getMeanResponseTime,
+    },
   };
 }

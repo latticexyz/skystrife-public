@@ -4,6 +4,7 @@ import { PhaserLayer } from "../..";
 import { Sprites } from "../../phaserConstants";
 import { RenderDepth } from "../../types";
 import { UNIT_OFFSET } from "../../../../Local/constants";
+import { UnitTypes } from "../../../../Network";
 
 export const createDrawShadowSystem = (layer: PhaserLayer) => {
   const {
@@ -33,12 +34,16 @@ export const createDrawShadowSystem = (layer: PhaserLayer) => {
 
     const pixelCoord = tileCoordToPixelCoord(position, tileWidth, tileHeight);
     const spriteAsset = config.sprites[Sprites.Shadow];
+    const unitType = getComponentValue(UnitType, entity)?.value;
 
     imageObj.setComponent({
       id: "Shadow",
       once: (shadow) => {
         shadow.setTexture(spriteAsset.assetKey, spriteAsset.frame);
-        shadow.setPosition(pixelCoord.x, pixelCoord.y + tileHeight / 2 - UNIT_OFFSET + 4);
+        let y = pixelCoord.y + tileHeight / 2 - UNIT_OFFSET + 4;
+        if (unitType === UnitTypes.Brute) y += 7;
+        shadow.setPosition(pixelCoord.x, y);
+
         shadow.setDepth(depthFromPosition(position, RenderDepth.Foreground5));
         shadow.setOrigin(0, 0.5);
       },

@@ -19,7 +19,10 @@ export const SpriteImage = ({
   if (colorName) {
     const coloredSprite = sprites[`${spriteKey}-${colorName}`];
 
-    if (!coloredSprite) throw new Error(`Could not find tinted sprite for ${colorName}`);
+    if (!coloredSprite) {
+      console.error("Could not find colored sprite", spriteKey, colorName);
+    }
+
     sprite = coloredSprite;
   }
 

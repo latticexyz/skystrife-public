@@ -5,9 +5,9 @@ import { Bytes } from "@latticexyz/store/src/Bytes.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 
-import { MatchConfig, LevelTemplatesIndex, Capturable, Combat, Charger, CombatData, Range, OwnedBy, RangeData, Position, PositionData, ArmorModifierTableId, StructureType, SpawnPointTableId, OwnedBy, Stamina, LastAction, MatchRanking, SpawnPoint, StaminaOnKill, StructureType } from "../codegen/index.sol";
+import { MatchConfig, LevelTemplatesIndex, Capturable, Combat, Charger, CombatData, Range, OwnedBy, RangeData, Position, PositionData, ArmorModifierTableId, StructureType, SpawnPointTableId, OwnedBy, Stamina, LastAction, MatchRanking, SpawnPoint, StaminaOnKill, StructureType, CombatArchetype, ArchetypeModifier } from "../codegen/index.sol";
 import { SpawnSettlementTemplateId } from "../codegen/Templates.sol";
-import { StructureTypes } from "../codegen/common.sol";
+import { StructureTypes, CombatArchetypes } from "../codegen/common.sol";
 
 import { max, getOwningPlayer, getIndicesAtPosition } from "./LibUtils.sol";
 import { LibStamina } from "./LibStamina.sol";
@@ -66,7 +66,16 @@ library LibCombat {
     bytes32 attacker,
     bytes32 defender
   ) internal view returns (int32) {
-    return max(getStrength(matchEntity, attacker, defender) - getArmor(matchEntity, defender), 0);
+    int32 baseStrength = Combat.getStrength(matchEntity, attacker);
+
+    CombatArchetypes attackerArchetype = CombatArchetype.get(matchEntity, attacker);
+    CombatArchetypes defenderArchetype = CombatArchetype.get(matchEntity, defender);
+    int32 archetypeMatchupModifier = ArchetypeModifier.getMod(attackerArchetype, defenderArchetype);
+
+    int32 terrainModifier = getCombatModifierAtPosition(matchEntity, defender);
+
+    int32 mod = archetypeMatchupModifier + terrainModifier;
+    return (baseStrength * (100 + mod)) / 100;
   }
 
   function calculateDamageDefender(
@@ -74,36 +83,32 @@ library LibCombat {
     bytes32 attacker,
     bytes32 defender
   ) internal view returns (int32) {
-    return
-      max(
-        (Combat.getCounterStrength(matchEntity, defender) *
-          (getStrength(matchEntity, defender, attacker) - getArmor(matchEntity, attacker))) / 100,
-        0
-      );
-  }
+    int32 baseStrength = Combat.getStrength(matchEntity, defender);
 
-  function getStrength(
-    bytes32 matchEntity,
-    bytes32 attacker,
-    bytes32 defender
-  ) internal view returns (int32 baseStrength) {
-    baseStrength = Combat.getStrength(matchEntity, attacker);
-    if (StructureType.get(matchEntity, defender) != StructureTypes.Unknown) {
-      baseStrength = Combat.getStructureStrength(matchEntity, attacker);
-    }
+    CombatArchetypes attackerArchetype = CombatArchetype.get(matchEntity, attacker);
+    CombatArchetypes defenderArchetype = CombatArchetype.get(matchEntity, defender);
+
+    int32 archetypeMatchupModifier = ArchetypeModifier.getMod(defenderArchetype, attackerArchetype);
+    int32 terrainModifier = getCombatModifierAtPosition(matchEntity, attacker);
+
+    int32 mod = archetypeMatchupModifier + terrainModifier;
+    int32 damage = (baseStrength * (100 + mod)) / 100;
+
+    int32 counterStrengthModifier = Combat.getCounterStrength(matchEntity, defender);
+    return (damage * (100 + counterStrengthModifier)) / 100;
   }
 
   /**
    * @notice Sum the armor modifier of all the indices in `levelId` with the given `position`.
    */
-  function getArmor(bytes32 matchEntity, bytes32 entity) internal view returns (int32) {
+  function getCombatModifierAtPosition(bytes32 matchEntity, bytes32 entity) internal view returns (int32) {
     bytes32 levelId = MatchConfig.getLevelId(matchEntity);
 
     PositionData memory position = Position.get(matchEntity, entity);
 
     int32 armorAtPosition = LibMove.getArmorModifierAtPosition(levelId, position);
 
-    return Combat.getArmor(matchEntity, entity) + armorAtPosition;
+    return armorAtPosition;
   }
 
   function isNeutralStructure(bytes32 matchEntity, bytes32 entity) internal view returns (bool) {

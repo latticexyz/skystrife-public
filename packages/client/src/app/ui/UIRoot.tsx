@@ -16,6 +16,7 @@ import { useEffect } from "react";
 import { Body } from "./Theme/SkyStrife/Typography";
 import { TopRight } from "./TopRight";
 import { Chat } from "./Chat";
+import { SelectedEntity } from "./SelectedEntity";
 
 const MatchPageTitle = ({ matchEntity }: { matchEntity: Entity }) => {
   const {
@@ -68,6 +69,8 @@ export const UIRoot = () => {
             <TopRight />
 
             <Chat />
+
+            <SelectedEntity />
 
             <PlayerNameHover />
           </div>

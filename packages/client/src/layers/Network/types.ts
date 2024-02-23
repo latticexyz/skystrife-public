@@ -23,6 +23,8 @@ export enum UnitTypes {
   Archer,
   Catapult,
   Wizard,
+
+  Brute,
 }
 
 export const UnitTypeNames: Record<number, string> = {
@@ -39,6 +41,8 @@ export const UnitTypeNames: Record<number, string> = {
   [UnitTypes.Rider]: "Rider",
   [UnitTypes.Knight]: "Knight",
   [UnitTypes.Dragon]: "Dragoon",
+
+  [UnitTypes.Brute]: "Brute",
 };
 
 export const UnitTypeDescriptions: Record<number, string> = {
@@ -47,24 +51,6 @@ export const UnitTypeDescriptions: Record<number, string> = {
   [UnitTypes.Golem]: "Infantry Hero",
   [UnitTypes.Wizard]: "Ranged Hero",
   [UnitTypes.Dragon]: "Cavalry Hero",
-};
-
-export enum CombatTypes {
-  Unknown,
-  Neutral,
-  Structure,
-
-  Melee,
-  Cavalry,
-  Ranged,
-}
-
-export const CombatTypeNames: Record<number, string> = {
-  [CombatTypes.Neutral]: "Neutral",
-  [CombatTypes.Structure]: "Structure",
-  [CombatTypes.Melee]: "Melee",
-  [CombatTypes.Cavalry]: "Cavalry",
-  [CombatTypes.Ranged]: "Ranged",
 };
 
 export enum StructureTypes {

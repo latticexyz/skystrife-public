@@ -10,6 +10,8 @@ import { createMatchEntity } from "../createMatchEntity.sol";
 
 import { charge } from "../libraries/LibCharge.sol";
 
+int32 constant STARTING_GOLD = 250;
+
 function createPlayerEntity(bytes32 matchEntity, address playerAddress) returns (bytes32) {
   bytes32 addressEntity = addressToEntity(playerAddress);
   bytes32 playerEntity = createMatchEntity(matchEntity);
@@ -19,7 +21,7 @@ function createPlayerEntity(bytes32 matchEntity, address playerAddress) returns 
 
   OwnedBy.set(matchEntity, playerEntity, addressEntity);
   Player.set(matchEntity, playerEntity, 1);
-  Stamina.set(matchEntity, playerEntity, 1_000);
+  Stamina.set(matchEntity, playerEntity, STARTING_GOLD);
   LastAction.set(matchEntity, playerEntity, block.timestamp);
 
   return playerEntity;

@@ -10,6 +10,7 @@ import { useCurrentPlayer } from "../hooks/useCurrentPlayer";
 import { BuildData } from "./types";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
 import { UNIT_OFFSET } from "../../../layers/Local/constants";
+import { UnitTypes } from "../../../layers/Network";
 
 export const BuildSprites = ({
   matchEntity,
@@ -75,6 +76,7 @@ export const BuildSprites = ({
     let sprite: Phaser.GameObjects.Sprite | undefined;
     playTintedAnimation(buildPreviewEntity, spriteAnimation, currentPlayer.playerColor.name, (gameObject) => {
       gameObject.setOrigin(0, 0);
+      if (unitType === UnitTypes.Brute) gameObject.setOrigin(0.18, 0.18);
       sprite = gameObject;
     });
 
@@ -109,6 +111,7 @@ export const BuildSprites = ({
     buildData.unitType,
     buildPositions,
     currentPlayer.playerColor,
+    depthFromPosition,
     input.pointermove$,
     objectPool,
     phaserScene.add,

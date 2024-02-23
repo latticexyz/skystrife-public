@@ -59,6 +59,7 @@ export function createTintNoStaminaSystem(layer: PhaserLayer) {
   defineSystem(world, [Has(Depleted), Has(LocalPosition), Has(StructureType)], ({ entity, type }) => {
     if (type === UpdateType.Exit) return;
     if (getComponentValueStrict(StructureType, entity).value === StructureTypes.SpawnSettlement) return;
+    if (getComponentValueStrict(StructureType, entity).value === StructureTypes.Settlement) return;
 
     tintStamina(entity);
   });

@@ -51,11 +51,27 @@ export async function createNetworkLayer(config: NetworkConfig) {
     return consent === "true";
   };
 
+  const calculateMeanTxResponseTime = () => {
+    const allTransactions = [...runQuery([Has(components.Transaction)])];
+
+    return (
+      allTransactions.reduce((acc, entity) => {
+        const transaction = getComponentValue(components.Transaction, entity);
+        if (!transaction || transaction.status !== "completed") return acc;
+
+        const responseTime = Number((transaction.completedTimestamp ?? 0n) - (transaction.submittedTimestamp ?? 0n));
+        return acc + responseTime;
+      }, 0) /
+      (allTransactions.filter((t) => getComponentValue(components.Transaction, t)?.status === "completed").length || 1)
+    );
+  };
+
   const { executeSystem, executeSystemWithExternalWallet } = createSystemExecutor({
     worldContract,
     network,
     components,
     sendAnalytics: getAnalyticsConsent(),
+    calculateMeanTxResponseTime,
   });
 
   async function move(entity: Entity, path: WorldCoord[]) {
@@ -566,6 +582,8 @@ export async function createNetworkLayer(config: NetworkConfig) {
       hasSystemDelegation,
 
       sendAnalyticsEvent,
+
+      calculateMeanTxResponseTime,
     },
     isBrowser,
   };

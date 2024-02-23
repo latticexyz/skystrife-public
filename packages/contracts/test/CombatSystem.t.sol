@@ -8,9 +8,9 @@ import { LibCombat } from "../src/libraries/LibCombat.sol";
 import { LibStamina } from "../src/libraries/LibStamina.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
-import { Combat, CombatData, Charger, Position, PositionData, Range, RangeData, OwnedBy, SpawnPoint, Stamina, Capturable, StructureType, Match, MatchRanking, StaminaOnKill, MatchConfig, Chargers, CombatOutcomeData } from "../src/codegen/index.sol";
+import { Combat, CombatData, Charger, Position, PositionData, Range, RangeData, OwnedBy, SpawnPoint, Stamina, Capturable, StructureType, Match, MatchRanking, StaminaOnKill, MatchConfig, Chargers, RequiresSetup, CombatOutcomeData, CombatArchetype, ArchetypeModifier } from "../src/codegen/index.sol";
 
-import { StructureTypes } from "../src/codegen/common.sol";
+import { StructureTypes, CombatArchetypes } from "../src/codegen/common.sol";
 
 import { createPlayerEntity } from "../src/libraries/LibPlayer.sol";
 import { setPosition } from "../src/libraries/LibPosition.sol";
@@ -29,10 +29,10 @@ contract CombatSystemTest is BaseTest, GasReporter {
       CombatData({
         health: 100_000,
         maxHealth: 100_000,
-        armor: 5_000,
+        armor: 0,
         strength: 20_000,
-        structureStrength: 20_000,
-        counterStrength: 100
+        structureStrength: 0,
+        counterStrength: 0
       })
     );
     setPosition(testMatch, entity, position);
@@ -138,11 +138,12 @@ contract CombatSystemTest is BaseTest, GasReporter {
     combatSetup();
 
     prankAdmin();
-    Combat.setStructureStrength(testMatch, attacker, 100_000);
+    Combat.setStrength(testMatch, attacker, 100_000);
 
     Combat.setHealth(testMatch, defender, 160_000);
     Capturable.set(testMatch, defender, true);
     StructureType.set(testMatch, defender, StructureTypes.Settlement);
+    Combat.setCounterStrength(testMatch, defender, 0);
     vm.stopPrank();
 
     runSystem();
@@ -150,7 +151,7 @@ contract CombatSystemTest is BaseTest, GasReporter {
     vm.warp(block.timestamp + 100);
 
     // Uses structureStrength against capturable entities
-    assertEq(Combat.getHealth(testMatch, defender), 65_000, "unexpected defender HP");
+    assertEq(Combat.getHealth(testMatch, defender), 60_000, "unexpected defender HP");
 
     vm.warp(block.timestamp + 100);
     runSystem();
@@ -218,8 +219,8 @@ contract CombatSystemTest is BaseTest, GasReporter {
     bytes32 goldMine = spawnTemplateAt(testMatch, "GoldMine", 0, PositionData({ x: 1, y: 0 }));
 
     // so we can one-shot mines
-    Combat.setStructureStrength(testMatch, attacker, 300_000);
-    Combat.setStructureStrength(testMatch, defender, 300_000);
+    Combat.setStrength(testMatch, attacker, 300_000);
+    Combat.setStrength(testMatch, defender, 300_000);
     vm.stopPrank();
 
     int32 originalStamina = LibStamina.getCurrent(testMatch, player);
@@ -246,6 +247,17 @@ contract CombatSystemTest is BaseTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testRequiresSetupCannotMoveAndAttack() public {
+    combatSetup();
+
+    prankAdmin();
+    RequiresSetup.set(testMatch, attacker, true);
+    vm.stopPrank();
+
+    vm.expectRevert("cannot move and attack");
+    world.moveAndAttack(testMatch, attacker, new PositionData[](0), defender);
+  }
+  
   function testCombatOutcomeSystemIsInternal() public {
     vm.startPrank(alice);
     vm.expectRevert();
@@ -267,5 +279,24 @@ contract CombatSystemTest is BaseTest, GasReporter {
       })
     );
     vm.stopPrank();
+  }
+
+  function testArchetypeModifier() public {
+    combatSetup();
+
+    prankAdmin();
+    CombatArchetype.set(testMatch, attacker, CombatArchetypes.Swordsman);
+    CombatArchetype.set(testMatch, defender, CombatArchetypes.Pikeman);
+
+    ArchetypeModifier.setMod(CombatArchetypes.Swordsman, CombatArchetypes.Pikeman, 30); // 30% damage increase
+    ArchetypeModifier.setMod(CombatArchetypes.Pikeman, CombatArchetypes.Swordsman, -30); // 30% damage decrease
+    vm.stopPrank();
+
+    int32 originalDefenderHealth = Combat.getHealth(testMatch, defender);
+    int32 originalAttackerHealth = Combat.getHealth(testMatch, attacker);
+    runSystem();
+
+    assertEq(Combat.getHealth(testMatch, defender), originalDefenderHealth - 26_000, "unexpected defender HP");
+    assertEq(Combat.getHealth(testMatch, attacker), originalAttackerHealth - 14_000, "unexpected attacker HP");
   }
 }

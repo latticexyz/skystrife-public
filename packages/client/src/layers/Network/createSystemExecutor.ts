@@ -15,6 +15,7 @@ type CreateSystemExecutorArgs = {
   worldContract: ContractType;
   network: Awaited<ReturnType<typeof setupNetwork>>;
   components: ReturnType<typeof createClientComponents>;
+  calculateMeanTxResponseTime: () => number;
   sendAnalytics?: boolean;
 };
 
@@ -41,6 +42,7 @@ export const createSystemExecutor = ({
   network,
   components,
   sendAnalytics,
+  calculateMeanTxResponseTime,
 }: CreateSystemExecutorArgs) => {
   let latestBlock = 0n;
   network.latestBlock$.subscribe((block) => {
@@ -278,6 +280,9 @@ export const createSystemExecutor = ({
     if (sendAnalytics) {
       sendTxAnalytics(txEntity);
     }
+
+    const meanTxResponseTime = calculateMeanTxResponseTime();
+    network.responseTime.updateMeanResponseTime(meanTxResponseTime);
 
     return txHash;
   };

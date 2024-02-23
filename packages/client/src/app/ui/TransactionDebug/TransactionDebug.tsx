@@ -42,7 +42,7 @@ export function TransactionDebug() {
       acc[systemId].push(transaction);
       return acc;
     }, {} as Record<string, ComponentValue<SchemaOf<typeof Transaction>>[]>);
-  }, [allTransactions]);
+  }, [Transaction, allTransactions]);
 
   const transactionDebugInfo = Object.entries(transactionsGroupedBySystemId).map(([systemId, transactions]) => {
     const maxGasEstimate = bigIntMax(...transactions.map((t) => t.gasEstimate ?? 0n));

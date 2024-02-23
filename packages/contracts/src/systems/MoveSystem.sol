@@ -8,7 +8,7 @@ import { LibMove } from "../libraries/LibMove.sol";
 import { isOwnedBy } from "../libraries/LibUtils.sol";
 import { setPosition } from "../libraries/LibPosition.sol";
 
-import { MatchConfig, Combat, Movable, LastAction, Position, PositionData, Range, RangeData, Stamina } from "../codegen/index.sol";
+import { MatchConfig, Combat, Movable, LastAction, Position, PositionData, Range, RangeData, Stamina, RequiresSetup } from "../codegen/index.sol";
 
 import { addressToEntity, matchHasStarted, getOwningPlayer, manhattan, min } from "../libraries/LibUtils.sol";
 
@@ -67,6 +67,8 @@ contract MoveSystem is System {
   }
 
   function moveAndAttack(bytes32 matchEntity, bytes32 entity, PositionData[] memory path, bytes32 target) public {
+    require(!RequiresSetup.get(matchEntity, entity), "cannot move and attack");
+
     _act(matchEntity, entity);
 
     _move(matchEntity, entity, path);

@@ -6,6 +6,7 @@ import { useAllPlayerDetails } from "../hooks/usePlayerDetails";
 import { Button } from "../Theme/SkyStrife/Button";
 import { Hex, hexToString } from "viem";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
+import { BYTES32_ZERO } from "../../../constants";
 
 export const PrototypeSpawner = () => {
   const {
@@ -71,8 +72,8 @@ export const PrototypeSpawner = () => {
         </select>
 
         <select value={owner} onChange={(e) => setOwner(e.target.value as Entity)} className="mb-4">
-          <option key={undefined} value={undefined}>
-            No owner
+          <option key={BYTES32_ZERO} value={BYTES32_ZERO}>
+            No Owner
           </option>
           {admins.map((player) => (
             <option key={player} value={player}>

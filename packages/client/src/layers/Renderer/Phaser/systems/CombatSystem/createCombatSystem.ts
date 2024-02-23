@@ -1,4 +1,4 @@
-import { Entity, getComponentValue, removeComponent, setComponent } from "@latticexyz/recs";
+import { Entity, getComponentValue, hasComponent, removeComponent, setComponent } from "@latticexyz/recs";
 import { PhaserLayer } from "../..";
 import {
   Animations,
@@ -21,7 +21,7 @@ export function createCombatSystem(layer: PhaserLayer) {
         utils: { isOwnedByCurrentPlayer },
       },
       local: {
-        components: { LocalHealth, LocalPosition, Capturer },
+        components: { LocalHealth, LocalPosition, Capturer, Selected },
         api: {
           getOwnerColor,
           systemDecoders: { onCombat },
@@ -104,15 +104,16 @@ export function createCombatSystem(layer: PhaserLayer) {
 
     const embodiedObject = objectPool.get(entity, "Sprite");
     const ownerColor = getOwnerColor(entityOwner);
-    const tintedAnimation = playTintedAnimation(entity, attackAnimation, ownerColor.name);
+
     embodiedObject.setComponent({
       id: "attack-animation",
-      now: (sprite) => {
+      once: (sprite) => {
         if (!attackAnimation) {
           if (onComplete) onComplete(sprite);
           return;
         }
 
+        const tintedAnimation = playTintedAnimation(entity, attackAnimation, ownerColor.name);
         let started = false;
         const onAttackUpdate = (anim: Phaser.Animations.Animation, frame: Phaser.Animations.AnimationFrame) => {
           if (anim.key !== tintedAnimation) return;
@@ -125,7 +126,7 @@ export function createCombatSystem(layer: PhaserLayer) {
           if (frame.progress >= 1) {
             playTintedAnimation(entity, idleAnimation, ownerColor.name);
           }
-          if (onContact && frame.index === 5) onContact(sprite);
+          if (onContact && frame.nextFrame?.isLast) onContact(sprite);
           if (onComplete && frame.progress >= 1) {
             onComplete(sprite);
             sprite.removeListener("animationupdate", onAttackUpdate);
@@ -146,12 +147,12 @@ export function createCombatSystem(layer: PhaserLayer) {
 
     const deathAnimation = UnitTypeDeathAnimations[unitType];
     const ownerColor = getOwnerColor(entityOwner);
-    playTintedAnimation(entity, deathAnimation, ownerColor.name);
 
     const embodiedObject = objectPool.get(entity, "Sprite");
     embodiedObject.setComponent({
       id: "death-animation",
-      now: (sprite) => {
+      once: (sprite) => {
+        playTintedAnimation(entity, deathAnimation, ownerColor.name);
         sprite.on(`animationcomplete`, () => {
           onDeath();
         });
@@ -171,6 +172,9 @@ export function createCombatSystem(layer: PhaserLayer) {
       defenderCaptured,
     }) => {
       if (!matchEntity) return;
+
+      if (attackerDied && hasComponent(Selected, attacker)) removeComponent(Selected, attacker);
+      if (defenderDied && hasComponent(Selected, defender)) removeComponent(Selected, defender);
 
       const attackerPosition = getComponentValue(LocalPosition, attacker);
       if (!attackerPosition) return;

@@ -1,4 +1,4 @@
-import { Has, getComponentValueStrict, defineSystem, Not, setComponent, UpdateType } from "@latticexyz/recs";
+import { Has, getComponentValueStrict, defineSystem, Not, setComponent, HasValue, NotValue } from "@latticexyz/recs";
 import { StructureTypes } from "../../../../Network";
 import { PhaserLayer } from "../../types";
 import { drawGoldBar, drawHealthBar, drawPlayerColorBanner } from "./drawingUtils";
@@ -10,13 +10,13 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     components: { HeaderHeight, IncomingDamage },
     parentLayers: {
       network: {
-        components: { Tier, OwnedBy, Capturable, StructureType, Combat, ChargeCap },
+        components: { Tier, StructureType, Combat, ChargeCap, OwnedBy },
       },
       local: {
         components: { LocalPosition, LocalHealth, Path },
       },
       headless: {
-        components: { InCurrentMatch },
+        components: { InCurrentMatch, NextPosition },
       },
     },
   } = layer;
@@ -43,37 +43,102 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
   });
 
   // Player Color Banner
-  defineSystem(world, [Has(LocalPosition), Has(Capturable), Has(HeaderHeight), Not(Path)], ({ entity, type }) => {
-    const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
-    drawPlayerColorBanner(layer, entity, type, headerHeight);
-  });
-
-  defineSystem(world, [Has(LocalPosition), Has(OwnedBy), Has(HeaderHeight), Not(Path)], ({ entity, type }) => {
-    const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
-    drawPlayerColorBanner(layer, entity, type, headerHeight);
-
-    if (type === UpdateType.Enter) {
-      // HUGE HACK TO GET SPAWNS PAINTED COME BACK TO THIS
-      setTimeout(() => {
-        const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
-        drawPlayerColorBanner(layer, entity, type, headerHeight);
-      }, 1_000);
+  defineSystem(
+    world,
+    [Has(LocalPosition), Not(OwnedBy), HasValue(StructureType, { value: StructureTypes.GoldMine }), Has(HeaderHeight)],
+    ({ entity, type }) => {
+      const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
+      drawPlayerColorBanner(layer, entity, type, headerHeight);
     }
-  });
+  );
+
+  defineSystem(
+    world,
+    [Has(LocalPosition), Has(OwnedBy), HasValue(StructureType, { value: StructureTypes.GoldMine }), Has(HeaderHeight)],
+    ({ entity, type }) => {
+      const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
+      drawPlayerColorBanner(layer, entity, type, headerHeight);
+    }
+  );
 
   // Health Bar Systems
   defineSystem(
     world,
-    [Has(LocalPosition), Has(LocalHealth), Has(Combat), Has(HeaderHeight), Has(IncomingDamage), Not(Path)],
+    [
+      Has(LocalPosition),
+      Has(LocalHealth),
+      Has(Combat),
+      Has(HeaderHeight),
+      Has(IncomingDamage),
+      NotValue(StructureType, { value: StructureTypes.GoldMine }),
+      Not(Path),
+      Not(NextPosition),
+    ],
     (update) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
       drawHealthBar(layer, update, 7, headerHeight);
     }
   );
 
+  defineSystem(
+    world,
+    [
+      Has(LocalPosition),
+      Has(LocalHealth),
+      Has(Combat),
+      Has(HeaderHeight),
+      Has(IncomingDamage),
+      Has(NextPosition),
+      NotValue(StructureType, { value: StructureTypes.GoldMine }),
+    ],
+    (update) => {
+      const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
+      drawHealthBar(layer, update, 7, headerHeight);
+    }
+  );
+
+  defineSystem(
+    world,
+    [
+      Has(LocalPosition),
+      Has(LocalHealth),
+      Has(Combat),
+      Has(HeaderHeight),
+      Has(IncomingDamage),
+      HasValue(StructureType, { value: StructureTypes.GoldMine }),
+    ],
+    (update) => {
+      const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
+      drawHealthBar(layer, update, 11, headerHeight);
+    }
+  );
+
   // Gold Bar Systems
-  defineSystem(world, [Has(LocalPosition), Has(HeaderHeight), Has(ChargeCap)], (update) => {
-    const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
-    drawGoldBar(layer, update, 7, headerHeight + 3);
-  });
+  defineSystem(
+    world,
+    [
+      Has(LocalPosition),
+      Has(HeaderHeight),
+      Has(ChargeCap),
+      NotValue(StructureType, { value: StructureTypes.GoldMine }),
+    ],
+    (update) => {
+      const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
+      drawGoldBar(layer, update, 7, headerHeight + 3);
+    }
+  );
+
+  defineSystem(
+    world,
+    [
+      Has(LocalPosition),
+      Has(HeaderHeight),
+      Has(ChargeCap),
+      HasValue(StructureType, { value: StructureTypes.GoldMine }),
+    ],
+    (update) => {
+      const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
+      drawGoldBar(layer, update, 11, headerHeight + 3);
+    }
+  );
 }

@@ -17,3 +17,45 @@ There are only 3 systems that handle all gameplay within a Sky Strife match:
 [MoveSystem](./src/systems/MoveSystem.sol): handles attacking with and moving units
 [BuildSystem](./src/systems/BuildSystem.sol): handles building new units
 [LobbySystem](./src/systems/LobbySystem.sol): handles "readying" for a match beforing it begins
+
+## Scripting
+
+Sky Strife has built-in tooling for creating/running Forge scripts that access live Worlds.
+
+Scripts are useful for:
+- prototyping systems with live data
+- manually editing data in a live World
+
+To create a new migration, run `pnpm migration:new`.
+
+To run any migration run `pnpm migration:run`. When running, it will prompt you for what chain you want to point to as well as whether or not you want to broadcast the created transactions.
+
+A new migration looks like this:
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.0;
+
+import "forge-std/Script.sol";
+import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
+import { IWorld } from "../src/codegen/world/IWorld.sol";
+
+// table imports
+import {
+  MatchConfig
+} from "../src/codegen/index.sol";
+
+contract NewMigration is Script {
+  function run(address worldAddress) external {
+    IWorld world = IWorld(worldAddress);
+    StoreSwitch.setStoreAddress(worldAddress);
+
+    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+    vm.startBroadcast(deployerPrivateKey);
+
+    // your code here
+
+    vm.stopBroadcast();
+  }
+}
+```

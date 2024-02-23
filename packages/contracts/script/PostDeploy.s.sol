@@ -31,6 +31,8 @@ import { SeasonPassOnlySystem } from "../src/systems/SeasonPassOnlySystem.sol";
 import { addressToEntity } from "../src/libraries/LibUtils.sol";
 import { NoTransferHook } from "../src/NoTransferHook.sol";
 
+import { createArchetypeModifiers } from "../src/libraries/LibArchetypes.sol";
+
 uint256 constant SEASON_PASS_STARTING_PRICE = 0.005 ether;
 uint256 constant SEASON_PASS_MIN_PRICE = 0.001 ether;
 uint256 constant SEASON_PASS_PRICE_DECREASE_PER_SECOND = 277_779; // loses roughly 240% value a day
@@ -86,6 +88,7 @@ contract PostDeploy is Script {
     // ______________ TEMPLATES + LEVELS __________________
 
     createTemplates();
+    createArchetypeModifiers();
 
     // Terrain templates are virtual, meaning they are not instantiated in individual matches
     // Instead, terrain-related values are inferred from the static Level data.

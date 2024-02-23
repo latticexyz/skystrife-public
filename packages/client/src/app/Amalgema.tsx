@@ -58,17 +58,17 @@ const AmalgemaLockScreen = () => {
         }}
         className="fixed top-0 left-0 h-screen w-screen bg-cover"
       />
-      <div className="text-4xl font-bold">Sky Strife is in maintenance mode.</div>
+      <div className="text-4xl font-bold">Major update incoming</div>
       <div className="h-3" />
-      <div className="text-xl text-ss-text-light text-center">
+      <div className="text-xl text-ss-text-default text-center mt-3">
         {/* <span className="font-bold">{SEASON_NAME} starts on February 6th, 2024</span> */}
-
+        Sky Strife will be back in the next hour — with new combat, new units, and more!
         <div>
           Follow along on{" "}
           <Link style={{ fontSize: "18px" }} href={DISCORD_URL}>
             Discord
           </Link>{" "}
-          for more updates
+          for more updates.
         </div>
       </div>
     </div>

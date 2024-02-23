@@ -12,11 +12,23 @@ const baseSprites = {
   },
   [Sprites.Sword]: {
     assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/ui/icons/sword-red.png",
+    frame: "sprites/combat/sword.png",
   },
   [Sprites.SwordConfirm]: {
     assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/ui/icons/sword-red-check.png",
+    frame: "sprites/combat/sword-confirm.png",
+  },
+  [Sprites.SwordUp]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/combat/sword-up.png",
+  },
+  [Sprites.SwordDown]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/combat/sword-down.png",
+  },
+  [Sprites.Skull]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/combat/skull.png",
   },
 
   [Sprites.Shadow]: {
@@ -27,25 +39,9 @@ const baseSprites = {
     assetKey: Assets.MainAtlas,
     frame: "sprites/greyscale/structures/big/forward-settlement/0.png",
   },
-  [Sprites.Village]: {
-    assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/structures/big/village.png",
-  },
   [Sprites.SpawnSettlement]: {
     assetKey: Assets.MainAtlas,
     frame: "sprites/greyscale/structures/big/home-settlement/0.png",
-  },
-  [Sprites.Ruins]: {
-    assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/structures/big/ruin.png",
-  },
-  [Sprites.GoldShrine]: {
-    assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/structures/small/gold-shrine.png",
-  },
-  [Sprites.Portal]: {
-    assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/structures/small/portal-grayscale/0.png",
   },
   [Sprites.SummoningAltar]: {
     assetKey: Assets.MainAtlas,
@@ -90,15 +86,6 @@ const baseSprites = {
     frame: "sprites/greyscale/ui/bars/yellow.png",
   },
 
-  [Sprites.StaminaTickBackground]: {
-    assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/ui/stamina/background.png",
-  },
-  [Sprites.StaminaTick]: {
-    assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/ui/stamina/tick.png",
-  },
-
   [Sprites.Banner]: {
     assetKey: Assets.MainAtlas,
     frame: "sprites/greyscale/ui/banner/0.png",
@@ -130,6 +117,11 @@ const baseSprites = {
     frame: "sprites/greyscale/units/wizard/idle/0.png",
   },
 
+  [Sprites.Brute]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/greyscale/units/brute/idle/0.png",
+  },
+
   [Sprites.Rider]: {
     assetKey: Assets.MainAtlas,
     frame: "sprites/greyscale/units/rider/idle/0.png",
@@ -142,10 +134,6 @@ const baseSprites = {
     assetKey: Assets.MainAtlas,
     frame: "sprites/greyscale/units/dragon/idle/0.png",
   },
-  [Sprites.CrossedSwords]: {
-    assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/ui/icons/crossed-swords.png",
-  },
 
   [Sprites.GoldMine]: {
     assetKey: Assets.MainAtlas,
@@ -154,6 +142,27 @@ const baseSprites = {
   [Sprites.Gold]: {
     assetKey: Assets.MainAtlas,
     frame: "sprites/icons/gold/0.png",
+  },
+  [Sprites.Armor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/icons/armor/blue.png",
+  },
+  [Sprites.NoArmor]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/icons/armor/white.png",
+  },
+
+  [Sprites.GrassPreview]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/terrain_preview/grass.png",
+  },
+  [Sprites.MountainPreview]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/terrain_preview/mountain.png",
+  },
+  [Sprites.ForestPreview]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/terrain_preview/forest.png",
   },
 } as Record<number | string, { assetKey: Assets; frame: string }>;
 

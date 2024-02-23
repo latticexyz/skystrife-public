@@ -26,6 +26,8 @@ export function createPhaserComponents(world: World) {
   const HeaderHeight = defineComponent(world, { value: Type.Number }, { id: "HeaderHeight" });
   const IncomingDamage = defineComponent(world, { value: Type.Number }, { id: "IncomingDamage" });
   const DevHighlight = defineComponent(world, { value: Type.OptionalNumber }, { id: "DevHighlight" });
+  const TerrainArmorBonus = defineComponent(world, { value: Type.Number }, { id: "TerrainArmorBonus" });
+  const WillBeDestroyed = defineComponent(world, { value: Type.Boolean }, { id: "WillBeDestroyed" });
 
   return {
     Appearance,
@@ -40,5 +42,7 @@ export function createPhaserComponents(world: World) {
     MapBounds,
     HeaderHeight,
     IncomingDamage,
+    TerrainArmorBonus,
+    WillBeDestroyed,
   };
 }

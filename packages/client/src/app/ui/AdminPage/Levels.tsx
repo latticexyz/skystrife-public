@@ -128,9 +128,7 @@ export function Levels() {
               <SeasonPassRotation levelId={levelId} />
               <OfficialLevel levelId={levelId} />
               <td>
-                <div className="w-64 h-64">
-                  <DisplayLevel level={levelId as Hex} />
-                </div>
+                <div className="w-64 h-64">{/* <DisplayLevel level={levelId as Hex} /> */}</div>
               </td>
             </tr>
           ))}

@@ -6,13 +6,13 @@ pragma solidity >=0.8.21;
 import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { createTemplate } from "../../libraries/templates/createTemplate.sol";
-import { UnitTypes, TerrainTypes, StructureTypes, ItemTypes } from "../common.sol";
+import { UnitTypes, CombatArchetypes, TerrainTypes, StructureTypes, ItemTypes } from "../common.sol";
 
-import { StructureType, StructureTypeTableId, Charger, ChargerTableId, ChargeCap, ChargeCapTableId, Capturable, CapturableTableId, Untraversable, UntraversableTableId, Combat, CombatTableId } from "../index.sol";
+import { StructureType, StructureTypeTableId, CombatArchetype, CombatArchetypeTableId, Charger, ChargerTableId, ChargeCap, ChargeCapTableId, Capturable, CapturableTableId, Untraversable, UntraversableTableId, Combat, CombatTableId } from "../index.sol";
 
 bytes32 constant templateId = "GoldMine";
 bytes32 constant GoldMineTemplateId = templateId;
-uint256 constant LENGTH = 6;
+uint256 constant LENGTH = 7;
 
 function GoldMineTemplate() {
   bytes32[] memory tableIds = new bytes32[](LENGTH);
@@ -25,41 +25,47 @@ function GoldMineTemplate() {
   bytes memory dynamicData;
 
   tableIds[0] = ResourceId.unwrap(StructureTypeTableId);
-  tableIds[1] = ResourceId.unwrap(ChargerTableId);
-  tableIds[2] = ResourceId.unwrap(ChargeCapTableId);
-  tableIds[3] = ResourceId.unwrap(CapturableTableId);
-  tableIds[4] = ResourceId.unwrap(UntraversableTableId);
-  tableIds[5] = ResourceId.unwrap(CombatTableId);
+  tableIds[1] = ResourceId.unwrap(CombatArchetypeTableId);
+  tableIds[2] = ResourceId.unwrap(ChargerTableId);
+  tableIds[3] = ResourceId.unwrap(ChargeCapTableId);
+  tableIds[4] = ResourceId.unwrap(CapturableTableId);
+  tableIds[5] = ResourceId.unwrap(UntraversableTableId);
+  tableIds[6] = ResourceId.unwrap(CombatTableId);
 
   (staticData, encodedLengths, dynamicData) = StructureType.encode(StructureTypes(uint8(10)));
   staticDatas[0] = staticData;
   encodedLengthss[0] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Charger.encode(250);
+  (staticData, encodedLengths, dynamicData) = CombatArchetype.encode(CombatArchetypes(uint8(12)));
   staticDatas[1] = staticData;
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(5000, 0);
+  (staticData, encodedLengths, dynamicData) = Charger.encode(50);
   staticDatas[2] = staticData;
   encodedLengthss[2] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Capturable.encode(true);
+  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(1500, 0);
   staticDatas[3] = staticData;
   encodedLengthss[3] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Untraversable.encode(true);
+  (staticData, encodedLengths, dynamicData) = Capturable.encode(true);
   staticDatas[4] = staticData;
   encodedLengthss[4] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[4] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(150000, 150000, 0, 0, 0, 0);
+  (staticData, encodedLengths, dynamicData) = Untraversable.encode(true);
   staticDatas[5] = staticData;
   encodedLengthss[5] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[5] = dynamicData;
+
+  (staticData, encodedLengths, dynamicData) = Combat.encode(150000, 150000, 0, 0, 0, 0);
+  staticDatas[6] = staticData;
+  encodedLengthss[6] = PackedCounter.unwrap(encodedLengths);
+  dynamicDatas[6] = dynamicData;
 
   createTemplate(templateId, tableIds, staticDatas, encodedLengthss, dynamicDatas);
 }

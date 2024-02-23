@@ -27,15 +27,19 @@ export function createAttackableEntitiesSystem(layer: LocalLayer) {
         api: { getAttackableEntities },
       },
       network: {
-        components: { Combat, Untraversable, Range, OwnedBy },
+        components: { Combat, Untraversable, Range, OwnedBy, RequiresSetup },
         utils: { getOwningPlayer },
       },
     },
   } = layer;
 
+  /**
+   * Determine which entities a unit can attack.
+   * This takes into account move + attack as well.
+   */
   defineSystem(
     world,
-    [Has(Selected), Has(LocalPosition), Has(Combat), Has(PotentialPath), Not(OnCooldown)],
+    [Has(Selected), Has(LocalPosition), Has(Combat), Not(OnCooldown), Not(RequiresSetup)],
     ({ type, entity, component, value }) => {
       if (type === UpdateType.Update && component.id === OnCooldown.id) return;
       if (type === UpdateType.Exit) {
@@ -92,9 +96,31 @@ export function createAttackableEntitiesSystem(layer: LocalLayer) {
     }
   );
 
+  /**
+   * Determine which entities a unit can attack if it cannot move and attack.
+   */
   defineSystem(
     world,
-    [Has(Selected), Has(LocalPosition), Has(NextPosition), Has(Combat), Not(OnCooldown)],
+    [Has(Selected), Has(LocalPosition), Has(Combat), Has(RequiresSetup), Not(OnCooldown)],
+    ({ type, entity }) => {
+      if (type === UpdateType.Exit) {
+        removeComponent(AttackableEntities, entity);
+        return;
+      }
+
+      const currentPosition = getComponentValue(LocalPosition, entity);
+      if (!currentPosition) return;
+
+      const attackableEntities = getAttackableEntities(entity, currentPosition);
+      if (!attackableEntities) return;
+
+      setComponent(AttackableEntities, entity, { value: attackableEntities });
+    }
+  );
+
+  defineSystem(
+    world,
+    [Has(Selected), Has(LocalPosition), Has(NextPosition), Has(Combat), Not(OnCooldown), Not(RequiresSetup)],
     (update) => {
       const { type, entity, value } = update;
 
@@ -112,7 +138,6 @@ export function createAttackableEntitiesSystem(layer: LocalLayer) {
       if (!nextPosition) return;
 
       if (nextPosition.userCommittedToPosition) {
-        removeComponent(PotentialPath, entity);
         const attackableEntities = getAttackableEntities(entity, nextPosition);
         if (!attackableEntities) return;
 

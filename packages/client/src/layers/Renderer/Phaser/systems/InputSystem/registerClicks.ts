@@ -1,4 +1,4 @@
-import { HasValue, getComponentValue, hasComponent, runQuery, setComponent } from "@latticexyz/recs";
+import { Has, HasValue, getComponentValue, hasComponent, runQuery, setComponent } from "@latticexyz/recs";
 import { filter, map, merge } from "rxjs";
 import { WorldCoord } from "../../../../../types";
 import { worldCoordEq } from "../../../../../utils/coords";
@@ -11,6 +11,7 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
     parentLayers: {
       network: {
         utils: { isOwnedByCurrentPlayer },
+        components: { RequiresSetup, BuildingUnit },
       },
       headless: {
         components: { NextPosition, OnCooldown },
@@ -22,7 +23,7 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
       },
     },
     api: {
-      mapInteraction: { mapInteractionEnabled },
+      mapInteraction: { mapInteractionEnabled, enableMapInteraction },
     },
     scenes: {
       Main: { input, maps },
@@ -31,6 +32,14 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
 
   const onClick = function (clickedPosition: WorldCoord) {
     const selectedEntity = getSelectedEntity();
+
+    // there are situations where the entity may have died
+    // while being selected
+    if (selectedEntity && !hasComponent(LocalPosition, selectedEntity)) {
+      resetSelection();
+      selectArea({ ...clickedPosition, width: 1, height: 1 });
+      return;
+    }
 
     // If the player owns the select unit...
     if (selectedEntity && isOwnedByCurrentPlayer(selectedEntity)) {
@@ -78,7 +87,10 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
 
           const attackableEntities = getAttackableEntities(selectedEntity, clickedPosition);
           // If there are no attackable entities, move to the location
-          if (attackableEntities && attackableEntities.length === 0) {
+          if (
+            getComponentValue(RequiresSetup, selectedEntity)?.value ||
+            (attackableEntities && attackableEntities.length === 0)
+          ) {
             move(selectedEntity, clickedPosition);
             resetSelection(false);
           }
@@ -114,7 +126,21 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
 
   merge(input.click$, input.rightClick$)
     .pipe(
-      filter((pointer) => pointer.event.target instanceof HTMLCanvasElement && mapInteractionEnabled()),
+      filter((pointer) => {
+        const clickingCanvas = pointer.event.target instanceof HTMLCanvasElement;
+
+        // unit building is done by clicking directly on the canvas
+        // it is an exception where we want to disable map interaction
+        // without a UI component
+        const unitsBeingBuilt = [...runQuery([Has(BuildingUnit)])].length > 0;
+        if (unitsBeingBuilt) return false;
+
+        // in case we end up in a situation where the UI has not
+        // properly re-enabled map interaction
+        if (clickingCanvas && !mapInteractionEnabled()) enableMapInteraction();
+
+        return clickingCanvas;
+      }),
       map((pointer) => ({ x: pointer.worldX, y: pointer.worldY })),
       map((pixel) => pixelToWorldCoord(maps.Main, pixel))
     )

@@ -6,7 +6,7 @@ pragma solidity >=0.8.21;
 import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { createTemplate } from "../../libraries/templates/createTemplate.sol";
-import { UnitTypes, TerrainTypes, StructureTypes, ItemTypes } from "../common.sol";
+import { UnitTypes, CombatArchetypes, TerrainTypes, StructureTypes, ItemTypes } from "../common.sol";
 
 import { TerrainType, TerrainTypeTableId, MoveDifficulty, MoveDifficultyTableId, ArmorModifier, ArmorModifierTableId } from "../index.sol";
 
@@ -38,7 +38,7 @@ function MountainTemplate() {
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = ArmorModifier.encode(20000);
+  (staticData, encodedLengths, dynamicData) = ArmorModifier.encode(-30);
   staticDatas[2] = staticData;
   encodedLengthss[2] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;

@@ -12,7 +12,25 @@ enum UnitTypes {
   Dragon,
   Archer,
   Catapult,
-  Wizard
+  Wizard,
+  Brute
+}
+
+enum CombatArchetypes {
+  Unknown,
+  Swordsman,
+  Pikeman,
+  Golem,
+  Rider,
+  Knight,
+  Dragon,
+  Archer,
+  Catapult,
+  Wizard,
+  Settlement,
+  SpawnSettlement,
+  GoldMine,
+  Brute
 }
 
 enum TerrainTypes {
