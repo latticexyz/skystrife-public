@@ -2,8 +2,8 @@ import {
   CallExecutionError,
   ContractFunctionExecutionError,
   ContractFunctionRevertedError,
-  Hex, isHex,
-  RpcRequestError, size,
+  Hex,
+  RpcRequestError,
   stringToHex,
 } from "viem";
 import {
