@@ -368,9 +368,6 @@ importers:
       abitype:
         specifier: 0.9.3
         version: 0.9.3(typescript@5.2.2)
-      ace-builds:
-        specifier: 1.32.6
-        version: 1.32.6
       async-mutex:
         specifier: ^0.3.2
         version: 0.3.2
@@ -455,9 +452,6 @@ importers:
       react:
         specifier: ^18.2.0
         version: 18.2.0
-      react-ace:
-        specifier: 10.1.0
-        version: 10.1.0(react-dom@18.2.0)(react@18.2.0)
       react-collapse:
         specifier: ^5.1.1
         version: 5.1.1(react@18.2.0)
@@ -5989,10 +5983,6 @@ packages:
       negotiator: 0.6.3
     dev: false
 
-  /ace-builds@1.32.6:
-    resolution: {integrity: sha512-dO5BnyDOhCnznhOpILzXq4jqkbhRXxNkf3BuVTmyxGyRLrhddfdyk6xXgy+7A8LENrcYoFi/sIxMuH3qjNUN4w==}
-    dev: false
-
   /acorn-jsx@5.3.2(acorn@8.10.0):
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -7247,10 +7237,6 @@ packages:
 
   /didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
-    dev: false
-
-  /diff-match-patch@1.0.5:
-    resolution: {integrity: sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==}
     dev: false
 
   /diff@4.0.2:
@@ -9738,10 +9724,6 @@ packages:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
     dev: false
 
-  /lodash.get@4.4.2:
-    resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
-    dev: false
-
   /lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
     dev: false
@@ -11380,21 +11362,6 @@ packages:
       react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0
     dependencies:
       fast-memoize: 2.5.2
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
-  /react-ace@10.1.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-VkvUjZNhdYTuKOKQpMIZi7uzZZVgzCjM7cLYu6F64V0mejY8a2XTyPUIMszC6A4trbeMIHbK5fYFcT/wkP/8VA==}
-    peerDependencies:
-      react: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
-      react-dom: ^0.13.0 || ^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0
-    dependencies:
-      ace-builds: 1.32.6
-      diff-match-patch: 1.0.5
-      lodash.get: 4.4.2
-      lodash.isequal: 4.5.0
-      prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: false
