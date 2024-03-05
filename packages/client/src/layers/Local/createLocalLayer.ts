@@ -16,6 +16,7 @@ import {
   defineExitQuery,
   getComponentEntities,
   Entity,
+  NotValue,
 } from "@latticexyz/recs";
 import { HeadlessLayer } from "../Headless";
 import {
@@ -40,7 +41,7 @@ import { Area, awaitStreamValue, sleep, toEthAddress } from "@latticexyz/utils";
 import { createPotentialPathSystem } from "./systems/PotentialPathSystem";
 import { concatMap, merge } from "rxjs";
 import { Coord } from "phaserx";
-import { getClosestTraversablePositionToTarget } from "../../utils/distance";
+import { getClosestTraversablePositionToTarget, manhattan } from "../../utils/distance";
 import { WorldCoord } from "../../types";
 import { decodeEntity, singletonEntity } from "@latticexyz/store-sync/recs";
 import { decodeMatchEntity } from "../../decodeMatchEntity";
@@ -48,6 +49,10 @@ import { formatAddress } from "../../app/amalgema-ui/CurrentProfile";
 import { Hex } from "viem";
 import { encodeMatchEntity } from "../../encodeMatchEntity";
 import { createUnitOwnedByCurrentPlayerSystem } from "./systems/UnitOwnedByCurrentPlayerSystem";
+import { worldCoordEq } from "../../utils/coords";
+import { curry } from "lodash";
+import { BFS } from "../../utils/pathfinding";
+import { isUntraversable } from "../Network/utils";
 
 /**
  * The Local layer is the thrid layer in the client architecture and extends the Headless layer.
@@ -70,6 +75,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
           Combat,
           CombatOutcome,
           OwnedBy,
+          RequiresSetup,
         },
         utils: { getOwningPlayer, isOwnedByCurrentPlayer, getLevelSpawns },
         network: { matchEntity },
@@ -77,7 +83,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
       },
     },
     components: headlessComponents,
-    api: { calculateMovementPath },
+    api: { calculateMovementPath, getMovementDifficulty, getMoveSpeed },
   } = headless;
 
   // Components
@@ -214,6 +220,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
     const noColor = {
       color: 0xffffff,
       name: "white",
+      hex: "ffffff",
     };
     if (matchEntity == null) return noColor;
 
@@ -242,6 +249,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
     return {
       color: parseInt(colorData[0], 16),
       name: colorData[1],
+      hex: colorData[0],
     };
   }
 
@@ -266,20 +274,28 @@ export async function createLocalLayer(headless: HeadlessLayer) {
   };
 
   const canMoveToAndAttack = (attacker: Entity, defender: Entity) => {
+    if (hasComponent(RequiresSetup, attacker)) return;
+
     const attackerOwner = getOwningPlayer(attacker);
     const defenderOwner = getOwningPlayer(defender);
     if (attackerOwner === defenderOwner) return;
 
     if (!hasComponent(Combat, defender)) return;
     const range = getComponentValue(Range, attacker);
-    if (range && range.max > 1) return;
+    if (!range) return;
+
+    const minRange = range.min || 1;
+    const maxRange = range.max || 1;
+
     if (hasComponent(headlessComponents.OnCooldown, attacker)) return;
 
     const closestUnblockedPosition = getClosestTraversablePositionToTarget(
       LocalPosition,
       hasPotentialPath,
       attacker,
-      defender
+      defender,
+      minRange,
+      maxRange
     );
     if (!closestUnblockedPosition) return;
 
@@ -330,6 +346,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
       name,
       playerColor,
       matchEntity: matchEntity as Entity,
+      wallet: toEthAddress(owner),
     };
   }
 
@@ -461,6 +478,104 @@ export async function createLocalLayer(headless: HeadlessLayer) {
     }
   };
 
+  const getPotentialPaths = (entity: Entity) => {
+    const {
+      parentLayers: {
+        headless: {
+          api: { isUntraversable: isUntraversableHeadless },
+        },
+      },
+    } = layer;
+
+    const moveSpeed = getMoveSpeed(entity);
+    if (!moveSpeed) return;
+
+    const localPosition = getComponentValue(LocalPosition, entity);
+    if (!localPosition) return;
+
+    const playerEntity = getOwningPlayer(entity) ?? ("0" as Entity);
+
+    const xArray: number[] = [];
+    const yArray: number[] = [];
+
+    const [paths, costs] = BFS(
+      localPosition,
+      moveSpeed,
+      curry(getMovementDifficulty)(LocalPosition),
+      curry(isUntraversableHeadless)(LocalPosition, playerEntity)
+    );
+
+    for (const coord of paths) {
+      xArray.push(coord.x);
+      yArray.push(coord.y);
+    }
+
+    const potentialPaths = {
+      x: xArray,
+      y: yArray,
+      costs: costs,
+    };
+
+    return potentialPaths;
+  };
+
+  /**
+   * Return all entities that are attackable by the given entity.
+   * Includes entities that are attackabled with a move and attack action.
+   */
+  function getAllAttackableEntities(attacker: Entity) {
+    const {
+      parentLayers: {
+        headless: {
+          components: { NextPosition },
+        },
+      },
+    } = layer;
+
+    let paths = getComponentValue(PotentialPath, attacker);
+    if (!paths) paths = getPotentialPaths(attacker);
+    if (!paths) return;
+
+    const currentPosition = getComponentValue(LocalPosition, attacker);
+    if (!currentPosition) return;
+
+    const potentialTargetLocations = [];
+    for (let i = 0; i < paths.x.length; i++) {
+      const target = { x: paths.x[i], y: paths.y[i] };
+
+      const nextPositionAtTarget = [...runQuery([HasValue(NextPosition, target)])].length > 0;
+      // make sure the position is not blocked
+      if (
+        !worldCoordEq(currentPosition, target) &&
+        (nextPositionAtTarget || isUntraversable(Untraversable, LocalPosition, target))
+      )
+        continue;
+
+      potentialTargetLocations.push(target);
+    }
+
+    const attackableEntities = new Set<Entity>();
+
+    const owningPlayer = getOwningPlayer(attacker);
+    const allEnemyUnits = [...runQuery([Has(LocalPosition), Has(Combat), NotValue(OwnedBy, { value: owningPlayer })])];
+    const range = getComponentValue(Range, attacker);
+    if (!range) return;
+
+    for (const targetLocation of potentialTargetLocations) {
+      for (const enemy of allEnemyUnits) {
+        const enemyPosition = getComponentValue(LocalPosition, enemy);
+        if (!enemyPosition) continue;
+
+        const distance = manhattan(targetLocation, enemyPosition);
+        if (distance <= range.max && distance >= range.min) {
+          attackableEntities.add(enemy);
+        }
+      }
+    }
+
+    return [...attackableEntities];
+  }
+
   // Layer
   const layer = {
     world,
@@ -476,6 +591,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
       onPlayerLoaded,
       onAccountLoaded,
 
+      getPotentialPaths,
       hasPotentialPath,
       canMoveToAndAttack,
       canAttack: headless.api.canAttack,
@@ -484,6 +600,8 @@ export async function createLocalLayer(headless: HeadlessLayer) {
       getPreferences,
 
       getPlayerInfo,
+
+      getAllAttackableEntities,
 
       systemDecoders: {
         onCombat,

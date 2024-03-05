@@ -31,58 +31,63 @@ client.once(Events.ClientReady, (readyClient) => {
 
   const notifChannel = readyClient.channels.cache.get(process.env.CHANNEL_ID ?? "0") as TextChannel | undefined;
 
-  defineSystem(world, [Has(MatchPlayers), HasValue(MatchConfig, { startTime: 0n })], ({ entity, value, component }) => {
-    if (component.id !== MatchPlayers.id) return;
+  defineSystem(
+    world,
+    [Has(MatchPlayers), HasValue(MatchConfig, { startTime: 0n })],
+    ({ entity, value, component }) => {
+      if (component.id !== MatchPlayers.id) return;
 
-    console.log("MatchPlayers system", entity);
+      console.log("MatchPlayers system", entity);
 
-    const [, previousValue] = value;
-    const previousMatchPlayers = (previousValue?.value ?? []) as string[];
-    const matchPlayers = getComponentValue(MatchPlayers, entity)?.value;
+      const [, previousValue] = value;
+      const previousMatchPlayers = (previousValue?.value ?? []) as string[];
+      const matchPlayers = getComponentValue(MatchPlayers, entity)?.value;
 
-    if (!matchPlayers) return;
-    if (matchPlayers.length === previousMatchPlayers.length) return;
+      if (!matchPlayers) return;
+      if (matchPlayers.length === previousMatchPlayers.length) return;
 
-    const matchName = getComponentValue(MatchName, entity)?.value;
-    const currentPlayers = matchPlayers.length;
-    const maxPlayers = getMaxPlayers(entity);
+      const matchName = getComponentValue(MatchName, entity)?.value;
+      const currentPlayers = matchPlayers.length;
+      const maxPlayers = getMaxPlayers(entity);
 
-    console.log(`Match ${matchName} has ${currentPlayers} players out of ${getMaxPlayers(entity)}`);
+      console.log(`Match ${matchName} has ${currentPlayers} players out of ${getMaxPlayers(entity)}`);
 
-    const newPlayer = matchPlayers.find((player) => !previousMatchPlayers.includes(player));
-    if (!newPlayer) return;
+      const newPlayer = matchPlayers.find((player) => !previousMatchPlayers.includes(player));
+      if (!newPlayer) return;
 
-    console.log(`New player joined: ${newPlayer}`);
+      console.log(`New player joined: ${newPlayer}`);
 
-    setTimeout(() => {
-      const playerEntity = encodeMatchEntity(entity, newPlayer);
-      const owner = getComponentValue(OwnedBy, playerEntity)?.value;
-      const matchConfig = getComponentValue(MatchConfig, entity);
+      setTimeout(() => {
+        const playerEntity = encodeMatchEntity(entity, newPlayer);
+        const owner = getComponentValue(OwnedBy, playerEntity)?.value;
+        const matchConfig = getComponentValue(MatchConfig, entity);
 
-      if (!matchConfig) return;
-      if (!owner) return;
+        if (!matchConfig) return;
+        if (!owner) return;
 
-      const playerName = getComponentValue(Name, owner as Entity)?.value;
-      if (!playerName) return;
+        const playerName = getComponentValue(Name, owner as Entity)?.value;
+        if (!playerName) return;
 
-      console.log(`**${playerName}** joined match **${matchName}**!`);
-      if (!notifChannel) return;
+        console.log(`**${playerName}** joined match **${matchName}**!`);
+        if (!notifChannel) return;
 
-      const gameIsStarting = currentPlayers === maxPlayers;
-      const statusEmoji = gameIsStarting ? "🟢" : "🟡";
-      const levelName = `🗾 ${hexToString(matchConfig.levelId as Hex, { size: 32 })}`;
+        const gameIsStarting = currentPlayers === maxPlayers;
+        const statusEmoji = gameIsStarting ? "🟢" : "🟡";
+        const levelName = `🗾 ${hexToString(matchConfig.levelId as Hex, { size: 32 })}`;
 
-      const entranceFee = getComponentValue(MatchSweepstake, entity)?.entranceFee;
-      const entranceFeeMsg = `🔮 ${entranceFee ? formatEther(entranceFee) : "No"} entrance fee`;
+        const entranceFee = getComponentValue(MatchSweepstake, entity)?.entranceFee;
+        const entranceFeeMsg = `🔮 ${entranceFee ? formatEther(entranceFee) : "No"} entrance fee`;
 
-      notifChannel.send(
-        `${statusEmoji} **${playerName}** joined [${matchName}](${url}/match?match=${entity}) (${currentPlayers}/${maxPlayers} players)
+        notifChannel.send(
+          `${statusEmoji} **${playerName}** joined [${matchName}](${url}/match?match=${entity}) (${currentPlayers}/${maxPlayers} players)
 ${levelName}
 ${entranceFeeMsg}
 ========================================`
-      );
-    }, 1000);
-  });
+        );
+      }, 1000);
+    },
+    { runOnInit: false }
+  );
 
   readyClient.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return;

@@ -25,6 +25,7 @@ import { createCooldownSystem } from "./systems/CooldownSystem";
 import { aStar } from "../../utils/pathfinding";
 import { BigNumber } from "ethers";
 import { createPreviousOwnerSystem } from "./systems/PreviousOwnerSystem";
+import { decodeMatchEntity } from "../../decodeMatchEntity";
 
 const { curry } = lodash;
 
@@ -52,6 +53,8 @@ export async function createHeadlessLayer(network: NetworkLayer) {
         TerrainType,
         UnitType,
         Untraversable,
+        Chargee,
+        Charger,
       },
     },
   } = network;
@@ -205,9 +208,12 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     return entities;
   }
 
-  const getAttackableEntities = (attacker: Entity, atCoord: WorldCoord) => {
+  const getAttackableEntities = (attacker: Entity, atCoord?: WorldCoord) => {
     const attackerOwner = getComponentValue(OwnedBy, attacker);
     if (!attackerOwner) return;
+
+    if (!atCoord) atCoord = getComponentValue(Position, attacker);
+    if (!atCoord) return;
 
     const attackerRange = getComponentValue(Range, attacker);
     let entities;
@@ -313,6 +319,19 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     return calculateMovementPath(positionComponent, attacker, attackerPosition, closestUnblockedPosition);
   };
 
+  const getCurrentRegen = (entity: Entity) => {
+    const chargers = runQuery([Has(InCurrentMatch), HasValue(Chargee, { value: decodeMatchEntity(entity).entity })]);
+    const regen = [...chargers].reduce((acc, charger) => {
+      if (hasComponent(Depleted, charger)) return acc;
+
+      const chargeValue = getComponentValue(Charger, charger)?.value;
+      if (!chargeValue) return acc;
+      return acc + chargeValue;
+    }, 0);
+
+    return regen;
+  };
+
   const layer = {
     world,
     parentLayers: { network },
@@ -333,6 +352,8 @@ export async function createHeadlessLayer(network: NetworkLayer) {
       getMoveAndAttackPath,
       getMoveSpeed,
       getActionStaminaCost,
+
+      getCurrentRegen,
 
       combat: { isPassive, isNeutralStructure, canRetaliate },
     },

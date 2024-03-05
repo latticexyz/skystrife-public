@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS player_transactions_31337
     world_address TEXT,
     player_address TEXT,
     match_entity TEXT,
-    session_wallet_address TEXT
+    session_wallet_address TEXT,
+    action_id TEXT,
+    client_submitted_timestamp INTEGER
   );
 
 DROP TABLE IF EXISTS player_transactions_17001;
@@ -41,5 +43,7 @@ CREATE TABLE IF NOT EXISTS player_transactions_17001
     world_address TEXT,
     player_address TEXT,
     match_entity TEXT,
-    session_wallet_address TEXT
+    session_wallet_address TEXT,
+    action_id TEXT,
+    client_submitted_timestamp INTEGER
   );

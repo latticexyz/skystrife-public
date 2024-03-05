@@ -68,7 +68,7 @@ export const UIRoot = () => {
 
             <TopRight />
 
-            <Chat />
+            {!import.meta.env.DEV && <Chat />}
 
             <SelectedEntity />
 

@@ -71,7 +71,7 @@ export function Chat() {
   });
 
   const now = useCurrentTime();
-  const secondsVisibleAfterInteraction = 5;
+  const secondsVisibleAfterInteraction = 15;
   const [lastInteraction, setLastInteraction] = useState(DateTime.now());
   const [inputFocused, setInputFocused] = useState(false);
 

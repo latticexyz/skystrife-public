@@ -11,6 +11,8 @@ app.post("/track-client-event/:chain_id/:world_address", async (c) => {
   const client = new Client(c.env.DB_URL);
   await client.connect();
 
+  const country = c.req.raw.cf?.country || "unknown";
+
   const { chain_id, world_address } = c.req.param();
   const { event_name, player_address, session_wallet_address, data } = await c.req.json();
 
@@ -18,6 +20,7 @@ app.post("/track-client-event/:chain_id/:world_address", async (c) => {
   console.log(`  player_address: ${player_address}`);
   console.log(`  session_wallet_address: ${session_wallet_address}`);
   console.log(`  data: ${data}`);
+  console.log(`  country: ${country}`);
 
   try {
     await client.query(
@@ -27,13 +30,15 @@ app.post("/track-client-event/:chain_id/:world_address", async (c) => {
         world_address,
         player_address,
         session_wallet_address,
-        data
+        data,
+        country
       ) VALUES (
         '${event_name}',
         '${world_address}',
         '${player_address}',
         '${session_wallet_address}',
-        '${data}'
+        '${data}',
+        '${country}'
       );
     `
     );
@@ -49,6 +54,8 @@ app.post("/track-client-event/:chain_id/:world_address", async (c) => {
 app.post("/track/:chain_id/:world_address", async (c) => {
   const client = new Client(c.env.DB_URL);
   await client.connect();
+
+  const country = c.req.raw.cf?.country || "unknown";
 
   const { chain_id, world_address } = c.req.param();
   const {
@@ -68,6 +75,8 @@ app.post("/track/:chain_id/:world_address", async (c) => {
     player_address,
     match_entity,
     session_wallet_address,
+    action_id,
+    client_submitted_timestamp,
   } = await c.req.json();
 
   console.log(`Received tx ${hash} for ${world_address} on chain ${chain_id}`);
@@ -86,6 +95,9 @@ app.post("/track/:chain_id/:world_address", async (c) => {
   console.log(`  player_address: ${player_address}`);
   console.log(`  match_entity: ${match_entity}`);
   console.log(`  session_wallet_address: ${session_wallet_address}`);
+  console.log(`  action_id: ${action_id}`);
+  console.log(`  client_submitted_timestamp: ${client_submitted_timestamp}`);
+  console.log(`  country: ${country}`);
 
   try {
     await client.query(
@@ -106,7 +118,10 @@ app.post("/track/:chain_id/:world_address", async (c) => {
         completed_timestamp,
         player_address,
         match_entity,
-        session_wallet_address
+        session_wallet_address,
+        action_id,
+        client_submitted_timestamp,
+        country
       ) VALUES (
         '${world_address}',
         '${entity}',
@@ -124,7 +139,10 @@ app.post("/track/:chain_id/:world_address", async (c) => {
         ${completed_timestamp},
         '${player_address}',
         '${match_entity}',
-        '${session_wallet_address}'
+        '${session_wallet_address}',
+        '${action_id}',
+        ${client_submitted_timestamp},
+        '${country}'
       );`
     );
 

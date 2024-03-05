@@ -30,7 +30,10 @@ Sky Strife is broken into several sub-packages. Here are the packages that are e
 
 ## Prerequisites
 
+`node` - Version 18.16.1 or greater
 `foundry` - Used to run your local node, run tests, and deploy contracts. [Install](https://github.com/foundry-rs/foundry#installation)
+
+> There is currently an issue with the latest version of Foundry which causes Sky Strife deployment to fail. Please revert back to an old version using this command `foundryup -C 375df5834d0fea8350a4aae9ca34a0dab55d74ac`
 
 ## Steps
 

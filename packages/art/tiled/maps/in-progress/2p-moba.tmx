@@ -3,7 +3,7 @@
  <editorsettings>
   <export format="ecs"/>
  </editorsettings>
- <tileset firstgid="1" source="../../tilesets/map-maker-tileset.tsx"/>
+ <tileset firstgid="1" source="../../../tilesets/map-maker-tileset.tsx"/>
  <group id="17" name="Tiles" offsetx="2.84217e-14" offsety="0">
   <properties>
    <property name="entityLayer" type="bool" value="true"/>

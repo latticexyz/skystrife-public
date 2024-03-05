@@ -1,15 +1,4 @@
-import {
-  defineSystem,
-  Entity,
-  getComponentValue,
-  Has,
-  Not,
-  removeComponent,
-  setComponent,
-  UpdateType,
-} from "@latticexyz/recs";
-import { curry } from "lodash";
-import { BFS } from "../../../../utils/pathfinding";
+import { defineSystem, Has, Not, removeComponent, setComponent, UpdateType } from "@latticexyz/recs";
 import { LocalLayer } from "../../types";
 
 export function createPotentialPathSystem(layer: LocalLayer) {
@@ -19,12 +8,9 @@ export function createPotentialPathSystem(layer: LocalLayer) {
     parentLayers: {
       headless: {
         components: { NextPosition },
-        api: { getMoveSpeed, getMovementDifficulty, isUntraversable },
-      },
-      network: {
-        utils: { getOwningPlayer },
       },
     },
+    api: { getPotentialPaths },
   } = layer;
 
   defineSystem(
@@ -35,34 +21,9 @@ export function createPotentialPathSystem(layer: LocalLayer) {
       if (type === UpdateType.Exit) {
         removeComponent(PotentialPath, entity);
       } else if ([UpdateType.Enter, UpdateType.Update].includes(type)) {
-        const moveSpeed = getMoveSpeed(entity);
-        if (!moveSpeed) return;
+        const potentialPaths = getPotentialPaths(entity);
+        if (!potentialPaths) return;
 
-        const localPosition = getComponentValue(LocalPosition, entity);
-        if (!localPosition) return;
-
-        const playerEntity = getOwningPlayer(entity) ?? ("0" as Entity);
-
-        const xArray: number[] = [];
-        const yArray: number[] = [];
-
-        const [paths, costs] = BFS(
-          localPosition,
-          moveSpeed,
-          curry(getMovementDifficulty)(LocalPosition),
-          curry(isUntraversable)(LocalPosition, playerEntity)
-        );
-
-        for (const coord of paths) {
-          xArray.push(coord.x);
-          yArray.push(coord.y);
-        }
-
-        const potentialPaths = {
-          x: xArray,
-          y: yArray,
-          costs: costs,
-        };
         setComponent(PotentialPath, entity, potentialPaths);
       }
     }

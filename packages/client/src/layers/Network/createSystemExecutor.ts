@@ -29,6 +29,12 @@ type SystemExecutorArgs<T extends keyof ContractType["write"]> = {
   args: Parameters<ContractType["write"][T]>;
   entity?: Entity;
   options?: {
+    /**
+     * Used to tie together a series of transactions that are part of the same action. This happens when there is a retry on transaction failure.
+     * There is no need to pass this as an option, it will be generated on the first call and then
+     * passed in the options on subsequent calls.
+     */
+    actionId?: string;
     currentRetryCount?: number;
     disableRetry?: boolean;
     worldContractOverride?: ContractType;
@@ -86,12 +92,15 @@ export const createSystemExecutor = ({
       completedBlock,
       submittedTimestamp,
       completedTimestamp,
+      actionId,
+      clientSubmittedTimestamp,
     } = txData;
 
     const body = JSON.stringify({
       entity,
       system_call: systemCall,
       system_id: systemId,
+      action_id: actionId,
       gas_estimate: Number(gasEstimate ?? 0n),
       manual_gas_estimate: manualGasEstimate,
       gas_price_gwei: Number(formatEther(gasPrice ?? 0n, "gwei")),
@@ -101,6 +110,7 @@ export const createSystemExecutor = ({
       submitted_block: Number(submittedBlock ?? 0n),
       completed_block: Number(completedBlock ?? 0n),
       submitted_timestamp: Number(submittedTimestamp ?? 0n),
+      client_submitted_timestamp: Number(clientSubmittedTimestamp ?? 0n),
       completed_timestamp: Number(completedTimestamp ?? 0n),
       player_address: playerAddress ?? null,
       match_entity: network.matchEntity,
@@ -133,6 +143,7 @@ export const createSystemExecutor = ({
     options,
     confirmCompletionCallback,
   }: SystemExecutorArgs<T>): Promise<Hex | undefined> => {
+    const actionId = options?.actionId ?? (uuid() as string);
     const disableRetry = options?.disableRetry ?? false;
     const currentRetryCount = options?.currentRetryCount ?? 0;
     const contract = options?.worldContractOverride ?? worldContract;
@@ -146,6 +157,7 @@ export const createSystemExecutor = ({
       entity,
       systemCall,
       systemId,
+      actionId,
       gasEstimate: undefined,
       manualGasEstimate: false,
       gasPrice: undefined,
@@ -159,6 +171,7 @@ export const createSystemExecutor = ({
 
     updateComponent(components.Transaction, txEntity, {
       submittedTimestamp: BigInt(Date.now()),
+      clientSubmittedTimestamp: BigInt(network.clock.currentTime * 1000),
     });
 
     let gasEstimate = 0n;
@@ -271,6 +284,7 @@ export const createSystemExecutor = ({
           systemId,
           args,
           options: {
+            actionId,
             currentRetryCount: currentRetryCount + 1,
           },
         });

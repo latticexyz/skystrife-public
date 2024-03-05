@@ -27,6 +27,8 @@ export async function getNetworkConfig() {
   const matchParam = params.get("match");
   const matchEntity = matchParam != null ? (matchParam as Entity) : null;
 
+  const useBurner = (import.meta.env.DEV && !params.has("externalWallet")) || params.has("useBurner");
+
   return {
     clock: {
       period: 1000,
@@ -39,7 +41,7 @@ export async function getNetworkConfig() {
       wsRpcUrl: params.get("wsRpc") ?? chain.rpcUrls.default.webSocket?.[0],
     },
     privateKey: params.has("anon") ? Wallet.createRandom().privateKey : getBurnerWallet(),
-    useBurner: params.has("useBurner"),
+    useBurner,
     chainId,
     faucetServiceUrl: params.get("faucet") ?? chain.faucetUrl,
     worldAddress,

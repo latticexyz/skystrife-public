@@ -1,18 +1,16 @@
-import { getComponentValue, Has, hasComponent, HasValue, runQuery } from "@latticexyz/recs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { filter, merge } from "rxjs";
 import { useMUD } from "../../../useMUD";
 import { useCurrentPlayer } from "./useCurrentPlayer";
-import { decodeMatchEntity } from "../../../decodeMatchEntity";
 
 export const usePlayerGold = (playerData: ReturnType<typeof useCurrentPlayer>) => {
   const {
     networkLayer: {
-      components: { Chargee, Charger },
+      components: { Chargee },
     },
     headlessLayer: {
-      components: { LocalStamina, Depleted, InCurrentMatch },
-      api: { getCurrentStamina },
+      components: { LocalStamina },
+      api: { getCurrentStamina, getCurrentRegen },
     },
   } = useMUD();
 
@@ -34,39 +32,22 @@ export const usePlayerGold = (playerData: ReturnType<typeof useCurrentPlayer>) =
     [Chargee.update$, playerData?.player]
   );
 
-  const getCurrentRegen = useCallback(() => {
-    if (!playerData?.player) return 0;
-
-    const chargers = runQuery([
-      Has(InCurrentMatch),
-      HasValue(Chargee, { value: decodeMatchEntity(playerData.player).entity }),
-    ]);
-    const regen = [...chargers].reduce((acc, charger) => {
-      if (hasComponent(Depleted, charger)) return acc;
-
-      const chargeValue = getComponentValue(Charger, charger)?.value;
-      if (!chargeValue) return acc;
-      return acc + chargeValue;
-    }, 0);
-
-    return regen;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playerData?.player]);
-
   useEffect(() => {
     if (!playerData?.player) return;
 
-    setStamina(getCurrentStamina(playerData?.player));
-    setRegen(getCurrentRegen());
+    const { player } = playerData;
+
+    setStamina(getCurrentStamina(player));
+    setRegen(getCurrentRegen(player));
 
     const sub = merge(stamina$, regenRate$).subscribe(() => {
-      if (!playerData?.player) return;
+      if (!player) return;
 
-      setStamina(getCurrentStamina(playerData.player));
-      setRegen(getCurrentRegen());
+      setStamina(getCurrentStamina(player));
+      setRegen(getCurrentRegen(player));
     });
     return () => sub.unsubscribe();
-  }, [stamina$, getCurrentStamina, playerData?.player, regenRate$, getCurrentRegen]);
+  }, [stamina$, getCurrentStamina, playerData?.player, regenRate$, getCurrentRegen, playerData]);
 
   return {
     amount: stamina,

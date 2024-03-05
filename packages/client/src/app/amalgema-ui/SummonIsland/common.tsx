@@ -172,7 +172,7 @@ export function EthInput({
       </span>
 
       <input
-        className={twMerge(" w-[100px] align-middle	shrink text-right pr-3 bg-ss-bg-2", className)}
+        className={twMerge("w-[100px] align-middle shrink text-right pr-3 bg-ss-bg-2", className)}
         type="text"
         readOnly
         value={parseFloat(formatEther(amount)).toFixed(3)}

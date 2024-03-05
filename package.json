@@ -21,12 +21,13 @@
     "mud:up": "pnpm recursive exec mud set-version -v canary && pnpm install",
     "mud:link": "pnpm recursive exec mud set-version -l ../../../mud && pnpm install",
     "---": "---",
-    "dev": "pnpm --filter ecs-browser run build && pnpm --filter phaserx run build && run-pty % % pnpm run dev:client % pnpm run dev:contracts % pnpm run dev:upload-map % pnpm run dev:copy-maps % pnpm run dev:create-debug-matches",
+    "dev": "pnpm --filter ecs-browser run build && pnpm --filter phaserx run build && run-pty % % pnpm run dev:client % pnpm run dev:contracts % pnpm run dev:upload-map % pnpm run dev:copy-maps % pnpm run dev:create-debug-matches % pnpm run dev:plugins",
     "dev:client": "pnpm --filter client run dev",
     "dev:contracts": "DEBUG=mud:* pnpm --filter contracts run dev",
     "dev:upload-map": "wait-port localhost:8545 && sleep 70 && pnpm --filter headless-client run upload-map:dev",
     "dev:copy-maps": "wait-port localhost:8545 && sleep 80 && pnpm --filter headless-client run copy-maps:dev",
-    "dev:create-debug-matches": "wait-port localhost:8545 && pnpm --filter headless-client run create-debug-matches:dev"
+    "dev:create-debug-matches": "wait-port localhost:8545 && pnpm --filter headless-client run create-debug-matches:dev",
+    "dev:plugins": "pnpm --filter plugins run dev"
   },
   "devDependencies": {
     "@latticexyz/cli": "2.0.0-main-5ab67e33",

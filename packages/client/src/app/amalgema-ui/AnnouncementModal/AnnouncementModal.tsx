@@ -2,8 +2,13 @@ import { Body, Heading, OverlineSmall } from "../../ui/Theme/SkyStrife/Typograph
 import { Modal } from "../Modal";
 import { Button } from "../../ui/Theme/SkyStrife/Button";
 import * as Dialog from "@radix-ui/react-dialog";
+import useLocalStorageState from "use-local-storage-state";
 
 export function AnnouncementModal() {
+  const [seenPatchNotes, setSeenPatchNotes] = useLocalStorageState("viewed-patch-notes-1", {
+    defaultValue: false,
+  });
+
   return (
     <div className="fixed top-0x left-1/3 uppercase z-50 w-fit px-4 mt-3 flex items-center">
       new update! <div className="w-3" />
@@ -16,7 +21,15 @@ export function AnnouncementModal() {
           </Dialog.Close>
         }
         title="announcements"
-        trigger={<Button buttonType={"tertiary"}>read patch notes</Button>}
+        trigger={
+          <div onClick={() => setSeenPatchNotes(true)} className="relative">
+            <Button buttonType={"tertiary"}>read patch notes</Button>
+
+            {!seenPatchNotes && (
+              <span className="absolute -right-1 -top-1 w-2 h-2 rounded-full animate-ping bg-red-500" />
+            )}
+          </div>
+        }
       >
         <Heading>New units, combat redesign, and more!</Heading>
         <OverlineSmall>Feb 23rd, 2024</OverlineSmall>

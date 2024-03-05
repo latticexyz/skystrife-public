@@ -12,7 +12,7 @@ const {
   network: { worldContract, waitForTransaction },
 } = networkLayer;
 
-const LEVEL_NAME = env.LEVEL_ID || "debug";
+const LEVEL_NAME = env.LEVEL_ID || "GM Island";
 console.log(`Creating matches with level: ${LEVEL_NAME}`);
 const LEVEL_ID = stringToHex(LEVEL_NAME, { size: 32 });
 

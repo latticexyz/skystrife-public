@@ -21,8 +21,6 @@ export const SettingsButton = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const [pluginCode, setPluginCode] = useLocalStorageState("pluginCode", { defaultValue: "" });
-
   const currentPrefs = useComponentValue(Preferences, singletonEntity);
 
   useOnClickOutside(ref, () => setMenuVisible(false));
@@ -104,35 +102,6 @@ export const SettingsButton = () => {
                 />
               </label>
 
-              <div className="my-3 text-4xl">Plugin</div>
-              <textarea rows={10} value={pluginCode} onChange={(e) => setPluginCode(e.target.value)} />
-              <Button
-                buttonType="secondary"
-                className="mt-6 w-full h-fit"
-                onClick={() => {
-                  const vars = {
-                    ...recs,
-                    ...(window as any).components,
-                    ...(window as any).layers,
-                  };
-
-                  const assignVars = Object.keys(vars)
-                    .map((key) => `const ${key} = vars["${key}"]; `)
-                    .join("");
-
-                  const evalString = `
-                  (() => {
-                    ${assignVars}
-                    ${pluginCode}
-                  })()
-                  `;
-
-                  eval(evalString);
-                }}
-              >
-                Run Plugin
-              </Button>
-
               <Button
                 buttonType="secondary"
                 className="mt-6 w-full h-fit"
@@ -140,7 +109,7 @@ export const SettingsButton = () => {
                   setMenuVisible(false);
                 }}
               >
-                Back
+                Back to Game
               </Button>
             </Card>
           </div>

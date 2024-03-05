@@ -19,6 +19,7 @@ import { BigNumber } from "ethers";
 import { Clock } from "../Headless/setup";
 
 // wrangler dev URL = "http://127.0.0.1:8787"
+// export const ANALYTICS_URL = "http://127.0.0.1:8787"
 export const ANALYTICS_URL = "https://analytics-worker.latticexyz.workers.dev";
 
 export function getCurrentTurn(startTime: BigNumber, turnLength: BigNumber, clock: Clock) {
