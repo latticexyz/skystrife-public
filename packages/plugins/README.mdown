@@ -40,7 +40,7 @@ function createPlugin(pluginLayer: PluginLayer) {
 }
 ```
 
-You can view the `PluginLayer` API [here](https://github.com/latticexyz/skystrife/blob/main/packages/client/src/layers/Plugins/createPluginLayer.ts).
+You can view the `PluginLayer` API [here](../client/src/layers/Plugins/createPluginLayer.ts).
 
 ## Examples
 
