@@ -14,15 +14,15 @@ export enum UnitTypes {
 
   Swordsman,
   Pikeman,
-  Golem,
+  Halberdier,
 
-  Rider,
+  Pillager,
   Knight,
-  Dragon,
+  Dragoon,
 
   Archer,
   Catapult,
-  Wizard,
+  Marksman,
 
   Brute,
 }
@@ -32,15 +32,15 @@ export const UnitTypeNames: Record<number, string> = {
 
   [UnitTypes.Swordsman]: "Swordsman",
   [UnitTypes.Pikeman]: "Pikeman",
-  [UnitTypes.Golem]: "Halberdier",
+  [UnitTypes.Halberdier]: "Halberdier",
 
   [UnitTypes.Archer]: "Archer",
   [UnitTypes.Catapult]: "Crossbowman",
-  [UnitTypes.Wizard]: "Marksman",
+  [UnitTypes.Marksman]: "Marksman",
 
-  [UnitTypes.Rider]: "Rider",
+  [UnitTypes.Pillager]: "Pillager",
   [UnitTypes.Knight]: "Knight",
-  [UnitTypes.Dragon]: "Dragoon",
+  [UnitTypes.Dragoon]: "Dragoon",
 
   [UnitTypes.Brute]: "Brute",
 };
@@ -48,9 +48,9 @@ export const UnitTypeNames: Record<number, string> = {
 export const UnitTypeDescriptions: Record<number, string> = {
   [UnitTypes.Unknown]: "Unknown",
 
-  [UnitTypes.Golem]: "Infantry Hero",
-  [UnitTypes.Wizard]: "Ranged Hero",
-  [UnitTypes.Dragon]: "Cavalry Hero",
+  [UnitTypes.Halberdier]: "Infantry Hero",
+  [UnitTypes.Marksman]: "Ranged Hero",
+  [UnitTypes.Dragoon]: "Cavalry Hero",
 };
 
 export enum StructureTypes {

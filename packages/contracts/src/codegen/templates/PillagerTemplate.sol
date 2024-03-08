@@ -10,11 +10,11 @@ import { UnitTypes, CombatArchetypes, TerrainTypes, StructureTypes, ItemTypes } 
 
 import { Combat, CombatTableId, UnitType, UnitTypeTableId, CombatArchetype, CombatArchetypeTableId, StaminaOnKill, StaminaOnKillTableId, Range, RangeTableId, Movable, MovableTableId, Untraversable, UntraversableTableId, Tier, TierTableId } from "../index.sol";
 
-bytes32 constant templateId = "Rider";
-bytes32 constant RiderTemplateId = templateId;
+bytes32 constant templateId = "Pillager";
+bytes32 constant PillagerTemplateId = templateId;
 uint256 constant LENGTH = 8;
 
-function RiderTemplate() {
+function PillagerTemplate() {
   bytes32[] memory tableIds = new bytes32[](LENGTH);
   bytes32[] memory encodedLengthss = new bytes32[](LENGTH);
   bytes[] memory staticDatas = new bytes[](LENGTH);

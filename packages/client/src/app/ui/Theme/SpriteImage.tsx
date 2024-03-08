@@ -19,17 +19,20 @@ export const SpriteImage = ({
   if (colorName) {
     const coloredSprite = sprites[`${spriteKey}-${colorName}`];
 
-    if (!coloredSprite) {
+    if (coloredSprite) {
+      sprite = coloredSprite;
+    } else {
       console.error("Could not find colored sprite", spriteKey, colorName);
     }
-
-    sprite = coloredSprite;
   }
 
   const atlasDimensions = atlasJson.textures[0].size;
   const spriteAtlasEntry = atlasJson.textures[0].frames.find((atlasFrame) => atlasFrame.filename === sprite.frame);
 
-  if (!spriteAtlasEntry) throw new Error(`Could not find sprite ${spriteKey} in atlas`);
+  if (!spriteAtlasEntry) {
+    console.error("Could not find sprite atlas entry", spriteKey);
+    return null;
+  }
 
   return (
     <div

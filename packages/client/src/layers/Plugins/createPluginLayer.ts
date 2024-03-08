@@ -10,7 +10,8 @@ import * as components from "./components";
 import { createClientHooks } from "./hooks/createClientHooks";
 import { decodeMatchEntity } from "../../decodeMatchEntity";
 import { createTileHighlighter } from "./createTileHighlighter";
-import { StructureTypes, UnitTypes } from "../Network";
+import { StructureTypes, TerrainTypes, UnitTypes } from "../Network";
+import { Hex } from "viem";
 
 export type PluginLayer = ReturnType<typeof createPluginLayer>;
 
@@ -18,9 +19,10 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
   const {
     parentLayers: {
       network: {
-        components: { Position, OwnedBy, Match, Player, UnitType, StructureType },
-        utils: { isOwnedByCurrentPlayer },
+        components: { Position, OwnedBy, Match, Player, UnitType, StructureType, Factory },
+        utils: { isOwnedByCurrentPlayer, getCurrentPlayerEntity },
         network: { matchEntity },
+        utils: { getTemplateValueStrict },
       },
       headless: {
         components: { NextPosition },
@@ -35,6 +37,7 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     scenes: {
       Main: { phaserScene },
     },
+    api: { buildAt: phaserBuildAt },
   } = phaserLayer;
 
   function getSelectedEntity(): Entity | undefined {
@@ -48,7 +51,7 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     }
   }
 
-  function getPosition(entity: Entity | undefined) {
+  function getPosition(entity: Entity | undefined): WorldCoord | undefined {
     if (!entity) return;
 
     return getComponentValue(Position, entity);
@@ -106,6 +109,22 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     ]);
 
     return [...allUnits];
+  }
+
+  function getMyFactories() {
+    const playerEntity = getCurrentPlayerEntity();
+    if (!playerEntity) return [] as Entity[];
+
+    const allEntities = getAllPlayerEntities(playerEntity);
+    return allEntities.filter((entity) => getComponentValue(Factory, entity));
+  }
+
+  function getMyUnits() {
+    const playerEntity = getCurrentPlayerEntity();
+    if (!playerEntity) return [] as Entity[];
+
+    const allEntities = getAllPlayerEntities(playerEntity);
+    return allEntities.filter((entity) => getComponentValue(UnitType, entity));
   }
 
   function createHotkeyManager() {
@@ -167,6 +186,23 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     sendMoveTx(entity, targetPosition, intendedTarget);
   };
 
+  const buildAt = async (structure: Entity, unitType: UnitTypes, position: WorldCoord) => {
+    const factory = getComponentValue(Factory, structure);
+    if (!factory) return;
+
+    const prototypes = factory.prototypeIds;
+    let prototypeId: string | undefined;
+    for (const id of prototypes) {
+      const ut = getTemplateValueStrict(UnitType.id as Hex, id as Hex).value as UnitTypes;
+      if (ut === unitType) {
+        prototypeId = id;
+        break;
+      }
+    }
+
+    if (prototypeId) phaserBuildAt(structure, prototypeId, position);
+  };
+
   return {
     hotkeyManager,
     tileHighlighter: createTileHighlighter(phaserLayer, namespace),
@@ -184,6 +220,10 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
       canAttack,
       canMoveToAndAttack,
 
+      // personal player info
+      getMyFactories,
+      getMyUnits,
+
       // player info
       getPlayerDetails,
       getPlayerGold,
@@ -196,6 +236,7 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     actions: {
       attack,
       move,
+      buildAt,
     },
     ui: {
       preact: {
@@ -209,6 +250,11 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
       },
       components,
       hooks: createClientHooks(phaserLayer),
+    },
+    types: {
+      UnitTypes,
+      StructureTypes,
+      TerrainTypes,
     },
     recs,
     parentLayers: {

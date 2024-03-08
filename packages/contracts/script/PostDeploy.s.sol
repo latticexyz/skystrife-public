@@ -25,7 +25,7 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { createTemplates } from "../src/codegen/scripts/CreateTemplates.sol";
 import { SeasonTimes, Admin, SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, VirtualLevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation, HeroInRotation, HeroInSeasonPassRotation, MatchRewardPercentages } from "../src/codegen/index.sol";
-import { GrassTemplateId, ForestTemplateId, MountainTemplateId, LavaGroundTemplateId, GolemTemplateId, DragonTemplateId, WizardTemplateId } from "../src/codegen/Templates.sol";
+import { GrassTemplateId, ForestTemplateId, MountainTemplateId, LavaGroundTemplateId, HalberdierTemplateId, DragoonTemplateId, MarksmanTemplateId } from "../src/codegen/Templates.sol";
 
 import { SeasonPassOnlySystem } from "../src/systems/SeasonPassOnlySystem.sol";
 import { addressToEntity } from "../src/libraries/LibUtils.sol";
@@ -103,9 +103,9 @@ contract PostDeploy is Script {
     LevelInSeasonPassRotation.set("KnifeFight", true);
     LevelInSeasonPassRotation.set("Antelope", true);
 
-    HeroInRotation.set(GolemTemplateId, true);
-    HeroInSeasonPassRotation.set(DragonTemplateId, true);
-    HeroInSeasonPassRotation.set(WizardTemplateId, true);
+    HeroInRotation.set(HalberdierTemplateId, true);
+    HeroInSeasonPassRotation.set(DragoonTemplateId, true);
+    HeroInSeasonPassRotation.set(MarksmanTemplateId, true);
 
     // ______________ SKYPOOL __________________
 

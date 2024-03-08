@@ -5,7 +5,7 @@ import "forge-std/Test.sol";
 import { BaseTest, createPublicMatch } from "./BaseTest.sol";
 
 import { LevelTemplates, LevelTemplatesIndex, OwnedBy, PlayerReady, SpawnPoint, Position, PositionData, Charger, MatchReady, SpawnReservedBy, MatchConfigData, MatchConfig } from "../src/codegen/index.sol";
-import { SpawnSettlementTemplateId, GolemTemplateId } from "../src/codegen/Templates.sol";
+import { SpawnSettlementTemplateId, HalberdierTemplateId } from "../src/codegen/Templates.sol";
 
 import { FORCE_START_WAIT } from "../src/libraries/LibMatch.sol";
 
@@ -36,11 +36,11 @@ contract LobbySystemTest is BaseTest {
     vm.stopPrank();
 
     vm.startPrank(alice);
-    player = world.register(matchEntity, 0, GolemTemplateId);
+    player = world.register(matchEntity, 0, HalberdierTemplateId);
     vm.stopPrank();
 
     vm.startPrank(bob);
-    player2 = world.register(matchEntity, 1, GolemTemplateId);
+    player2 = world.register(matchEntity, 1, HalberdierTemplateId);
     world.toggleReady(matchEntity);
     vm.stopPrank();
   }

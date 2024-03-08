@@ -8,7 +8,7 @@ import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
 import { HeroInRotation, HeroInSeasonPassRotation, MatchConfig, LevelTemplates, Player, SpawnPoint, Charger, OwnedBy, LastAction, Name, SpawnReservedBy } from "../src/codegen/index.sol";
 
-import { SpawnSettlementTemplateId, GolemTemplateId } from "../src/codegen/Templates.sol";
+import { SpawnSettlementTemplateId, HalberdierTemplateId } from "../src/codegen/Templates.sol";
 
 bytes32 constant levelId = "debug";
 
@@ -30,7 +30,7 @@ contract PlayerRegisterSystemTest is BaseTest, GasReporter {
 
     vm.startPrank(alice);
     startGasReport("Register for a match");
-    bytes32 player = world.register(matchEntity, 0, GolemTemplateId);
+    bytes32 player = world.register(matchEntity, 0, HalberdierTemplateId);
     endGasReport();
     vm.stopPrank();
 
@@ -42,7 +42,7 @@ contract PlayerRegisterSystemTest is BaseTest, GasReporter {
 
     vm.startPrank(alice);
     vm.expectRevert("level entity is not a spawn");
-    world.register(matchEntity, 2, GolemTemplateId);
+    world.register(matchEntity, 2, HalberdierTemplateId);
     vm.stopPrank();
   }
 
@@ -59,12 +59,12 @@ contract PlayerRegisterSystemTest is BaseTest, GasReporter {
     setupRegister();
 
     prankAdmin();
-    HeroInRotation.set(GolemTemplateId, false);
+    HeroInRotation.set(HalberdierTemplateId, false);
     vm.stopPrank();
 
     vm.startPrank(alice);
     vm.expectRevert("invalid hero choice");
-    world.register(matchEntity, 0, GolemTemplateId);
+    world.register(matchEntity, 0, HalberdierTemplateId);
     vm.stopPrank();
   }
 
@@ -72,11 +72,11 @@ contract PlayerRegisterSystemTest is BaseTest, GasReporter {
     setupRegister();
 
     prankAdmin();
-    HeroInSeasonPassRotation.set(GolemTemplateId, false);
+    HeroInSeasonPassRotation.set(HalberdierTemplateId, false);
     vm.stopPrank();
 
     vm.startPrank(alice);
-    bytes32 player = world.register(matchEntity, 0, GolemTemplateId);
+    bytes32 player = world.register(matchEntity, 0, HalberdierTemplateId);
     vm.stopPrank();
 
     assertEq(Player.get(matchEntity, player), 1, "did not set Player table");
@@ -105,7 +105,7 @@ contract PlayerRegisterSystemTest is BaseTest, GasReporter {
     vm.startPrank(alice);
 
     vm.expectRevert("registration not open");
-    world.register(matchEntity, 0, GolemTemplateId);
+    world.register(matchEntity, 0, HalberdierTemplateId);
     vm.stopPrank();
   }
 
@@ -115,10 +115,10 @@ contract PlayerRegisterSystemTest is BaseTest, GasReporter {
 
     vm.startPrank(alice);
 
-    world.register(matchEntity, 0, GolemTemplateId);
+    world.register(matchEntity, 0, HalberdierTemplateId);
 
     vm.expectRevert("this account has already registered for the match");
-    world.register(matchEntity, 1, GolemTemplateId);
+    world.register(matchEntity, 1, HalberdierTemplateId);
 
     vm.stopPrank();
   }

@@ -104,7 +104,10 @@ export const FullscreenButton = () => {
   return (
     <>
       {modalOpen && (
-        <ClickWrapper className="fixed z-100 w-screen h-screen top-0 left-0 bg-black/50 flex flex-col items-center justify-around">
+        <ClickWrapper
+          style={{ zIndex: 1100 }}
+          className="fixed w-screen h-screen top-0 left-0 bg-black/50 flex flex-col items-center justify-around"
+        >
           <Card className="mx-auto w-[480px] flex flex-col items-center justify-center">
             <Heading className="uppercase text-left w-full">fullscreen mode</Heading>
 

@@ -23,7 +23,7 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
       },
     },
     api: {
-      mapInteraction: { mapInteractionEnabled, enableMapInteraction },
+      mapInteraction: { mapInteractionEnabled, forceEnableMapInteraction },
     },
     scenes: {
       Main: { input, maps },
@@ -137,7 +137,7 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
 
         // in case we end up in a situation where the UI has not
         // properly re-enabled map interaction
-        if (clickingCanvas && !mapInteractionEnabled()) enableMapInteraction();
+        if (clickingCanvas && !mapInteractionEnabled()) forceEnableMapInteraction();
 
         return clickingCanvas;
       }),

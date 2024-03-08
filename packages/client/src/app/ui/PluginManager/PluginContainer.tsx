@@ -41,11 +41,11 @@ const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerP
       position={{ x: location.x ?? 0, y: location.y ?? 0 }}
       onDragStop={(e, d) => {
         setPlugin(pluginKey, { x: d.x, y: d.y });
-        enableMapInteraction();
+        enableMapInteraction(pluginKey);
         setDragging(false);
       }}
       onDragStart={() => {
-        disableMapInteraction();
+        disableMapInteraction(pluginKey);
         setDragging(true);
       }}
       dragGrid={[36, 36]}
@@ -86,12 +86,12 @@ const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerP
       <div
         onMouseOver={() => {
           if (!dragging) {
-            disableMapInteraction();
+            disableMapInteraction(`${pluginKey}-mouseover`);
           }
         }}
         onMouseOut={() => {
           if (!dragging) {
-            enableMapInteraction();
+            enableMapInteraction(`${pluginKey}-mouseover`);
           }
         }}
         {...rest}

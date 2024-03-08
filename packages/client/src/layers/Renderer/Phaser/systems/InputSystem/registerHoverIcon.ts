@@ -19,6 +19,7 @@ import { InputUtils } from "./createInputSystem";
 import { filterNullish } from "@latticexyz/utils";
 import { worldCoordEq } from "../../../../../utils/coords";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
+import { getPositionsWithinRange } from "../../../../../utils/distance";
 
 export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: InputUtils) {
   const {
@@ -133,6 +134,27 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
         }
       }
 
+      // attempt to calculate the best path to attack
+      // before calling getMoveAndAttackPath
+      // getMoveAndAttackPath is expensive and we want to avoid calling it if we can
+      const cannotMoveToPreferredEndPosition = !hasPotentialPath(selectedEntity, preferredEndPosition);
+      if (cannotMoveToPreferredEndPosition) {
+        const enemyPosition = getComponentValue(Position, hoveredAttackableEntity);
+        if (!enemyPosition) return;
+
+        const range = getComponentValue(Range, selectedEntity);
+        if (!range) return;
+
+        const coordsInRangeOfTarget = getPositionsWithinRange(enemyPosition, Math.min(range.min, 1), range.max);
+        for (const coord of coordsInRangeOfTarget) {
+          if (hasPotentialPath(selectedEntity, coord)) {
+            preferredEndPosition = coord;
+            console.warn(`Found a position in range of target: ${coord.x}, ${coord.y}`);
+            break;
+          }
+        }
+      }
+
       // if we make it to here, calculate a move and attack path
       // and show it to the user
       const moveAndAttackPath = getMoveAndAttackPath(
@@ -181,7 +203,7 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
       return;
     }
 
-    if (hasPotentialPath(selectedEntity, hoveredPosition) || hoveringNextPosition) {
+    if (!nextPosition && (hasPotentialPath(selectedEntity, hoveredPosition) || hoveringNextPosition)) {
       input.setCursor("url(public/assets/move.png), pointer");
       return;
     }

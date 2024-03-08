@@ -56,15 +56,15 @@ export enum Sprites {
 
   Swordsman,
   Pikeman,
-  Golem,
+  Halberdier,
 
   Archer,
   Catapult,
-  Wizard,
+  Marksman,
 
-  Rider,
+  Pillager,
   Knight,
-  Dragon,
+  Dragoon,
 
   Brute,
 
@@ -108,6 +108,7 @@ export enum Animations {
   TileOutlineRed = "TileOutlineRed",
   TileOutlineYellow = "TileOutlineYellow",
   TileOutlineWhite = "TileOutlineWhite",
+  TileOutlineBlue = "TileOutlineBlue",
 
   TileSelect = "TileSelect",
   Banner = "Banner",
@@ -125,39 +126,39 @@ export enum Animations {
   // Units
   SwordsmanIdle = "SwordsmanIdle",
   PikemanIdle = "PikemanIdle",
-  GolemIdle = "GolemIdle",
+  HalberdierIdle = "HalberdierIdle",
 
   ArcherIdle = "ArcherIdle",
   CatapultIdle = "CatapultIdle",
-  WizardIdle = "WizardIdle",
+  MarksmanIdle = "MarksmanIdle",
 
-  RiderIdle = "RiderIdle",
+  PillagerIdle = "PillagerIdle",
   KnightIdle = "KnightIdle",
-  DragonIdle = "DragonIdle",
+  DragoonIdle = "DragoonIdle",
 
   SwordsmanAttack = "SwordsmanAttack",
   PikemanAttack = "PikemanAttack",
-  GolemAttack = "GolemAttack",
+  HalberdierAttack = "HalberdierAttack",
 
   ArcherAttack = "ArcherAttack",
   CatapultAttack = "CatapultAttack",
-  WizardAttack = "WizardAttack",
+  MarksmanAttack = "MarksmanAttack",
 
-  RiderAttack = "RiderAttack",
+  PillagerAttack = "PillagerAttack",
   KnightAttack = "KnightAttack",
-  DragonAttack = "DragonAttack",
+  DragoonAttack = "DragoonAttack",
 
   SwordsmanDeath = "SwordsmanDeath",
   PikemanDeath = "PikemanDeath",
-  GolemDeath = "GolemDeath",
+  HalberdierDeath = "HalberdierDeath",
 
   ArcherDeath = "ArcherDeath",
   CatapultDeath = "CatapultDeath",
-  WizardDeath = "WizardDeath",
+  MarksmanDeath = "MarksmanDeath",
 
-  RiderDeath = "RiderDeath",
+  PillagerDeath = "PillagerDeath",
   KnightDeath = "KnightDeath",
-  DragonDeath = "DragonDeath",
+  DragoonDeath = "DragoonDeath",
 
   BruteIdle = "BruteIdle",
   BruteAttack = "BruteAttack",
@@ -172,13 +173,13 @@ function createWalkAnimations() {
   return [
     UnitTypes.Swordsman,
     UnitTypes.Pikeman,
-    UnitTypes.Golem,
+    UnitTypes.Halberdier,
     UnitTypes.Archer,
     UnitTypes.Catapult,
-    UnitTypes.Wizard,
-    UnitTypes.Rider,
+    UnitTypes.Marksman,
+    UnitTypes.Pillager,
     UnitTypes.Knight,
-    UnitTypes.Dragon,
+    UnitTypes.Dragoon,
     UnitTypes.Brute,
   ].reduce((anims, unitType) => {
     anims[unitType] = [`${unitType}WalkUp`, `${unitType}WalkDown`, `${unitType}WalkLeft`, `${unitType}WalkRight`];
@@ -194,15 +195,15 @@ export const UnitTypeSprites: Record<number, Sprites> = {
 
   [UnitTypes.Swordsman]: Sprites.Swordsman,
   [UnitTypes.Pikeman]: Sprites.Pikeman,
-  [UnitTypes.Golem]: Sprites.Golem,
+  [UnitTypes.Halberdier]: Sprites.Halberdier,
 
   [UnitTypes.Archer]: Sprites.Archer,
   [UnitTypes.Catapult]: Sprites.Catapult,
-  [UnitTypes.Wizard]: Sprites.Wizard,
+  [UnitTypes.Marksman]: Sprites.Marksman,
 
-  [UnitTypes.Rider]: Sprites.Rider,
+  [UnitTypes.Pillager]: Sprites.Pillager,
   [UnitTypes.Knight]: Sprites.Knight,
-  [UnitTypes.Dragon]: Sprites.Dragon,
+  [UnitTypes.Dragoon]: Sprites.Dragoon,
 
   [UnitTypes.Brute]: Sprites.Brute,
 };
@@ -217,15 +218,15 @@ export const StructureTypeSprites: Record<number, Sprites> = {
 export const UnitTypeAnimations: Record<number, Animations> = {
   [UnitTypes.Swordsman]: Animations.SwordsmanIdle,
   [UnitTypes.Pikeman]: Animations.PikemanIdle,
-  [UnitTypes.Golem]: Animations.GolemIdle,
+  [UnitTypes.Halberdier]: Animations.HalberdierIdle,
 
   [UnitTypes.Archer]: Animations.ArcherIdle,
   [UnitTypes.Catapult]: Animations.CatapultIdle,
-  [UnitTypes.Wizard]: Animations.WizardIdle,
+  [UnitTypes.Marksman]: Animations.MarksmanIdle,
 
-  [UnitTypes.Rider]: Animations.RiderIdle,
+  [UnitTypes.Pillager]: Animations.PillagerIdle,
   [UnitTypes.Knight]: Animations.KnightIdle,
-  [UnitTypes.Dragon]: Animations.DragonIdle,
+  [UnitTypes.Dragoon]: Animations.DragoonIdle,
 
   [UnitTypes.Brute]: Animations.BruteIdle,
 };
@@ -233,15 +234,15 @@ export const UnitTypeAnimations: Record<number, Animations> = {
 export const UnitTypeAttackAnimations: Record<number, Animations> = {
   [UnitTypes.Swordsman]: Animations.SwordsmanAttack,
   [UnitTypes.Pikeman]: Animations.PikemanAttack,
-  [UnitTypes.Golem]: Animations.GolemAttack,
+  [UnitTypes.Halberdier]: Animations.HalberdierAttack,
 
   [UnitTypes.Archer]: Animations.ArcherAttack,
   [UnitTypes.Catapult]: Animations.CatapultAttack,
-  [UnitTypes.Wizard]: Animations.WizardAttack,
+  [UnitTypes.Marksman]: Animations.MarksmanAttack,
 
-  [UnitTypes.Rider]: Animations.RiderAttack,
+  [UnitTypes.Pillager]: Animations.PillagerAttack,
   [UnitTypes.Knight]: Animations.KnightAttack,
-  [UnitTypes.Dragon]: Animations.DragonAttack,
+  [UnitTypes.Dragoon]: Animations.DragoonAttack,
 
   [UnitTypes.Brute]: Animations.BruteAttack,
 };
@@ -249,15 +250,15 @@ export const UnitTypeAttackAnimations: Record<number, Animations> = {
 export const UnitTypeDeathAnimations: Record<number, Animations> = {
   [UnitTypes.Swordsman]: Animations.SwordsmanDeath,
   [UnitTypes.Pikeman]: Animations.PikemanDeath,
-  [UnitTypes.Golem]: Animations.GolemDeath,
+  [UnitTypes.Halberdier]: Animations.HalberdierDeath,
 
   [UnitTypes.Archer]: Animations.ArcherDeath,
   [UnitTypes.Catapult]: Animations.CatapultDeath,
-  [UnitTypes.Wizard]: Animations.WizardDeath,
+  [UnitTypes.Marksman]: Animations.MarksmanDeath,
 
-  [UnitTypes.Rider]: Animations.RiderDeath,
+  [UnitTypes.Pillager]: Animations.PillagerDeath,
   [UnitTypes.Knight]: Animations.KnightDeath,
-  [UnitTypes.Dragon]: Animations.DragonDeath,
+  [UnitTypes.Dragoon]: Animations.DragoonDeath,
 
   [UnitTypes.Brute]: Animations.BruteDeath,
 };

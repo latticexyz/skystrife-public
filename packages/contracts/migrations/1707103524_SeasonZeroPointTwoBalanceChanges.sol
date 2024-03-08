@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
-import { ArcherTemplate, DragonTemplate, GoldMineTemplate, GolemTemplate, KnightTemplate, PikemanTemplate, RiderTemplate, SettlementTemplate, SwordsmanTemplate, SpawnSettlementTemplate, WizardTemplate } from "../src/codegen/Templates.sol";
+import { ArcherTemplate, DragoonTemplate, GoldMineTemplate, HalberdierTemplate, KnightTemplate, PikemanTemplate, PillagerTemplate, SettlementTemplate, SwordsmanTemplate, SpawnSettlementTemplate, MarksmanTemplate } from "../src/codegen/Templates.sol";
 
 contract SeasonZeroPointTwoBalanceChanges is Script {
   function run(address worldAddress) external {
@@ -16,16 +16,16 @@ contract SeasonZeroPointTwoBalanceChanges is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     ArcherTemplate();
-    DragonTemplate();
+    DragoonTemplate();
     GoldMineTemplate();
-    GolemTemplate();
+    HalberdierTemplate();
     KnightTemplate();
     PikemanTemplate();
-    RiderTemplate();
+    PillagerTemplate();
     SettlementTemplate();
     SwordsmanTemplate();
     SpawnSettlementTemplate();
-    WizardTemplate();
+    MarksmanTemplate();
 
     vm.stopBroadcast();
   }

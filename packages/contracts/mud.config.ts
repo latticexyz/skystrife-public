@@ -10,26 +10,26 @@ export default mudConfig({
       "Unknown", // 0
       "Swordsman", // 1
       "Pikeman", // 2
-      "Golem", // 3
-      "Rider", // 4
+      "Halberdier", // 3
+      "Pillager", // 4
       "Knight", // 5
-      "Dragon", // 6
+      "Dragoon", // 6
       "Archer", // 7
       "Catapult", // 8
-      "Wizard", // 9
+      "Marksman", // 9
       "Brute", // 10
     ],
     CombatArchetypes: [
       "Unknown", // 0
       "Swordsman", // 1
       "Pikeman", // 2
-      "Golem", // 3
-      "Rider", // 4
+      "Halberdier", // 3
+      "Pillager", // 4
       "Knight", // 5
-      "Dragon", // 6
+      "Dragoon", // 6
       "Archer", // 7
       "Catapult", // 8
-      "Wizard", // 9
+      "Marksman", // 9
       "Settlement", // 10
       "SpawnSettlement", // 11
       "GoldMine", // 12

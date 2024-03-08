@@ -21,14 +21,14 @@ function createSwordsmanModifiers() {
     })
   );
 
-  // Swordsman vs. Golem
+  // Swordsman vs. Halberdier
   ArchetypeModifier.set(
     CombatArchetypes.Swordsman,
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     ArchetypeModifierData({
       mod: 50,
       attackerArchetype: CombatArchetypes.Swordsman,
-      defenderArchetype: CombatArchetypes.Golem
+      defenderArchetype: CombatArchetypes.Halberdier
     })
   );
 
@@ -43,14 +43,14 @@ function createSwordsmanModifiers() {
     })
   );
 
-  // Swordsman vs. Rider
+  // Swordsman vs. Pillager
   ArchetypeModifier.set(
     CombatArchetypes.Swordsman,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: 0,
       attackerArchetype: CombatArchetypes.Swordsman,
-      defenderArchetype: CombatArchetypes.Rider
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
 
@@ -65,14 +65,14 @@ function createSwordsmanModifiers() {
     })
   );
 
-  // Swordsman vs. Dragon
+  // Swordsman vs. Dragoon
   ArchetypeModifier.set(
     CombatArchetypes.Swordsman,
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     ArchetypeModifierData({
       mod: -25,
       attackerArchetype: CombatArchetypes.Swordsman,
-      defenderArchetype: CombatArchetypes.Dragon
+      defenderArchetype: CombatArchetypes.Dragoon
     })
   );
 
@@ -98,14 +98,14 @@ function createSwordsmanModifiers() {
     })
   );
 
-  // Swordsman vs. Wizard
+  // Swordsman vs. Marksman
   ArchetypeModifier.set(
     CombatArchetypes.Swordsman,
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     ArchetypeModifierData({
       mod: 0,
       attackerArchetype: CombatArchetypes.Swordsman,
-      defenderArchetype: CombatArchetypes.Wizard
+      defenderArchetype: CombatArchetypes.Marksman
     })
   );
 
@@ -166,14 +166,14 @@ function createPikemanModifiers() {
       defenderArchetype: CombatArchetypes.Brute
     })
   );
-  // Pikeman vs. Rider
+  // Pikeman vs. Pillager
   ArchetypeModifier.set(
     CombatArchetypes.Pikeman,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: 0,
       attackerArchetype: CombatArchetypes.Pikeman,
-      defenderArchetype: CombatArchetypes.Rider
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
   // Pikeman vs. Knight
@@ -186,14 +186,14 @@ function createPikemanModifiers() {
       defenderArchetype: CombatArchetypes.Knight
     })
   );
-  // Pikeman vs. Dragon
+  // Pikeman vs. Dragoon
   ArchetypeModifier.set(
     CombatArchetypes.Pikeman,
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     ArchetypeModifierData({
       mod: 100,
       attackerArchetype: CombatArchetypes.Pikeman,
-      defenderArchetype: CombatArchetypes.Dragon
+      defenderArchetype: CombatArchetypes.Dragoon
     })
   );
   // Pikeman vs. Archer
@@ -216,14 +216,14 @@ function createPikemanModifiers() {
       defenderArchetype: CombatArchetypes.Catapult
     })
   );
-  // Pikeman vs. Wizard
+  // Pikeman vs. Marksman
   ArchetypeModifier.set(
     CombatArchetypes.Pikeman,
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     ArchetypeModifierData({
       mod: 0,
       attackerArchetype: CombatArchetypes.Pikeman,
-      defenderArchetype: CombatArchetypes.Wizard
+      defenderArchetype: CombatArchetypes.Marksman
     })
   );
   // Pikeman vs. Settlement
@@ -258,117 +258,117 @@ function createPikemanModifiers() {
   );
 }
 
-// G O L E M   M O D I F I E R S
-function createGolemModifiers() {
-  // Golem vs. Swordsman
+// H A L B E R D I E R   M O D I F I E R S
+function createHalberdierModifiers() {
+  // Halberdier vs. Swordsman
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     CombatArchetypes.Swordsman,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Golem,
+      attackerArchetype: CombatArchetypes.Halberdier,
       defenderArchetype: CombatArchetypes.Swordsman
     })
   );
 
-  // Golem vs. Brute
+  // Halberdier vs. Brute
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     CombatArchetypes.Brute,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Golem,
+      attackerArchetype: CombatArchetypes.Halberdier,
       defenderArchetype: CombatArchetypes.Brute
     })
   );
 
-  // Golem vs. Rider
+  // Halberdier vs. Pillager
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Halberdier,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Golem,
-      defenderArchetype: CombatArchetypes.Rider
+      attackerArchetype: CombatArchetypes.Halberdier,
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
-  // Golem vs. Knight
+  // Halberdier vs. Knight
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     CombatArchetypes.Knight,
     ArchetypeModifierData({
       mod: 100,
-      attackerArchetype: CombatArchetypes.Golem,
+      attackerArchetype: CombatArchetypes.Halberdier,
       defenderArchetype: CombatArchetypes.Knight
     })
   );
-  // Golem vs. Dragon
+  // Halberdier vs. Dragoon
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Halberdier,
+    CombatArchetypes.Dragoon,
     ArchetypeModifierData({
       mod: 100,
-      attackerArchetype: CombatArchetypes.Golem,
-      defenderArchetype: CombatArchetypes.Dragon
+      attackerArchetype: CombatArchetypes.Halberdier,
+      defenderArchetype: CombatArchetypes.Dragoon
     })
   );
-  // Golem vs. Archer
+  // Halberdier vs. Archer
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     CombatArchetypes.Archer,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Golem,
+      attackerArchetype: CombatArchetypes.Halberdier,
       defenderArchetype: CombatArchetypes.Archer
     })
   );
-  // Golem vs. Catapult
+  // Halberdier vs. Catapult
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     CombatArchetypes.Catapult,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Golem,
+      attackerArchetype: CombatArchetypes.Halberdier,
       defenderArchetype: CombatArchetypes.Catapult
     })
   );
-  // Golem vs. Wizard
+  // Halberdier vs. Marksman
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Halberdier,
+    CombatArchetypes.Marksman,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Golem,
-      defenderArchetype: CombatArchetypes.Wizard
+      attackerArchetype: CombatArchetypes.Halberdier,
+      defenderArchetype: CombatArchetypes.Marksman
     })
   );
-  // Golem vs. Settlement
+  // Halberdier vs. Settlement
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     CombatArchetypes.Settlement,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Golem,
+      attackerArchetype: CombatArchetypes.Halberdier,
       defenderArchetype: CombatArchetypes.Settlement
     })
   );
-  // Golem vs. SpawnSettlement
+  // Halberdier vs. SpawnSettlement
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     CombatArchetypes.SpawnSettlement,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Golem,
+      attackerArchetype: CombatArchetypes.Halberdier,
       defenderArchetype: CombatArchetypes.SpawnSettlement
     })
   );
-  // Golem vs. GoldMine
+  // Halberdier vs. GoldMine
   ArchetypeModifier.set(
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     CombatArchetypes.GoldMine,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Golem,
+      attackerArchetype: CombatArchetypes.Halberdier,
       defenderArchetype: CombatArchetypes.GoldMine
     })
   );
@@ -396,24 +396,24 @@ function createBruteModifiers() {
       defenderArchetype: CombatArchetypes.Pikeman
     })
   );
-  // Brute vs. Golem
+  // Brute vs. Halberdier
   ArchetypeModifier.set(
     CombatArchetypes.Brute,
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     ArchetypeModifierData({
       mod: 0,
       attackerArchetype: CombatArchetypes.Brute,
-      defenderArchetype: CombatArchetypes.Golem
+      defenderArchetype: CombatArchetypes.Halberdier
     })
   );
-  // Brute vs. Rider
+  // Brute vs. Pillager
   ArchetypeModifier.set(
     CombatArchetypes.Brute,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: 0,
       attackerArchetype: CombatArchetypes.Brute,
-      defenderArchetype: CombatArchetypes.Rider
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
   // Brute vs. Knight
@@ -426,14 +426,14 @@ function createBruteModifiers() {
       defenderArchetype: CombatArchetypes.Knight
     })
   );
-  // Brute vs. Dragon
+  // Brute vs. Dragoon
   ArchetypeModifier.set(
     CombatArchetypes.Brute,
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     ArchetypeModifierData({
       mod: 0,
       attackerArchetype: CombatArchetypes.Brute,
-      defenderArchetype: CombatArchetypes.Dragon
+      defenderArchetype: CombatArchetypes.Dragoon
     })
   );
   // Brute vs. Archer
@@ -456,14 +456,14 @@ function createBruteModifiers() {
       defenderArchetype: CombatArchetypes.Catapult
     })
   );
-  // Brute vs. Wizard
+  // Brute vs. Marksman
   ArchetypeModifier.set(
     CombatArchetypes.Brute,
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     ArchetypeModifierData({
       mod: -25,
       attackerArchetype: CombatArchetypes.Brute,
-      defenderArchetype: CombatArchetypes.Wizard
+      defenderArchetype: CombatArchetypes.Marksman
     })
   );
   // Brute vs. Settlement
@@ -499,138 +499,138 @@ function createBruteModifiers() {
 }
 
 //
-// R I D E R   M O D I F I E R S
-function createRiderModifiers() {
-  // Rider vs. Swordsman
+// P I L L A G E R   M O D I F I E R S
+function createPillagerModifiers() {
+  // Pillager vs. Swordsman
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     CombatArchetypes.Swordsman,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Rider,
+      attackerArchetype: CombatArchetypes.Pillager,
       defenderArchetype: CombatArchetypes.Swordsman
     })
   );
-  // Rider vs. Pikeman
+  // Pillager vs. Pikeman
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     CombatArchetypes.Pikeman,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Rider,
+      attackerArchetype: CombatArchetypes.Pillager,
       defenderArchetype: CombatArchetypes.Pikeman
     })
   );
-  // Rider vs. Golem
+  // Pillager vs. Halberdier
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
-    CombatArchetypes.Golem,
+    CombatArchetypes.Pillager,
+    CombatArchetypes.Halberdier,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Rider,
-      defenderArchetype: CombatArchetypes.Golem
+      attackerArchetype: CombatArchetypes.Pillager,
+      defenderArchetype: CombatArchetypes.Halberdier
     })
   );
 
-  // Rider vs. Brute
+  // Pillager vs. Brute
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     CombatArchetypes.Brute,
     ArchetypeModifierData({
       mod: -50,
-      attackerArchetype: CombatArchetypes.Rider,
+      attackerArchetype: CombatArchetypes.Pillager,
       defenderArchetype: CombatArchetypes.Brute
     })
   );
 
-  // Rider vs. Rider
+  // Pillager vs. Pillager
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: -50,
-      attackerArchetype: CombatArchetypes.Rider,
-      defenderArchetype: CombatArchetypes.Rider
+      attackerArchetype: CombatArchetypes.Pillager,
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
 
-  // Rider vs. Knight
+  // Pillager vs. Knight
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     CombatArchetypes.Knight,
     ArchetypeModifierData({
       mod: -50,
-      attackerArchetype: CombatArchetypes.Rider,
+      attackerArchetype: CombatArchetypes.Pillager,
       defenderArchetype: CombatArchetypes.Knight
     })
   );
-  // Rider vs. Dragon
+  // Pillager vs. Dragoon
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Pillager,
+    CombatArchetypes.Dragoon,
     ArchetypeModifierData({
       mod: -50,
-      attackerArchetype: CombatArchetypes.Rider,
-      defenderArchetype: CombatArchetypes.Dragon
+      attackerArchetype: CombatArchetypes.Pillager,
+      defenderArchetype: CombatArchetypes.Dragoon
     })
   );
-  // Rider vs. Archer
+  // Pillager vs. Archer
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     CombatArchetypes.Archer,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Rider,
+      attackerArchetype: CombatArchetypes.Pillager,
       defenderArchetype: CombatArchetypes.Archer
     })
   );
-  // Rider vs. Catapult
+  // Pillager vs. Catapult
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     CombatArchetypes.Catapult,
     ArchetypeModifierData({
       mod: 100,
-      attackerArchetype: CombatArchetypes.Rider,
+      attackerArchetype: CombatArchetypes.Pillager,
       defenderArchetype: CombatArchetypes.Catapult
     })
   );
-  // Rider vs. Wizard
+  // Pillager vs. Marksman
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Pillager,
+    CombatArchetypes.Marksman,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Rider,
-      defenderArchetype: CombatArchetypes.Wizard
+      attackerArchetype: CombatArchetypes.Pillager,
+      defenderArchetype: CombatArchetypes.Marksman
     })
   );
-  // Rider vs. Settlement
+  // Pillager vs. Settlement
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     CombatArchetypes.Settlement,
     ArchetypeModifierData({
       mod: 150,
-      attackerArchetype: CombatArchetypes.Rider,
+      attackerArchetype: CombatArchetypes.Pillager,
       defenderArchetype: CombatArchetypes.Settlement
     })
   );
-  // Rider vs. SpawnSettlement
+  // Pillager vs. SpawnSettlement
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     CombatArchetypes.SpawnSettlement,
     ArchetypeModifierData({
       mod: 50,
-      attackerArchetype: CombatArchetypes.Rider,
+      attackerArchetype: CombatArchetypes.Pillager,
       defenderArchetype: CombatArchetypes.SpawnSettlement
     })
   );
-  // Rider vs. GoldMine
+  // Pillager vs. GoldMine
   ArchetypeModifier.set(
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     CombatArchetypes.GoldMine,
     ArchetypeModifierData({
       mod: 150,
-      attackerArchetype: CombatArchetypes.Rider,
+      attackerArchetype: CombatArchetypes.Pillager,
       defenderArchetype: CombatArchetypes.GoldMine
     })
   );
@@ -659,14 +659,14 @@ function createKnightModifiers() {
       defenderArchetype: CombatArchetypes.Pikeman
     })
   );
-  // Knight vs. Golem
+  // Knight vs. Halberdier
   ArchetypeModifier.set(
     CombatArchetypes.Knight,
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     ArchetypeModifierData({
       mod: -50,
       attackerArchetype: CombatArchetypes.Knight,
-      defenderArchetype: CombatArchetypes.Golem
+      defenderArchetype: CombatArchetypes.Halberdier
     })
   );
 
@@ -681,24 +681,24 @@ function createKnightModifiers() {
     })
   );
 
-  // Knight vs. Rider
+  // Knight vs. Pillager
   ArchetypeModifier.set(
     CombatArchetypes.Knight,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: 100,
       attackerArchetype: CombatArchetypes.Knight,
-      defenderArchetype: CombatArchetypes.Rider
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
-  // Knight vs. Dragon
+  // Knight vs. Dragoon
   ArchetypeModifier.set(
     CombatArchetypes.Knight,
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     ArchetypeModifierData({
       mod: 0,
       attackerArchetype: CombatArchetypes.Knight,
-      defenderArchetype: CombatArchetypes.Dragon
+      defenderArchetype: CombatArchetypes.Dragoon
     })
   );
   // Knight vs. Archer
@@ -721,14 +721,14 @@ function createKnightModifiers() {
       defenderArchetype: CombatArchetypes.Catapult
     })
   );
-  // Knight vs. Wizard
+  // Knight vs. Marksman
   ArchetypeModifier.set(
     CombatArchetypes.Knight,
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     ArchetypeModifierData({
       mod: 100,
       attackerArchetype: CombatArchetypes.Knight,
-      defenderArchetype: CombatArchetypes.Wizard
+      defenderArchetype: CombatArchetypes.Marksman
     })
   );
   // Knight vs. Settlement
@@ -764,125 +764,125 @@ function createKnightModifiers() {
 }
 
 //
-// D R A G O N   M O D I F I E R S
-function createDragonModifiers() {
-  // Dragon vs. Swordsman
+// D R A G O O N   M O D I F I E R S
+function createDragoonModifiers() {
+  // Dragoon vs. Swordsman
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     CombatArchetypes.Swordsman,
     ArchetypeModifierData({
       mod: 50,
-      attackerArchetype: CombatArchetypes.Dragon,
+      attackerArchetype: CombatArchetypes.Dragoon,
       defenderArchetype: CombatArchetypes.Swordsman
     })
   );
-  // Dragon vs. Pikeman
+  // Dragoon vs. Pikeman
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     CombatArchetypes.Pikeman,
     ArchetypeModifierData({
       mod: -50,
-      attackerArchetype: CombatArchetypes.Dragon,
+      attackerArchetype: CombatArchetypes.Dragoon,
       defenderArchetype: CombatArchetypes.Pikeman
     })
   );
-  // Dragon vs. Golem
+  // Dragoon vs. Halberdier
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
-    CombatArchetypes.Golem,
+    CombatArchetypes.Dragoon,
+    CombatArchetypes.Halberdier,
     ArchetypeModifierData({
       mod: -50,
-      attackerArchetype: CombatArchetypes.Dragon,
-      defenderArchetype: CombatArchetypes.Golem
+      attackerArchetype: CombatArchetypes.Dragoon,
+      defenderArchetype: CombatArchetypes.Halberdier
     })
   );
-  // Dragon vs. Brute
+  // Dragoon vs. Brute
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     CombatArchetypes.Brute,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Dragon,
+      attackerArchetype: CombatArchetypes.Dragoon,
       defenderArchetype: CombatArchetypes.Brute
     })
   );
-  // Dragon vs. Rider
+  // Dragoon vs. Pillager
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Dragoon,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: 100,
-      attackerArchetype: CombatArchetypes.Dragon,
-      defenderArchetype: CombatArchetypes.Rider
+      attackerArchetype: CombatArchetypes.Dragoon,
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
-  // Dragon vs. Knight
+  // Dragoon vs. Knight
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     CombatArchetypes.Knight,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Dragon,
+      attackerArchetype: CombatArchetypes.Dragoon,
       defenderArchetype: CombatArchetypes.Knight
     })
   );
-  // Dragon vs. Archer
+  // Dragoon vs. Archer
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     CombatArchetypes.Archer,
     ArchetypeModifierData({
       mod: 100,
-      attackerArchetype: CombatArchetypes.Dragon,
+      attackerArchetype: CombatArchetypes.Dragoon,
       defenderArchetype: CombatArchetypes.Archer
     })
   );
-  // Dragon vs. Catapult
+  // Dragoon vs. Catapult
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     CombatArchetypes.Catapult,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Dragon,
+      attackerArchetype: CombatArchetypes.Dragoon,
       defenderArchetype: CombatArchetypes.Catapult
     })
   );
-  // Dragon vs. Wizard
+  // Dragoon vs. Marksman
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Dragoon,
+    CombatArchetypes.Marksman,
     ArchetypeModifierData({
       mod: 100,
-      attackerArchetype: CombatArchetypes.Dragon,
-      defenderArchetype: CombatArchetypes.Wizard
+      attackerArchetype: CombatArchetypes.Dragoon,
+      defenderArchetype: CombatArchetypes.Marksman
     })
   );
-  // Dragon vs. Settlement
+  // Dragoon vs. Settlement
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     CombatArchetypes.Settlement,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Dragon,
+      attackerArchetype: CombatArchetypes.Dragoon,
       defenderArchetype: CombatArchetypes.Settlement
     })
   );
-  // Dragon vs. SpawnSettlement
+  // Dragoon vs. SpawnSettlement
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     CombatArchetypes.SpawnSettlement,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Dragon,
+      attackerArchetype: CombatArchetypes.Dragoon,
       defenderArchetype: CombatArchetypes.SpawnSettlement
     })
   );
-  // Dragon vs. GoldMine
+  // Dragoon vs. GoldMine
   ArchetypeModifier.set(
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     CombatArchetypes.GoldMine,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Dragon,
+      attackerArchetype: CombatArchetypes.Dragoon,
       defenderArchetype: CombatArchetypes.GoldMine
     })
   );
@@ -911,14 +911,14 @@ function createArcherModifiers() {
       defenderArchetype: CombatArchetypes.Pikeman
     })
   );
-  // Archer vs. Golem
+  // Archer vs. Halberdier
   ArchetypeModifier.set(
     CombatArchetypes.Archer,
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     ArchetypeModifierData({
       mod: 100,
       attackerArchetype: CombatArchetypes.Archer,
-      defenderArchetype: CombatArchetypes.Golem
+      defenderArchetype: CombatArchetypes.Halberdier
     })
   );
   // Archer vs. Brute
@@ -931,14 +931,14 @@ function createArcherModifiers() {
       defenderArchetype: CombatArchetypes.Brute
     })
   );
-  // Archer vs. Rider
+  // Archer vs. Pillager
   ArchetypeModifier.set(
     CombatArchetypes.Archer,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: -25,
       attackerArchetype: CombatArchetypes.Archer,
-      defenderArchetype: CombatArchetypes.Rider
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
   // Archer vs. Knight
@@ -951,14 +951,14 @@ function createArcherModifiers() {
       defenderArchetype: CombatArchetypes.Knight
     })
   );
-  // Archer vs. Dragon
+  // Archer vs. Dragoon
   ArchetypeModifier.set(
     CombatArchetypes.Archer,
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     ArchetypeModifierData({
       mod: -25,
       attackerArchetype: CombatArchetypes.Archer,
-      defenderArchetype: CombatArchetypes.Dragon
+      defenderArchetype: CombatArchetypes.Dragoon
     })
   );
   // Archer vs. Catapult
@@ -971,14 +971,14 @@ function createArcherModifiers() {
       defenderArchetype: CombatArchetypes.Catapult
     })
   );
-  // Archer vs. Wizard
+  // Archer vs. Marksman
   ArchetypeModifier.set(
     CombatArchetypes.Archer,
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     ArchetypeModifierData({
       mod: 0,
       attackerArchetype: CombatArchetypes.Archer,
-      defenderArchetype: CombatArchetypes.Wizard
+      defenderArchetype: CombatArchetypes.Marksman
     })
   );
   // Archer vs. Settlement
@@ -1036,14 +1036,14 @@ function createCatapultModifiers() {
       defenderArchetype: CombatArchetypes.Pikeman
     })
   );
-  // Catapult vs. Golem
+  // Catapult vs. Halberdier
   ArchetypeModifier.set(
     CombatArchetypes.Catapult,
-    CombatArchetypes.Golem,
+    CombatArchetypes.Halberdier,
     ArchetypeModifierData({
       mod: 50,
       attackerArchetype: CombatArchetypes.Catapult,
-      defenderArchetype: CombatArchetypes.Golem
+      defenderArchetype: CombatArchetypes.Halberdier
     })
   );
   // Catapult vs. Brute
@@ -1051,19 +1051,19 @@ function createCatapultModifiers() {
     CombatArchetypes.Catapult,
     CombatArchetypes.Brute,
     ArchetypeModifierData({
-      mod: 150,
+      mod: 100,
       attackerArchetype: CombatArchetypes.Catapult,
       defenderArchetype: CombatArchetypes.Brute
     })
   );
-  // Catapult vs. Rider
+  // Catapult vs. Pillager
   ArchetypeModifier.set(
     CombatArchetypes.Catapult,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: -50,
       attackerArchetype: CombatArchetypes.Catapult,
-      defenderArchetype: CombatArchetypes.Rider
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
   // Catapult vs. Knight
@@ -1076,14 +1076,14 @@ function createCatapultModifiers() {
       defenderArchetype: CombatArchetypes.Knight
     })
   );
-  // Catapult vs. Dragon
+  // Catapult vs. Dragoon
   ArchetypeModifier.set(
     CombatArchetypes.Catapult,
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Dragoon,
     ArchetypeModifierData({
       mod: -50,
       attackerArchetype: CombatArchetypes.Catapult,
-      defenderArchetype: CombatArchetypes.Dragon
+      defenderArchetype: CombatArchetypes.Dragoon
     })
   );
   // Catapult vs. Archer
@@ -1096,14 +1096,14 @@ function createCatapultModifiers() {
       defenderArchetype: CombatArchetypes.Archer
     })
   );
-  // Catapult vs. Wizard
+  // Catapult vs. Marksman
   ArchetypeModifier.set(
     CombatArchetypes.Catapult,
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     ArchetypeModifierData({
       mod: 50,
       attackerArchetype: CombatArchetypes.Catapult,
-      defenderArchetype: CombatArchetypes.Wizard
+      defenderArchetype: CombatArchetypes.Marksman
     })
   );
   // Catapult vs. Settlement
@@ -1140,124 +1140,124 @@ function createCatapultModifiers() {
 
 //
 // W I Z A R D   M O D I F I E R S
-function createWizardModifiers() {
-  // Wizard vs. Swordsman
+function createMarksmanModifiers() {
+  // Marksman vs. Swordsman
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     CombatArchetypes.Swordsman,
     ArchetypeModifierData({
       mod: 100,
-      attackerArchetype: CombatArchetypes.Wizard,
+      attackerArchetype: CombatArchetypes.Marksman,
       defenderArchetype: CombatArchetypes.Swordsman
     })
   );
-  // Wizard vs. Pikeman
+  // Marksman vs. Pikeman
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     CombatArchetypes.Pikeman,
     ArchetypeModifierData({
       mod: 100,
-      attackerArchetype: CombatArchetypes.Wizard,
+      attackerArchetype: CombatArchetypes.Marksman,
       defenderArchetype: CombatArchetypes.Pikeman
     })
   );
-  // Wizard vs. Golem
+  // Marksman vs. Halberdier
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
-    CombatArchetypes.Golem,
+    CombatArchetypes.Marksman,
+    CombatArchetypes.Halberdier,
     ArchetypeModifierData({
       mod: 100,
-      attackerArchetype: CombatArchetypes.Wizard,
-      defenderArchetype: CombatArchetypes.Golem
+      attackerArchetype: CombatArchetypes.Marksman,
+      defenderArchetype: CombatArchetypes.Halberdier
     })
   );
-  // Wizard vs. Brute
+  // Marksman vs. Brute
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     CombatArchetypes.Brute,
     ArchetypeModifierData({
       mod: 50,
-      attackerArchetype: CombatArchetypes.Wizard,
+      attackerArchetype: CombatArchetypes.Marksman,
       defenderArchetype: CombatArchetypes.Brute
     })
   );
-  // Wizard vs. Rider
+  // Marksman vs. Pillager
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
-    CombatArchetypes.Rider,
+    CombatArchetypes.Marksman,
+    CombatArchetypes.Pillager,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Wizard,
-      defenderArchetype: CombatArchetypes.Rider
+      attackerArchetype: CombatArchetypes.Marksman,
+      defenderArchetype: CombatArchetypes.Pillager
     })
   );
-  // Wizard vs. Knight
+  // Marksman vs. Knight
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     CombatArchetypes.Knight,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Wizard,
+      attackerArchetype: CombatArchetypes.Marksman,
       defenderArchetype: CombatArchetypes.Knight
     })
   );
-  // Wizard vs. Dragon
+  // Marksman vs. Dragoon
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
-    CombatArchetypes.Dragon,
+    CombatArchetypes.Marksman,
+    CombatArchetypes.Dragoon,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Wizard,
-      defenderArchetype: CombatArchetypes.Dragon
+      attackerArchetype: CombatArchetypes.Marksman,
+      defenderArchetype: CombatArchetypes.Dragoon
     })
   );
-  // Wizard vs. Archer
+  // Marksman vs. Archer
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     CombatArchetypes.Archer,
     ArchetypeModifierData({
       mod: 0,
-      attackerArchetype: CombatArchetypes.Wizard,
+      attackerArchetype: CombatArchetypes.Marksman,
       defenderArchetype: CombatArchetypes.Archer
     })
   );
-  // Wizard vs. Catapult
+  // Marksman vs. Catapult
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     CombatArchetypes.Catapult,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Wizard,
+      attackerArchetype: CombatArchetypes.Marksman,
       defenderArchetype: CombatArchetypes.Catapult
     })
   );
-  // Wizard vs. Settlement
+  // Marksman vs. Settlement
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     CombatArchetypes.Settlement,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Wizard,
+      attackerArchetype: CombatArchetypes.Marksman,
       defenderArchetype: CombatArchetypes.Settlement
     })
   );
-  // Wizard vs. SpawnSettlement
+  // Marksman vs. SpawnSettlement
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     CombatArchetypes.SpawnSettlement,
     ArchetypeModifierData({
       mod: -50,
-      attackerArchetype: CombatArchetypes.Wizard,
+      attackerArchetype: CombatArchetypes.Marksman,
       defenderArchetype: CombatArchetypes.SpawnSettlement
     })
   );
-  // Wizard vs. GoldMine
+  // Marksman vs. GoldMine
   ArchetypeModifier.set(
-    CombatArchetypes.Wizard,
+    CombatArchetypes.Marksman,
     CombatArchetypes.GoldMine,
     ArchetypeModifierData({
       mod: -25,
-      attackerArchetype: CombatArchetypes.Wizard,
+      attackerArchetype: CombatArchetypes.Marksman,
       defenderArchetype: CombatArchetypes.GoldMine
     })
   );
@@ -1266,12 +1266,12 @@ function createWizardModifiers() {
 function createArchetypeModifiers() {
   createSwordsmanModifiers();
   createPikemanModifiers();
-  createGolemModifiers();
-  createRiderModifiers();
+  createHalberdierModifiers();
+  createPillagerModifiers();
   createKnightModifiers();
-  createDragonModifiers();
+  createDragoonModifiers();
   createArcherModifiers();
   createCatapultModifiers();
-  createWizardModifiers();
+  createMarksmanModifiers();
   createBruteModifiers();
 }

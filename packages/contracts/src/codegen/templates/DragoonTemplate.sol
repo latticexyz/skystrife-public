@@ -10,11 +10,11 @@ import { UnitTypes, CombatArchetypes, TerrainTypes, StructureTypes, ItemTypes } 
 
 import { Combat, CombatTableId, UnitType, UnitTypeTableId, CombatArchetype, CombatArchetypeTableId, StaminaOnKill, StaminaOnKillTableId, Range, RangeTableId, Movable, MovableTableId, Untraversable, UntraversableTableId, Tier, TierTableId } from "../index.sol";
 
-bytes32 constant templateId = "Wizard";
-bytes32 constant WizardTemplateId = templateId;
+bytes32 constant templateId = "Dragoon";
+bytes32 constant DragoonTemplateId = templateId;
 uint256 constant LENGTH = 8;
 
-function WizardTemplate() {
+function DragoonTemplate() {
   bytes32[] memory tableIds = new bytes32[](LENGTH);
   bytes32[] memory encodedLengthss = new bytes32[](LENGTH);
   bytes[] memory staticDatas = new bytes[](LENGTH);
@@ -33,17 +33,17 @@ function WizardTemplate() {
   tableIds[6] = ResourceId.unwrap(UntraversableTableId);
   tableIds[7] = ResourceId.unwrap(TierTableId);
 
-  (staticData, encodedLengths, dynamicData) = Combat.encode(250000, 250000, 0, 70000, 0, -100);
+  (staticData, encodedLengths, dynamicData) = Combat.encode(300000, 300000, 0, 70000, 0, -30);
   staticDatas[0] = staticData;
   encodedLengthss[0] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = UnitType.encode(UnitTypes(uint8(9)));
+  (staticData, encodedLengths, dynamicData) = UnitType.encode(UnitTypes(uint8(6)));
   staticDatas[1] = staticData;
   encodedLengthss[1] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = CombatArchetype.encode(CombatArchetypes(uint8(9)));
+  (staticData, encodedLengths, dynamicData) = CombatArchetype.encode(CombatArchetypes(uint8(6)));
   staticDatas[2] = staticData;
   encodedLengthss[2] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
@@ -53,12 +53,12 @@ function WizardTemplate() {
   encodedLengthss[3] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Range.encode(2, 2);
+  (staticData, encodedLengths, dynamicData) = Range.encode(0, 1);
   staticDatas[4] = staticData;
   encodedLengthss[4] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[4] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Movable.encode(3000);
+  (staticData, encodedLengths, dynamicData) = Movable.encode(5000);
   staticDatas[5] = staticData;
   encodedLengthss[5] = PackedCounter.unwrap(encodedLengths);
   dynamicDatas[5] = dynamicData;

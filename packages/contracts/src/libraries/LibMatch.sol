@@ -5,7 +5,7 @@ import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
 import { IWorld } from "../codegen/world/IWorld.sol";
 import { PositionTableId, LevelPosition, LevelTemplates, LevelTemplatesIndex, MatchConfig, MatchReady, Player, Name, NameTableId, SpawnPoint, SpawnReservedBy, Position, PositionData, PlayerTableId, PlayerReady, MatchPlayers } from "../codegen/index.sol";
-import { GolemTemplateId, MapCenterMarkerTemplateId, SpawnSettlementTemplateId } from "../codegen/Templates.sol";
+import { HalberdierTemplateId, MapCenterMarkerTemplateId, SpawnSettlementTemplateId } from "../codegen/Templates.sol";
 
 import { spawnTemplateAt } from "../libraries/LibTemplate.sol";
 import { getLevelSpawnIndices } from "../libraries/LibUtils.sol";

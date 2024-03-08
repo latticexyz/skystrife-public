@@ -88,7 +88,7 @@ export function ChooseLevel({
       <div className="h-3" />
 
       <div>
-        <div className="relative z-10">
+        <div style={{ zIndex: 1200 }} className="relative">
           <DropdownMenu.Root>
             <DropdownMenu.Trigger className="w-full">
               <div className="w-full p-2 border rounded-md bg-white text-ss-text-default">

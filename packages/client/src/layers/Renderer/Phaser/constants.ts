@@ -4,7 +4,7 @@ export const TIPS = [
   "Press [ENTER] to cycle through your units with available energy points.",
   "Higher tiered units are not only stronger, but have higher max energy points and energy regen rate!",
   "Infantry type units (Swordsman, Pikeman, etc) are good in frontline combat: they can deal a lot of damage when attacking and defending.",
-  "Cavalry type units (Rider, Knight, etc) have low strength and deal less damage when defending, but are fast.",
+  "Cavalry type units (Pillager, Knight, etc) have low strength and deal less damage when defending, but are fast.",
   "Ranged type units (Archer, Catapult, etc) have low strength and deal less damage when defending, but can attack from a distance. Note: They cannot attack units directly next to them.",
   "All structures that produce units (Settlements, Villages) can run out of energy points. When this happens, they will never produce units again.",
   "The live launch of Sky Strife will run a rollup based on Optimism Bedrock with data availability on Ethereum Mainnet.",

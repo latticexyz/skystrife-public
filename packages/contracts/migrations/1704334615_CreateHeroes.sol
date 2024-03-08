@@ -7,7 +7,7 @@ import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 // table imports
 import { HeroInRotation, HeroInSeasonPassRotation } from "../src/codegen/index.sol";
-import { GolemTemplateId, DragonTemplateId, WizardTemplateId, GolemTemplate, DragonTemplate, WizardTemplate } from "../src/codegen/Templates.sol";
+import { HalberdierTemplateId, DragoonTemplateId, MarksmanTemplateId, HalberdierTemplate, DragoonTemplate, MarksmanTemplate } from "../src/codegen/Templates.sol";
 
 contract CreateHeroes is Script {
   function run(address worldAddress) external {
@@ -17,13 +17,13 @@ contract CreateHeroes is Script {
     uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
     vm.startBroadcast(deployerPrivateKey);
 
-    GolemTemplate();
-    DragonTemplate();
-    WizardTemplate();
+    HalberdierTemplate();
+    DragoonTemplate();
+    MarksmanTemplate();
 
-    HeroInRotation.set(GolemTemplateId, true);
-    HeroInSeasonPassRotation.set(DragonTemplateId, true);
-    HeroInSeasonPassRotation.set(WizardTemplateId, true);
+    HeroInRotation.set(HalberdierTemplateId, true);
+    HeroInSeasonPassRotation.set(DragoonTemplateId, true);
+    HeroInSeasonPassRotation.set(MarksmanTemplateId, true);
 
     vm.stopBroadcast();
   }

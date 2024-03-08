@@ -77,7 +77,7 @@ export function Chat() {
 
   const focusInput = useCallback(() => {
     inputRef.current?.focus();
-    disableMapInteraction();
+    disableMapInteraction("chat");
     setInputFocused(true);
     setLastInteraction(DateTime.now());
   }, [disableMapInteraction]);
@@ -85,7 +85,7 @@ export function Chat() {
     if (!inputFocused) return;
 
     inputRef.current?.blur();
-    enableMapInteraction();
+    enableMapInteraction("chat");
     setInputFocused(false);
     setLastInteraction(DateTime.now());
   }, [enableMapInteraction, inputFocused]);

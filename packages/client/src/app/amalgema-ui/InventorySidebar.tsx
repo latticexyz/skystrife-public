@@ -18,6 +18,7 @@ import { useExternalAccount } from "./hooks/useExternalAccount";
 import { HoleskyEth } from "./HoleskyEth";
 import { MATCH_COST } from "./SummonIsland/MatchCost";
 import { useCurrentMatchReward } from "./hooks/useCurrentMatchReward";
+import { useHasSkyKeyExternalWallet } from "./hooks/useHasSkyKey";
 
 const DECIMALS = 18;
 
@@ -60,6 +61,7 @@ function Resources() {
 export function InventorySidebar() {
   const { address } = useExternalAccount();
   const matchReward = useCurrentMatchReward();
+  const hasSkyKey = useHasSkyKeyExternalWallet();
 
   return (
     <div className="flex flex-col bg-ss-bg-1 border-l border-ss-stroke h-screen overflow-y-auto p-8 pt-4 items-stretch w-[420px] shrink-0">
@@ -75,6 +77,16 @@ export function InventorySidebar() {
 
       {address && (
         <>
+          {import.meta.env.DEV && hasSkyKey && (
+            <>
+              <div className="h-8 shrink-0" />
+              <div className="text-red-600 font-bold text-2xl text-center">
+                <p>YOU ARE LOGGED IN WITH THE SKYKEY WALLET.</p>
+                <p>You are able to create matches without using 🔮</p>
+              </div>
+            </>
+          )}
+
           <div className="h-8 shrink-0" />
           <SessionWalletManager />
         </>

@@ -13,7 +13,7 @@
     "devnode": "DEBUG=mud:* mud devnode --blocktime=2",
     "test": "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 DEBUG=mud:* mud test",
     "gas-report": "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 GAS_REPORTER_ENABLED=true mud test --forgeOptions='-vvv' | gas-report --save gas-report.json --stdin",
-    "dev": "pnpm run templategen && PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 pnpm mud dev-contracts",
+    "dev": "pnpm run templategen && PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 pnpm mud deploy --rpc=http://127.0.0.1:8545",
     "deploy:dev": "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 DEBUG=mud:* mud deploy",
     "----- REDSTONE -----": "---------------------------",
     "deploy:redstone": "DEBUG=mud:* mud deploy --profile=redstone",

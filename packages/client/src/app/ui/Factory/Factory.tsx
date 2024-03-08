@@ -1,19 +1,36 @@
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Entity, getComponentValueStrict, Has, HasValue, removeComponent, setComponent } from "@latticexyz/recs";
+import {
+  Entity,
+  getComponentValueStrict,
+  getComponentValue,
+  Has,
+  HasValue,
+  removeComponent,
+  setComponent,
+} from "@latticexyz/recs";
 import { useCallback, useEffect, useMemo } from "react";
 import { twMerge } from "tailwind-merge";
-import { UnitTypeSprites } from "../../../layers/Renderer/Phaser/phaserConstants";
 import { useMUD } from "../../../useMUD";
 import { usePlayerGold } from "../hooks/usePlayerGold";
 import { ClickWrapper } from "../Theme/ClickWrapper";
-import { SpriteImage } from "../Theme/SpriteImage";
-import { BuildSprites } from "./BuildSprites";
 import { BuildData } from "./types";
 import { useCurrentPlayer } from "../hooks/useCurrentPlayer";
 import { UnitTypes } from "../../../layers/Network";
 import { useTileCoordToScreenCoord } from "../hooks/useTileCoordToScreenCoord";
 import { hexToString, Hex } from "viem";
 import { decodeMatchEntity } from "../../../decodeMatchEntity";
+import { Portrait } from "../EntityPortrait";
+import { Card } from "../Theme/SkyStrife/Card";
+
+const UnitTypeHotkey = {
+  [UnitTypes.Swordsman]: "Q",
+  [UnitTypes.Pikeman]: "W",
+  [UnitTypes.Pillager]: "E",
+  [UnitTypes.Archer]: "R",
+  [UnitTypes.Knight]: "A",
+  [UnitTypes.Brute]: "S",
+  [UnitTypes.Catapult]: "D",
+} as const;
 
 export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
   const {
@@ -26,6 +43,11 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
     },
     localLayer: {
       components: { LocalPosition, Selected },
+    },
+    phaserLayer: {
+      api: {
+        mapInteraction: { enableMapInteraction, disableMapInteraction },
+      },
     },
   } = useMUD();
 
@@ -44,6 +66,11 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
   ])[0];
 
   const buildingUnit = useComponentValue(BuildingUnit, selectedFactory);
+  /**
+   * BuildUnitSystem handles rendering previews for buildable locations
+   * and handles the actual building of units.
+   * We just need to set BuildingUnit here.
+   */
   const setBuildingUnit = useCallback(
     (unit: BuildData | null) => {
       if (!unit) return;
@@ -59,25 +86,78 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
   const factoryPosition = selectedFactory ? getComponentValueStrict(LocalPosition, selectedFactory) : { x: 0, y: 0 };
   const screenPosition = useTileCoordToScreenCoord(factoryPosition);
 
-  useEffect(() => {
-    if (selectedFactory) return;
+  const buildData = useMemo(() => {
+    if (!selectedFactory) return [];
 
+    const factoryData = getComponentValueStrict(Factory, selectedFactory);
+    const data = [] as BuildData[];
+
+    if (factoryData) {
+      for (let i = 0; i < factoryData.prototypeIds.length; i++) {
+        const staminaCost = factoryData.staminaCosts[i];
+
+        const prototypeId = factoryData.prototypeIds[i] as Entity;
+        const name = hexToString(prototypeId as Hex, { size: 32 });
+        const unitType = UnitTypes[name as keyof typeof UnitTypes];
+        data.push({ factory: selectedFactory, unitType, staminaCost, prototypeId });
+      }
+    }
+
+    return data;
+  }, [Factory, selectedFactory]);
+
+  useEffect(() => {
+    if (selectedFactory) {
+      disableMapInteraction("factory");
+      return;
+    }
+
+    enableMapInteraction("factory");
     removeComponent(BuildingUnit, selectedFactory);
-  }, [BuildingUnit, selectedFactory, setBuildingUnit]);
+  }, [BuildingUnit, disableMapInteraction, enableMapInteraction, selectedFactory, setBuildingUnit]);
+
+  // assign hotkeys
+  useEffect(() => {
+    const startBuildingUnit = (e: KeyboardEvent) => {
+      if (!selectedFactory) return;
+
+      const foundUnit = Object.entries(UnitTypeHotkey).find(([_, hotkey]) => hotkey === e.key.toUpperCase());
+      if (!foundUnit) return;
+
+      const unitData = buildData.find((build) => build.unitType === (parseInt(foundUnit[0]) as UnitTypes));
+      if (!unitData) return;
+
+      const staminaCost = unitData.staminaCost;
+      if (staminaCost > goldAmount) return;
+
+      setBuildingUnit(unitData);
+    };
+
+    if (!selectedFactory) {
+      document.removeEventListener("keydown", startBuildingUnit);
+      return;
+    }
+
+    const factoryData = getComponentValue(Factory, selectedFactory);
+    if (!factoryData) return;
+
+    document.addEventListener("keydown", startBuildingUnit);
+
+    return () => {
+      document.removeEventListener("keydown", startBuildingUnit);
+    };
+  }, [selectedFactory, BuildingUnit, setBuildingUnit, Factory, goldAmount, buildData]);
 
   if (!selectedFactory) return <></>;
 
-  const factoryData = getComponentValueStrict(Factory, selectedFactory);
-  const buildData = [] as BuildData[];
-  if (factoryData) {
-    for (let i = 0; i < factoryData.prototypeIds.length; i++) {
-      const staminaCost = factoryData.staminaCosts[i];
+  let renderDirectionY = "bottom";
+  if (screenPosition.y > window.innerHeight / 2) {
+    renderDirectionY = "top";
+  }
 
-      const prototypeId = factoryData.prototypeIds[i] as Entity;
-      const name = hexToString(prototypeId as Hex, { size: 32 });
-      const unitType = UnitTypes[name as keyof typeof UnitTypes];
-      buildData.push({ factory: selectedFactory, unitType, staminaCost, prototypeId });
-    }
+  let renderDirectionX = "right";
+  if (screenPosition.x > window.innerWidth / 2) {
+    renderDirectionX = "left";
   }
 
   return (
@@ -87,75 +167,75 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
         top: screenPosition.y,
         left: screenPosition.x,
         display: buildingUnit ? "none" : "block",
+        zIndex: 1000,
       }}
       className="h-fit w-fit"
     >
-      {buildingUnit && (
-        <BuildSprites
-          matchEntity={matchEntity}
-          buildData={buildingUnit}
-          position={factoryPosition}
-          stopBuilding={() => {
-            removeComponent(BuildingUnit, selectedFactory);
-            removeComponent(Selected, selectedFactory);
-          }}
-        />
-      )}
       {!buildingUnit && (
-        <ClickWrapper
-          style={{ transform: "translateX(-50%)", marginTop: "-10rem" }}
-          className="align-center flex flex-row"
+        <div
+          style={{
+            transform: `translate(${renderDirectionX === "left" ? -63 : 0}%, ${
+              renderDirectionY === "top" ? -100 : 0
+            }%)`,
+          }}
+          className="align-center flex flex-row flex-wrap w-[400px] gap-y-4"
         >
           {buildData.map((build, i) => {
             const disabled = build.staminaCost > goldAmount;
 
             return (
-              <div
-                key={`${i}-${build.unitType}`}
-                onClick={(e) => {
-                  if (disabled) return;
-                  e.stopPropagation();
-
-                  setBuildingUnit(build);
-                }}
-                className={twMerge(
-                  "align-center ml-2 flex h-fit w-fit cursor-pointer flex-col justify-center rounded border border-solid border-teal-900 bg-teal-800/80 text-yellow-200 transition-all duration-200 ease-in-out hover:-translate-y-2 hover:border-teal-800/60 hover:bg-teal-800/60 hover:text-yellow-300",
-                  "p-1 pt-3",
-                  disabled && "cursor-not-allowed border-teal-800/40 bg-teal-800/40 text-yellow-200/40"
-                )}
-              >
+              <ClickWrapper key={`${i}-${build.unitType}`}>
                 <div
-                  style={{
-                    opacity: disabled ? 0.4 : 1,
+                  onClick={(e) => {
+                    if (disabled) return;
+                    e.stopPropagation();
+
+                    setBuildingUnit(build);
                   }}
                 >
-                  <div
+                  <Card
+                    className={twMerge(
+                      "align-center ml-3 flex h-fit w-fit cursor-pointer flex-col justify-center border-none rounded-sm transition-all duration-200 ease-in-out hover:-translate-y-2 ",
+                      "p-2",
+                      "bg-white/80 hover:bg-ss-gold/90",
+                      disabled && "cursor-not-allowed hover:translate-y-0 hover:bg-white/80"
+                    )}
                     style={{
-                      marginTop: build.unitType === UnitTypes.Brute ? "-2rem" : "0",
-                      marginLeft: build.unitType === UnitTypes.Brute ? "-0.75rem" : "0",
-                      marginRight: build.unitType === UnitTypes.Brute ? "-0.75rem" : "0",
+                      opacity: disabled ? 0.5 : 1,
                     }}
                   >
-                    <SpriteImage
-                      spriteKey={UnitTypeSprites[build.unitType]}
-                      scale={2}
-                      colorName={playerData.playerColor.name}
-                    />
-                  </div>
-                </div>
+                    <span
+                      style={{
+                        fontSmooth: "never",
+                        boxShadow: "1px 1px 0px 0px rgba(24, 23, 16, 0.90)",
+                        border: "1px solid #DDDAD0",
+                        background: "#FFFFFF",
+                      }}
+                      className="self-center text-l mb-2 px-2"
+                    >
+                      {UnitTypeHotkey[build.unitType as keyof typeof UnitTypeHotkey]}
+                    </span>
 
-                <span
-                  style={{
-                    fontSmooth: "never",
-                  }}
-                  className="self-center"
-                >
-                  {build.staminaCost}
-                </span>
-              </div>
+                    <div>
+                      <Portrait scale={0.6} unitType={build.unitType} colorName={playerData.playerColor.name} />
+                    </div>
+
+                    <div className="h-1" />
+
+                    <span
+                      style={{
+                        fontSmooth: "never",
+                      }}
+                      className="self-center text-xl font-medium text-ss-text-default"
+                    >
+                      {build.staminaCost}g
+                    </span>
+                  </Card>
+                </div>
+              </ClickWrapper>
             );
           })}
-        </ClickWrapper>
+        </div>
       )}
     </div>
   );

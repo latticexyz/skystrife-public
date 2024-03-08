@@ -4,7 +4,7 @@ pragma solidity >=0.8.0;
 import "forge-std/Script.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 
-import { ArcherTemplate, GolemTemplate, KnightTemplate, PikemanTemplate, RiderTemplate, SwordsmanTemplate } from "../src/codegen/Templates.sol";
+import { ArcherTemplate, HalberdierTemplate, KnightTemplate, PikemanTemplate, PillagerTemplate, SwordsmanTemplate } from "../src/codegen/Templates.sol";
 
 contract ChangeTemplateStaminaOnKill is Script {
   function run() external {
@@ -16,10 +16,10 @@ contract ChangeTemplateStaminaOnKill is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     ArcherTemplate();
-    GolemTemplate();
+    HalberdierTemplate();
     KnightTemplate();
     PikemanTemplate();
-    RiderTemplate();
+    PillagerTemplate();
     SwordsmanTemplate();
 
     vm.stopBroadcast();

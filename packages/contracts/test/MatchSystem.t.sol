@@ -16,7 +16,7 @@ import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 import { BaseTest, createPublicMatch, findFirstMatchInWindow } from "./BaseTest.sol";
 
-import { SpawnSettlementTemplateId, GolemTemplateId } from "../src/codegen/Templates.sol";
+import { SpawnSettlementTemplateId, HalberdierTemplateId } from "../src/codegen/Templates.sol";
 import { calculateCurrentPrice, MAX_TOKEN_ID } from "../src/systems/SeasonPassSystem.sol";
 import { dispenseRewards } from "../src/libraries/LibSkyPool.sol";
 import { addressToEntity } from "../src/libraries/LibUtils.sol";
@@ -363,11 +363,11 @@ contract MatchSystemTest is BaseTest, GasReporter {
       rewardPercentages
     );
 
-    bytes32 alicePlayer = world.register(matchEntity, 0, GolemTemplateId);
+    bytes32 alicePlayer = world.register(matchEntity, 0, HalberdierTemplateId);
     vm.stopPrank();
 
     vm.startPrank(bob);
-    bytes32 bobPlayer = world.register(matchEntity, 1, GolemTemplateId);
+    bytes32 bobPlayer = world.register(matchEntity, 1, HalberdierTemplateId);
     vm.stopPrank();
 
     // escrow contract shoudl have default rewards + entrance fee * number of players

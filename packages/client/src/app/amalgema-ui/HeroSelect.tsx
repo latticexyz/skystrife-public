@@ -17,7 +17,7 @@ import { OverlineSmall } from "../ui/Theme/SkyStrife/Typography";
 import { uniq } from "lodash";
 
 const UnitTypeStatBars = {
-  [UnitTypes.Golem]: {
+  [UnitTypes.Halberdier]: {
     health: {
       percent: 100,
       color: "#00ff00",
@@ -35,7 +35,7 @@ const UnitTypeStatBars = {
       color: "#ff0000",
     },
   },
-  [UnitTypes.Dragon]: {
+  [UnitTypes.Dragoon]: {
     health: {
       percent: 75,
       color: "#ffff00",
@@ -53,7 +53,7 @@ const UnitTypeStatBars = {
       color: "#00ff00",
     },
   },
-  [UnitTypes.Wizard]: {
+  [UnitTypes.Marksman]: {
     health: {
       percent: 50,
       color: "#ff8000",

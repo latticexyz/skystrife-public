@@ -34,7 +34,7 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
     api: { drawSpriteAtTile, drawTileHighlight },
   } = layer;
 
-  function drawAttackSpritesOnTarget(attacker: Entity, target: Entity, showModifier = false) {
+  function drawAttackSpritesOnTarget(attacker: Entity, target: Entity) {
     const id = `${target}-attackable-highlight`;
     const outlineId = `${target}-attackable-outline`;
 
@@ -42,14 +42,12 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
     if (!position) return;
 
     let swordSprite = Sprites.Sword;
-    if (showModifier) {
-      const combatModifier = getArchetypeMatchupModifier(networkLayer, attacker, target);
+    const combatModifier = getArchetypeMatchupModifier(networkLayer, attacker, target);
 
-      if (combatModifier > 0) {
-        swordSprite = Sprites.SwordUp;
-      } else if (combatModifier < 0) {
-        swordSprite = Sprites.SwordDown;
-      }
+    if (combatModifier > 0) {
+      swordSprite = Sprites.SwordUp;
+    } else if (combatModifier < 0) {
+      swordSprite = Sprites.SwordDown;
     }
 
     drawSpriteAtTile(id, swordSprite, position, RenderDepth.UI2, {
@@ -92,7 +90,7 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
       });
 
       const target = nextPosition.intendedTarget;
-      drawAttackSpritesOnTarget(attacker, target, true);
+      drawAttackSpritesOnTarget(attacker, target);
     } else {
       for (let i = 0; i < attackableEntities.length; i++) {
         const target = attackableEntities[i] as Entity;

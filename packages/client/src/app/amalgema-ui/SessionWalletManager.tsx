@@ -73,7 +73,7 @@ export function SessionWalletManager() {
         label="Session Wallet Balance"
       />
 
-      {burnerBalance?.belowMinimum && (
+      {!import.meta.env.DEV && burnerBalance?.belowMinimum && (
         <>
           <div className="h-2" />
           <LowBalanceWarning />

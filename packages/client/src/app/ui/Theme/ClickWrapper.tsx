@@ -1,5 +1,6 @@
-import { DetailedHTMLProps, HTMLAttributes, useEffect } from "react";
+import { DetailedHTMLProps, HTMLAttributes, useEffect, useMemo } from "react";
 import { useMUD } from "../../../useMUD";
+import { uuid } from "@latticexyz/utils";
 
 type Props = DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 
@@ -16,19 +17,21 @@ export const ClickWrapper = (props: Props) => {
     },
   } = useMUD();
 
+  const id = useMemo(() => uuid(), []);
+
   useEffect(() => {
     return () => {
-      enableMapInteraction();
+      enableMapInteraction(id);
     };
-  }, [enableMapInteraction]);
+  }, [enableMapInteraction, id]);
 
   const { children, style } = props;
 
   return (
     <div
       {...props}
-      onMouseEnter={() => disableMapInteraction()}
-      onMouseLeave={() => enableMapInteraction()}
+      onMouseEnter={() => disableMapInteraction(id)}
+      onMouseLeave={() => enableMapInteraction(id)}
       style={{ pointerEvents: "all", ...style }}
     >
       {children}

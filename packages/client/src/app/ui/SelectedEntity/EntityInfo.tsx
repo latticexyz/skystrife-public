@@ -1,11 +1,12 @@
 import { Entity, Has, HasValue, getComponentValue } from "@latticexyz/recs";
 import { Card } from "../Theme/SkyStrife/Card";
 import { useMUD } from "../../../useMUD";
-import { Sprites, StructureTypeSprites, UnitTypeSprites } from "../../../layers/Renderer/Phaser/phaserConstants";
+import { Sprites } from "../../../layers/Renderer/Phaser/phaserConstants";
 import { SpriteImage } from "../Theme/SpriteImage";
-import { StructureTypes, TerrainTypes, UnitTypes } from "../../../layers/Network";
+import { TerrainTypes } from "../../../layers/Network";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { BYTES32_ZERO } from "../../../constants";
+import { EntityPortrait } from "../EntityPortrait";
 
 function Bar({
   backgroundColor,
@@ -127,18 +128,15 @@ function getHealthBarColor(health: number, maxHealth: number) {
 export function EntityInfo({ entity }: { entity: Entity }) {
   const {
     networkLayer: {
-      components: { UnitType, StructureType, TerrainType, Combat, ArmorModifier, ChargeCap, Charger },
+      components: { UnitType, TerrainType, Combat, ArmorModifier, ChargeCap, Charger },
     },
     headlessLayer: {
       components: { OnCooldown },
     },
     localLayer: {
       components: { LocalPosition },
-      api: { getOwnerColor },
     },
   } = useMUD();
-
-  const ownerColor = getOwnerColor(entity);
 
   const position = useComponentValue(LocalPosition, entity) ?? { x: 0, y: 0 };
   const terrainAtPosition = useEntityQuery([Has(TerrainType), HasValue(LocalPosition, position)])[0] ?? BYTES32_ZERO;
@@ -146,8 +144,6 @@ export function EntityInfo({ entity }: { entity: Entity }) {
   const armorModifier = getComponentValue(ArmorModifier, terrainAtPosition)?.value ?? 0;
 
   const unitType = getComponentValue(UnitType, entity)?.value ?? 0;
-  const structureType = getComponentValue(StructureType, entity)?.value ?? 0;
-  const spriteKey = unitType ? UnitTypeSprites[unitType] : StructureTypeSprites[structureType];
 
   const combatData = useComponentValue(Combat, entity);
   const onCooldown = Boolean(useComponentValue(OnCooldown, entity)?.value);
@@ -155,53 +151,11 @@ export function EntityInfo({ entity }: { entity: Entity }) {
   const chargeCap = useComponentValue(ChargeCap, entity);
   const charger = getComponentValue(Charger, entity);
 
-  const bannerSpriteKey = Sprites.Banner;
-
   const hasGold = combatData && charger && chargeCap && chargeCap.totalCharged !== chargeCap.cap;
 
   return (
     <Card className="flex p-2 gap-x-2">
-      <div className="relative bg-white w-[96px] h-[96px] rounded border border-ss-stroke overflow-hidden">
-        {!structureType && unitType !== UnitTypes.Brute ? (
-          <div className="-translate-x-1/3">
-            <SpriteImage spriteKey={spriteKey} colorName={ownerColor.name} scale={5} />
-          </div>
-        ) : null}
-
-        {unitType === UnitTypes.Brute ? (
-          <div className="-translate-x-2/3 -translate-y-[26px]">
-            <SpriteImage spriteKey={spriteKey} colorName={ownerColor.name} scale={4} />
-          </div>
-        ) : null}
-
-        {structureType === StructureTypes.GoldMine ? (
-          <div className="-translate-x-[42px] -translate-y-6">
-            <SpriteImage spriteKey={spriteKey} colorName={ownerColor.name} scale={3} />
-          </div>
-        ) : (
-          <></>
-        )}
-
-        {structureType === StructureTypes.Settlement ? (
-          <div className="-translate-x-[24px] translate-y-1">
-            <SpriteImage spriteKey={spriteKey} colorName={ownerColor.name} scale={2} />
-          </div>
-        ) : (
-          <></>
-        )}
-
-        {structureType === StructureTypes.SpawnSettlement ? (
-          <div className="-translate-x-[18px] translate-y-3">
-            <SpriteImage spriteKey={spriteKey} colorName={ownerColor.name} scale={2} />
-          </div>
-        ) : (
-          <></>
-        )}
-
-        <div className="absolute top-0 right-0">
-          <SpriteImage spriteKey={bannerSpriteKey} colorName={ownerColor.name} scale={4} />
-        </div>
-      </div>
+      <EntityPortrait entity={entity} />
 
       <div className="flex flex-col gap-y-2">
         {combatData && (

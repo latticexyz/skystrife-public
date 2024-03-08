@@ -7,7 +7,7 @@ import {
   Has,
   hasComponent,
   HasValue,
-  isComponentUpdate,
+  Not,
   NotValue,
   runQuery,
   UpdateType,
@@ -84,7 +84,7 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
     }
   }
 
-  defineSystem(world, [Has(PotentialPath), Has(LocalPosition)], (update) => {
+  defineSystem(world, [Has(PotentialPath), Has(LocalPosition), Not(NextPosition)], (update) => {
     highlightPotentialPaths(update);
   });
 
@@ -126,7 +126,7 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
   }
 
   // draw movement arrow over hovering position
-  defineSystem(world, [Has(PotentialPath), Has(LocalPosition)], ({ entity, type }) => {
+  defineSystem(world, [Has(PotentialPath), Has(LocalPosition), Not(NextPosition)], ({ entity, type }) => {
     initializePathObjects(entity);
     const pathObjects = entityToPathObjects[entity];
 

@@ -1,4 +1,5 @@
 [profile.default]
+solc = "0.8.21"
 ffi = false
 fuzz_runs = 256
 optimizer = true
@@ -10,12 +11,6 @@ test = "test"
 out = "out"
 extra_output_files = ["abi", "evm.bytecode"]
 fs_permissions = [{ access = "read", path = "./" }]
-
-[profile.lattice-testnet]
-eth_rpc_url = "https://follower.testnet2-chain.linfra.xyz"
-
-[profile.redstone]
-eth_rpc_url = "https://894.quarry.linfra.xyz/"
 
 [profile.redstone-holesky]
 eth_rpc_url = "https://rpc.holesky.redstone.xyz/"

@@ -92,6 +92,10 @@ export function createEmbodiedEntity<Type extends keyof GameObjectTypes>(
     gameObject.setScrollFactor(1);
     gameObject.clearMask();
     gameObject.setData("objectPoolId", null);
+    gameObject.off("pointerover");
+    gameObject.off("pointerout");
+    gameObject.off("pointerdown");
+    gameObject.off("pointerup");
     if (isSprite(gameObject, type)) {
       gameObject.clearTint();
       gameObject.setTexture("");

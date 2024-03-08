@@ -58,6 +58,7 @@ import { createArrowPainter } from "./createArrowPainter";
 import { createDepthSystem } from "./systems/DepthSystem";
 import { createSkullSystem } from "./systems/SkullSystem";
 import { createShieldSystem } from "./systems/ShieldSystem";
+import { createUnitBuildSystem } from "./systems/UnitBuildSystem";
 
 type PhaserEngineConfig = Parameters<typeof createPhaserEngine>[0];
 
@@ -125,7 +126,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     selectEntity(entity);
   }
 
-  function drawTileHighlight(id: string, position: Coord, color: "red" | "yellow" | "white", alpha = 1) {
+  function drawTileHighlight(id: string, position: Coord, color: "red" | "yellow" | "white" | "blue", alpha = 1) {
     const {
       objectPool,
       maps: {
@@ -136,6 +137,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     let animation = Animations.TileOutlineWhite;
     if (color === "red") animation = Animations.TileOutlineRed;
     if (color === "yellow") animation = Animations.TileOutlineYellow;
+    if (color === "blue") animation = Animations.TileOutlineBlue;
 
     const object = objectPool.get(id, "Sprite");
     object.setComponent({
@@ -152,20 +154,34 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
   }
 
   function createMapInteractionApi() {
-    let enabled = true;
+    const disablers = new Set<string>();
 
     return {
-      disableMapInteraction: () => {
-        enabled = false;
+      disableMapInteraction: (id: string) => {
+        disablers.add(id);
       },
-      enableMapInteraction: () => {
-        enabled = true;
+      enableMapInteraction: (id: string) => {
+        disablers.delete(id);
+      },
+      forceEnableMapInteraction: () => {
+        disablers.clear();
       },
       mapInteractionEnabled: () => {
-        return enabled;
+        return disablers.size === 0;
       },
     };
   }
+
+  const findColoredAnimation = (animationKey: Animations, colorName: string) => {
+    const {
+      config: { animations },
+    } = scenes.Main;
+
+    const tintedAnimationKey = `${animationKey}-${colorName}`;
+    const tintedAnimation = animations.find((a) => a.key === tintedAnimationKey);
+
+    return tintedAnimation;
+  };
 
   function playTintedAnimation(
     entity: Entity,
@@ -173,21 +189,11 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     colorName: ValueOf<typeof PLAYER_COLORS>,
     callback?: (gameObject: Phaser.GameObjects.Sprite) => void
   ) {
-    const {
-      objectPool,
-      config: { animations },
-    } = scenes.Main;
+    const { objectPool } = scenes.Main;
 
     const embodiedEntity = objectPool.get(entity, "Sprite");
 
-    const findAnimation = (animationKey: Animations, colorName: string) => {
-      const tintedAnimationKey = `${animationKey}-${colorName}`;
-      const tintedAnimation = animations.find((a) => a.key === tintedAnimationKey);
-
-      return tintedAnimation;
-    };
-
-    const finalAnimation = findAnimation(animation, colorName)?.key ?? animation;
+    const finalAnimation = findColoredAnimation(animation, colorName)?.key ?? animation;
     embodiedEntity.setComponent({
       id: `play-tinted-animation-${entity}`,
       once: (gameObject) => {
@@ -399,6 +405,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
       highlightCoord: (_coord: Coord) => {
         "no-op for types";
       },
+      findColoredAnimation,
       playTintedAnimation,
       playAnimationWithOwnerColor,
       setOriginCenter,
@@ -451,6 +458,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
   createDepthSystem(layer);
   createSkullSystem(layer);
   createShieldSystem(layer);
+  createUnitBuildSystem(layer);
 
   createHideBlackBoxSystem(layer);
 

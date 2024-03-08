@@ -30,7 +30,7 @@ contract BuildSystemTest is BaseTest, GasReporter {
     prototypeIds[0] = prototypeId;
 
     int32[] memory staminaCosts = new int32[](1);
-    staminaCosts[0] = 1000;
+    staminaCosts[0] = 100;
 
     Factory.set(testMatch, factory, FactoryData({ prototypeIds: prototypeIds, staminaCosts: staminaCosts }));
     OwnedBy.set(testMatch, factory, player);
@@ -45,6 +45,8 @@ contract BuildSystemTest is BaseTest, GasReporter {
     setupFactory();
 
     vm.startPrank(alice);
+    int32 goldBeforeBuild = Stamina.get(testMatch, player);
+
     startGasReport("Build unit");
     bytes32 unit = world.build(testMatch, factory, prototypeId, targetPosition);
     endGasReport();
@@ -55,7 +57,7 @@ contract BuildSystemTest is BaseTest, GasReporter {
     assertEq(Position.get(testMatch, unit).y, targetPosition.y, "unit not at target position");
 
     // spends player stamina
-    assertEq(Stamina.get(testMatch, player), 0, "player stamina not spent");
+    assertEq(Stamina.get(testMatch, player), goldBeforeBuild - 100, "player gold not spent");
   }
 
   function testNotAFactory() public {

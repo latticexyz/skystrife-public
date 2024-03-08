@@ -99,9 +99,9 @@ const baseSprites = {
     assetKey: Assets.MainAtlas,
     frame: "sprites/greyscale/units/pikeman/idle/0.png",
   },
-  [Sprites.Golem]: {
+  [Sprites.Halberdier]: {
     assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/units/golem/idle/0.png",
+    frame: "sprites/greyscale/units/halberdier/idle/0.png",
   },
 
   [Sprites.Archer]: {
@@ -112,9 +112,9 @@ const baseSprites = {
     assetKey: Assets.MainAtlas,
     frame: "sprites/greyscale/units/catapult/idle/0.png",
   },
-  [Sprites.Wizard]: {
+  [Sprites.Marksman]: {
     assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/units/wizard/idle/0.png",
+    frame: "sprites/greyscale/units/marksman/idle/0.png",
   },
 
   [Sprites.Brute]: {
@@ -122,17 +122,17 @@ const baseSprites = {
     frame: "sprites/greyscale/units/brute/idle/0.png",
   },
 
-  [Sprites.Rider]: {
+  [Sprites.Pillager]: {
     assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/units/rider/idle/0.png",
+    frame: "sprites/greyscale/units/pillager/idle/0.png",
   },
   [Sprites.Knight]: {
     assetKey: Assets.MainAtlas,
     frame: "sprites/greyscale/units/knight/idle/0.png",
   },
-  [Sprites.Dragon]: {
+  [Sprites.Dragoon]: {
     assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/units/dragon/idle/0.png",
+    frame: "sprites/greyscale/units/dragoon/idle/0.png",
   },
 
   [Sprites.GoldMine]: {

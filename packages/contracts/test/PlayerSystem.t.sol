@@ -21,7 +21,7 @@ contract PlayerTest is BaseTest {
     vm.stopPrank();
 
     assertEq(Player.get(testMatch, player), 1, "did not set Player table");
-    assertEq(Stamina.get(testMatch, player), 1_000, "did not set Stamina table");
+    assertEq(Stamina.get(testMatch, player), 250, "did not set Stamina table");
     assertEq(OwnedBy.get(testMatch, player), addressToEntity(alice), "did not set OwnedBy table");
   }
 
@@ -42,7 +42,7 @@ contract PlayerTest is BaseTest {
 
     // test gold generation
     vm.warp(block.timestamp + 10 minutes);
-    assertEq(LibStamina.getCurrent(testMatch, player), 41000, "did not regen stamina");
+    assertEq(LibStamina.getCurrent(testMatch, player), 40250, "did not generate gold");
 
     assertEq(Chargee.get(testMatch, spawnPoint), player, "did not set Chargee table");
   }

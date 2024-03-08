@@ -10,11 +10,11 @@ import { UnitTypes, CombatArchetypes, TerrainTypes, StructureTypes, ItemTypes } 
 
 import { Combat, CombatTableId, UnitType, UnitTypeTableId, CombatArchetype, CombatArchetypeTableId, StaminaOnKill, StaminaOnKillTableId, Range, RangeTableId, Movable, MovableTableId, Untraversable, UntraversableTableId, Tier, TierTableId } from "../index.sol";
 
-bytes32 constant templateId = "Golem";
-bytes32 constant GolemTemplateId = templateId;
+bytes32 constant templateId = "Halberdier";
+bytes32 constant HalberdierTemplateId = templateId;
 uint256 constant LENGTH = 8;
 
-function GolemTemplate() {
+function HalberdierTemplate() {
   bytes32[] memory tableIds = new bytes32[](LENGTH);
   bytes32[] memory encodedLengthss = new bytes32[](LENGTH);
   bytes[] memory staticDatas = new bytes[](LENGTH);

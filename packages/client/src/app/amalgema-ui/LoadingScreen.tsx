@@ -61,6 +61,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
     if (sentEndEvent) return;
     if (!networkLayer) return;
 
+    // Send analytics event when the game is ready
     if (loadingState.step === SyncStep.LIVE) {
       const {
         utils: { sendAnalyticsEvent },
@@ -72,6 +73,24 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
       });
     }
   }, [loadingState, networkLayer, sentEndEvent, usePrepTime]);
+
+  const [worldValid, setWorldValid] = useState(false);
+  useEffect(() => {
+    if (!networkLayer) return;
+    if (loadingState.step !== SyncStep.LIVE) return;
+
+    if (!usePrepTime || prepareGameProgress === 100) {
+      const {
+        components: { SkyPoolConfig },
+      } = networkLayer;
+
+      // check if there is a value for a table that is only available after the game is ready
+      // SkyPoolConfig is set in the PostDeploy script
+      // if it does not exist something is wrong
+      const skyPoolConfig = getComponentValue(SkyPoolConfig, singletonEntity);
+      setWorldValid(!!skyPoolConfig);
+    }
+  }, [loadingState.step, networkLayer, prepareGameProgress, usePrepTime]);
 
   useEffect(() => {
     if (!usePrepTime) return;
@@ -102,7 +121,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
     return null;
   }
 
-  const ready = usePrepTime ? prepareGameProgress === 100 : loadingState.step === SyncStep.LIVE;
+  const doneLoading = usePrepTime ? prepareGameProgress === 100 : loadingState.step === SyncStep.LIVE;
   const showPrepMessage = loadingState.step === SyncStep.LIVE && usePrepTime;
 
   const loadingMessage = showPrepMessage ? "Preparing Game" : loadingState.message;
@@ -111,7 +130,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
   return (
     <div
       style={{
-        zIndex: 1000,
+        zIndex: 1200,
         background: "linear-gradient(rgba(24, 23, 16, 0.4), rgba(24, 23, 16, 0.4)), url(assets/ss-splash-1.png)",
         backgroundPosition: "right",
         backgroundSize: "cover",
@@ -134,7 +153,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
           Sky Strife is a fully onchain RTS. Compete for control of islands, earn {EMOJI}, and summon your own matches.
         </Body>
 
-        {ready ? (
+        {doneLoading && worldValid && (
           <div className="flex flex-col mt-8 grow">
             <Body className="text-center text-ss-text-default">Connected!</Body>
             <Button
@@ -159,7 +178,23 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
               </Button>
             </a>
           </div>
-        ) : (
+        )}
+
+        {doneLoading && !worldValid && (
+          <div className="flex flex-row w-full mt-8 justify-center items-center">
+            <img height="64px" width="64px" src="/public/assets/dragoon_attack.gif" />
+            <div className="w-4"></div>
+            <Body className="text-center text-3xl text-ss-text-default">
+              {import.meta.env.DEV
+                ? "The connected Sky Strife world is not valid. This usually means contract deployment is ongoing or failed. Check your console for more information."
+                : "Something went wrong. Please report this issue on Discord."}
+            </Body>
+            <div className="w-4"></div>
+            <img height="64px" width="64px" src="/public/assets/dragoon_attack.gif" />
+          </div>
+        )}
+
+        {!doneLoading && (
           <div className="flex flex-row w-full mt-8 justify-center items-center">
             <img height="64px" width="64px" src="/public/assets/dragoon_attack.gif" />
             <div className="w-4"></div>

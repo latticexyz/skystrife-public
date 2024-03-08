@@ -21,7 +21,7 @@ const settlementTemplate = {
     prototypeIds: [
       stringToHex("Swordsman", { size: 32 }),
       stringToHex("Pikeman", { size: 32 }),
-      stringToHex("Rider", { size: 32 }),
+      stringToHex("Pillager", { size: 32 }),
       stringToHex("Archer", { size: 32 }),
       stringToHex("Knight", { size: 32 }),
       stringToHex("Brute", { size: 32 }),
@@ -66,7 +66,7 @@ export const templates: TemplatesConfig<typeof config> = {
     Untraversable: { value: true },
     Tier: { value: 3 },
   },
-  Golem: {
+  Halberdier: {
     Combat: {
       health: 400_000,
       maxHealth: 400_000,
@@ -99,7 +99,7 @@ export const templates: TemplatesConfig<typeof config> = {
     Untraversable: { value: true },
     Tier: { value: 3 },
   },
-  Rider: {
+  Pillager: {
     Combat: {
       health: 100_000,
       maxHealth: 100_000,
@@ -133,7 +133,7 @@ export const templates: TemplatesConfig<typeof config> = {
     Untraversable: { value: true },
     Tier: { value: 3 },
   },
-  Dragon: {
+  Dragoon: {
     Combat: {
       health: 300_000,
       maxHealth: 300_000,
@@ -185,7 +185,7 @@ export const templates: TemplatesConfig<typeof config> = {
     Untraversable: { value: true },
     Tier: { value: 3 },
   },
-  Wizard: {
+  Marksman: {
     Combat: {
       health: 250_000,
       maxHealth: 250_000,

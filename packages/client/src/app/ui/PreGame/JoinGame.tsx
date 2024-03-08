@@ -85,7 +85,8 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
   const name = useComponentValue(Name, addressToEntityID(address || ("0x00" as Hex)));
   const [newName, setNewName] = useState(name ? name.value : "");
 
-  const freeHero = [...runQuery([HasValue(HeroInRotation, { value: true })])][0] ?? stringToHex("Golem", { size: 32 });
+  const freeHero =
+    [...runQuery([HasValue(HeroInRotation, { value: true })])][0] ?? stringToHex("Halberdier", { size: 32 });
   const [hero, setHero] = useState(freeHero as Hex);
 
   const [pendingTx, setPendingTx] = useState(false);
