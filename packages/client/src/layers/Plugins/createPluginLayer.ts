@@ -12,6 +12,7 @@ import { decodeMatchEntity } from "../../decodeMatchEntity";
 import { createTileHighlighter } from "./createTileHighlighter";
 import { StructureTypes, TerrainTypes, UnitTypes } from "../Network";
 import { Hex } from "viem";
+import { createTextInput } from "./components/createTextInput";
 
 export type PluginLayer = ReturnType<typeof createPluginLayer>;
 
@@ -248,7 +249,10 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
         preact,
         htm,
       },
-      components,
+      components: {
+        ...components,
+        TextInput: createTextInput(phaserLayer),
+      },
       hooks: createClientHooks(phaserLayer),
     },
     types: {

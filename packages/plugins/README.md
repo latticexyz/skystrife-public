@@ -39,15 +39,17 @@ You can view the `PluginLayer` API [here](../client/src/layers/Plugins/createPlu
 
 ## Examples
 
-There are some example plugins provided in the client by default. The purpose of these is to introduce players to what is possible with a plugin and inspire them to create their own. Currently, the examples are:
+There are some example plugins provided in the client by default.
+The purpose of these is to introduce players to what is possible with a plugin and inspire them to create their own.
+Currently, the examples are:
 
-- `Frenzy`: Provides a hotkey that commands one of your units to attack the nearest enemy automatically.
-  It has a small informational UI and also highlights the intended target in-game.
-  This is a good introduction to gameplay plugins as it accesses enemy unit information, does some calculations, and issues an attack transaction on behalf of the user.
-- `Player Details`: Display a more detailed view of a player in your match.
-  This introduces fetching data that is not otherwise shown in the Sky Strife UI.
-- `Simple Example`: This example is used to show all of the built-in UI components provided by plugins.
-  You can use this as a starting point for a new plugin.
+1. [UI Example](dev/uiExample.md): This example is used to show all of the built-in UI components provided by plugins.
+   You can use this as a starting point for a new plugin.
+1. Player Details: Display a more detailed view of a player in your match.
+   This introduces fetching data that is not otherwise shown in the Sky Strife UI.
+1. Frenzy: Provides a hotkey that commands one of your units to attack the nearest enemy automatically.
+   It has a small informational UI and also highlights the intended target in-game.
+   This is a good introduction to gameplay plugins as it accesses enemy unit information, does some calculations, and issues an attack transaction on behalf of the user.
 
 ## Plugin API
 

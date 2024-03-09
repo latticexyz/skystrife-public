@@ -13,6 +13,10 @@
     "@latticexyz/recs": "2.0.0-main-5ab67e33",
     "client": "workspace:*",
     "serve": "14.2.1",
-    "serve-handler": "6.1.5"
+    "serve-handler": "6.1.5",
+    "ws": "8.16.0"
+  },
+  "devDependencies": {
+    "@types/ws": "8.5.10"
   }
 }

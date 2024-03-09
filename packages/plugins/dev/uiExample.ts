@@ -17,50 +17,52 @@ function createPlugin(pluginLayer: PluginLayer) {
     return html`<div style=${{ height: "8px" }}></div>`;
   }
 
+  const secondaryClicked = () => console.log("Secondary button clicked");
+
   return {
     // Called when the plugin is first loaded.
     mount: (container: HTMLDivElement) => {
       function App() {
-        const [selectOption, setSelectOption] = hooks.useState<"option1" | "option2" | "option3">("option1");
+        const [metal, setMetal] = hooks.useState<"Cu" | "Ag" | "Au">("Cu");
         const [textInputValue, setTextInputValue] = hooks.useState("");
 
         return html`<div style=${{ maxWidth: "320px", display: "flex", flexDirection: "column" }}>
-          <p style=${{ fontWeight: "bold" }}>Hi, I'm a plugin!</p>
-          <p>Try dragging me around or minimizing me.</p>
-          <p>Plugins have access to a library of components and utilities.</p>
+          <h2>Hello, plugin</h2>
 
           <${Spacer} />
 
-          <${Button}
-            ...${{
-              buttonType: "primary",
-              label: "I'm a button!",
-              style: { width: "100%" },
-            }}
-          />
+          <div>
+            <${Button}
+              ...${{
+                buttonType: "primary",
+                label: "Push me",
+                style: { width: "40%" },
+                onClick: (event) => alert(event.srcElement.innerText),
+              }}
+            />
 
-          <${Spacer} />
-
-          <${Button}
-            ...${{
-              buttonType: "secondary",
-              label: "I'm also a button",
-              style: { width: "100%" },
-            }}
-          />
+            <${Button}
+              ...${{
+                buttonType: "secondary",
+                label: "You can also push me",
+                style: { width: "40%" },
+                onClick: () => alert(`Metal: ${metal}\nText field: ${textInputValue}`),
+              }}
+            />
+          </div>
 
           <${Spacer} />
 
           <${Select}
             ...${{
-              label: "Select",
+              label: "Metal",
               options: [
-                { value: "option1", label: "Option 1" },
-                { value: "option2", label: "Option 2" },
-                { value: "option3", label: "Option 3" },
+                { value: "Cu", label: "Copper" },
+                { value: "Ag", label: "Silver" },
+                { value: "Au", label: "Gold" },
               ],
-              value: selectOption,
-              onChange: (value: string) => setSelectOption(value as "option1" | "option2" | "option3"),
+              value: metal,
+              onChange: (value: string) => setMetal(value as "Cu" | "Ag" | "Au"),
               style: { width: "100%" },
               containerStyle: { width: "100%" },
             }}

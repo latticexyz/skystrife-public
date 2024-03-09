@@ -8,6 +8,7 @@ export type PluginData = {
   x?: number;
   y?: number;
   minimized?: boolean;
+  source?: "official" | "dev-server" | "remote";
 };
 
 export type PluginError = {

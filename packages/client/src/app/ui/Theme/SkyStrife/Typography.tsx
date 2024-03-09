@@ -28,7 +28,7 @@ export function OverlineLarge(props: Props) {
 }
 
 export function OverlineSmall(props: Props) {
-  const { className: _className, children } = props;
+  const { className: _className, style, children } = props;
 
   return (
     <div
@@ -38,6 +38,7 @@ export function OverlineSmall(props: Props) {
         ...baseStyle,
         fontWeight: 400,
         lineHeight: "32px",
+        ...style,
       }}
       className={twMerge("text-ss-text-light uppercase", _className)}
     >

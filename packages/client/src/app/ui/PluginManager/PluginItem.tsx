@@ -1,4 +1,5 @@
 import { Button } from "../Theme/SkyStrife/Button";
+import { OverlineSmall } from "../Theme/SkyStrife/Typography";
 import { TrashIcon } from "./TrashIcon";
 import { PluginData, Plugins } from "./types";
 
@@ -22,7 +23,17 @@ export function PluginItem({
       key={pluginKey}
       className="flex flex-row items-center justify-between border-2 border-ss-stroke bg-ss-bg-0 p-2"
     >
-      <div className="font-bold">{pluginKey}</div>
+      <div className="font-bold">
+        <span>{pluginKey}</span>
+        <OverlineSmall
+          style={{
+            fontSize: "0.7rem",
+            lineHeight: "1rem",
+          }}
+        >
+          {pluginData.source}
+        </OverlineSmall>
+      </div>
       <div className="flex gap-x-4">
         <div
           className="cursor-pointer flex items-center justify-center"

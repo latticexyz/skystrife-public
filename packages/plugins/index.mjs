@@ -3,10 +3,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import handler from 'serve-handler';
 import { fileURLToPath } from 'url';
+import { WebSocketServer } from 'ws';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const pluginPath = path.join(__dirname, 'dev');
+const pluginDirName = 'dev';
+const pluginPath = path.join(__dirname, pluginDirName);
 
 const server = http.createServer((request, response) => {
   response.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,6 +37,29 @@ const server = http.createServer((request, response) => {
   } else {
     // Fallback to serve-handler for other routes
     return handler(request, response);
+  }
+});
+
+const wss = new WebSocketServer({ server });
+
+wss.on('connection', function connection(ws) {
+  console.log('A client connected');
+});
+
+// Watch the plugin directory for changes
+fs.watch(pluginPath, { recursive: true }, (eventType, filename) => {
+  if (filename) {
+    console.log(`File changed: ${filename}`);
+    console.log(`emitting: ${path.join(pluginDirName, filename)}`)
+    // Emit a message to all connected clients
+    wss.clients.forEach(function each(client) {
+      if (client.readyState === 1) {
+        client.send(JSON.stringify({
+          eventType,
+          path: path.join(pluginDirName, filename)
+        }));
+      }
+    });
   }
 });
 
