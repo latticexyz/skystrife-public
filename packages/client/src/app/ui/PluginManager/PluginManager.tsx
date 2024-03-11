@@ -18,10 +18,13 @@ import uiExampleCode from "plugins/dev/uiExample?raw";
 import playerDetailsCode from "plugins/dev/playerDetails?raw";
 import { DocsIcon } from "./DocsIcon";
 import { CrossIcon } from "../Theme/CrossIcon";
+import { useMUD } from "../../../useMUD";
+import { AddPlugin } from "./AddPlugin";
 
 const PLUGIN_DEV_SERVER_URL = "http://localhost:1993";
+export const PLUGIN_DOCS_URL = "https://github.com/latticexyz/skystrife-public/tree/main/packages/plugins/README.md";
 
-function convertTsPluginToJs(tsCode: string) {
+export function convertTsPluginToJs(tsCode: string) {
   const jsOutput = transpileModule(tsCode.replace(/import.*?;/g, ""), {
     compilerOptions: { module: ModuleKind.ES2015, target: ScriptTarget.ES2015 },
   });
@@ -34,9 +37,7 @@ export function PluginManager() {
   });
   const [showManager, setShowManager] = useState(false);
   const [managerState, setManagerState] = useState<"open" | "adding">("open");
-  const [newPluginName, setNewPluginName] = useState("");
-  const [pluginUrl, setPluginUrl] = useState("");
-  const [newPluginError, setNewPluginError] = useState<string | null>(null);
+
   const [devServerConnected, setDevServerConnected] = useState(false);
   const [lastRefreshedPlugin, setLastRefreshedPlugin] = useState<{
     pluginKey: string;
@@ -101,26 +102,30 @@ export function PluginManager() {
   }, []);
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:1993");
-    ws.onopen = function () {
-      console.log("Plugin Dev Server connected.");
-      setDevServerConnected(true);
-    };
+    try {
+      const ws = new WebSocket("ws://localhost:1993");
+      ws.onopen = function () {
+        console.log("Plugin Dev Server connected.");
+        setDevServerConnected(true);
+      };
 
-    ws.onmessage = function (e) {
-      const message = JSON.parse(e.data);
-      console.log(`File changed: ${message.path}, Event Type: ${message.eventType}`);
-      if (message.path) refreshPlugin(message.path);
-    };
+      ws.onmessage = function (e) {
+        const message = JSON.parse(e.data);
+        console.log(`File changed: ${message.path}, Event Type: ${message.eventType}`);
+        if (message.path) refreshPlugin(message.path);
+      };
 
-    ws.onerror = function (e) {
-      console.error("WebSocket Error: ", e);
-    };
+      ws.onerror = function (e) {
+        console.error("WebSocket Error: ", e);
+      };
 
-    ws.onclose = function (e) {
-      console.log("WebSocket connection closed", e);
-      setDevServerConnected(false);
-    };
+      ws.onclose = function (e) {
+        console.log("WebSocket connection closed", e);
+        setDevServerConnected(false);
+      };
+    } catch (e) {
+      console.warn("No plugin dev server connected.");
+    }
   }, [refreshPlugin]);
 
   const pluginList = useMemo(() => {
@@ -135,12 +140,12 @@ export function PluginManager() {
             }}
             className="text-ss-text-light text-center grow flex flex-col justify-around"
           >
-            <p>
+            <div>
               <span>No plugins found</span>
               <div onClick={() => setManagerState("adding")}>
                 <Link>Add your first plugin</Link>
               </div>
-            </p>
+            </div>
           </div>
 
           <div className="h-6" />
@@ -209,9 +214,6 @@ export function PluginManager() {
             <Button
               buttonType="tertiary"
               onClick={() => {
-                setNewPluginName("");
-                setPluginUrl("");
-                setNewPluginError(null);
                 setManagerState("open");
               }}
             >
@@ -247,52 +249,7 @@ export function PluginManager() {
 
         <div className="flex flex-col gap-y-2 grow">
           {managerState === "open" && pluginList}
-          {managerState === "adding" && (
-            <div className="flex flex-col gap-y-2">
-              <Input label="Plugin Name" value={newPluginName} setValue={setNewPluginName} />
-
-              <Input label="Plugin URL" value={pluginUrl} setValue={setPluginUrl} />
-
-              <Button
-                buttonType="primary"
-                className="w-full"
-                disabled={!newPluginName || !pluginUrl}
-                onClick={() => {
-                  if (!newPluginName) {
-                    setNewPluginError("Plugin name is required");
-                    return;
-                  }
-
-                  if (!pluginUrl) {
-                    setNewPluginError("Plugin URL is required");
-                    return;
-                  }
-
-                  fetch(pluginUrl)
-                    .then((res) => res.text())
-                    .then((code) => {
-                      try {
-                        const jsCode = convertTsPluginToJs(code);
-                        setPlugin(newPluginName, { code: jsCode, source: "remote" });
-                        setNewPluginName("");
-                        setPluginUrl("");
-                        setNewPluginError(null);
-                        setManagerState("open");
-                      } catch (e) {
-                        setNewPluginError((e as any).error?.message);
-                      }
-                    })
-                    .catch((e) => {
-                      setNewPluginError(e.message);
-                    });
-                }}
-              >
-                Add
-              </Button>
-
-              {newPluginError && <div className="text-red-600 w-full text-center">{newPluginError}</div>}
-            </div>
-          )}
+          {managerState === "adding" && <AddPlugin setPlugin={setPlugin} setManagerState={setManagerState} />}
         </div>
 
         <div className="w-full flex gap-x-2">
@@ -303,7 +260,7 @@ export function PluginManager() {
             </div>
           </Button>
 
-          <a className="grow" href="https://github.com/latticexyz/skystrife-public/tree/main/packages/plugins">
+          <a className="grow" href={PLUGIN_DOCS_URL}>
             <Button buttonType="tertiary" className="p-1 px-2 w-full">
               <div className="w-full flex items-center gap-x-1">
                 <DocsIcon /> <span>Docs</span>

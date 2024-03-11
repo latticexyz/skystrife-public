@@ -16,8 +16,6 @@ Each plugin receives it's own movable window to render into.
 When you [deploy SkyStrife according to the README.md](../../README.md#initial-dev-setup), the plugin dev server is automatically started for you.
 When you edit any files in your [`dev`](./dev) folder, they will be available in your Plugin Manager.
 
-> NOTE: Hot realoding is not currently implemented, so you will need to manually refresh when changing your plugins.
-
 Plugins must implement this interface:
 
 ```typescript

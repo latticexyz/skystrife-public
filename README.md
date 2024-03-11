@@ -55,7 +55,7 @@ Sky Strife is broken into several sub-packages. Here are the packages that are e
 
    ```sh copy
    git clone https://github.com/latticexyz/skystrife-public.git
-   cd skystrife
+   cd skystrife-public
    pnpm install
    cd packages/contracts
    pnpm build

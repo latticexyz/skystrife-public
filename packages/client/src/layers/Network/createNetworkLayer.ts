@@ -496,6 +496,8 @@ export async function createNetworkLayer(config: NetworkConfig) {
 
   let sessionId: string | undefined;
   async function sendAnalyticsEvent(eventName: string, data: Record<string, unknown>) {
+    if (!getAnalyticsConsent()) return;
+
     if (!sessionId) {
       sessionId = uuid();
     }

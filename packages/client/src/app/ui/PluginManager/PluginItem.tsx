@@ -1,3 +1,4 @@
+import { useMUD } from "../../../useMUD";
 import { Button } from "../Theme/SkyStrife/Button";
 import { OverlineSmall } from "../Theme/SkyStrife/Typography";
 import { TrashIcon } from "./TrashIcon";
@@ -16,6 +17,12 @@ export function PluginItem({
   deletePlugin: () => void;
   plugins: Plugins;
 }) {
+  const {
+    networkLayer: {
+      utils: { sendAnalyticsEvent },
+    },
+  } = useMUD();
+
   const { active, code: pluginCode } = pluginData;
 
   return (
@@ -38,7 +45,13 @@ export function PluginItem({
         <div
           className="cursor-pointer flex items-center justify-center"
           onClick={() => {
-            confirm(`Are you sure you want to delete plugin: ${pluginKey}?`) && deletePlugin();
+            const confirmDelete = confirm(`Are you sure you want to delete plugin: ${pluginKey}?`);
+            if (confirmDelete) {
+              deletePlugin();
+              sendAnalyticsEvent("plugin-delete", {
+                ...pluginData,
+              });
+            }
           }}
         >
           <TrashIcon />
@@ -60,6 +73,11 @@ export function PluginItem({
             }
 
             setPlugin(pluginKey, {
+              active: !active,
+            });
+
+            sendAnalyticsEvent("plugin-toggle", {
+              ...pluginData,
               active: !active,
             });
           }}
