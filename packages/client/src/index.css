@@ -86,3 +86,32 @@
   font-display: swap;
   font-style: normal;
 }
+
+/* Add this to your CSS file */
+.channel-tabs {
+  display: flex;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  border-radius: 8px;
+
+  gap: 4px;
+  /* margin-bottom: 8px; */
+
+  /* position: relative; */
+  /* bottom: 45px; */
+
+  font-size: 12px;
+}
+
+.channel-tab {
+  padding: 6px 12px;
+  cursor: pointer;
+  color: white;
+  border-radius: 4px;
+
+  width: 100%;
+}
+
+.channel-tab.active {
+  background-color: #4A76A8; /* Active tab background */
+}

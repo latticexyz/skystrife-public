@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Contract } from "@canvas-js/core";
 import { SIWESigner } from "@canvas-js/chain-ethereum";
 import { useLiveQuery, useCanvas } from "@canvas-js/hooks";
+import { encryptSafely, decryptSafely, getEncryptionPublicKey, EthEncryptedData } from "@metamask/eth-sig-util"
 import { useMUD } from "../../../useMUD";
 import { useCurrentPlayer } from "../hooks/useCurrentPlayer";
 import { Entity, getComponentValue } from "@latticexyz/recs";
@@ -11,8 +12,12 @@ import { DateTime } from "luxon";
 import { useExternalAccount } from "../hooks/useExternalAccount";
 import { addressToEntityID } from "../../../mud/setupNetwork";
 import { BYTES32_ZERO } from "../../../constants";
+import { getBurnerWallet } from "../../../mud/getBrowserNetworkConfig";
+import { ClickWrapper } from "../Theme/ClickWrapper";
 
 type Message = { id: string; address: string; content: string; color: string; name: string; timestamp: number };
+
+type Chatter = { id: string; address: string; key: string; };
 
 const createContract = (matchEntity: Entity) => {
   const contract = {
@@ -27,12 +32,22 @@ const createContract = (matchEntity: Entity) => {
         timestamp: "integer",
         $indexes: ["user", "timestamp"],
       },
+      chatters: {
+        id: "primary",
+        address: "string",
+        key: "string"
+      },
     },
 
     actions: {
       async createMessage(db, { content, name, color }, { id, address, timestamp }) {
         await db.set("message", { id, address, content, name, color, timestamp });
       },
+
+      async createChatter(db, { key }, { id, address }) {
+        console.log('creating chatter, key: ', key, ' address: ', address);
+        await db.set("chatters", { id, address, key });
+      }
     },
   } as Contract;
 
@@ -54,6 +69,7 @@ export function Chat() {
   } = useMUD();
 
   const externalWalletClient = useExternalAccount();
+  const currentPlayer = useCurrentPlayer(matchEntity ?? ("" as Entity));
 
   const randomWallet = useMemo(() => Wallet.createRandom(), []);
   const contract = useMemo(() => createContract(matchEntity ?? ("" as Entity)), [matchEntity]);
@@ -69,6 +85,48 @@ export function Chat() {
       "/dns4/peer.canvasjs.org/tcp/443/wss/p2p/12D3KooWFYvDDRpXtheKXgQyPf7sfK2DxS1vkripKQUS2aQz5529",
     ],
   });
+
+  const chatters = useLiveQuery<Chatter>(app, "chatters", {
+    orderBy: { address: "asc" },
+  });
+
+  const [ initialized, setInitialized ] = useState<boolean>(false);
+  // TODO: Make enum, Channels.ALL, Channels.PLAYER
+  const [ selectedChannel, setSelectedChannel ] = useState<string>('all');
+
+  useEffect(() => {
+    if (!app || initialized || chatters === null) return
+
+    // console.log('initialized :>> ', initialized);
+
+    const sessionWalletPrivateKey = getBurnerWallet(); 
+    const encryptionKey = getEncryptionPublicKey(sessionWalletPrivateKey.slice(2))
+
+    // console.log('chatters :>> ', chatters);
+
+    const matchingChatters = chatters.filter((chatter: Chatter) => {
+      return (chatter.key === encryptionKey)
+    });
+
+    // console.log('matchingChatters :>> ', matchingChatters);
+
+    if (matchingChatters.length > 0) {
+      console.log('a key was matched');
+      return
+    } else {
+      console.log('~~~ a key was not matched. creating one now. ~~~')
+      registerEncryptionKey();
+    }
+
+    setInitialized(true);
+  }, [app, chatters, initialized]);
+
+  const registerEncryptionKey = useCallback(async () => {
+    const sessionWalletPrivateKey = getBurnerWallet(); 
+    const encryptionKey = getEncryptionPublicKey(sessionWalletPrivateKey.slice(2))
+
+    app.actions.createChatter({ key: encryptionKey});
+  }, [app]);
 
   const now = useCurrentTime();
   const secondsVisibleAfterInteraction = 15;
@@ -89,8 +147,6 @@ export function Chat() {
     setInputFocused(false);
     setLastInteraction(DateTime.now());
   }, [enableMapInteraction, inputFocused]);
-
-  const currentPlayer = useCurrentPlayer(matchEntity ?? ("" as Entity));
 
   const [newMessage, setNewMessage] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -164,20 +220,34 @@ export function Chat() {
   return (
     <div
       style={{
-        opacity: lastInteraction.plus({ seconds: secondsVisibleAfterInteraction }).diff(now).milliseconds > 0 ? 1 : 0,
+        // opacity: lastInteraction.plus({ seconds: secondsVisibleAfterInteraction }).diff(now).milliseconds > 0 ? 1 : 0,
+        opacity: 1
       }}
       onMouseMove={() => {
         setLastInteraction(DateTime.now());
       }}
-      className="absolute bottom-12 left-0 h-[160px] w-[300px] rounded border border-ss-stroke bg-black/25 transition-all duration-300"
+      className="absolute bottom-12 pb-[37px] border-green-500 border left-0 h-[300px] w-[300px] rounded border border-ss-stroke bg-black/25 transition-all duration-300"
     >
       <div className="h-full w-full">
         <div className="w-full overflow-y-auto">
+          <div className="channel-tabs">
+            {['All', 'Player'].map((channel) => (
+              <ClickWrapper>
+                <button
+                  key={channel}
+                  className={`channel-tab ${selectedChannel === channel ? 'active' : ''}`}
+                  onClick={() => setSelectedChannel(channel)}
+                >
+                  {channel}
+                </button>
+              </ClickWrapper>
+            ))}
+          </div>
           <ul
             style={{
               overflowAnchor: "none",
             }}
-            className="h-full w-full px-2 space-y-1 flex flex-col"
+            className="h-full w-full px-2 space-y-1 flex flex-col border-red-500 border"
           >
             <div className="grow" />
 

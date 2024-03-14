@@ -43,7 +43,6 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "run-pty": "^4.1.0",
     "wait-port": "1.0.4"
   },
   "pnpm": {
