@@ -16,8 +16,12 @@ import { getBurnerWallet } from "../../../mud/getBrowserNetworkConfig";
 import { ClickWrapper } from "../Theme/ClickWrapper";
 
 type Message = { id: string; address: string; content: string; color: string; name: string; timestamp: number };
-
 type Chatter = { id: string; address: string; key: string; };
+
+enum CHANNELS {
+  ALL = 'All',
+  PLAYER = 'Player'
+}
 
 const createContract = (matchEntity: Entity) => {
   const contract = {
@@ -30,6 +34,7 @@ const createContract = (matchEntity: Entity) => {
         color: "string",
         content: "string",
         timestamp: "integer",
+        channel: "string",
         $indexes: ["user", "timestamp"],
       },
       chatters: {
@@ -40,8 +45,8 @@ const createContract = (matchEntity: Entity) => {
     },
 
     actions: {
-      async createMessage(db, { content, name, color }, { id, address, timestamp }) {
-        await db.set("message", { id, address, content, name, color, timestamp });
+      async createMessage(db, { content, name, color, channel }, { id, address, timestamp }) {
+        await db.set("message", { id, address, content, name, color, timestamp, channel });
       },
 
       async createChatter(db, { key }, { id, address }) {
@@ -92,7 +97,7 @@ export function Chat() {
 
   const [ initialized, setInitialized ] = useState<boolean>(false);
   // TODO: Make enum, Channels.ALL, Channels.PLAYER
-  const [ selectedChannel, setSelectedChannel ] = useState<string>('all');
+  const [ channel, setChannel ] = useState<string>('all');
 
   useEffect(() => {
     if (!app || initialized || chatters === null) return
@@ -185,6 +190,7 @@ export function Chat() {
       await app.actions.createMessage({
         content: newMessage,
         name,
+        channel: CHANNELS.ALL,
         color: currentPlayer.playerColor.color.toString(16),
       });
       sendAnalyticsEvent("sent-message", { matchEntity });
@@ -205,17 +211,31 @@ export function Chat() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement === inputRef.current) return;
-      if (e.key === "Enter") {
+
+      if (e.key === "Enter" && e.shiftKey) {
+        console.log('shift + enter opened thing');
+        setChannel(CHANNELS.PLAYER);
         focusInput();
         e.preventDefault();
+      } else if (e.key === "Enter") {
+        console.log('enter opened thing');
+        setChannel(CHANNELS.ALL);
+        focusInput();
+        e.preventDefault();
+      } else if (e.key === "Escape") {
+        blurInput();
       }
-      if (e.key === "Escape") blurInput();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [blurInput, focusInput]);
+
+  const placeholderPadValue = 
+    channel === CHANNELS.ALL ? "46px" :
+    channel === CHANNELS.PLAYER ? "72px" : 
+    "0px";
 
   return (
     <div
@@ -228,21 +248,21 @@ export function Chat() {
       }}
       className="absolute bottom-12 pb-[37px] border-green-500 border left-0 h-[300px] w-[300px] rounded border border-ss-stroke bg-black/25 transition-all duration-300"
     >
+      <div className="channel-tabs">
+        {[CHANNELS.ALL, CHANNELS.PLAYER].map((channel) => (
+          <ClickWrapper>
+            <button
+              key={channel}
+              className={`channel-tab ${channel === channel ? 'active' : ''}`}
+              onClick={() => setChannel(channel)}
+            >
+              {channel}
+            </button>
+          </ClickWrapper>
+        ))}
+      </div>
       <div className="h-full w-full">
         <div className="w-full overflow-y-auto">
-          <div className="channel-tabs">
-            {['All', 'Player'].map((channel) => (
-              <ClickWrapper>
-                <button
-                  key={channel}
-                  className={`channel-tab ${selectedChannel === channel ? 'active' : ''}`}
-                  onClick={() => setSelectedChannel(channel)}
-                >
-                  {channel}
-                </button>
-              </ClickWrapper>
-            ))}
-          </div>
           <ul
             style={{
               overflowAnchor: "none",
@@ -296,7 +316,7 @@ export function Chat() {
             }}
             className="absolute left-2 top-[5px] text-white"
           >
-            [All]
+            [{channel}]
           </div>
           <input
             onFocus={() => {
@@ -305,7 +325,7 @@ export function Chat() {
             }}
             ref={inputRef}
             type="text"
-            className="w-full outline-none px-2 pl-[46px] text-white py-1 bg-black/70 opacity-0 focus:opacity-100 border border-ss-stroke rounded"
+            className={`w-full outline-none px-2 pl-[${placeholderPadValue}] text-white py-1 bg-black/70 opacity-0 focus:opacity-100 border border-ss-stroke rounded`}
             value={newMessage}
             placeholder="Type a message"
             onChange={(e) => setNewMessage(e.target.value)}
