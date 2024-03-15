@@ -246,7 +246,7 @@ export function Chat() {
       onMouseMove={() => {
         setLastInteraction(DateTime.now());
       }}
-      className="absolute bottom-12 pb-[37px] border-green-500 border left-0 h-[300px] w-[300px] rounded border border-ss-stroke bg-black/25 transition-all duration-300"
+      className="absolute bottom-12 pb-[37px] left-0 h-[300px] w-[300px] rounded border border-ss-stroke bg-black/25 transition-all duration-300"
     >
       <div className="channel-tabs">
         {[CHANNELS.ALL, CHANNELS.PLAYER].map((channel) => (
@@ -267,7 +267,7 @@ export function Chat() {
             style={{
               overflowAnchor: "none",
             }}
-            className="h-full w-full px-2 space-y-1 flex flex-col border-red-500 border"
+            className="h-full w-full px-2 space-y-1 flex flex-col"
           >
             <div className="grow" />
 
