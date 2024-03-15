@@ -97,7 +97,7 @@ export function Chat() {
 
   const [ initialized, setInitialized ] = useState<boolean>(false);
   // TODO: Make enum, Channels.ALL, Channels.PLAYER
-  const [ channel, setChannel ] = useState<string>('all');
+  const [ channel, setChannel ] = useState<string>(CHANNELS.ALL);
 
   useEffect(() => {
     if (!app || initialized || chatters === null) return
@@ -249,14 +249,14 @@ export function Chat() {
       className="absolute bottom-12 pb-[37px] left-0 h-[300px] w-[300px] rounded border border-ss-stroke bg-black/25 transition-all duration-300"
     >
       <div className="channel-tabs">
-        {[CHANNELS.ALL, CHANNELS.PLAYER].map((channel) => (
+        {[CHANNELS.ALL, CHANNELS.PLAYER].map((channelOption) => (
           <ClickWrapper>
             <button
-              key={channel}
-              className={`channel-tab ${channel === channel ? 'active' : ''}`}
+              key={channelOption}
+              className={`channel-tab ${channel === channelOption ? 'active' : ''}`}
               onClick={() => setChannel(channel)}
             >
-              {channel}
+              {channelOption}
             </button>
           </ClickWrapper>
         ))}
