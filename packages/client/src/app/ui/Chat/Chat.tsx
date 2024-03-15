@@ -232,10 +232,18 @@ export function Chat() {
     };
   }, [blurInput, focusInput]);
 
-  const placeholderPadValue = 
-    channel === CHANNELS.ALL ? "46px" :
-    channel === CHANNELS.PLAYER ? "72px" : 
-    "0px";
+  // TODO: Weird issue... 
+  // When you specify a value of "pl-[50px]" for a tailwind class, the JIT compiler will generate a CSS class corresponding to that specific value.
+  // But if you stick this value in a variable, the compiler misses it, and you can't arbitrarily load pixel values from variables. So we have to construct the whole class string like this.
+  const getInputClass = () => {
+    if (channel === CHANNELS.ALL) {
+      return `w-full outline-none px-2 pl-[46px] text-white py-1 bg-black/70 opacity-0 focus:opacity-100 border border-ss-stroke rounded`
+    }
+
+    if (channel === CHANNELS.PLAYER) {
+      return `w-full outline-none px-2 pl-[74px] text-white py-1 bg-black/70 opacity-0 focus:opacity-100 border border-ss-stroke rounded`
+    }
+  }
 
   return (
     <div
@@ -325,7 +333,7 @@ export function Chat() {
             }}
             ref={inputRef}
             type="text"
-            className={`w-full outline-none px-2 pl-[${placeholderPadValue}] text-white py-1 bg-black/70 opacity-0 focus:opacity-100 border border-ss-stroke rounded`}
+            className={getInputClass()}
             value={newMessage}
             placeholder="Type a message"
             onChange={(e) => setNewMessage(e.target.value)}
