@@ -11,7 +11,7 @@ import { createClock } from "./createClock";
 import { createPublicClient, fallback, webSocket, http, createWalletClient, Hex, ClientConfig, custom } from "viem";
 import { WindowProvider, configureChains, createConfig } from "wagmi";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
-import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
+import { metaMaskWallet, coinbaseWallet } from "@rainbow-me/rainbowkit/wallets";
 import { publicProvider } from "wagmi/providers/public";
 import { createWaitForTransaction } from "./waitForTransaction";
 import { createSyncFilters } from "./createSyncFilters";

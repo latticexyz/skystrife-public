@@ -1,11 +1,15 @@
-import { useMatchRewards } from "../../amalgema-ui/hooks/useMatchRewards";
 import { Body, OverlineSmall } from "../Theme/SkyStrife/Typography";
 import { Mana } from "../Theme/SkyStrife/Mana";
 import { Entity } from "@latticexyz/recs";
 import { Fragment } from "react";
+import { useAmalgema } from "../../../useAmalgema";
 
 export function MatchRewards({ matchEntity }: { matchEntity: Entity }) {
-  const matchRewards = useMatchRewards(matchEntity).totalRewards;
+  const {
+    utils: { getMatchRewards },
+  } = useAmalgema();
+
+  const matchRewards = getMatchRewards(matchEntity).totalRewards;
   if (matchRewards.length === 0) return <></>;
 
   return (

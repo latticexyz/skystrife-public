@@ -1,6 +1,6 @@
 # uiExample.ts explanation
 
-Here is the detailed explanation for [this plugin](uiExample.ts).
+Here is the detailed explanation for [this plugin](../dev/uiExample.ts).
 This is an extremely simple plugin that just shows a user interface.
 
 ![User interface](../public/uiExample.png)

@@ -82,8 +82,8 @@ export function calculateCombatResult(
       : calculateDamageDefender(layer, attacker, defender, atPosition);
 
   return {
-    attackerDamage: Math.min(Math.round(attackerDamage / 1000), 100),
-    defenderDamage: Math.min(Math.round(defenderDamage / 1000), 100),
+    attackerDamage: Math.max(attackerDamage, 1_000) / 1000,
+    defenderDamage: Math.max(defenderDamage, 1_000) / 1000,
   };
 }
 

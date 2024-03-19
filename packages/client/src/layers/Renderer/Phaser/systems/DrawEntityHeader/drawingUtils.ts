@@ -13,6 +13,9 @@ import { PhaserLayer, RenderDepth } from "../../types";
 export function drawPlayerColorBanner(layer: PhaserLayer, entity: Entity, type: UpdateType, yOffset: number) {
   const {
     parentLayers: {
+      network: {
+        network: { matchEntity },
+      },
       local: {
         components: { LocalPosition },
         api: { getOwnerColor },
@@ -36,7 +39,7 @@ export function drawPlayerColorBanner(layer: PhaserLayer, entity: Entity, type: 
     return;
   }
 
-  const color = getOwnerColor(entity);
+  const color = getOwnerColor(entity, matchEntity);
   const position = getComponentValueStrict(LocalPosition, entity);
 
   playTintedAnimation(bannerId as Entity, Animations.Banner, color.name);

@@ -35,7 +35,7 @@ export const MatchLobby = ({ matchEntity }: { matchEntity: Entity }) => {
       components: { Player, PlayerReady, Match, MatchConfig, OwnedBy, UnitType },
       utils: { getLevelSpawns },
     },
-    localLayer: {
+    headlessLayer: {
       api: { getOwnerColor },
     },
   } = useMUD();
@@ -117,7 +117,7 @@ export const MatchLobby = ({ matchEntity }: { matchEntity: Entity }) => {
               {allSpawns.map((_, i) => {
                 const player = allPlayers[i];
                 const playerReady = Boolean(playerReadys.find((i) => player === i));
-                const playerColor = getOwnerColor(player);
+                const playerColor = getOwnerColor(player, matchEntity);
                 const isSelf = player === currentPlayer?.player;
                 const owner = getComponentValue(OwnedBy, player);
 

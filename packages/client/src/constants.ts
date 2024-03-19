@@ -18,7 +18,8 @@ export const BYTES32_ZERO = "0x0000000000000000000000000000000000000000000000000
 export const SPAWN_SETTLEMENT = stringToHex("SpawnSettlement", { size: 32 });
 export const EMOJI = "🔮";
 
-export const SEASON_NAME = "Season 0.2";
+export const SEASON_NAME = "Season 0.3";
+export const SEASON_START = 1710835200;
 
 export const UNLIMITED_DELEGATION = resourceToHex({ type: "system", namespace: "", name: "unlimited" });
 export const SYSTEMBOUND_DELEGATION = resourceToHex({ type: "system", namespace: "", name: "systembound" });

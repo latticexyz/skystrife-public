@@ -41,11 +41,11 @@ There are some example plugins provided in the client by default.
 The purpose of these is to introduce players to what is possible with a plugin and inspire them to create their own.
 Currently, the examples are:
 
-1. [UI Example](dev/uiExample.md): This example is used to show all of the built-in UI components provided by plugins.
+1. [UI Example](tutorials/uiExample.md): This example is used to show all of the built-in UI components provided by plugins.
    You can use this as a starting point for a new plugin.
-1. Player Details: Display a more detailed view of a player in your match.
+1. [Player Details](tutorials/playerDetails.md): Display a more detailed view of a player in your match.
    This introduces fetching data that is not otherwise shown in the Sky Strife UI.
-1. Frenzy: Provides a hotkey that commands one of your units to attack the nearest enemy automatically.
+1. [Frenzy](tutorials/frenzy.md): Provides a hotkey that commands one of your units to attack the nearest enemy automatically.
    It has a small informational UI and also highlights the intended target in-game.
    This is a good introduction to gameplay plugins as it accesses enemy unit information, does some calculations, and issues an attack transaction on behalf of the user.
 
@@ -104,6 +104,16 @@ function createPlugin(pluginLayer: PluginLayer) {
   };
 }
 ```
+
+## Plugin Deployment
+
+If you are done writing a plugin and want to give access to others, you'll have to host it somewhere that offers static file hosting.
+
+The easiest way to do this is to [create a gist on GitHub](https://docs.github.com/en/get-started/writing-on-github/editing-and-sharing-content-with-gists/creating-gists). This allows you to make one file publicly accessible.
+
+Once hosted in this way, you can give others the link to the plugin and they can import it into their client.
+
+[Here is an example of plugin in a gist.](https://gist.github.com/Kooshaba/d5b430dd44dc0da4fb2b0171eb7b6004)
 
 ## Security Considerations
 

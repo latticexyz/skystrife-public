@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { PromiseButton } from "../hooks/PromiseButton";
 import { formatEther, parseEther, stringToHex } from "viem";
-import { DateTime } from "luxon";
+import { DateTime, Duration } from "luxon";
 import { Heading } from "../Theme/SkyStrife/Typography";
 import { useBalance } from "wagmi";
 import { useExternalAccount } from "../hooks/useExternalAccount";
@@ -13,11 +13,30 @@ export function SeasonPass() {
   const [name, setName] = useState("");
   const [seasonStart, setSeasonStart] = useState(0);
   const [seasonEnd, setSeasonEnd] = useState(0);
+
   const [mintEnd, setMintEnd] = useState(0);
+  const [mintDuration, setMintDuration] = useState(0);
+
+  const [percentLossPerHour, setPercentLossPerHour] = useState(0);
   const [decreaseRate, setDecreaseRate] = useState(0);
   const [startingPrice, setStartingPrice] = useState(0);
   const [minPrice, setMinPrice] = useState(0);
   const [priceIncreasePercent, setPriceIncreasePercent] = useState(0);
+
+  useEffect(() => {
+    if (mintDuration) {
+      setMintEnd(seasonStart + mintDuration);
+    }
+  }, [mintDuration, seasonStart]);
+
+  useEffect(() => {
+    if (!percentLossPerHour) return;
+
+    const lossRate = percentLossPerHour / 100;
+    const percentLossPerSecond = lossRate / 3600;
+    const convertedToContractDenominator = percentLossPerSecond * 10 ** 10;
+    setDecreaseRate(Math.round(convertedToContractDenominator));
+  }, [percentLossPerHour]);
 
   const [ethToWithdraw, setEthToWithdraw] = useState(0);
   const { address: externalAddress } = useExternalAccount();
@@ -56,6 +75,7 @@ export function SeasonPass() {
             onChange={(e) => setName(e.target.value)}
           />
         </div>
+        <br />
         <div className="flex gap-x-2">
           <label>Season Start</label>
           <input
@@ -65,6 +85,7 @@ export function SeasonPass() {
             onChange={(e) => setSeasonStart(Number(e.target.value))}
           />
         </div>
+        {DateTime.fromSeconds(seasonStart).toUTC().toFormat("yyyy-MM-dd HH:mm:ss")}
         <div className="flex gap-x-2">
           <label>Season End</label>
           <input
@@ -74,6 +95,19 @@ export function SeasonPass() {
             onChange={(e) => setSeasonEnd(Number(e.target.value))}
           />
         </div>
+        {DateTime.fromSeconds(seasonEnd).toUTC().toFormat("yyyy-MM-dd HH:mm:ss")}
+        <br />
+        <br />
+        <div className="flex gap-x-2">
+          <label>Mint Duration</label>
+          <input
+            className="bg-slate-300"
+            type="number"
+            value={mintDuration}
+            onChange={(e) => setMintDuration(Number(e.target.value))}
+          />
+        </div>
+        {Duration.fromMillis(mintDuration * 1000).toFormat("hh:mm:ss")}
         <div className="flex gap-x-2">
           <label>Mint End</label>
           <input
@@ -81,6 +115,18 @@ export function SeasonPass() {
             type="number"
             value={mintEnd}
             onChange={(e) => setMintEnd(Number(e.target.value))}
+          />
+        </div>
+        {DateTime.fromSeconds(mintEnd).toUTC().toFormat("yyyy-MM-dd HH:mm:ss")}
+        <br />
+        <br />
+        <div className="flex gap-x-2">
+          <label>Percent Loss Per Hour</label>
+          <input
+            className="bg-slate-300"
+            type="number"
+            value={percentLossPerHour}
+            onChange={(e) => setPercentLossPerHour(Number(e.target.value))}
           />
         </div>
         <div className="flex gap-x-2">

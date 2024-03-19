@@ -19,7 +19,6 @@ import { SessionWalletManager } from "../../amalgema-ui/SessionWalletManager";
 import { useExternalAccount } from "../hooks/useExternalAccount";
 import { getDelegationSystemCalls } from "../../../getDelegationSystemCalls";
 import { useBurnerBalance } from "../../amalgema-ui/hooks/useBurnerBalance";
-import { useMatchRewards } from "../../amalgema-ui/hooks/useMatchRewards";
 import { useOrbBalance } from "../../amalgema-ui/hooks/useOrbBalance";
 import { LabeledOrbInput } from "../../amalgema-ui/SummonIsland/common";
 import { HeroSelect } from "../../amalgema-ui/HeroSelect";
@@ -71,7 +70,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
     networkLayer: {
       network,
       components: { PlayerReady },
-      utils: { getAvailableLevelSpawns, hasSystemDelegation },
+      utils: { getAvailableLevelSpawns, hasSystemDelegation, getMatchRewards },
       executeSystemWithExternalWallet,
     },
   } = useMUD();
@@ -102,7 +101,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
   const levelId = matchConfig?.levelId;
 
   const burnerBalance = useBurnerBalance();
-  const matchRewards = useMatchRewards(matchEntity);
+  const matchRewards = getMatchRewards(matchEntity);
   const entranceFeeEth = formatEther(matchRewards.entranceFee);
 
   const orbBalance = useOrbBalance();

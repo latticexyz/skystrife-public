@@ -3,7 +3,6 @@ import { Entity, Has, HasValue, getComponentValue, runQuery } from "@latticexyz/
 import { useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { Hex, formatEther, hexToString, stringToHex } from "viem";
-import { useMatchRewards } from "../hooks/useMatchRewards";
 import { Modal } from "../Modal";
 import { useMatchInfo } from "../../ui/hooks/useMatchInfo";
 import { PromiseButton } from "../../ui/hooks/PromiseButton";
@@ -43,6 +42,7 @@ export function JoinModal({
       components: { MatchSweepstake, Player, Match, OwnedBy, OfficialLevel, HeroInRotation },
     },
     components: { MatchJoinable },
+    utils: { getMatchRewards },
   } = useAmalgema();
 
   const freeHero = [...runQuery([HasValue(HeroInRotation, { value: true })])][0];
@@ -50,7 +50,7 @@ export function JoinModal({
   const [previewLevel, setPreviewLevel] = useState(false);
   const [showAccessList, setShowAccessList] = useState(false);
 
-  const { totalRewards, sweepstakeRewards } = useMatchRewards(matchEntity);
+  const { totalRewards, sweepstakeRewards } = getMatchRewards(matchEntity);
   const allowedAccounts = useAccessList(matchEntity);
 
   const matchInfo = useMatchInfo(matchEntity);

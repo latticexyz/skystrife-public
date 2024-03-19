@@ -1,7 +1,7 @@
 import { resourceToHex } from "@latticexyz/common";
 import { SyncFilter } from "@latticexyz/store-sync";
 
-const SEASON_PASS_NAMESPACE = "szn0.2";
+const SEASON_PASS_NAMESPACE = "szn0.3";
 
 const ERC20RegistryTableId = resourceToHex({ type: "table", namespace: "erc20-puppet", name: "ERC20Registry" });
 const OrbBalancesTableId = resourceToHex({ type: "table", namespace: "Orb", name: "Balances" });

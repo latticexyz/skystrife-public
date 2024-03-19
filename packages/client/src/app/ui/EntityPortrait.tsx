@@ -8,13 +8,14 @@ export function EntityPortrait({ entity }: { entity: Entity }) {
   const {
     networkLayer: {
       components: { UnitType, StructureType },
+      network: { matchEntity },
     },
-    localLayer: {
+    headlessLayer: {
       api: { getOwnerColor },
     },
   } = useMUD();
 
-  const ownerColor = getOwnerColor(entity);
+  const ownerColor = getOwnerColor(entity, matchEntity);
   const unitType = getComponentValue(UnitType, entity)?.value ?? 0;
   const structureType = getComponentValue(StructureType, entity)?.value ?? 0;
 

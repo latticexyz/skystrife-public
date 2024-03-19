@@ -21,6 +21,7 @@ export function createHueTintSystem(layer: PhaserLayer) {
     parentLayers: {
       network: {
         components: { OwnedBy, Player, Name, Capturable },
+        network: { matchEntity },
       },
       local: {
         api: { getOwnerColor },
@@ -36,21 +37,21 @@ export function createHueTintSystem(layer: PhaserLayer) {
 
     const ownedEntities = runQuery([HasValue(OwnedBy, { value: decodeMatchEntity(entity).entity })]);
 
-    const color = getOwnerColor(entity);
+    const color = getOwnerColor(entity, matchEntity);
     for (const e of ownedEntities) {
       setComponent(HueTint, e, { value: color.name });
     }
   });
 
   defineEnterSystem(world, [Has(OwnedBy), Has(InCurrentMatch)], ({ entity }) => {
-    const color = getOwnerColor(entity);
+    const color = getOwnerColor(entity, matchEntity);
     if (!color) return;
 
     setComponent(HueTint, entity, { value: color.name });
 
     // HUGE HACK TO GET SPAWNS PAINTED COME BACK TO THIS
     setTimeout(() => {
-      const color = getOwnerColor(entity);
+      const color = getOwnerColor(entity, matchEntity);
       if (!color) return;
 
       setComponent(HueTint, entity, { value: color.name });
@@ -58,7 +59,7 @@ export function createHueTintSystem(layer: PhaserLayer) {
   });
 
   defineUpdateSystem(world, [Has(OwnedBy), Has(Capturable)], ({ entity }) => {
-    const color = getOwnerColor(entity);
+    const color = getOwnerColor(entity, matchEntity);
     if (!color) return;
 
     setComponent(HueTint, entity, { value: color.name });

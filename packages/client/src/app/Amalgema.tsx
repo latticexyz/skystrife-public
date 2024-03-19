@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useStore } from "../useStore";
 import { useNetworkLayer } from "./useNetworkLayer";
 import { AmalgemaUIRoot } from "./amalgema-ui/AmalgemaUIRoot";
@@ -8,7 +8,10 @@ import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { publicProvider } from "wagmi/providers/public";
 import { Link } from "./ui/Theme/SkyStrife/Typography";
 import { DISCORD_URL } from "./links";
-import { SEASON_NAME } from "../constants";
+import { SEASON_NAME, SEASON_START } from "../constants";
+import { DateTime } from "luxon";
+import { useCurrentTime } from "./amalgema-ui/hooks/useCurrentTime";
+import { Button } from "./ui/Theme/SkyStrife/Button";
 
 // Default config setup
 const { publicClient } = configureChains([mainnet], [publicProvider()]);
@@ -17,9 +20,14 @@ const wagmiConfig = createConfig({
 });
 
 export const Amalgema = () => {
-  const LOCK_CLIENT = false;
+  const LOCK_CLIENT = true;
 
-  return LOCK_CLIENT ? <AmalgemaLockScreen /> : <AmalgemaMenu />;
+  const now = DateTime.now().toSeconds();
+  if (LOCK_CLIENT && now < SEASON_START) {
+    return <AmalgemaLockScreen />;
+  }
+
+  return <AmalgemaMenu />;
 };
 
 const AmalgemaMenu = () => {
@@ -46,6 +54,43 @@ const AmalgemaMenu = () => {
 };
 
 const AmalgemaLockScreen = () => {
+  const seasonStartTime = DateTime.fromSeconds(SEASON_START);
+  const [durationUntilSeasonStart, setDurationUntilSeasonStart] = useState(
+    seasonStartTime.diffNow(["days", "hours", "minutes", "seconds"])
+  );
+
+  const now = useCurrentTime();
+  useEffect(() => {
+    setDurationUntilSeasonStart(seasonStartTime.diff(now, ["days", "hours", "minutes", "seconds"]));
+  }, [now]);
+
+  const { days, hours, minutes, seconds } = durationUntilSeasonStart;
+
+  function pluralize(n: number, unit: string) {
+    return `${n} ${unit}${n === 1 ? "" : "s"}`;
+  }
+
+  const timeLeftMessage = `${pluralize(days, "day")}, ${pluralize(hours, "hour")}, ${pluralize(
+    minutes,
+    "minute"
+  )}, and ${pluralize(Math.floor(seconds), "second")}`;
+  const countdown = (
+    <span className="text-3xl text-ss-text-link">
+      {SEASON_NAME} starts in:
+      <br />
+      <span className="text-4xl font-bold text-black">{timeLeftMessage}</span>
+    </span>
+  );
+  const reloadButton = (
+    <>
+      <div className="text-3xl text-ss-text-link">{SEASON_NAME} starts now!</div>
+      <div className="h-6" />
+      <Button buttonType="primary" className="text-2xl p-4" onClick={() => window.location.reload()}>
+        Reload to Join
+      </Button>
+    </>
+  );
+
   return (
     <div className="h-screen w-screen flex flex-col justify-center items-center">
       <div
@@ -58,11 +103,10 @@ const AmalgemaLockScreen = () => {
         }}
         className="fixed top-0 left-0 h-screen w-screen bg-cover"
       />
-      <div className="text-4xl font-bold">Season 0.2 has ended.</div>
-      <div className="h-3" />
+      <div className="h-2" />
       <div className="text-xl text-ss-text-default text-center mt-3">
-        {/* <span className="font-bold">{SEASON_NAME} starts on February 6th, 2024</span> */}
-        Sky Strife will be back on Tuesday, March 19th.
+        {now.toSeconds() < SEASON_START ? countdown : reloadButton}
+        <div className="h-6" />
         <div>
           Follow along on{" "}
           <Link style={{ fontSize: "18px" }} href={DISCORD_URL}>

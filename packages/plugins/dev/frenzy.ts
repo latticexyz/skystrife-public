@@ -11,7 +11,7 @@ function createPlugin(pluginLayer: PluginLayer) {
       resetSelection,
       getAllAttackableEntities,
       isOwnedByCurrentPlayer,
-      getDistanceBetween,
+      calculateCombatResult,
       getPosition,
       canAttack,
       canMoveToAndAttack,
@@ -21,29 +21,25 @@ function createPlugin(pluginLayer: PluginLayer) {
     tileHighlighter,
   } = pluginLayer;
 
-  const findClosestEnemy = (entity: Entity) => {
-    const enemyUnits = getAllAttackableEntities(entity);
-    if (!enemyUnits || enemyUnits.length === 0) return;
+  const findBestTarget = (attacker: Entity) => {
+    const targets = getAllAttackableEntities(attacker);
+    if (!targets || targets.length === 0) return;
 
-    let closestEnemy: Entity | undefined;
-    let closestDistance = Infinity;
+    let bestTarget: Entity | undefined;
+    let mostDamage = 0;
 
-    const attackerPosition = getPosition(entity);
+    const attackerPosition = getPosition(attacker);
     if (!attackerPosition) return;
 
-    for (const enemy of enemyUnits) {
-      const enemyPosition = getPosition(enemy);
-      if (!enemyPosition) continue;
-
-      const distance = getDistanceBetween(attackerPosition, enemyPosition);
-
-      if (distance < closestDistance) {
-        closestEnemy = enemy;
-        closestDistance = distance;
+    for (const target of targets) {
+      const combatResult = calculateCombatResult(attacker, target);
+      if (combatResult && combatResult.attackerDamage > mostDamage) {
+        mostDamage = combatResult.attackerDamage;
+        bestTarget = target;
       }
     }
 
-    return closestEnemy;
+    return bestTarget;
   };
 
   const frenzy = () => {
@@ -51,19 +47,19 @@ function createPlugin(pluginLayer: PluginLayer) {
     if (!selectedEntity) return;
     if (!isOwnedByCurrentPlayer(selectedEntity)) return;
 
-    const closestEnemy = findClosestEnemy(selectedEntity);
-    if (!closestEnemy) return;
+    const bestTarget = findBestTarget(selectedEntity);
+    if (!bestTarget) return;
 
-    if (canAttack(selectedEntity, closestEnemy)) {
+    if (canAttack(selectedEntity, bestTarget)) {
       resetSelection();
-      attack(selectedEntity, closestEnemy);
+      attack(selectedEntity, bestTarget);
       return;
     }
 
-    const closestUnblockedPosition = canMoveToAndAttack(selectedEntity, closestEnemy);
+    const closestUnblockedPosition = canMoveToAndAttack(selectedEntity, bestTarget);
     if (closestUnblockedPosition) {
       resetSelection();
-      move(selectedEntity, closestUnblockedPosition, closestEnemy);
+      move(selectedEntity, closestUnblockedPosition, bestTarget);
       return;
     }
   };
@@ -93,9 +89,9 @@ function createPlugin(pluginLayer: PluginLayer) {
           tileHighlighter.clearAll();
 
           if (selectedEntity) {
-            const closestEnemyPosition = getPosition(findClosestEnemy(selectedEntity));
-            if (closestEnemyPosition) {
-              tileHighlighter.highlightTile(closestEnemyPosition, 0xff0000, 0.5);
+            const bestTargetPosition = getPosition(findBestTarget(selectedEntity));
+            if (bestTargetPosition) {
+              tileHighlighter.highlightTile(bestTargetPosition, 0xff0000, 0.5);
             }
           }
 
@@ -111,8 +107,8 @@ function createPlugin(pluginLayer: PluginLayer) {
 
         return html`<div style=${{ maxWidth: "320px" }}>
           <p>
-            Press <span style=${highlightStyle}>F</span> when selecting one of your units to automatically
-            <span style=${highlightStyle}> attack the closest enemy</span>.
+            Press <span style=${highlightStyle}>F</span> when selecting one of your units to automatically execute the
+            attack that <span style=${highlightStyle}>does the most damage</span>.
           </p>
           ${selectedEntity
             ? html`<p>

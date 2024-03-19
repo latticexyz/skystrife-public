@@ -1,7 +1,6 @@
 import { Mana } from "../ui/Theme/SkyStrife/Mana";
 import { Caption } from "../ui/Theme/SkyStrife/Typography";
 import { Tooltip } from "react-tooltip";
-import { useMatchRewards } from "./hooks/useMatchRewards";
 import { Entity } from "@latticexyz/recs";
 import { useComponentValue } from "@latticexyz/react";
 import { useAmalgema } from "../../useAmalgema";
@@ -30,10 +29,11 @@ export function MatchRewardsFooter({ matchEntity }: { matchEntity: Entity }) {
     network: {
       components: { MatchSweepstake },
     },
+    utils: { getMatchRewards },
   } = useAmalgema();
 
   const sweepstake = useComponentValue(MatchSweepstake, matchEntity);
-  const matchRewards = useMatchRewards(matchEntity);
+  const matchRewards = getMatchRewards(matchEntity);
   const totalReward = matchRewards.totalRewards.reduce((acc, reward) => acc + reward.value, 0n);
 
   return (

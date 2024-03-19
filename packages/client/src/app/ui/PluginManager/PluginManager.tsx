@@ -11,15 +11,17 @@ import { ActivePlugins } from "./ActivePlugins";
 import { Card } from "../Theme/SkyStrife/Card";
 import { PluginIcon } from "../Theme/PluginIcon";
 import { Link, OverlineLarge } from "../Theme/SkyStrife/Typography";
-import { Input } from "../Theme/SkyStrife/Input";
 
 import frenzyCode from "plugins/dev/frenzy?raw";
 import uiExampleCode from "plugins/dev/uiExample?raw";
 import playerDetailsCode from "plugins/dev/playerDetails?raw";
+import opponentGoldCode from "plugins/dev/opponentGold?raw";
+import actionLogCode from "plugins/dev/actionLog?raw";
+
 import { DocsIcon } from "./DocsIcon";
 import { CrossIcon } from "../Theme/CrossIcon";
-import { useMUD } from "../../../useMUD";
 import { AddPlugin } from "./AddPlugin";
+import { useMUD } from "../../../useMUD";
 
 const PLUGIN_DEV_SERVER_URL = "http://localhost:1993";
 export const PLUGIN_DOCS_URL = "https://github.com/latticexyz/skystrife-public/tree/main/packages/plugins/README.md";
@@ -32,8 +34,17 @@ export function convertTsPluginToJs(tsCode: string) {
 }
 
 export function PluginManager() {
+  const {
+    networkLayer: {
+      utils: { sendAnalyticsEvent },
+    },
+  } = useMUD();
+
   const [plugins, setPlugins] = useLocalStorageState<Plugins>("plugins", {
     defaultValue: {},
+  });
+  const [deletedOfficialPlugins, setDeletedOfficialPlugins] = useLocalStorageState<string[]>("deletedOfficialPlugins", {
+    defaultValue: [],
   });
   const [showManager, setShowManager] = useState(false);
   const [managerState, setManagerState] = useState<"open" | "adding">("open");
@@ -93,17 +104,45 @@ export function PluginManager() {
 
   useEffect(() => {
     refreshDevPlugins();
-    if (!plugins["Frenzy"]) setPlugin("Frenzy", { code: convertTsPluginToJs(frenzyCode), source: "official" });
-    if (!plugins["Example Plugin"])
-      setPlugin("Example Plugin", { code: convertTsPluginToJs(uiExampleCode), source: "official" });
-    if (!plugins["Player Details"])
-      setPlugin("Player Details", { code: convertTsPluginToJs(playerDetailsCode), source: "official" });
+
+    const officialPlugins = [
+      ["Frenzy", frenzyCode, true, 24, 160],
+      ["UI Example", uiExampleCode, false, 0, 0],
+      ["Player Details", playerDetailsCode, false, 0, 0],
+      ["Opponent Gold", opponentGoldCode, true, 24, 320],
+      ["Action Log", actionLogCode, false, 0, 0],
+    ] as const;
+
+    officialPlugins.forEach(([pluginName, code, active, x, y]) => {
+      if (!deletedOfficialPlugins.includes(pluginName) && !plugins[pluginName]) {
+        setPlugins((plugins) => {
+          return {
+            ...plugins,
+            [pluginName]: {
+              active,
+              code: convertTsPluginToJs(code),
+              x,
+              y,
+              source: "official",
+            },
+          };
+        });
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [wsConnection, setWsConnection] = useState<WebSocket | null>(null);
   useEffect(() => {
     try {
+      if (!showManager) {
+        wsConnection?.close();
+        return;
+      }
+
+      console.log("Connecting to plugin dev server...");
       const ws = new WebSocket("ws://localhost:1993");
+      setWsConnection(ws);
       ws.onopen = function () {
         console.log("Plugin Dev Server connected.");
         setDevServerConnected(true);
@@ -112,7 +151,13 @@ export function PluginManager() {
       ws.onmessage = function (e) {
         const message = JSON.parse(e.data);
         console.log(`File changed: ${message.path}, Event Type: ${message.eventType}`);
-        if (message.path) refreshPlugin(message.path);
+        if (message.path) {
+          // force an unmount
+          setPlugin(message.path, {
+            active: false,
+          });
+          refreshPlugin(message.path);
+        }
       };
 
       ws.onerror = function (e) {
@@ -120,13 +165,17 @@ export function PluginManager() {
       };
 
       ws.onclose = function (e) {
-        console.log("WebSocket connection closed", e);
         setDevServerConnected(false);
       };
     } catch (e) {
       console.warn("No plugin dev server connected.");
     }
-  }, [refreshPlugin]);
+
+    return () => {
+      wsConnection?.close();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showManager]);
 
   const pluginList = useMemo(() => {
     if (Object.keys(plugins).length === 0) {
@@ -148,34 +197,47 @@ export function PluginManager() {
             </div>
           </div>
 
-          <div className="h-6" />
+          <div className="h-6 shrink-0" />
         </>
       );
     }
 
-    return Object.entries(plugins).map(([key, value]) => {
-      return (
-        <PluginItem
-          key={key}
-          plugins={plugins}
-          pluginKey={key}
-          pluginData={value}
-          setPlugin={setPlugin}
-          deletePlugin={() => {
-            const newPlugins = { ...plugins };
-            delete newPlugins[key];
-            setPlugins(newPlugins);
-          }}
-        />
-      );
-    });
+    return (
+      <div className="grow relative overflow-y-auto w-full">
+        <div className="absolute h-full w-full">
+          {Object.entries(plugins).map(([key, value]) => {
+            return (
+              <PluginItem
+                key={key}
+                plugins={plugins}
+                pluginKey={key}
+                pluginData={value}
+                setPlugin={setPlugin}
+                deletePlugin={() => {
+                  const newPlugins = { ...plugins };
+                  delete newPlugins[key];
+                  setPlugins(newPlugins);
+                }}
+              />
+            );
+          })}
+        </div>
+      </div>
+    );
   }, [plugins, setPlugin, setPlugins]);
 
   return (
     <>
       <ActivePlugins plugins={plugins} setPlugin={setPlugin} />
 
-      <ClickWrapper onClick={() => setShowManager(true)}>
+      <ClickWrapper
+        onClick={() => {
+          setShowManager(true);
+          sendAnalyticsEvent("plugin-manager-toggle", {
+            active: true,
+          });
+        }}
+      >
         <Card primary className="w-[40px] h-[40px] p-2 cursor-pointer">
           <div className="flex flex-row items-center">
             <PluginIcon />
@@ -185,8 +247,8 @@ export function PluginManager() {
 
       <ClickWrapper
         style={{
-          backgroundColor: "rgba(244, 243, 241, 0.8)",
-          backdropFilter: "blur(10px)",
+          backgroundColor: "rgba(244, 243, 241, 0.6)",
+          backdropFilter: "blur(6px)",
           width: showManager ? "384px" : "0",
           transition: "width 0.3s",
           right: showManager ? "0" : "-34px",
@@ -224,36 +286,46 @@ export function PluginManager() {
 
         {devServerConnected && (
           <>
-            <div className="h-6" />
+            <div className="h-6 shrink-0" />
 
-            <div className="flex items-center gap-x-2">
-              <div className="shrink-0">Dev Server Connected</div>
+            <div className="flex items-center shrink-0 gap-x-2">
+              <div className="shrink-0">Dev Server Status</div>
               <div className="w-4 h-4 bg-green-500 rounded-full shrink-0" />
 
-              <div className="flex-grow" />
+              <div className="grow" />
 
               {lastRefreshedPlugin && (
-                <div className="text-sm text-ss-text-light text-right">
+                <div className="text-xs text-ss-text-light text-right">
                   Last Refreshed:
                   <br />
-                  {lastRefreshedPlugin.pluginKey}
+                  {lastRefreshedPlugin.pluginKey} at {lastRefreshedText}
                   <br />
-                  {lastRefreshedText}
                 </div>
               )}
             </div>
           </>
         )}
 
-        <div className="h-6" />
+        <div className="h-6 shrink-0" />
 
         <div className="flex flex-col gap-y-2 grow">
           {managerState === "open" && pluginList}
           {managerState === "adding" && <AddPlugin setPlugin={setPlugin} setManagerState={setManagerState} />}
         </div>
 
-        <div className="w-full flex gap-x-2">
-          <Button buttonType="tertiary" className="p-1 px-2 grow" onClick={() => setShowManager(false)}>
+        <div className="h-6 shrink-0" />
+
+        <div className="w-full flex gap-x-2 shrink-0">
+          <Button
+            buttonType="tertiary"
+            className="p-1 px-2 grow"
+            onClick={() => {
+              setShowManager(false);
+              sendAnalyticsEvent("plugin-manager-toggle", {
+                active: false,
+              });
+            }}
+          >
             <div className="w-full flex items-center gap-x-1">
               <CrossIcon />
               <span>Close</span>

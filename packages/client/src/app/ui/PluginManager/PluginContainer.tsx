@@ -15,6 +15,9 @@ type PluginContainerProps = React.HTMLProps<HTMLDivElement> & {
 
 const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerProps> = (props, ref) => {
   const {
+    networkLayer: {
+      utils: { sendAnalyticsEvent },
+    },
     phaserLayer: {
       api: {
         mapInteraction: { disableMapInteraction, enableMapInteraction },
@@ -30,10 +33,13 @@ const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerP
 
   return (
     <Rnd
-      className={twMerge("rounded border-2 border-black p-2 pointer-events-auto", pluginData.minimized && "pb-0")}
+      className={twMerge(
+        "rounded border overflow-clip border-black p-2 pointer-events-auto",
+        pluginData.minimized && "pb-0"
+      )}
       style={{
         backgroundColor: color("white").alpha(0.5).string(),
-        backdropFilter: "blur(10px)",
+        backdropFilter: "blur(4px)",
       }}
       dragHandleClassName="dragger"
       enableResizing={false}
@@ -48,11 +54,11 @@ const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerP
         disableMapInteraction(pluginKey);
         setDragging(true);
       }}
-      dragGrid={[36, 36]}
+      dragGrid={[8, 8]}
     >
       <div
         className={twMerge(
-          "flex flex-row items-center dragger justify-between rounded border-b-2 border-black -mx-2 p-1 px-2 cursor-move -mt-2 overflow-hidden mb-2 gap-x-8 bg-ss-bg-1",
+          "flex flex-row items-center dragger justify-between border-b border-black -mx-2 p-1 px-2 cursor-move -mt-2 overflow-hidden mb-2 gap-x-8 bg-ss-bg-1",
           minimized && "mb-0 border-0"
         )}
       >
@@ -60,12 +66,17 @@ const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerP
 
         <div className="flex gap-x-2 items-center">
           <button
-            className="cursor-pointer text-lg"
-            onClick={() =>
+            className="cursor-pointer text-2xl w-8 align-middle"
+            onClick={() => {
+              const newMinimized = !minimized;
               setPlugin(pluginKey, {
-                minimized: !minimized,
-              })
-            }
+                minimized: newMinimized,
+              });
+              sendAnalyticsEvent("plugin-minimize-toggle", {
+                ...pluginData,
+                minimized: newMinimized,
+              });
+            }}
           >
             {minimized ? "+" : "-"}
           </button>
@@ -74,6 +85,10 @@ const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerP
             className="cursor-pointer"
             onClick={() => {
               setPlugin(pluginKey, {
+                active: false,
+              });
+              sendAnalyticsEvent("plugin-toggle", {
+                ...pluginData,
                 active: false,
               });
             }}

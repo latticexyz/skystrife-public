@@ -56,11 +56,19 @@ export function createTintNoStaminaSystem(layer: PhaserLayer) {
     tintStamina(entity);
   });
 
+  // Only Gold Mines right now
   defineSystem(world, [Has(Depleted), Has(LocalPosition), Has(StructureType)], ({ entity, type }) => {
     if (type === UpdateType.Exit) return;
     if (getComponentValueStrict(StructureType, entity).value === StructureTypes.SpawnSettlement) return;
     if (getComponentValueStrict(StructureType, entity).value === StructureTypes.Settlement) return;
 
     tintStamina(entity);
+    const spriteObj = objectPool.get(entity, "Sprite");
+    spriteObj.setComponent({
+      id: "stop-anim",
+      once: (sprite) => {
+        sprite.stop();
+      },
+    });
   });
 }

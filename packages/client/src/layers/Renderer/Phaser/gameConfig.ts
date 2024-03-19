@@ -58,11 +58,6 @@ export const gameConfig = {
           key: Assets.Professor,
           path: "/public/assets/professor.png",
         },
-        [Assets.Splash]: {
-          type: AssetType.Image,
-          key: Assets.Splash,
-          path: "/public/assets/splash.png",
-        },
         [Assets.Gold]: {
           type: AssetType.Image,
           key: Assets.Gold,

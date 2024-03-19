@@ -1,6 +1,6 @@
 import { DateTime } from "luxon";
 
-export const HOURS_BETWEEN_MATCHES = 12;
+export const HOURS_BETWEEN_MATCHES = 8;
 
 export function createMatchTimes(time: DateTime, daysAhead = 1) {
   const hoursInDay = 24;

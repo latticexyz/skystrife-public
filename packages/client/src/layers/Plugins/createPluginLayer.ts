@@ -13,6 +13,8 @@ import { createTileHighlighter } from "./createTileHighlighter";
 import { StructureTypes, TerrainTypes, UnitTypes } from "../Network";
 import { Hex } from "viem";
 import { createTextInput } from "./components/createTextInput";
+import { calculateCombatResult as combatResultUtil } from "../Headless/utils/combat";
+import { StructureTypeNames, UnitTypeNames } from "../Network/types";
 
 export type PluginLayer = ReturnType<typeof createPluginLayer>;
 
@@ -25,6 +27,7 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
         network: { matchEntity },
         utils: { getTemplateValueStrict },
       },
+      network: networkLayer,
       headless: {
         components: { NextPosition },
         api: { canAttack, attack: sendAttackTx, getCurrentRegen, getCurrentStamina },
@@ -38,8 +41,12 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     scenes: {
       Main: { phaserScene },
     },
-    api: { buildAt: phaserBuildAt },
+    api: { buildAt: phaserBuildAt, selectAndView },
   } = phaserLayer;
+
+  function getCurrentMatchEntity() {
+    return matchEntity as Entity;
+  }
 
   function getSelectedEntity(): Entity | undefined {
     return [...runQuery([Has(Selected)])][0];
@@ -58,16 +65,32 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     return getComponentValue(Position, entity);
   }
 
-  function getUnitType(entity: Entity | undefined) {
-    if (!entity) return;
+  function getUnitType(entity: Entity | undefined): UnitTypes {
+    if (!entity) return UnitTypes.Unknown;
 
-    return getComponentValue(UnitType, entity)?.value as UnitTypes | undefined;
+    return getComponentValue(UnitType, entity)?.value ?? UnitTypes.Unknown;
   }
 
-  function getStructureType(entity: Entity | undefined) {
-    if (!entity) return;
+  function getStructureType(entity: Entity | undefined): StructureTypes {
+    if (!entity) return StructureTypes.Unknown;
 
-    return getComponentValue(StructureType, entity)?.value as StructureTypes | undefined;
+    return getComponentValue(StructureType, entity)?.value ?? StructureTypes.Unknown;
+  }
+
+  function getEntityName(entity: Entity | undefined): string {
+    if (!entity) return "Unknown";
+
+    const unitType = getUnitType(entity);
+    if (unitType !== UnitTypes.Unknown) {
+      return UnitTypeNames[unitType];
+    }
+
+    const structureType = getStructureType(entity);
+    if (structureType !== StructureTypes.Unknown) {
+      return StructureTypeNames[structureType];
+    }
+
+    return "Unknown";
   }
 
   function onNewTurn(callback: (turn: number) => void) {
@@ -84,6 +107,7 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     if (!playerInfo) return null;
 
     return {
+      entity,
       name: playerInfo.name,
       color: playerInfo.playerColor,
       walletAddress: playerInfo.wallet,
@@ -126,6 +150,10 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
 
     const allEntities = getAllPlayerEntities(playerEntity);
     return allEntities.filter((entity) => getComponentValue(UnitType, entity));
+  }
+
+  function calculateCombatResult(attacker: Entity, defender: Entity) {
+    return combatResultUtil(networkLayer, attacker, defender);
   }
 
   function createHotkeyManager() {
@@ -208,6 +236,8 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     hotkeyManager,
     tileHighlighter: createTileHighlighter(phaserLayer, namespace),
     api: {
+      getCurrentMatchEntity,
+      selectAndView,
       getSelectedEntity,
       resetSelection,
       getDistanceBetween: manhattan,
@@ -215,11 +245,13 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
       isOwnedByCurrentPlayer,
       getUnitType,
       getStructureType,
+      getEntityName,
 
       // combat
       getAllAttackableEntities,
       canAttack,
       canMoveToAndAttack,
+      calculateCombatResult,
 
       // personal player info
       getMyFactories,

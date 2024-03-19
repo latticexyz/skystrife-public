@@ -59,6 +59,10 @@ export function ActivePlugin({
     if (!active && cleanedUpPreact) {
       try {
         plugin?.unmount();
+        setPluginError({
+          type: "none",
+          error: null,
+        });
       } catch (e) {
         console.error(e);
         setPluginError({
@@ -83,6 +87,10 @@ export function ActivePlugin({
     return () => {
       try {
         plugin?.unmount();
+        setPluginError({
+          type: "none",
+          error: null,
+        });
       } catch (e) {
         console.error(e);
         setPluginError({

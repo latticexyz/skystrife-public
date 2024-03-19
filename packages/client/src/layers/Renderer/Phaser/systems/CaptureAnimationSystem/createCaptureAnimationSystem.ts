@@ -11,7 +11,7 @@ export function createCaptureAnimationSystem(layer: PhaserLayer) {
         api: { getOwnerColor },
       },
       network: {
-        network: { world },
+        network: { world, matchEntity },
       },
     },
     api: { getEntityPixelCoord, setOriginCenter, depthFromPosition },
@@ -23,7 +23,7 @@ export function createCaptureAnimationSystem(layer: PhaserLayer) {
   defineSystem(world, [Has(Capturer)], ({ entity }) => {
     const { x, y } = getEntityPixelCoord(entity);
     const gameObject = phaserScene.add.sprite(x, y, "");
-    const ownerColorName = getOwnerColor(entity).name;
+    const ownerColorName = getOwnerColor(entity, matchEntity).name;
 
     const tileCoord = pixelCoordToTileCoord({ x, y }, TILE_WIDTH, TILE_HEIGHT);
 

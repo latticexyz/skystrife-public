@@ -3,7 +3,6 @@ import { Entity, getComponentValue } from "@latticexyz/recs";
 import { useMUD } from "../../useMUD";
 import { Card } from "./Theme/SkyStrife/Card";
 import { Body, OverlineSmall } from "./Theme/SkyStrife/Typography";
-import { useMatchRewards } from "../amalgema-ui/hooks/useMatchRewards";
 import Color from "color";
 import { Button } from "./Theme/SkyStrife/Button";
 import { ClickWrapper } from "./Theme/ClickWrapper";
@@ -52,6 +51,7 @@ export const GameOutcome = ({ matchEntity }: { matchEntity: Entity }) => {
   const {
     networkLayer: {
       components: { MatchFinished, MatchRanking },
+      utils: { getMatchRewards },
     },
     localLayer: {
       api: { getPlayerInfo },
@@ -60,7 +60,7 @@ export const GameOutcome = ({ matchEntity }: { matchEntity: Entity }) => {
 
   const [hide, setHide] = useState(false);
 
-  const matchRewards = useMatchRewards(matchEntity).totalRewards;
+  const matchRewards = getMatchRewards(matchEntity).totalRewards;
 
   const finished = useComponentValue(MatchFinished, matchEntity);
 

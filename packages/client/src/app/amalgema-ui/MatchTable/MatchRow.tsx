@@ -4,7 +4,6 @@ import { ALLOW_LIST_SYSTEM_ID, SEASON_PASS_ONLY_SYSTEM_ID } from "../../../const
 import { SeasonPassIcon } from "../SeasonPassIcon";
 import { MatchPlayers } from "../MatchPlayers";
 import { Hex, formatEther, hexToString } from "viem";
-import { useMatchRewards } from "../hooks/useMatchRewards";
 import { Button } from "../../ui/Theme/SkyStrife/Button";
 import { OrbDisplay } from "./common";
 import { JoinModal } from "./JoinModal";
@@ -14,6 +13,7 @@ import { ConfirmedCheck } from "../../ui/Theme/SkyStrife/Icons/ConfirmedCheck";
 export function MatchRow({ matchEntity }: { matchEntity: Entity }) {
   const {
     components: { MatchConfig, MatchSweepstake, MatchName, MatchAccessControl, MatchIndex, OfficialLevel },
+    utils: { getMatchRewards },
   } = useAmalgema();
 
   const matchAccessControl = getComponentValue(MatchAccessControl, matchEntity);
@@ -27,7 +27,7 @@ export function MatchRow({ matchEntity }: { matchEntity: Entity }) {
   const hasAllowList = matchAccessControl && matchAccessControl.systemId === ALLOW_LIST_SYSTEM_ID;
   const isSeasonPassOnly = matchAccessControl && matchAccessControl.systemId === SEASON_PASS_ONLY_SYSTEM_ID;
 
-  const { totalRewards } = useMatchRewards(matchEntity);
+  const { totalRewards } = getMatchRewards(matchEntity);
   const totalReward = totalRewards.reduce((acc, reward) => acc + reward.value, 0n);
 
   const sweepstake = getComponentValue(MatchSweepstake, matchEntity);

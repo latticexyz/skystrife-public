@@ -77,7 +77,7 @@ const terrainTypesToForegroundTile = {
 } as { [key in TerrainTypes]: Tileset | (Tileset | null)[] };
 
 const terrainTypeToAnimation = {
-  [TerrainTypes.Grass]: [TileAnimationKey.LongGrassBackground, null, null, null, null],
+  // [TerrainTypes.Grass]: [TileAnimationKey.LongGrassBackground, null, null, null, null],
 } as { [key in TerrainTypes]: TileAnimationKey | (TileAnimationKey | null)[] };
 
 const terrainTypeToForegroundAnimation = {} as { [key in TerrainTypes]: Animations };

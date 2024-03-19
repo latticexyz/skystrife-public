@@ -13,7 +13,7 @@ import {
   Entity,
 } from "@latticexyz/recs";
 import { attack } from "./api";
-import { isPassive, isNeutralStructure, canRetaliate } from "./utils";
+import { isPassive, isNeutralStructure, canRetaliate, formatAddress } from "./utils";
 
 import { NetworkLayer, StructureTypes } from "../Network";
 import { createCurrentStaminaSystem, createScopeClientToMatchSystem } from "./systems";
@@ -26,6 +26,10 @@ import { aStar } from "../../utils/pathfinding";
 import { BigNumber } from "ethers";
 import { createPreviousOwnerSystem } from "./systems/PreviousOwnerSystem";
 import { decodeMatchEntity } from "../../decodeMatchEntity";
+import { decodeEntity } from "@latticexyz/store-sync/recs";
+import PLAYER_COLORS from "../Local/player-colors.json";
+import { Hex } from "viem";
+import { toEthAddress } from "@latticexyz/utils";
 
 const { curry } = lodash;
 
@@ -37,7 +41,7 @@ const { curry } = lodash;
 export async function createHeadlessLayer(network: NetworkLayer) {
   const world = namespaceWorld(network.network.world, "headless");
   const {
-    utils: { getOwningPlayer, isOwnedBy },
+    utils: { getOwningPlayer, isOwnedBy, getLevelSpawns },
     api: { getCurrentMatchConfig },
     network: {
       clock,
@@ -55,6 +59,10 @@ export async function createHeadlessLayer(network: NetworkLayer) {
         Untraversable,
         Chargee,
         Charger,
+        SpawnReservedBy,
+        MatchConfig,
+        Name,
+        Match,
       },
     },
   } = network;
@@ -319,6 +327,66 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     return calculateMovementPath(positionComponent, attacker, attackerPosition, closestUnblockedPosition);
   };
 
+  function getOwnerColor(entity: Entity, matchEntity?: Entity | null) {
+    const noColor = {
+      color: 0xffffff,
+      name: "white",
+      hex: "ffffff",
+    };
+    if (matchEntity == null) return noColor;
+
+    const playerEntity = getOwningPlayer(entity);
+    if (!playerEntity) return noColor;
+
+    const reservedSpawnPointKeys = Array.from(
+      runQuery([HasValue(SpawnReservedBy, { value: decodeMatchEntity(playerEntity).entity })])
+    )
+      .map((entity) => decodeEntity(SpawnReservedBy.metadata.keySchema, entity))
+      .filter((key) => key.matchEntity === matchEntity);
+    const reservedSpawnPointKey = reservedSpawnPointKeys[0];
+    if (!reservedSpawnPointKey) return noColor;
+
+    const matchConfig = getComponentValue(MatchConfig, matchEntity);
+    if (!matchConfig) return noColor;
+
+    const spawnsInMatch = getLevelSpawns(matchConfig.levelId);
+
+    spawnsInMatch.sort();
+
+    const playerIndex = spawnsInMatch.indexOf(reservedSpawnPointKey.index);
+    if (playerIndex === -1) return noColor;
+
+    const colorData = Object.entries(PLAYER_COLORS)[playerIndex + 1];
+    return {
+      color: parseInt(colorData[0], 16),
+      name: colorData[1],
+      hex: colorData[0],
+    };
+  }
+
+  function getPlayerInfo(player: Entity) {
+    const owner = getComponentValue(OwnedBy, player)?.value;
+    if (!owner) return;
+
+    const ownerName = getComponentValue(Name, owner as Entity);
+    const name = ownerName ? ownerName.value : formatAddress(toEthAddress(owner) as Hex);
+
+    const matchEntity = getComponentValue(Match, player)?.matchEntity;
+    if (!matchEntity) return;
+
+    const playerColor = getOwnerColor(player, matchEntity as Entity);
+    const playerId = player;
+
+    return {
+      player,
+      playerId,
+      name,
+      playerColor,
+      matchEntity: matchEntity as Entity,
+      wallet: toEthAddress(owner),
+    };
+  }
+
   const getCurrentRegen = (entity: Entity) => {
     const chargers = runQuery([Has(InCurrentMatch), HasValue(Chargee, { value: decodeMatchEntity(entity).entity })]);
     const regen = [...chargers].reduce((acc, charger) => {
@@ -356,6 +424,9 @@ export async function createHeadlessLayer(network: NetworkLayer) {
       getCurrentRegen,
 
       combat: { isPassive, isNeutralStructure, canRetaliate },
+
+      getPlayerInfo,
+      getOwnerColor,
     },
   };
 

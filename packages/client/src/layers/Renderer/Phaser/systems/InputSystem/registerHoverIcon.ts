@@ -149,7 +149,6 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
         for (const coord of coordsInRangeOfTarget) {
           if (hasPotentialPath(selectedEntity, coord)) {
             preferredEndPosition = coord;
-            console.warn(`Found a position in range of target: ${coord.x}, ${coord.y}`);
             break;
           }
         }

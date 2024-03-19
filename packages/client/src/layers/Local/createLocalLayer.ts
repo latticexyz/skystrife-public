@@ -36,17 +36,14 @@ import {
   createPositionErrorFallbackSystem,
   createMatchStartSystem,
 } from "./systems";
-import PLAYER_COLORS from "./player-colors.json";
-import { Area, awaitStreamValue, sleep, toEthAddress } from "@latticexyz/utils";
+import { Area, awaitStreamValue, sleep } from "@latticexyz/utils";
 import { createPotentialPathSystem } from "./systems/PotentialPathSystem";
 import { concatMap, merge } from "rxjs";
 import { Coord } from "phaserx";
 import { getClosestTraversablePositionToTarget, manhattan } from "../../utils/distance";
 import { WorldCoord } from "../../types";
-import { decodeEntity, singletonEntity } from "@latticexyz/store-sync/recs";
+import { singletonEntity } from "@latticexyz/store-sync/recs";
 import { decodeMatchEntity } from "../../decodeMatchEntity";
-import { formatAddress } from "../../app/amalgema-ui/CurrentProfile";
-import { Hex } from "viem";
 import { encodeMatchEntity } from "../../encodeMatchEntity";
 import { createUnitOwnedByCurrentPlayerSystem } from "./systems/UnitOwnedByCurrentPlayerSystem";
 import { worldCoordEq } from "../../utils/coords";
@@ -64,26 +61,13 @@ export async function createLocalLayer(headless: HeadlessLayer) {
   const {
     parentLayers: {
       network: {
-        components: {
-          Match,
-          MatchConfig,
-          SpawnReservedBy,
-          Player,
-          Name,
-          Untraversable,
-          Range,
-          Combat,
-          CombatOutcome,
-          OwnedBy,
-          RequiresSetup,
-        },
-        utils: { getOwningPlayer, isOwnedByCurrentPlayer, getLevelSpawns },
-        network: { matchEntity },
+        components: { Player, Name, Untraversable, Range, Combat, CombatOutcome, OwnedBy, RequiresSetup },
+        utils: { getOwningPlayer, isOwnedByCurrentPlayer },
         api: { move: moveApi, moveAndAttack },
       },
     },
     components: headlessComponents,
-    api: { calculateMovementPath, getMovementDifficulty, getMoveSpeed },
+    api: { calculateMovementPath, getMovementDifficulty, getMoveSpeed, getOwnerColor, getPlayerInfo },
   } = headless;
 
   // Components
@@ -216,43 +200,6 @@ export async function createLocalLayer(headless: HeadlessLayer) {
   const prefs = getPreferences();
   if (prefs) setComponent(Preferences, singletonEntity, prefs);
 
-  function getOwnerColor(entity: Entity) {
-    const noColor = {
-      color: 0xffffff,
-      name: "white",
-      hex: "ffffff",
-    };
-    if (matchEntity == null) return noColor;
-
-    const playerEntity = getOwningPlayer(entity);
-    if (!playerEntity) return noColor;
-
-    const reservedSpawnPointKeys = Array.from(
-      runQuery([HasValue(SpawnReservedBy, { value: decodeMatchEntity(playerEntity).entity })])
-    )
-      .map((entity) => decodeEntity(SpawnReservedBy.metadata.keySchema, entity))
-      .filter((key) => key.matchEntity === matchEntity);
-    const reservedSpawnPointKey = reservedSpawnPointKeys[0];
-    if (!reservedSpawnPointKey) return noColor;
-
-    const matchConfig = getComponentValue(MatchConfig, matchEntity);
-    if (!matchConfig) return noColor;
-
-    const spawnsInMatch = getLevelSpawns(matchConfig.levelId);
-
-    spawnsInMatch.sort();
-
-    const playerIndex = spawnsInMatch.indexOf(reservedSpawnPointKey.index);
-    if (playerIndex === -1) return noColor;
-
-    const colorData = Object.entries(PLAYER_COLORS)[playerIndex + 1];
-    return {
-      color: parseInt(colorData[0], 16),
-      name: colorData[1],
-      hex: colorData[0],
-    };
-  }
-
   const hasPotentialPath = (selectedEntity: Entity, targetPosition: Coord) => {
     if (hasComponent(headlessComponents.OnCooldown, selectedEntity)) return false;
 
@@ -325,29 +272,6 @@ export async function createLocalLayer(headless: HeadlessLayer) {
         playerId: playerEntity,
       });
     });
-  }
-
-  function getPlayerInfo(player: Entity) {
-    const owner = getComponentValue(OwnedBy, player)?.value;
-    if (!owner) return;
-
-    const ownerName = getComponentValue(Name, owner as Entity);
-    const name = ownerName ? ownerName.value : formatAddress(toEthAddress(owner) as Hex);
-
-    const matchEntity = getComponentValue(Match, player)?.matchEntity;
-    if (!matchEntity) return;
-
-    const playerColor = getOwnerColor(player);
-    const playerId = player;
-
-    return {
-      player,
-      playerId,
-      name,
-      playerColor,
-      matchEntity: matchEntity as Entity,
-      wallet: toEthAddress(owner),
-    };
   }
 
   /**
@@ -526,18 +450,27 @@ export async function createLocalLayer(headless: HeadlessLayer) {
   function getAllAttackableEntities(attacker: Entity) {
     const {
       parentLayers: {
+        network: {
+          components: { RequiresSetup },
+        },
         headless: {
           components: { NextPosition },
         },
       },
     } = layer;
 
-    let paths = getComponentValue(PotentialPath, attacker);
-    if (!paths) paths = getPotentialPaths(attacker);
-    if (!paths) return;
-
     const currentPosition = getComponentValue(LocalPosition, attacker);
     if (!currentPosition) return;
+
+    let paths = getComponentValue(PotentialPath, attacker);
+    if (hasComponent(RequiresSetup, attacker))
+      paths = {
+        x: [currentPosition.x],
+        y: [currentPosition.y],
+        costs: [0],
+      };
+    if (!paths) paths = getPotentialPaths(attacker);
+    if (!paths) return;
 
     const potentialTargetLocations = [];
     for (let i = 0; i < paths.x.length; i++) {

@@ -107,24 +107,6 @@ function ArmorModifierImage({ modifier }: { modifier: number }) {
   );
 }
 
-function getHealthBarColor(health: number, maxHealth: number) {
-  const percentage = health / maxHealth;
-  if (percentage > 0.6)
-    return {
-      main: "#47EB47",
-      shadow: "#14B614",
-    };
-  if (percentage > 0.25)
-    return {
-      main: "#FFE119",
-      shadow: "#CCB100",
-    };
-  return {
-    main: "#E6194B",
-    shadow: "#A11135",
-  };
-}
-
 export function EntityInfo({ entity }: { entity: Entity }) {
   const {
     networkLayer: {
@@ -137,6 +119,11 @@ export function EntityInfo({ entity }: { entity: Entity }) {
       components: { LocalPosition },
     },
   } = useMUD();
+
+  const healthBarColors = {
+    main: "#47EB47",
+    shadow: "#14B614",
+  };
 
   const position = useComponentValue(LocalPosition, entity) ?? { x: 0, y: 0 };
   const terrainAtPosition = useEntityQuery([Has(TerrainType), HasValue(LocalPosition, position)])[0] ?? BYTES32_ZERO;
@@ -162,8 +149,8 @@ export function EntityInfo({ entity }: { entity: Entity }) {
           <Bar
             backgroundColor="#FFFFFF"
             backgroundColorShadow="#DBDBDB"
-            color={getHealthBarColor(combatData.health, combatData.maxHealth).main}
-            colorShadow={getHealthBarColor(combatData.health, combatData.maxHealth).shadow}
+            color={healthBarColors.main}
+            colorShadow={healthBarColors.shadow}
             widthPercent={(combatData.health / combatData.maxHealth) * 100}
             label={`${((combatData.health / combatData.maxHealth) * 100).toFixed(0)}%`}
             labelColor="#000000"

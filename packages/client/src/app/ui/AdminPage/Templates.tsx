@@ -9,7 +9,7 @@ import { SchemaToPrimitives } from "@latticexyz/store";
 function StandardHero({ templateId }: { templateId: Entity }) {
   const {
     components: { HeroInRotation },
-    network: { worldContract },
+    externalWorldContract,
   } = useAmalgema();
 
   const value = useComponentValue(HeroInRotation, templateId);
@@ -20,7 +20,7 @@ function StandardHero({ templateId }: { templateId: Entity }) {
     <td>
       <Button
         buttonType="secondary"
-        onClick={() => worldContract.write.setHeroInRotation([templateId as Hex, !inRotation])}
+        onClick={() => externalWorldContract?.write.setHeroInRotation([templateId as Hex, !inRotation])}
         style={{ color: inRotation ? "green" : "darkred" }}
       >
         {inRotation ? "true" : "false"}
@@ -32,7 +32,7 @@ function StandardHero({ templateId }: { templateId: Entity }) {
 function SeasonPassHero({ templateId }: { templateId: Entity }) {
   const {
     components: { HeroInSeasonPassRotation },
-    network: { worldContract },
+    externalWorldContract,
   } = useAmalgema();
 
   const value = useComponentValue(HeroInSeasonPassRotation, templateId);
@@ -43,7 +43,7 @@ function SeasonPassHero({ templateId }: { templateId: Entity }) {
     <td>
       <Button
         buttonType="secondary"
-        onClick={() => worldContract.write.setHeroInSeasonPassRotation([templateId as Hex, !inRotation])}
+        onClick={() => externalWorldContract?.write.setHeroInSeasonPassRotation([templateId as Hex, !inRotation])}
         style={{ color: inRotation ? "green" : "darkred" }}
       >
         {inRotation ? "true" : "false"}

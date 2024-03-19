@@ -75,6 +75,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
         components: { UnitType, OwnedBy },
         utils: { isOwnedByCurrentPlayer, getCurrentPlayerEntity, getTemplateValueStrict },
         api: { buildAt: sendBuildAtTx },
+        network: { matchEntity },
       },
       headless: {
         components: { NextPosition, InCurrentMatch },
@@ -210,7 +211,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     animation: Animations,
     callback?: (gameObject: Phaser.GameObjects.Sprite) => void
   ) {
-    const color = getOwnerColor(entity);
+    const color = getOwnerColor(entity, matchEntity);
     return playTintedAnimation(entity, animation, color.name, callback);
   }
 

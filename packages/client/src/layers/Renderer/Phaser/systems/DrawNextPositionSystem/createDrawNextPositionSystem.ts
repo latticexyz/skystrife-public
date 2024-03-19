@@ -35,6 +35,7 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
       },
       network: {
         components: { Transaction, UnitType },
+        network: { matchEntity },
       },
     },
     scenes: {
@@ -81,7 +82,7 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
 
     const position = getComponentValue(LocalPosition, entity);
     if (!position || !worldCoordEq(position, nextPosition)) {
-      const color = getOwnerColor(entity);
+      const color = getOwnerColor(entity, matchEntity);
       playTintedAnimation(spriteId, animation.value as Animations, color.name, (attackSprite) => {
         const pixelCoord = tileCoordToPixelCoord(nextPosition, tileWidth, tileHeight);
         attackSprite.setPosition(pixelCoord.x, pixelCoord.y - UNIT_OFFSET);

@@ -16,7 +16,7 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
         components: { LocalPosition, LocalHealth, Path },
       },
       headless: {
-        components: { InCurrentMatch, NextPosition },
+        components: { InCurrentMatch, NextPosition, Depleted },
       },
     },
   } = layer;
@@ -45,7 +45,13 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
   // Player Color Banner
   defineSystem(
     world,
-    [Has(LocalPosition), Not(OwnedBy), HasValue(StructureType, { value: StructureTypes.GoldMine }), Has(HeaderHeight)],
+    [
+      Has(LocalPosition),
+      Not(OwnedBy),
+      HasValue(StructureType, { value: StructureTypes.GoldMine }),
+      Not(Depleted),
+      Has(HeaderHeight),
+    ],
     ({ entity, type }) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
       drawPlayerColorBanner(layer, entity, type, headerHeight);
@@ -54,7 +60,13 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
 
   defineSystem(
     world,
-    [Has(LocalPosition), Has(OwnedBy), HasValue(StructureType, { value: StructureTypes.GoldMine }), Has(HeaderHeight)],
+    [
+      Has(LocalPosition),
+      Has(OwnedBy),
+      HasValue(StructureType, { value: StructureTypes.GoldMine }),
+      Not(Depleted),
+      Has(HeaderHeight),
+    ],
     ({ entity, type }) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
       drawPlayerColorBanner(layer, entity, type, headerHeight);
@@ -120,6 +132,7 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
       Has(LocalPosition),
       Has(HeaderHeight),
       Has(ChargeCap),
+      Not(Depleted),
       NotValue(StructureType, { value: StructureTypes.GoldMine }),
     ],
     (update) => {

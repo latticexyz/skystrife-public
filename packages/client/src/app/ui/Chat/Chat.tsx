@@ -11,6 +11,7 @@ import { DateTime } from "luxon";
 import { useExternalAccount } from "../hooks/useExternalAccount";
 import { addressToEntityID } from "../../../mud/setupNetwork";
 import { BYTES32_ZERO } from "../../../constants";
+import useOnClickOutside from "../hooks/useOnClickOutside";
 
 type Message = { id: string; address: string; content: string; color: string; name: string; timestamp: number };
 
@@ -72,7 +73,7 @@ export function Chat() {
 
   const now = useCurrentTime();
   const secondsVisibleAfterInteraction = 15;
-  const [lastInteraction, setLastInteraction] = useState(DateTime.now());
+  const [lastInteraction, setLastInteraction] = useState(DateTime.fromSeconds(0));
   const [inputFocused, setInputFocused] = useState(false);
 
   const focusInput = useCallback(() => {
@@ -81,6 +82,7 @@ export function Chat() {
     setInputFocused(true);
     setLastInteraction(DateTime.now());
   }, [disableMapInteraction]);
+
   const blurInput = useCallback(() => {
     if (!inputFocused) return;
 
@@ -94,6 +96,7 @@ export function Chat() {
 
   const [newMessage, setNewMessage] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  useOnClickOutside(inputRef, blurInput);
   const scrollIntoViewRef = useRef<HTMLDivElement>(null);
 
   const messages = useLiveQuery<Message>(app, "message", {
@@ -101,9 +104,11 @@ export function Chat() {
   });
 
   useEffect(() => {
+    if (app?.status !== "connected") return;
+
     setLastInteraction(DateTime.now());
     scrollIntoViewRef.current?.scrollIntoView();
-  }, [messages]);
+  }, [app?.status, messages]);
 
   useEffect(() => {
     if (lastInteraction.plus({ seconds: secondsVisibleAfterInteraction }).diff(now).milliseconds > 0) return;
@@ -120,7 +125,10 @@ export function Chat() {
     const mainWalletAddressEntity = externalWalletClient.address
       ? addressToEntityID(externalWalletClient.address)
       : (BYTES32_ZERO as Entity);
-    const name = getComponentValue(Name, mainWalletAddressEntity)?.value ?? "Spectator";
+    const name =
+      getComponentValue(Name, mainWalletAddressEntity)?.value ??
+      externalWalletClient.address?.slice(0, 8) ??
+      "Spectator";
 
     try {
       setNewMessage("");
@@ -148,6 +156,8 @@ export function Chat() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (app?.status !== "connected") return;
+
       if (document.activeElement === inputRef.current) return;
       if (e.key === "Enter") {
         focusInput();
@@ -159,7 +169,22 @@ export function Chat() {
     return () => {
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [blurInput, focusInput]);
+  }, [app?.status, blurInput, focusInput]);
+
+  const allMessages = messages ?? [];
+  useEffect(() => {
+    if (app?.status === "connected" && allMessages.length === 0) {
+      allMessages.unshift({
+        id: "0",
+        color: "white",
+        name: "System",
+        content: "Welcome to Sky Strife! Press enter to chat.",
+        address: "0x0",
+        timestamp: 0,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [app, app?.status]);
 
   return (
     <div
@@ -172,7 +197,7 @@ export function Chat() {
       className="absolute bottom-12 left-0 h-[160px] w-[300px] rounded border border-ss-stroke bg-black/25 transition-all duration-300"
     >
       <div className="h-full w-full">
-        <div className="w-full overflow-y-auto">
+        <div className="w-full overflow-hidden">
           <ul
             style={{
               overflowAnchor: "none",
@@ -181,7 +206,7 @@ export function Chat() {
           >
             <div className="grow" />
 
-            {(messages ?? []).map((message) => (
+            {allMessages.map((message) => (
               <li
                 style={{
                   textShadow: "0 0 2px black",

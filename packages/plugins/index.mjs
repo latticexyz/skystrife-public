@@ -40,7 +40,7 @@ const server = http.createServer((request, response) => {
   }
 });
 
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ server, verifyClient: (info, cb) => cb(true)});
 
 wss.on('connection', function connection(ws) {
   console.log('A client connected');

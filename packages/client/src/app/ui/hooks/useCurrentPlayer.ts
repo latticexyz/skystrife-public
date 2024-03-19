@@ -8,7 +8,7 @@ export const useCurrentPlayer = (matchEntity: Entity) => {
     networkLayer: {
       components: { Name, Match, OwnedBy, Player },
     },
-    localLayer: {
+    headlessLayer: {
       api: { getOwnerColor },
     },
     externalWalletClient,
@@ -28,7 +28,7 @@ export const useCurrentPlayer = (matchEntity: Entity) => {
   const mainWallet = (useComponentValue(OwnedBy, playerEntity)?.value ?? "0x00") as Entity;
   const name = useComponentValue(Name, mainWallet)?.value;
   const playerColor = playerEntity
-    ? getOwnerColor(playerEntity)
+    ? getOwnerColor(playerEntity, matchEntity)
     : {
         name: "white",
         color: 0xffffff,

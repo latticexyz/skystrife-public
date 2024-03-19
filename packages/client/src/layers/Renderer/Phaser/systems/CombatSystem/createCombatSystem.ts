@@ -103,7 +103,7 @@ export function createCombatSystem(layer: PhaserLayer) {
     const idleAnimation = UnitTypeAnimations[unitType];
 
     const embodiedObject = objectPool.get(entity, "Sprite");
-    const ownerColor = getOwnerColor(entityOwner);
+    const ownerColor = getOwnerColor(entityOwner, matchEntity);
 
     embodiedObject.setComponent({
       id: "attack-animation",

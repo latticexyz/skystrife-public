@@ -1,3 +1,4 @@
+import { createPluginLayer } from "../../../layers/Plugins/createPluginLayer";
 import { useMUD } from "../../../useMUD";
 import { Button } from "../Theme/SkyStrife/Button";
 import { Input } from "../Theme/SkyStrife/Input";
@@ -20,8 +21,10 @@ function ImportPluginForm({
     networkLayer: {
       utils: { sendAnalyticsEvent },
     },
+    phaserLayer,
   } = useMUD();
 
+  const [pluginLoading, setPluginLoading] = useState(false);
   const [newPluginName, setNewPluginName] = useState("");
   const [pluginUrl, setPluginUrl] = useState("");
   const [newPluginError, setNewPluginError] = useState<string | null>(null);
@@ -37,8 +40,8 @@ function ImportPluginForm({
       <Button
         buttonType="primary"
         className="w-full"
-        disabled={!newPluginName || !pluginUrl}
-        onClick={() => {
+        disabled={!pluginLoading && (!newPluginName || !pluginUrl)}
+        onClick={async () => {
           if (!newPluginName) {
             setNewPluginError("Plugin name is required");
             return;
@@ -49,11 +52,35 @@ function ImportPluginForm({
             return;
           }
 
-          fetch(pluginUrl)
+          setPluginLoading(true);
+
+          await fetch(pluginUrl)
             .then((res) => res.text())
             .then((code) => {
+              let jsCode = "";
+
               try {
-                const jsCode = convertTsPluginToJs(code);
+                jsCode = convertTsPluginToJs(code);
+              } catch (e) {
+                setNewPluginError("Plugin code is not valid TypeScript");
+                return;
+              }
+
+              if (jsCode.length === 0) {
+                setNewPluginError("Plugin code is empty");
+                return;
+              }
+
+              try {
+                const pluginLayer = createPluginLayer(phaserLayer, newPluginName);
+                const createPlugin = eval(`(${jsCode})`);
+                createPlugin(pluginLayer);
+              } catch (e) {
+                setNewPluginError("Invalid plugin. Please check the plugin code or reach out to the plugin author.");
+                return;
+              }
+
+              try {
                 setPlugin(newPluginName, { code: jsCode, source: "remote" });
                 setNewPluginName("");
                 setPluginUrl("");
@@ -71,12 +98,18 @@ function ImportPluginForm({
             .catch((e) => {
               setNewPluginError(e.message);
             });
+
+          setPluginLoading(false);
         }}
       >
         Add
       </Button>
 
-      {newPluginError && <div className="text-red-600 w-full text-center">{newPluginError}</div>}
+      {newPluginError && (
+        <div className="mt-4 text-red-600 w-full text-center p-4 rounded-md border-2 border-red-600 bg-red-200/50">
+          {newPluginError}
+        </div>
+      )}
     </div>
   );
 }
@@ -99,8 +132,8 @@ export function AddPlugin({
         }}
         className={twMerge(
           "flex flex-col grow items-center justify-around w-full h-[128px] rounded-md",
-          "border border-[#DDDAD0] bg-white hover:border-[#1A6CBC] hover:bg-blue-300/30 cursor-pointer",
-          addMethod === "remote" && "border-[#1A6CBC] bg-blue-300/30"
+          "border border-[#DDDAD0] bg-white/70 hover:border-[#1A6CBC] hover:bg-blue-300/80 cursor-pointer",
+          addMethod === "remote" && "border-[#1A6CBC] bg-blue-300/60"
         )}
       >
         <div className="flex flex-col text-center items-center p-6">
@@ -109,7 +142,7 @@ export function AddPlugin({
             <span>Import a plugin</span>
           </div>
           <div className="h-2" />
-          <Body style={{ fontSize: "12px" }}>Import a plugin from an external URL.</Body>
+          <Body style={{ fontSize: "14px" }}>Import a plugin from an external URL.</Body>
         </div>
       </div>
 
@@ -119,8 +152,8 @@ export function AddPlugin({
         }}
         className={twMerge(
           "flex flex-col grow items-center justify-around w-full h-[128px] rounded-md",
-          "border border-[#DDDAD0] bg-white hover:border-[#1A6CBC] hover:bg-blue-300/30 cursor-pointer",
-          addMethod === "dev" && "border-[#1A6CBC] bg-blue-300/30"
+          "border border-[#DDDAD0] bg-white/70 hover:border-[#1A6CBC] hover:bg-blue-300/80 cursor-pointer",
+          addMethod === "dev" && "border-[#1A6CBC] bg-blue-300/60"
         )}
       >
         <div className="flex flex-col text-center items-center p-6">
@@ -129,7 +162,7 @@ export function AddPlugin({
             <span>Create plugins locally</span>
           </div>
           <div className="h-2" />
-          <Body style={{ fontSize: "12px" }}>Run the Sky Strife plugin dev server on your local machine.</Body>
+          <Body style={{ fontSize: "14px" }}>Run the Sky Strife plugin dev server on your local machine.</Body>
         </div>
       </div>
 

@@ -22,6 +22,7 @@ export function createUnitBuildSystem(layer: PhaserLayer) {
     parentLayers: {
       network: {
         components: { BuildingUnit, Position, Untraversable },
+        network: { matchEntity },
       },
       local: {
         components: { Selected },
@@ -77,7 +78,7 @@ export function createUnitBuildSystem(layer: PhaserLayer) {
       const buildPosition = buildablePosition[i];
       drawTileHighlight(`unit-build-${i}`, buildPosition, "blue", 1);
 
-      const ownerColor = getOwnerColor(factoryEntity);
+      const ownerColor = getOwnerColor(factoryEntity, matchEntity);
       const buildData = getComponentValueStrict(BuildingUnit, factoryEntity);
       const unitType = buildData.unitType;
       const anim = UnitTypeAnimations[unitType];

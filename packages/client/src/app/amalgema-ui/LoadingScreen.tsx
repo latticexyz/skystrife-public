@@ -18,6 +18,104 @@ type Props = {
   usePrepTime?: boolean;
 };
 
+function createAnalyticsSender(networkLayer: NetworkLayer) {
+  const {
+    components: { SyncProgress },
+    utils: { sendAnalyticsEvent },
+    network: {
+      matchEntity,
+      networkConfig: { indexerUrl },
+    },
+  } = networkLayer;
+
+  function getNowSeconds() {
+    return Math.floor(DateTime.now().toSeconds());
+  }
+
+  sendAnalyticsEvent("loading-screen", {
+    startTime: getNowSeconds(),
+    matchEntity,
+  });
+  if (indexerUrl) {
+    sendAnalyticsEvent("loading-screen", {
+      startSnapshotFetch: getNowSeconds(),
+      matchEntity,
+    });
+  }
+
+  let sentEndEvent = false;
+  let sentEndSnapshotFetch = false;
+  let sentStartSnapshotHydrate = false;
+  let sentEndSnapshotHydrate = false;
+  let sentStartRpcHydrate = false;
+  let sentEndRpcHydrate = false;
+
+  SyncProgress.update$.subscribe(() => {
+    const loadingState = getComponentValue(SyncProgress, singletonEntity);
+    if (!loadingState) return;
+
+    if (!sentEndSnapshotFetch && loadingState.step === SyncStep.SNAPSHOT) {
+      sendAnalyticsEvent("loading-screen", {
+        endSnapshotFetch: getNowSeconds(),
+        matchEntity,
+        blockNumber: loadingState.lastBlockNumberProcessed,
+      });
+      sentEndSnapshotFetch = true;
+    }
+
+    if (
+      !sentStartSnapshotHydrate &&
+      loadingState.step === SyncStep.SNAPSHOT &&
+      loadingState.message.includes("Hydrating")
+    ) {
+      sendAnalyticsEvent("loading-screen", {
+        startSnapshotHydrate: getNowSeconds(),
+        matchEntity,
+      });
+      sentStartSnapshotHydrate = true;
+    }
+
+    if (
+      !sentEndSnapshotHydrate &&
+      loadingState.step === SyncStep.SNAPSHOT &&
+      loadingState.message.includes("Hydrating") &&
+      loadingState.percentage === 100
+    ) {
+      sendAnalyticsEvent("loading-screen", {
+        endSnapshotHydrate: getNowSeconds(),
+        matchEntity,
+      });
+      sentEndSnapshotHydrate = true;
+    }
+
+    if (!sentStartRpcHydrate && loadingState.step === SyncStep.RPC) {
+      sendAnalyticsEvent("loading-screen", {
+        startRpcHydrate: getNowSeconds(),
+        matchEntity,
+        blockNumber: loadingState.lastBlockNumberProcessed,
+      });
+      sentStartRpcHydrate = true;
+    }
+
+    if (sentStartRpcHydrate && !sentEndRpcHydrate && loadingState.step === SyncStep.LIVE) {
+      sendAnalyticsEvent("loading-screen", {
+        endRpcHydrate: getNowSeconds(),
+        matchEntity,
+        blockNumber: loadingState.lastBlockNumberProcessed,
+      });
+      sentEndRpcHydrate = true;
+    }
+
+    if (!sentEndEvent && loadingState.step === SyncStep.LIVE) {
+      sendAnalyticsEvent("loading-screen", {
+        endTime: getNowSeconds(),
+        matchEntity,
+      });
+      sentEndEvent = true;
+    }
+  });
+}
+
 export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
   const [hide, setHide] = React.useState(false);
 
@@ -27,15 +125,11 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
   const loadingState = useObservableValue(
     useMemo(() => {
       if (!networkLayer) return;
-
       const {
         components: { SyncProgress },
-        utils: { sendAnalyticsEvent },
       } = networkLayer;
 
-      sendAnalyticsEvent("loading-screen", {
-        startTime: Math.floor(DateTime.now().toSeconds()),
-      });
+      createAnalyticsSender(networkLayer);
 
       // use LoadingState.update$ as a trigger rather than a value
       // and concat with an initial value to trigger the first look up
@@ -55,24 +149,6 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
       latestBlockNumber: 0n,
     }
   );
-
-  const [sentEndEvent, setSentEndEvent] = React.useState(false);
-  useEffect(() => {
-    if (sentEndEvent) return;
-    if (!networkLayer) return;
-
-    // Send analytics event when the game is ready
-    if (loadingState.step === SyncStep.LIVE) {
-      const {
-        utils: { sendAnalyticsEvent },
-      } = networkLayer;
-
-      setSentEndEvent(true);
-      sendAnalyticsEvent("loading-screen", {
-        endTime: Math.floor(DateTime.now().toSeconds()),
-      });
-    }
-  }, [loadingState, networkLayer, sentEndEvent, usePrepTime]);
 
   const [worldValid, setWorldValid] = useState(false);
   useEffect(() => {
@@ -125,7 +201,8 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
   const showPrepMessage = loadingState.step === SyncStep.LIVE && usePrepTime;
 
   const loadingMessage = showPrepMessage ? "Preparing Game" : loadingState.message;
-  const loadingPercentage = showPrepMessage ? prepareGameProgress : loadingState.percentage;
+  const loadingPercentage = showPrepMessage ? prepareGameProgress : Math.round(loadingState.percentage);
+  const showPercentage = showPrepMessage || loadingPercentage > 0;
 
   return (
     <div
@@ -200,7 +277,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
             <div className="w-4"></div>
             <Body className="text-center text-3xl text-ss-text-default">
               {loadingMessage}
-              <div className="text-ss-blue">({loadingPercentage}%)</div>
+              {showPercentage && <div className="text-ss-blue">({loadingPercentage}%)</div>}
             </Body>
             <div className="w-4"></div>
             <img height="64px" width="64px" src="/public/assets/dragoon_attack.gif" />
