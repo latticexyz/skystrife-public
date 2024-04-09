@@ -13,7 +13,7 @@ export function createPhaserComponents(world: World) {
   const PreviousHoverHighlight = defineComponent(
     world,
     { x: Type.Number, y: Type.Number },
-    { id: "PreviousHoverHighlight" }
+    { id: "PreviousHoverHighlight" },
   );
   const HoverIcon = defineComponent(world, { icon: Type.String }, { id: "HoverIcon" });
   const Alpha = defineComponent(world, { icon: Type.Number }, { id: "Alpha" });
@@ -24,7 +24,15 @@ export function createPhaserComponents(world: World) {
     left: Type.Number,
   });
   const HeaderHeight = defineComponent(world, { value: Type.Number }, { id: "HeaderHeight" });
-  const IncomingDamage = defineComponent(world, { value: Type.Number }, { id: "IncomingDamage" });
+  const IncomingDamage = defineComponent(
+    world,
+    {
+      sources: Type.EntityArray,
+      values: Type.NumberArray,
+      commitments: Type.NumberArray,
+    },
+    { id: "IncomingDamage" },
+  );
   const DevHighlight = defineComponent(world, { value: Type.OptionalNumber }, { id: "DevHighlight" });
   const TerrainArmorBonus = defineComponent(world, { value: Type.Number }, { id: "TerrainArmorBonus" });
   const WillBeDestroyed = defineComponent(world, { value: Type.Boolean }, { id: "WillBeDestroyed" });

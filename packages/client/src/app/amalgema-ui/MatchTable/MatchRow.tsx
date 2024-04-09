@@ -71,7 +71,7 @@ export function MatchRow({ matchEntity }: { matchEntity: Entity }) {
 
       <div className="w-[100px] text-center shrink-0">
         <JoinModal matchEntity={matchEntity}>
-          <Button buttonType={"secondary"} className="w-full py-1 px-2">
+          <Button buttonType="secondary" className="w-full py-1 px-2">
             open
           </Button>
         </JoinModal>

@@ -34,7 +34,7 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
         components: { LocalPosition, Path },
       },
       network: {
-        components: { Transaction, UnitType },
+        components: { Action, UnitType },
         network: { matchEntity },
       },
     },
@@ -52,6 +52,7 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
       arrowPainter: { paintArrowAlongPath },
       drawSpriteAtTile,
       depthFromPosition,
+      clearIncomingDamage,
     },
   } = layer;
 
@@ -108,7 +109,7 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
         intendedTargetPosition,
         100_000,
         (_coord) => 0,
-        () => false
+        () => false,
       );
 
       path.unshift(nextPosition);
@@ -138,14 +139,14 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
     drawNextPositionGhost(update);
   });
 
-  Transaction.update$.subscribe((update) => {
+  Action.update$.subscribe((update) => {
     const [currentValue] = update.value;
     if (!currentValue) return;
 
     const { entity } = currentValue;
     if (!entity) return;
 
-    if (["submitted", "pending"].includes(currentValue.status)) {
+    if (["pending"].includes(currentValue.status)) {
       const nextPosition = getComponentValue(NextPosition, entity);
       if (nextPosition && nextPosition.intendedTarget) {
         const intendedTargetPosition = getComponentValue(LocalPosition, nextPosition.intendedTarget);
@@ -179,7 +180,19 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
       }
     }
 
-    if (["reverted", "completed"].includes(currentValue.status)) {
+    if (currentValue.status === "failed") {
+      const nextPosition = getComponentValue(NextPosition, entity);
+      if (nextPosition) {
+        if (nextPosition.intendedTarget) {
+          clearIncomingDamage(entity, nextPosition.intendedTarget);
+          clearIncomingDamage(nextPosition.intendedTarget, entity);
+        }
+
+        removeComponent(NextPosition, entity);
+      }
+    }
+
+    if (["failed", "completed"].includes(currentValue.status)) {
       if (tweens[entity]) {
         tweens[entity].destroy();
         delete tweens[entity];

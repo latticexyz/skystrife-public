@@ -38,7 +38,7 @@ COPY . /app
 WORKDIR /app
 
 # listen... it was failing
-RUN sed -i '/run-pty/d' package.json
+RUN sed -i '/mprocs/d' package.json
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install 
 RUN pnpm --filter ecs-browser run build

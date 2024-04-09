@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
-import { BaseTest } from "./BaseTest.sol";
-
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
-import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
+import { SkyStrifeTest } from "./SkyStrifeTest.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
-import { MatchConfig, Position, PositionTableId, PositionData, TerrainType, Movable, OwnedBy, Stamina, MoveDifficulty, Untraversable, StructureType, Combat, CombatData, Range, LastAction } from "../src/codegen/index.sol";
-import { TerrainTypes, StructureTypes } from "../src/codegen/common.sol";
+import { MatchConfig, Position, PositionData, Movable, OwnedBy, Untraversable, Combat, CombatData, LastAction } from "../src/codegen/index.sol";
 import { GrassTemplateId } from "../src/codegen/Templates.sol";
+import { CombatArchetypes } from "base/codegen/common.sol";
 
 import { createPlayerEntity } from "../src/libraries/LibPlayer.sol";
 import { createLevelIndex } from "../src/libraries/levels/createLevel.sol";
@@ -19,7 +16,7 @@ import { setPosition } from "../src/libraries/LibPosition.sol";
 
 bytes32 constant LEVEL_ID = "testLevel";
 
-contract MoveSystemTest is BaseTest, GasReporter {
+contract MoveSystemTest is SkyStrifeTest, GasReporter {
   bytes32 player;
   bytes32 unit;
 
@@ -194,27 +191,6 @@ contract MoveSystemTest is BaseTest, GasReporter {
     assertEq(position.y, 2, "y should be 2");
   }
 
-  function testMoveThroughContainers() public {
-    setupMove();
-
-    prankAdmin();
-    bytes32 entity = createMatchEntity(testMatch);
-    OwnedBy.set(testMatch, entity, player);
-    Untraversable.set(testMatch, entity, true);
-    StructureType.set(testMatch, entity, StructureTypes.Container);
-    vm.stopPrank();
-
-    PositionData[] memory path = new PositionData[](2);
-    path[0] = PositionData(0, 1);
-    path[1] = PositionData(0, 2);
-
-    runSystem(path);
-
-    PositionData memory position = Position.get(testMatch, unit);
-    assertEq(position.x, 0, "x should be 0");
-    assertEq(position.y, 2, "y should be 2");
-  }
-
   function testMoveAndAttack() public {
     setupMove();
 
@@ -225,13 +201,13 @@ contract MoveSystemTest is BaseTest, GasReporter {
       CombatData({
         health: 100_000,
         maxHealth: 100_000,
-        armor: 0,
         strength: 20_000,
-        structureStrength: 0,
-        counterStrength: 100
+        counterStrength: 100,
+        minRange: 1,
+        maxRange: 1,
+        archetype: CombatArchetypes.Unknown
       })
     );
-    Range.set(testMatch, unit, 1, 1);
 
     bytes32 enemy = createMatchEntity(testMatch);
     setPosition(testMatch, enemy, PositionData(0, 3));
@@ -241,13 +217,13 @@ contract MoveSystemTest is BaseTest, GasReporter {
       CombatData({
         health: 100_000,
         maxHealth: 100_000,
-        armor: 0,
         strength: 20_000,
-        structureStrength: 0,
-        counterStrength: 100
+        counterStrength: 100,
+        minRange: 1,
+        maxRange: 1,
+        archetype: CombatArchetypes.Unknown
       })
     );
-    Range.set(testMatch, enemy, 1, 1);
     vm.stopPrank();
 
     PositionData[] memory path = new PositionData[](2);

@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
-import { Entity, Has, getComponentValueStrict } from "@latticexyz/recs";
+import { Entity, Has, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { Button } from "../Theme/SkyStrife/Button";
 import { Hex, hexToString } from "viem";
-import { DisplayLevel } from "./DisplayLevel";
 import { CreateLevel } from "./CreateLevel";
 
 function StandardRotation({ levelId }: { levelId: Entity }) {
   const {
     components: { LevelInStandardRotation },
     externalWorldContract,
+    externalWalletClient,
   } = useAmalgema();
 
   const value = useComponentValue(LevelInStandardRotation, levelId);
@@ -23,12 +23,15 @@ function StandardRotation({ levelId }: { levelId: Entity }) {
         buttonType="secondary"
         onClick={() => {
           if (!externalWorldContract) return;
+          if (!externalWalletClient?.account) return;
 
-          externalWorldContract.write.setRotationStandard([levelId as Hex, !inRotation]);
+          externalWorldContract.write.setRotationStandard([levelId as Hex, !inRotation], {
+            account: externalWalletClient.account,
+          });
         }}
-        style={{ color: inRotation ? "green" : "darkred" }}
+        style={{ backgroundColor: inRotation ? "green" : "darkred", color: "white" }}
       >
-        {inRotation ? "true" : "false"}
+        Standard Rotation: {inRotation ? "true" : "false"}
       </Button>
     </td>
   );
@@ -38,6 +41,7 @@ function SeasonPassRotation({ levelId }: { levelId: Entity }) {
   const {
     components: { LevelInSeasonPassRotation },
     externalWorldContract,
+    externalWalletClient,
   } = useAmalgema();
 
   const value = useComponentValue(LevelInSeasonPassRotation, levelId);
@@ -50,12 +54,15 @@ function SeasonPassRotation({ levelId }: { levelId: Entity }) {
         buttonType="secondary"
         onClick={() => {
           if (!externalWorldContract) return;
+          if (!externalWalletClient?.account) return;
 
-          externalWorldContract.write.setRotationSeasonPass([levelId as Hex, !inRotation]);
+          externalWorldContract.write.setRotationSeasonPass([levelId as Hex, !inRotation], {
+            account: externalWalletClient.account,
+          });
         }}
-        style={{ color: inRotation ? "green" : "darkred" }}
+        style={{ backgroundColor: inRotation ? "green" : "darkred", color: "white" }}
       >
-        {inRotation ? "true" : "false"}
+        Season Pass Rotation: {inRotation ? "true" : "false"}
       </Button>
     </td>
   );
@@ -65,6 +72,7 @@ function OfficialLevel({ levelId }: { levelId: Entity }) {
   const {
     components: { OfficialLevel },
     externalWorldContract,
+    externalWalletClient,
   } = useAmalgema();
 
   const value = useComponentValue(OfficialLevel, levelId);
@@ -77,12 +85,15 @@ function OfficialLevel({ levelId }: { levelId: Entity }) {
         buttonType="secondary"
         onClick={() => {
           if (!externalWorldContract) return;
+          if (!externalWalletClient?.account) return;
 
-          externalWorldContract.write.setOfficial([levelId as Hex, !inRotation]);
+          externalWorldContract.write.setOfficial([levelId as Hex, !inRotation], {
+            account: externalWalletClient.account,
+          });
         }}
-        style={{ color: inRotation ? "green" : "darkred" }}
+        style={{ backgroundColor: inRotation ? "green" : "darkred", color: "white" }}
       >
-        {inRotation ? "true" : "false"}
+        Official Level: {inRotation ? "true" : "false"}
       </Button>
     </td>
   );
@@ -90,15 +101,36 @@ function OfficialLevel({ levelId }: { levelId: Entity }) {
 
 export function Levels() {
   const {
-    components: { LevelTemplates },
+    components: {
+      LevelTemplates,
+      LevelInStandardRotation,
+      LevelInSeasonPassRotation,
+      OfficialLevel: OfficialLevelComponent,
+    },
   } = useAmalgema();
 
   const [visible, setVisible] = useState(false);
-  const levels = useEntityQuery([Has(LevelTemplates)]).map((levelId) => {
-    const { value } = getComponentValueStrict(LevelTemplates, levelId);
+  const levels = useEntityQuery([Has(LevelTemplates)])
+    .map((levelId) => {
+      const { value } = getComponentValueStrict(LevelTemplates, levelId);
 
-    return { levelId, value };
-  });
+      return { levelId, value };
+    })
+    .sort((a, b) => {
+      const inStandardRotation = getComponentValue(LevelInStandardRotation, a.levelId)?.value;
+      const inSeasonPassRotation = getComponentValue(LevelInSeasonPassRotation, a.levelId)?.value;
+      const officialLevel = getComponentValue(OfficialLevelComponent, a.levelId)?.value;
+
+      const inStandardRotationB = getComponentValue(LevelInStandardRotation, b.levelId)?.value;
+      const inSeasonPassRotationB = getComponentValue(LevelInSeasonPassRotation, b.levelId)?.value;
+      const officialLevelB = getComponentValue(OfficialLevelComponent, b.levelId)?.value;
+
+      if (inStandardRotation && !inStandardRotationB) return -1;
+      if (inSeasonPassRotation && !inSeasonPassRotationB) return -1;
+      if (officialLevel && !officialLevelB) return -1;
+
+      return 0;
+    });
 
   return (
     <div>

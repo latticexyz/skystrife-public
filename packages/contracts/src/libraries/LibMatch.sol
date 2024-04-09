@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
-import { System } from "@latticexyz/world/src/System.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+pragma solidity >=0.8.24;
 
-import { IWorld } from "../codegen/world/IWorld.sol";
-import { PositionTableId, LevelPosition, LevelTemplates, LevelTemplatesIndex, MatchConfig, MatchReady, Player, Name, NameTableId, SpawnPoint, SpawnReservedBy, Position, PositionData, PlayerTableId, PlayerReady, MatchPlayers } from "../codegen/index.sol";
-import { HalberdierTemplateId, MapCenterMarkerTemplateId, SpawnSettlementTemplateId } from "../codegen/Templates.sol";
+import { LevelPosition, LevelPositionData, LevelTemplates, LevelTemplatesIndex, MatchConfig, MatchReady, Player, Name, SpawnPoint, SpawnReservedBy, Position, PositionData, PlayerReady, MatchPlayers } from "../codegen/index.sol";
+import { MapCenterMarkerTemplateId, SpawnSettlementTemplateId } from "../codegen/Templates.sol";
 
 import { spawnTemplateAt } from "../libraries/LibTemplate.sol";
 import { getLevelSpawnIndices } from "../libraries/LibUtils.sol";
@@ -57,9 +54,9 @@ function findMapCenter(bytes32 matchEntity) view returns (PositionData memory) {
   // If this level has a map center marker, fetch its static position data
   uint256[] memory indices = LevelTemplatesIndex.get(levelId, MapCenterMarkerTemplateId);
   if (indices.length > 0) {
-    (int32 x, int32 y) = LevelPosition.get(levelId, indices[0]);
+    LevelPositionData memory position = LevelPosition.get(levelId, indices[0]);
 
-    return PositionData({ x: x, y: y });
+    return PositionData({ x: position.x, y: position.y });
   }
 
   return PositionData({ x: 0, y: 0 });

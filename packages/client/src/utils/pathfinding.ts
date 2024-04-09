@@ -56,10 +56,10 @@ export function aStar(
   to: WorldCoord,
   maxDistance: number,
   getMovementDifficulty: (targetPosition: WorldCoord) => number,
-  isUntraversable: (isFinalPosition: boolean, position: WorldCoord) => boolean
+  isUntraversable: (isFinalPosition: boolean, position: WorldCoord) => boolean,
 ): WorldCoord[] {
   const distanceTraveling = manhattan(from, to);
-  if (distanceTraveling > maxDistance) return []; // early out if destination is further than stamina allows
+  if (distanceTraveling > maxDistance) return [];
 
   const path: WorldCoord[] = [];
   const nodeMap = new CoordMap<GridNode>();
@@ -98,7 +98,7 @@ export function aStar(
     currentNode.closed = true;
 
     const neighborCoords = getVisitableNeighbor(currentNode, (position: WorldCoord) =>
-      isUntraversable(coordEq(position, to), position)
+      isUntraversable(coordEq(position, to), position),
     );
 
     for (let i = 0; i < neighborCoords.length; i++) {
@@ -152,7 +152,7 @@ export function BFS(
   from: WorldCoord,
   maxDistance: number,
   getMovementDifficulty: (targetPosition: WorldCoord) => number,
-  isUntraversable: (isFinalPosition: boolean, position: WorldCoord) => boolean
+  isUntraversable: (isFinalPosition: boolean, position: WorldCoord) => boolean,
 ): [WorldCoord[], number[]] {
   const path: WorldCoord[] = [];
   const costs: number[] = [];

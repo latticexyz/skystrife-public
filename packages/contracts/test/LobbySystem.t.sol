@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
-import { BaseTest, createPublicMatch } from "./BaseTest.sol";
+import { SkyStrifeTest, createPublicMatch } from "./SkyStrifeTest.sol";
 
 import { LevelTemplates, LevelTemplatesIndex, OwnedBy, PlayerReady, SpawnPoint, Position, PositionData, Charger, MatchReady, SpawnReservedBy, MatchConfigData, MatchConfig } from "../src/codegen/index.sol";
 import { SpawnSettlementTemplateId, HalberdierTemplateId } from "../src/codegen/Templates.sol";
@@ -11,7 +11,7 @@ import { FORCE_START_WAIT } from "../src/libraries/LibMatch.sol";
 
 import { createPlayerEntity } from "../src/libraries/LibPlayer.sol";
 
-contract LobbySystemTest is BaseTest {
+contract LobbySystemTest is SkyStrifeTest {
   bytes32 player;
   bytes32 player2;
 

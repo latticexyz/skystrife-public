@@ -38,7 +38,7 @@ export const CreateLevel = ({ close }: { close: () => void }) => {
           <div className="p-8">
             <div className="flex w-full justify-between">
               <OverlineLarge>Create Level</OverlineLarge>
-              <Button buttonType={"tertiary"} onClick={close} className="h-fit">
+              <Button buttonType="tertiary" onClick={close} className="h-fit">
                 <CrossIcon />
               </Button>
             </div>

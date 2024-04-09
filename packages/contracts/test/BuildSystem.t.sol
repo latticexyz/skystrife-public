@@ -1,22 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
-import { BaseTest } from "./BaseTest.sol";
+import { SkyStrifeTest } from "./SkyStrifeTest.sol";
 
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
 import { spawnTemplateAt } from "../src/libraries/LibTemplate.sol";
 
-import { Factory, FactoryData, OwnedBy, Position, PositionData, UnitType, Stamina } from "../src/codegen/index.sol";
+import { Factory, FactoryData, OwnedBy, Position, PositionData, Gold } from "../src/codegen/index.sol";
 import { SwordsmanTemplateId } from "../src/codegen/Templates.sol";
-
-import { UnitTypes } from "../src/codegen/common.sol";
 
 import { createPlayerEntity } from "../src/libraries/LibPlayer.sol";
 import { setPosition } from "../src/libraries/LibPosition.sol";
 
-contract BuildSystemTest is BaseTest, GasReporter {
+contract BuildSystemTest is SkyStrifeTest, GasReporter {
   bytes32 player;
   bytes32 factory = keccak256("factory");
   bytes32 prototypeId = SwordsmanTemplateId;
@@ -29,10 +27,10 @@ contract BuildSystemTest is BaseTest, GasReporter {
     bytes32[] memory prototypeIds = new bytes32[](1);
     prototypeIds[0] = prototypeId;
 
-    int32[] memory staminaCosts = new int32[](1);
-    staminaCosts[0] = 100;
+    int32[] memory goldCosts = new int32[](1);
+    goldCosts[0] = 100;
 
-    Factory.set(testMatch, factory, FactoryData({ prototypeIds: prototypeIds, staminaCosts: staminaCosts }));
+    Factory.set(testMatch, factory, FactoryData({ prototypeIds: prototypeIds, goldCosts: goldCosts }));
     OwnedBy.set(testMatch, factory, player);
     setPosition(testMatch, factory, PositionData({ x: 10, y: 10 }));
 
@@ -45,7 +43,7 @@ contract BuildSystemTest is BaseTest, GasReporter {
     setupFactory();
 
     vm.startPrank(alice);
-    int32 goldBeforeBuild = Stamina.get(testMatch, player);
+    int32 goldBeforeBuild = Gold.get(testMatch, player);
 
     startGasReport("Build unit");
     bytes32 unit = world.build(testMatch, factory, prototypeId, targetPosition);
@@ -56,8 +54,8 @@ contract BuildSystemTest is BaseTest, GasReporter {
     assertEq(Position.get(testMatch, unit).x, targetPosition.x, "unit not at target position");
     assertEq(Position.get(testMatch, unit).y, targetPosition.y, "unit not at target position");
 
-    // spends player stamina
-    assertEq(Stamina.get(testMatch, player), goldBeforeBuild - 100, "player gold not spent");
+    // spends player gold
+    assertEq(Gold.get(testMatch, player), goldBeforeBuild - 100, "player gold not spent");
   }
 
   function testNotAFactory() public {
@@ -82,16 +80,16 @@ contract BuildSystemTest is BaseTest, GasReporter {
     vm.stopPrank();
   }
 
-  // player stamina = gold
-  function testPlayerDoesNotHaveEnoughStamina() public {
+  // player gold = gold
+  function testPlayerDoesNotHaveEnoughGold() public {
     setupFactory();
 
     prankAdmin();
-    Stamina.set(testMatch, player, 0);
+    Gold.set(testMatch, player, 0);
     vm.stopPrank();
 
     vm.startPrank(alice);
-    vm.expectRevert("not enough stamina");
+    vm.expectRevert("not enough gold");
     world.build(testMatch, factory, prototypeId, targetPosition);
     vm.stopPrank();
   }

@@ -56,6 +56,7 @@ export function PluginItem({
             if (confirmDelete) {
               deletePlugin();
               sendAnalyticsEvent("plugin-delete", {
+                pluginKey,
                 ...pluginData,
               });
 
@@ -89,6 +90,7 @@ export function PluginItem({
             });
 
             sendAnalyticsEvent("plugin-toggle", {
+              pluginKey,
               ...pluginData,
               active: newActive,
             });

@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "prepare-local-db": "pnpm wrangler d1 execute --local --file=./player-transactions-schema.sql player-transactions",
-    "dev": "pnpm prepare-local-db && wrangler dev src/index.ts",
+    "dev": "wrangler dev src/index.ts",
     "deploy-worker": "pnpm wrangler deploy --config=./wrangler.toml src/index.ts"
   },
   "dependencies": {

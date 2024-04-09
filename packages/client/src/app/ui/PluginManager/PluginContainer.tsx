@@ -53,6 +53,10 @@ const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerP
       onDragStart={() => {
         disableMapInteraction(pluginKey);
         setDragging(true);
+        sendAnalyticsEvent("plugin-drag", {
+          pluginKey,
+          ...pluginData,
+        });
       }}
       dragGrid={[8, 8]}
     >
@@ -73,6 +77,7 @@ const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerP
                 minimized: newMinimized,
               });
               sendAnalyticsEvent("plugin-minimize-toggle", {
+                pluginKey,
                 ...pluginData,
                 minimized: newMinimized,
               });
@@ -88,6 +93,7 @@ const PluginContainer: ForwardRefRenderFunction<HTMLDivElement, PluginContainerP
                 active: false,
               });
               sendAnalyticsEvent("plugin-toggle", {
+                pluginKey,
                 ...pluginData,
                 active: false,
               });

@@ -24,6 +24,8 @@ export function ChooseUsernameForm() {
 
   const nameTaken = allNames.includes(newName);
 
+  const nameIncludesWhitespaces = [" ", "\t", "\n", "\r"].some((char) => newName.includes(char));
+
   useEffect(() => {
     if (newName.length > 32) setNewName(newName.slice(0, 32));
   }, [newName]);
@@ -35,9 +37,11 @@ export function ChooseUsernameForm() {
     disabledMessage = "Name taken";
   } else if (newName.length === 0) {
     disabledMessage = "Save and Continue";
+  } else if (nameIncludesWhitespaces) {
+    disabledMessage = "No whitespaces allowed";
   }
 
-  const disabled = nameTaken || newName.length === 0;
+  const disabled = nameTaken || newName.length === 0 || nameIncludesWhitespaces;
 
   return (
     <div>
@@ -55,7 +59,7 @@ export function ChooseUsernameForm() {
           if (!disabled) {
             executeSystemWithExternalWallet({
               systemCall: "setName",
-              args: [[newName]],
+              args: [[newName], { account: address }],
             });
           }
         }}
@@ -70,12 +74,14 @@ export function ChooseUsernameForm() {
           className="bg-ss-bg-0 rounded border border-ss-stroke w-full px-3 py-2 shadow-ss-small"
           placeholder="Enter a username"
           value={newName}
-          onChange={(e) => setNewName(e.target.value)}
+          onChange={(e) => {
+            // eslint-disable-next-line no-control-regex
+            const ascii = e.target.value.replace(/[^\x00-\x7F]/g, "");
+
+            setNewName(ascii);
+          }}
         />
       </form>
-
-      <AnalyticsConsentForm />
-      <div className="h-6" />
 
       <div className="flex">
         <PromiseButton
@@ -84,7 +90,7 @@ export function ChooseUsernameForm() {
           promise={() => {
             return executeSystemWithExternalWallet({
               systemCall: "setName",
-              args: [[newName]],
+              args: [[newName], { account: address }],
             });
           }}
           className="uppercase grow"

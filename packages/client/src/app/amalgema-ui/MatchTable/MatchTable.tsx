@@ -121,8 +121,8 @@ export function MatchTable() {
         <div className="grow" />
 
         <Button
-          buttonType={"primary"}
-          size={"lg"}
+          buttonType="primary"
+          size="lg"
           onClick={() => {
             if (!externalWalletClient) {
               if (openConnectModal) openConnectModal();

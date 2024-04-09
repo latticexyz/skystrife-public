@@ -108,42 +108,6 @@ export function InventorySidebar() {
 
       <div className="h-[100%]" />
 
-      <OverlineSmall>How to Play</OverlineSmall>
-      <div className="h-2 shrink-0" />
-      <div className="bg-ss-bg-0 rounded border border-ss-stroke w-full flex flex-col p-4">
-        <ol className="list-decimal px-4">
-          <li>
-            <Body className="text-ss-text-default">
-              Players spawn with a castle, hero, and 1,000 gold to summon units with.
-            </Body>
-          </li>
-          <div className="h-2" />
-
-          <li>
-            <Body className="text-ss-text-default">Capture mines to generate more gold.</Body>
-          </li>
-          <div className="h-2" />
-
-          <li>
-            <Body className="text-ss-text-default">
-              Fight your opponent’s armies and destroy their castle to defeat them.
-            </Body>
-          </li>
-          <div className="h-2" />
-
-          <li>
-            <Body className="text-ss-text-default">Be the last castle standing to win.</Body>
-          </li>
-          <div className="h-2" />
-
-          <li>
-            <Body className="text-ss-text-default">
-              The top players earn {EMOJI} which can be used to create more matches.
-            </Body>
-          </li>
-        </ol>
-      </div>
-
       <div className="h-6 shrink-0" />
 
       <div className="flex h-fit">

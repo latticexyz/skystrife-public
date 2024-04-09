@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { IERC721Mintable } from "@latticexyz/world-modules/src/modules/erc721-puppet/IERC721Mintable.sol";
 
-import { SeasonPassIndex, SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig } from "../codegen/index.sol";
+import { SeasonPassIndex, SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, SeasonPassSale } from "../codegen/index.sol";
 
 import { hasSeasonPass } from "../hasToken.sol";
 import { DENOMINATOR } from "../libraries/LibSkyPool.sol";
@@ -37,7 +37,12 @@ function calculateCurrentPrice() view returns (uint256 price) {
 }
 
 contract SeasonPassSystem is System {
-  function buySeasonPass(address account) public payable {
+  modifier worldUnlocked() {
+    require(!SkyPoolConfig.getLocked(), "world is locked");
+    _;
+  }
+
+  function buySeasonPass(address account) public payable worldUnlocked {
     require(!hasSeasonPass(account), "this account already has a season pass");
     require(block.timestamp < SeasonPassConfig.getMintCutoff(), "season pass minting has ended");
 
@@ -50,6 +55,9 @@ contract SeasonPassSystem is System {
     // Mint season pass
     IERC721Mintable token = IERC721Mintable(SkyPoolConfig.getSeasonPassToken());
     token.mint(account, tokenId);
+
+    // Purely for analytics
+    SeasonPassSale.set(account, tokenId, price, block.timestamp, address(token));
 
     // Update auction data
     SeasonPassIndex.set(tokenId + 1);

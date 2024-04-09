@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
-import { BaseTest, createPublicMatch } from "./BaseTest.sol";
+import { SkyStrifeTest, createPublicMatch } from "./SkyStrifeTest.sol";
 
 import { LevelTemplates, LevelTemplatesIndex, OwnedBy, PlayerReady, SpawnPoint, Position, PositionData, Charger, MatchReady, SpawnReservedBy, MatchConfigData, MatchConfig } from "../src/codegen/index.sol";
 
-contract LobbySystemTest is BaseTest {
+contract LobbySystemTest is SkyStrifeTest {
   bytes32 player;
   bytes32 player2;
 

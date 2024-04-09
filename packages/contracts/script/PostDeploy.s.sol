@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Script.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
@@ -25,7 +25,7 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { createTemplates } from "../src/codegen/scripts/CreateTemplates.sol";
 import { SeasonTimes, Admin, SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, VirtualLevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation, HeroInRotation, HeroInSeasonPassRotation, MatchRewardPercentages } from "../src/codegen/index.sol";
-import { GrassTemplateId, ForestTemplateId, MountainTemplateId, LavaGroundTemplateId, HalberdierTemplateId, DragoonTemplateId, MarksmanTemplateId } from "../src/codegen/Templates.sol";
+import { GrassTemplateId, ForestTemplateId, MountainTemplateId, GrassTemplateId, HalberdierTemplateId, DragoonTemplateId, MarksmanTemplateId } from "../src/codegen/Templates.sol";
 
 import { SeasonPassOnlySystem } from "../src/systems/SeasonPassOnlySystem.sol";
 import { addressToEntity } from "../src/libraries/LibUtils.sol";
@@ -95,13 +95,13 @@ contract PostDeploy is Script {
     VirtualLevelTemplates.set(GrassTemplateId, true);
     VirtualLevelTemplates.set(ForestTemplateId, true);
     VirtualLevelTemplates.set(MountainTemplateId, true);
-    VirtualLevelTemplates.set(LavaGroundTemplateId, true);
+    VirtualLevelTemplates.set(GrassTemplateId, true);
 
-    LevelInStandardRotation.set("Cauldron", true);
+    LevelInStandardRotation.set("Cauldron-2", true);
 
-    LevelInSeasonPassRotation.set("Aviary", true);
-    LevelInSeasonPassRotation.set("KnifeFight", true);
-    LevelInSeasonPassRotation.set("Antelope", true);
+    LevelInSeasonPassRotation.set("The Isle", true);
+    LevelInSeasonPassRotation.set("Knife_Fight_2", true);
+    LevelInSeasonPassRotation.set("Antelope 2", true);
 
     HeroInRotation.set(HalberdierTemplateId, true);
     HeroInSeasonPassRotation.set(DragoonTemplateId, true);
@@ -132,7 +132,7 @@ contract PostDeploy is Script {
       );
 
       // Set SkyPool values
-      SkyPoolConfig.set(COST_CREATE_MATCH, WINDOW, address(orbToken), address(seasonPass), address(skyKey));
+      SkyPoolConfig.set(false, COST_CREATE_MATCH, WINDOW, address(orbToken), address(seasonPass), address(skyKey));
       SeasonPassConfig.set(
         SEASON_PASS_MIN_PRICE,
         SEASON_PASS_STARTING_PRICE,
@@ -158,6 +158,8 @@ contract PostDeploy is Script {
     });
     System systemContract = new SeasonPassOnlySystem();
 
+    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace("MatchAccess");
+    world.registerNamespace(namespaceId);
     world.registerSystem(systemId, systemContract, true);
 
     NoTransferHook subscriber = new NoTransferHook();
@@ -166,7 +168,7 @@ contract PostDeploy is Script {
     world.registerSystemHook(_erc721SystemId("szn0.3"), subscriber, BEFORE_CALL_SYSTEM);
 
     // Transfer season pass namespace to World
-    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace("szn0.3");
+    namespaceId = WorldResourceIdLib.encodeNamespace("szn0.3");
     world.transferOwnership(namespaceId, worldAddress);
 
     vm.stopBroadcast();

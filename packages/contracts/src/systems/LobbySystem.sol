@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { Player, PlayerReady, OwnedBy, PlayerReadyTableId, Position, PositionData, SpawnPoint, MatchReady, MatchConfig } from "../codegen/index.sol";
+import { Player, PlayerReady, OwnedBy, Position, PositionData, SpawnPoint, MatchReady, MatchConfig } from "../codegen/index.sol";
 
 import { playerFromAddress } from "../libraries/LibUtils.sol";
 import { startMatchIfAllReady } from "../libraries/LibMatch.sol";

@@ -35,15 +35,7 @@ export const terrainTypeToTile = {
     Tileset.Grass3,
   ],
   [TerrainTypes.Mountain]: Tileset.Grass2,
-  [TerrainTypes.Water]: Tileset.Blank,
   [TerrainTypes.Forest]: Tileset.Grass2,
-  [TerrainTypes.StoneWall]: Tileset.Grass2,
-  [TerrainTypes.RockWall]: Tileset.Grass2,
-
-  [TerrainTypes.LavaGround]: Tileset.LavaGround,
-  [TerrainTypes.LavaForest]: Tileset.LavaGround,
-  [TerrainTypes.LavaMountain]: Tileset.LavaGround,
-  [TerrainTypes.Lava]: Tileset.LavaGround,
 } as { [key in TerrainTypes]: Tileset | Tileset[] };
 
 const terrainTypesToForegroundTile = {
@@ -71,9 +63,6 @@ const terrainTypesToForegroundTile = {
 
   [TerrainTypes.Forest]: Tileset.Forest,
   [TerrainTypes.Mountain]: Tileset.Mountain,
-
-  [TerrainTypes.LavaForest]: Tileset.LavaForest,
-  [TerrainTypes.LavaMountain]: Tileset.LavaMountain,
 } as { [key in TerrainTypes]: Tileset | (Tileset | null)[] };
 
 const terrainTypeToAnimation = {
@@ -82,12 +71,7 @@ const terrainTypeToAnimation = {
 
 const terrainTypeToForegroundAnimation = {} as { [key in TerrainTypes]: Animations };
 
-const terrainTypeToWangSet = {
-  [TerrainTypes.StoneWall]: WangSetKey.StoneWall,
-  [TerrainTypes.RockWall]: WangSetKey.RockWall,
-  [TerrainTypes.Water]: WangSetKey.Water,
-  [TerrainTypes.Lava]: WangSetKey.Lava,
-} as { [key in TerrainTypes]: WangSetKey };
+const terrainTypeToWangSet = {} as { [key in TerrainTypes]: WangSetKey };
 
 /**
  * The Map system handles rendering the phaser tilemap
@@ -210,8 +194,8 @@ export function createMapSystem(layer: PhaserLayer) {
 
     const empties = WANG_OFFSET.map((offset) =>
       [...getEntitiesWithValue(Position, addCoords(coord, offset))].every(
-        (entity) => !hasComponent(TerrainType, entity)
-      )
+        (entity) => !hasComponent(TerrainType, entity),
+      ),
     );
 
     const upEmpty = empties[0];
@@ -238,8 +222,8 @@ export function createMapSystem(layer: PhaserLayer) {
           { x: 2, y: 0 },
         ].map((offset) =>
           [...getEntitiesWithValue(Position, addCoords(coord, offset))].every(
-            (entity) => !hasComponent(TerrainType, entity)
-          )
+            (entity) => !hasComponent(TerrainType, entity),
+          ),
         );
         const farLeftEmpty = farEmpties[0];
         const farRightEmpty = farEmpties[1];
@@ -328,7 +312,7 @@ export function createMapSystem(layer: PhaserLayer) {
         }
         drawWangSetAtCoord(coord, type.value);
       },
-      { runOnInit: true }
+      { runOnInit: true },
     );
   });
 }

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { LibStamina } from "../libraries/LibStamina.sol";
+import { LibGold } from "../libraries/LibGold.sol";
 import { isOwnedBy, manhattan } from "../libraries/LibUtils.sol";
 import { spawnTemplateAt } from "../libraries/LibTemplate.sol";
 
@@ -22,13 +22,13 @@ contract BuildSystem is System {
     require(isOwnedBy(matchEntity, factoryEntity, addressToEntity(_msgSender())), "you do not own this factory");
     require(matchHasStarted(matchEntity), "match has not started");
 
-    int32 staminaCost;
+    int32 goldCost;
     bool ableToBuildPrototype = false;
     bytes32[] memory templateIds = Factory.getPrototypeIds(matchEntity, factoryEntity);
     for (uint256 i = 0; i < templateIds.length; i++) {
       if (templateIds[i] == templateId) {
         ableToBuildPrototype = true;
-        staminaCost = Factory.getItemStaminaCosts(matchEntity, factoryEntity, i);
+        goldCost = Factory.getItemGoldCosts(matchEntity, factoryEntity, i);
         break;
       }
     }
@@ -41,7 +41,7 @@ contract BuildSystem is System {
 
     bytes32 player = playerFromAddress(matchEntity, _msgSender());
 
-    LibStamina.spendStamina(matchEntity, player, staminaCost);
+    LibGold.spendGold(matchEntity, player, goldCost);
 
     return spawnTemplateAt(matchEntity, templateId, player, coord);
   }

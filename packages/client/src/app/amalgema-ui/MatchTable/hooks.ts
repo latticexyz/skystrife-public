@@ -12,7 +12,7 @@ import { decodeEntity } from "@latticexyz/store-sync/recs";
 import { useOrbBalance } from "../hooks/useOrbBalance";
 import { useSeasonPassExternalWallet } from "../hooks/useSeasonPass";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { encodeSystemCalls } from "@latticexyz/world";
+import { encodeSystemCalls } from "@latticexyz/world/internal";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { getDelegationSystemCalls } from "../../../getDelegationSystemCalls";
 import { getMatchUrl } from "../../../getMatchUrl";

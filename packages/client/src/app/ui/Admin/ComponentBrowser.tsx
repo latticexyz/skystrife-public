@@ -3,7 +3,7 @@ import { useMUD } from "../../../useMUD";
 import { ClickWrapper } from "../Theme/ClickWrapper";
 import { decodeEntity } from "@latticexyz/store-sync/recs";
 import { Hex } from "viem";
-import { encodeValueArgs } from "@latticexyz/protocol-parser";
+import { encodeValueArgs } from "@latticexyz/protocol-parser/internal";
 
 export const ComponentBrowser = () => {
   const layers = useMUD();

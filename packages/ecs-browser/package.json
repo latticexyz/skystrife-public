@@ -22,9 +22,9 @@
     "test": "tsc --noEmit"
   },
   "dependencies": {
-    "@latticexyz/react": "2.0.0-march-19-skystrife-playtest-f486281e",
-    "@latticexyz/recs": "2.0.0-march-19-skystrife-playtest-f486281e",
-    "@latticexyz/utils": "2.0.0-march-19-skystrife-playtest-f486281e",
+    "@latticexyz/react": "2.0.5-main-ccbb4876",
+    "@latticexyz/recs": "2.0.5-main-ccbb4876",
+    "@latticexyz/utils": "2.0.5-main-ccbb4876",
     "goober": "^2.1.13",
     "lodash": "^4.17.21",
     "mobx": "^6.10.2",

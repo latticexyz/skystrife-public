@@ -30,7 +30,7 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
       network: networkLayer,
       headless: {
         components: { NextPosition },
-        api: { canAttack, attack: sendAttackTx, getCurrentRegen, getCurrentStamina },
+        api: { canAttack, attack: sendAttackTx, getCurrentRegen, getCurrentGold },
         turn$,
       },
       local: {
@@ -116,7 +116,7 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
 
   function getPlayerGold(playerEntity: Entity) {
     const goldPerTurn = getCurrentRegen(playerEntity);
-    const currentGold = getCurrentStamina(playerEntity);
+    const currentGold = getCurrentGold(playerEntity);
 
     return {
       goldPerTurn,

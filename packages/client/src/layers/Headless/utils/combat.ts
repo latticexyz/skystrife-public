@@ -18,7 +18,7 @@ function calculateDamageAttacker(layer: NetworkLayer, attacker: Entity, defender
   const terrainModifier = getModiferAtPosition(
     layer,
     ArmorModifier,
-    getComponentValue(Position, defender) || { x: 0, y: 0 }
+    getComponentValue(Position, defender) || { x: 0, y: 0 },
   );
 
   return attackerCombat.strength * ((100 + archetypeModifier + terrainModifier) / 100);
@@ -36,7 +36,7 @@ function calculateDamageDefender(layer: NetworkLayer, attacker: Entity, defender
   const terrainModifier = getModiferAtPosition(
     layer,
     ArmorModifier,
-    atPosition || getComponentValue(Position, attacker) || { x: 0, y: 0 }
+    atPosition || getComponentValue(Position, attacker) || { x: 0, y: 0 },
   );
 
   const damage = defenderCombat.strength * ((100 + archetypeModifier + terrainModifier) / 100);
@@ -46,11 +46,11 @@ function calculateDamageDefender(layer: NetworkLayer, attacker: Entity, defender
 
 export function getArchetypeMatchupModifier(layer: NetworkLayer, attacker: Entity, defender: Entity) {
   const {
-    components: { CombatArchetype, ArchetypeModifier },
+    components: { Combat, ArchetypeModifier },
   } = layer;
 
-  const attackerArchetype = getComponentValue(CombatArchetype, attacker)?.value;
-  const defenderArchetype = getComponentValue(CombatArchetype, defender)?.value;
+  const attackerArchetype = getComponentValue(Combat, attacker)?.archetype;
+  const defenderArchetype = getComponentValue(Combat, defender)?.archetype;
   if (!attackerArchetype || !defenderArchetype) return 0;
 
   const archetypeModifierEntity = encodeEntity(
@@ -61,7 +61,7 @@ export function getArchetypeMatchupModifier(layer: NetworkLayer, attacker: Entit
     {
       attacker: attackerArchetype,
       defender: defenderArchetype,
-    }
+    },
   );
 
   return getComponentValue(ArchetypeModifier, archetypeModifierEntity)?.mod ?? 0;
@@ -71,10 +71,10 @@ export function calculateCombatResult(
   layer: NetworkLayer,
   attacker: Entity,
   defender: Entity,
-  atPosition?: WorldCoord
+  atPosition?: WorldCoord,
 ) {
   const attackerDamage = calculateDamageAttacker(layer, attacker, defender);
-  const attackerRange = getComponentValue(layer.components.Range, attacker)?.max ?? 0;
+  const attackerRange = getComponentValue(layer.components.Combat, attacker)?.maxRange ?? 0;
 
   const defenderDamage =
     attackerRange > 1 || isPassive(layer, defender)
@@ -90,7 +90,7 @@ export function calculateCombatResult(
 export function getModiferAtPosition(
   layer: NetworkLayer,
   modifierComponent: Component<{ value: Type.Number }>,
-  position: WorldCoord
+  position: WorldCoord,
 ) {
   const {
     components: { Position, TerrainType },

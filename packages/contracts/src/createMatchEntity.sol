@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity >=0.8.21;
+pragma solidity >=0.8.24;
 
 import { MatchEntityCounter, Match } from "./codegen/index.sol";
 

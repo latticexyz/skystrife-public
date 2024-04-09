@@ -27,14 +27,23 @@ export function createClientComponents({ components, world }: SetupNetworkResult
       actionId: Type.OptionalString,
       clientSubmittedTimestamp: Type.OptionalBigInt,
     }),
+    Action: defineComponent(
+      world,
+      {
+        entity: Type.OptionalEntity,
+        type: Type.String,
+        status: Type.String,
+      },
+      { id: "Action" },
+    ),
     MatchJoinable: defineComponent(world, {
       value: Type.Boolean,
     }),
     OwnedByCurrentPlayer: defineComponent(world, { value: Type.Boolean }, { id: "OwnedByCurrentPlayer" }),
     BuildingUnit: defineComponent(
       world,
-      { factory: Type.Entity, unitType: Type.Number, staminaCost: Type.Number, prototypeId: Type.Entity },
-      { id: "BuildingUnit" }
+      { factory: Type.Entity, unitType: Type.Number, goldCost: Type.Number, prototypeId: Type.Entity },
+      { id: "BuildingUnit" },
     ),
   };
 }

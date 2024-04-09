@@ -1,4 +1,4 @@
-import { Entity, Has, Not, defineSystem, getComponentValueStrict, runQuery, setComponent } from "@latticexyz/recs";
+import { Entity, Has, Not, defineSystem, getComponentValue, runQuery, setComponent } from "@latticexyz/recs";
 import { NetworkLayer } from "../../types";
 import { DateTime } from "luxon";
 
@@ -16,8 +16,13 @@ export function createJoinableMatchSystem(layer: NetworkLayer) {
   const setMatchJoinable = (matchEntity: Entity) => {
     const currentTime = DateTime.utc().toSeconds();
     const matchIsNotLive = !matchIsLive(matchEntity);
-    const registrationOpen =
-      getComponentValueStrict(MatchConfig, matchEntity).registrationTime <= BigInt(Math.floor(currentTime));
+    const matchConfig = getComponentValue(MatchConfig, matchEntity);
+    if (!matchConfig) {
+      setComponent(MatchJoinable, matchEntity, { value: false });
+      return;
+    }
+
+    const registrationOpen = matchConfig.registrationTime <= BigInt(Math.floor(currentTime));
 
     if (matchIsNotLive && registrationOpen) {
       setComponent(MatchJoinable, matchEntity, { value: true });

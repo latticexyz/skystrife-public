@@ -4,7 +4,7 @@ import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Hex, formatEther } from "viem";
 import { useSeasonPassExternalWallet } from "./hooks/useSeasonPass";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
-import { useComponentValue } from "@latticexyz/react";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { PromiseButton } from "../ui/hooks/PromiseButton";
 import { DateTime, Duration } from "luxon";
@@ -12,6 +12,7 @@ import { Modal } from "./Modal";
 import { useMainWalletBalance } from "./hooks/useMainWalletBalance";
 import { SEASON_NAME } from "../../constants";
 import { SeasonPassImg } from "./SeasonPassImg";
+import { Has, getComponentValue } from "@latticexyz/recs";
 
 function useSeasonPassPrice(atTime: bigint) {
   const {
@@ -45,13 +46,20 @@ function useSeasonPassPrice(atTime: bigint) {
 
 export function SeasonPass({ account }: { account?: Hex }) {
   const {
-    externalWorldContract,
     network: { publicClient, waitForTransaction },
-    components: { SeasonPassConfig, SeasonPassLastSaleAt, SeasonTimes },
+    components: { SeasonPassConfig, SeasonPassLastSaleAt, SeasonTimes, SeasonPassSale },
+    executeSystemWithExternalWallet,
   } = useAmalgema();
 
   const [now, setNow] = useState(DateTime.now().toSeconds());
   const [modalOpen, setModalOpen] = useState(false);
+
+  const seasonPassSaleEntities = useEntityQuery([Has(SeasonPassSale)]);
+  const seasonPassSales = seasonPassSaleEntities
+    .map((entity) => getComponentValue(SeasonPassSale, entity))
+    .filter((sale) => Boolean(sale))
+    .sort((a, b) => Number(b?.purchasedAt) - Number(a?.purchasedAt));
+  const mostRecentSale = seasonPassSales[0]!;
 
   const [enableSlippage, setEnableSlippage] = useState(false);
   const [slippage, setSlippage] = useState(10); // 10%
@@ -110,7 +118,7 @@ export function SeasonPass({ account }: { account?: Hex }) {
     (price: bigint) => {
       return `${parseFloat(formatEther(price)).toFixed(6)} ${nativeCurrency.symbol}`;
     },
-    [nativeCurrency.symbol]
+    [nativeCurrency.symbol],
   );
 
   return secondsUntilMintCutoff > 0 ? (
@@ -171,10 +179,11 @@ export function SeasonPass({ account }: { account?: Hex }) {
                 <PromiseButton
                   disabled={!canBuy}
                   promise={async () => {
-                    // we send double the price to account for other purchases occuring while the user is sending their tx
-                    // the difference will be refunded
-                    const tx = await externalWorldContract?.write.buySeasonPass([account as Hex], {
-                      value: priceWithSlippage,
+                    if (!account) return;
+
+                    const tx = await executeSystemWithExternalWallet({
+                      systemCall: "buySeasonPass",
+                      args: [[account as Hex], { account, value: priceWithSlippage }],
                     });
                     if (tx) await waitForTransaction(tx);
                   }}
@@ -237,7 +246,7 @@ export function SeasonPass({ account }: { account?: Hex }) {
 
               <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2 grow">
                 <span className="text-ss-text-x-light">Current Price</span>
-                <span>{formatEthPrice(price)}</span>
+                <span className="font-mono">{formatEthPrice(price)}</span>
               </div>
             </div>
 
@@ -292,7 +301,31 @@ export function SeasonPass({ account }: { account?: Hex }) {
             </div>
           </Modal>
         ) : (
-          <div className="mx-auto text-ss-text-light">Current Price: {formatEthPrice(price)}</div>
+          <div className="mx-auto text-ss-text-light">
+            Current Price: <span className="font-mono">{formatEthPrice(price)}</span>
+          </div>
+        )}
+
+        {seasonPassSales.length > 0 && (
+          <div className="w-full">
+            <div className="h-2" />
+
+            <div className="flex flex-col items-center gap-2 w-full">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <SeasonPassImg className="w-[50px]" />
+                  <div className="flex flex-col items-start">
+                    <Caption className="text-ss-text-light font-mono">
+                      {DateTime.fromSeconds(Number(mostRecentSale.purchasedAt)).toRelative()}
+                    </Caption>
+                    <Caption className="text-ss-text-light font-bold font-mono">
+                      {formatEthPrice(mostRecentSale.price)}
+                    </Caption>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -33,7 +33,7 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
     },
     parentLayers: {
       network: {
-        components: { TerrainType, Position, Range },
+        components: { TerrainType, Position, Combat },
         utils: { isOwnedByCurrentPlayer },
       },
       headless: {
@@ -109,7 +109,7 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
         return;
       }
 
-      const isRangedUnit = (getComponentValue(Range, selectedEntity)?.max ?? 0) > 1;
+      const isRangedUnit = (getComponentValue(Combat, selectedEntity)?.maxRange ?? 0) > 1;
 
       let preferredEndPosition: { x: number; y: number } = currentPosition;
       if (!isRangedUnit) {
@@ -142,10 +142,10 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
         const enemyPosition = getComponentValue(Position, hoveredAttackableEntity);
         if (!enemyPosition) return;
 
-        const range = getComponentValue(Range, selectedEntity);
-        if (!range) return;
+        const combat = getComponentValue(Combat, selectedEntity);
+        if (!combat) return;
 
-        const coordsInRangeOfTarget = getPositionsWithinRange(enemyPosition, Math.min(range.min, 1), range.max);
+        const coordsInRangeOfTarget = getPositionsWithinRange(enemyPosition, combat.minRange, combat.maxRange);
         for (const coord of coordsInRangeOfTarget) {
           if (hasPotentialPath(selectedEntity, coord)) {
             preferredEndPosition = coord;
@@ -160,7 +160,7 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
         LocalPosition,
         selectedEntity,
         hoveredAttackableEntity,
-        preferredEndPosition
+        preferredEndPosition,
       );
       // if path calculation fails on preferred position, fall back to attacking from current position
       if (moveAndAttackPath.length === 0) {
@@ -232,7 +232,7 @@ export function registerHoverIcon(layer: PhaserLayer, { getSelectedEntity }: Inp
 
         return newWorldCoord;
       }), // Map pixel coord to tile coord
-      filterNullish()
+      filterNullish(),
     )
     .subscribe((coord) => {
       setHoverIcon(coord);

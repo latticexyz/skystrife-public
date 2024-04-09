@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
-import { BaseTest } from "./BaseTest.sol";
+import { SkyStrifeTest } from "./SkyStrifeTest.sol";
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { WorldResourceIdInstance } from "@latticexyz/world/src/WorldResourceId.sol";
@@ -13,7 +13,7 @@ import { _balancesTableId } from "@latticexyz/world-modules/src/modules/erc20-pu
 import { ERC20MetadataData } from "@latticexyz/world-modules/src/modules/erc20-puppet/tables/ERC20Metadata.sol";
 import { Balances } from "@latticexyz/world-modules/src/modules/tokens/tables/Balances.sol";
 
-contract TokenTest is BaseTest {
+contract TokenTest is SkyStrifeTest {
   using WorldResourceIdInstance for ResourceId;
 
   function testToken() public {

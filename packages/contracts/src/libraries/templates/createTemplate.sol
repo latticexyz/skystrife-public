@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import { IStore } from "@latticexyz/store/src/IStore.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
-import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
+import { EncodedLengths } from "@latticexyz/store/src/EncodedLengths.sol";
 
 import { TemplateTables, TemplateContent } from "../../codegen/index.sol";
 
@@ -23,7 +23,7 @@ function createTemplate(
     TemplateContent.set(
       templateId,
       ResourceId.wrap(tableIds[i]),
-      PackedCounter.wrap(encodedLengthss[i]),
+      EncodedLengths.wrap(encodedLengthss[i]),
       staticDatas[i],
       dynamicDatas[i]
     );

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
@@ -14,7 +14,7 @@ import { IERC20Mintable } from "@latticexyz/world-modules/src/modules/erc20-pupp
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-import { BaseTest, createPublicMatch, findFirstMatchInWindow } from "./BaseTest.sol";
+import { SkyStrifeTest, createPublicMatch, findFirstMatchInWindow } from "./SkyStrifeTest.sol";
 
 import { SpawnSettlementTemplateId, HalberdierTemplateId } from "../src/codegen/Templates.sol";
 import { calculateCurrentPrice, MAX_TOKEN_ID } from "../src/systems/SeasonPassSystem.sol";
@@ -32,7 +32,7 @@ uint256 constant COST = 100;
 uint256 constant BALANCE = 250;
 bytes32 constant LEVEL_ID = "debug";
 
-contract MatchSystemTest is BaseTest, GasReporter {
+contract MatchSystemTest is SkyStrifeTest, GasReporter {
   using WorldResourceIdInstance for ResourceId;
   ResourceId accessSystemId;
 

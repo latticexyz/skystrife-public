@@ -56,19 +56,24 @@ export const MapUpload = () => {
           <OverlineSmall>Step 0: delegate to operator</OverlineSmall>
           <div className="flex flex-col m-2">
             <Button
-              buttonType={"primary"}
+              buttonType="primary"
               disabled={hasDelegation}
               onClick={() => {
-                if (externalWorldContract) {
-                  externalWorldContract.write.registerDelegation([
-                    walletClient.account.address,
-                    SYSTEMBOUND_DELEGATION,
-                    encodeFunctionData({
-                      abi: DelegationAbi,
-                      functionName: "initDelegation",
-                      args: [walletClient.account.address, LEVEL_UPLOAD_SYSTEM_ID, maxUint256],
-                    }),
-                  ]);
+                if (externalWorldContract && externalWalletClient && externalWalletClient.account) {
+                  externalWorldContract.write.registerDelegation(
+                    [
+                      walletClient.account.address,
+                      SYSTEMBOUND_DELEGATION,
+                      encodeFunctionData({
+                        abi: DelegationAbi,
+                        functionName: "initDelegation",
+                        args: [walletClient.account.address, LEVEL_UPLOAD_SYSTEM_ID, maxUint256],
+                      }),
+                    ],
+                    {
+                      account: externalWalletClient.account,
+                    }
+                  );
                 }
               }}
             >
@@ -79,7 +84,7 @@ export const MapUpload = () => {
         <div className="border border-gray-900 m-1 p-1">
           <OverlineSmall>Step 1: upload file</OverlineSmall>
           <div className="flex flex-col h-32 m-2">
-            <Button buttonType={"primary"} onClick={openFileSelector}>
+            <Button buttonType="primary" onClick={openFileSelector}>
               Choose Level File
             </Button>
             {filesContent && (
@@ -100,7 +105,7 @@ export const MapUpload = () => {
       </div>
       {loading && <div>Loading...</div>}
 
-      <Button type="submit" disabled={sendingTxs || name === "" || !filesContent[0]} buttonType={"primary"}>
+      <Button type="submit" disabled={sendingTxs || name === "" || !filesContent[0]} buttonType="primary">
         Upload!
       </Button>
     </form>

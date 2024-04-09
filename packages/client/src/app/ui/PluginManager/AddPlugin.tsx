@@ -88,6 +88,7 @@ function ImportPluginForm({
                 setManagerState("open");
 
                 sendAnalyticsEvent("plugin-add", {
+                  pluginKey: newPluginName,
                   name: newPluginName,
                   source: "remote",
                 });

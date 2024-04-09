@@ -1,4 +1,3 @@
-import { useAccount } from "wagmi";
 import { Entity } from "@latticexyz/recs";
 import { ClickWrapper } from "../Theme/ClickWrapper";
 import { Button } from "../Theme/SkyStrife/Button";
@@ -7,30 +6,17 @@ import { OverlineLarge } from "../Theme/SkyStrife/Typography";
 import { useMatchInfo } from "../hooks/useMatchInfo";
 import { JoinGame } from "./JoinGame";
 import { MatchLobby } from "./MatchLobby";
-import { useEffect } from "react";
 import { useMUD } from "../../../useMUD";
 import { useComponentValue } from "@latticexyz/react";
 
 export function PreGame({ matchEntity }: { matchEntity: Entity }) {
   const {
-    networkLayer: {
-      network: { initialiseWallet },
-    },
     localLayer: {
       components: { MatchStarted },
     },
   } = useMUD();
   const matchInfo = useMatchInfo(matchEntity);
   const matchStarted = useComponentValue(MatchStarted, matchEntity)?.value;
-
-  const externalAccount = useAccount();
-  const address = externalAccount.address;
-
-  useEffect(() => {
-    if (!address) return;
-
-    initialiseWallet(address);
-  }, [address, initialiseWallet]);
 
   if (!matchInfo.matchConfig) {
     return (

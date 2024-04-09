@@ -31,7 +31,7 @@ function TopUpButton() {
           value: parseEther("0.001"),
         });
       }}
-      buttonType={"primary"}
+      buttonType="primary"
       className="grow w-full"
     >
       top up session wallet
@@ -90,8 +90,8 @@ export function SessionWallet() {
             trigger={<></>}
             footer={
               <div className="flex w-full space-x-2">
-                <a href={"/"} className="grow">
-                  <Button buttonType={"danger"} className="w-full">
+                <a href="/" className="grow">
+                  <Button buttonType="danger" className="w-full">
                     quit match
                   </Button>
                 </a>

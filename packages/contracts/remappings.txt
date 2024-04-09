@@ -4,3 +4,4 @@ forge-std/=node_modules/forge-std/src/
 @latticexyz/=node_modules/@latticexyz/
 @openzeppelin/=node_modules/@openzeppelin/
 @dk1a/solidity-stringutils/=node_modules/@dk1a/solidity-stringutils/
+base/=src/

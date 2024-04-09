@@ -35,7 +35,7 @@ const messagePending: MessageFunction = ({ functionName, args }) => {
   } else if (functionName === "batchCall") {
     if (args) {
       const data = (args[0] as { callData: Hex }[]).map((arg) =>
-        messagePending(decodeFunctionData({ abi: IWorldAbi, data: arg.callData }))
+        messagePending(decodeFunctionData({ abi: IWorldAbi, data: arg.callData })),
       );
       return data.join(", ");
     }
@@ -66,7 +66,7 @@ const messageConfirmed: MessageFunction = ({ functionName, args }) => {
   } else if (functionName === "batchCall") {
     if (args) {
       const data = (args[0] as { callData: Hex }[]).map((arg) =>
-        messageConfirmed(decodeFunctionData({ abi: IWorldAbi, data: arg.callData }))
+        messageConfirmed(decodeFunctionData({ abi: IWorldAbi, data: arg.callData })),
       );
       return data.join(", ");
     }
@@ -97,7 +97,7 @@ const messageFailed: MessageFunction = ({ functionName, args }) => {
   } else if (functionName === "batchCall") {
     if (args) {
       const data = (args[0] as { callData: Hex }[]).map((arg) =>
-        messageFailed(decodeFunctionData({ abi: IWorldAbi, data: arg.callData }))
+        messageFailed(decodeFunctionData({ abi: IWorldAbi, data: arg.callData })),
       );
       return data.join(", ");
     }
@@ -301,40 +301,24 @@ function DisplayTransactions({ writes }: { writes: ContractWrite[] }) {
 
   return (
     visibleWrites.length > 0 && (
-      <div className="absolute left-1/2 -translate-x-1/2 my-8 w-96">
-        {visibleWrites.slice(0, 3).map((write, i) =>
-          i === 0 ? (
-            <div key={write.id} className="flex justify-center w-full">
-              <div className="absolute top-8 w-80 z-20">
-                <TransactionSummary
-                  write={write}
-                  dismissedTransactions={dismissedTransactions}
-                  setDismissedTransactions={setDismissedTransactions}
-                />
-              </div>
+      <div style={{ zIndex: 1500 }} className="absolute top-[8px] left-1/2 -translate-x-1/2 my-8 w-96">
+        {visibleWrites.slice(0, 3).map((write, i) => (
+          <div key={write.id} className="flex justify-center w-full">
+            <div
+              style={{
+                top: `${i * 16}px`,
+                transition: `top 0.2s ease-in-out`,
+              }}
+              className="absolute w-80"
+            >
+              <TransactionSummary
+                write={write}
+                dismissedTransactions={dismissedTransactions}
+                setDismissedTransactions={setDismissedTransactions}
+              />
             </div>
-          ) : i === 1 ? (
-            <div key={write.id} className="flex justify-center w-full">
-              <div className="absolute top-4 w-72 z-10">
-                <TransactionSummary
-                  write={write}
-                  dismissedTransactions={dismissedTransactions}
-                  setDismissedTransactions={setDismissedTransactions}
-                />
-              </div>
-            </div>
-          ) : (
-            <div key={write.id} className="flex justify-center w-full">
-              <div className="absolute top-0 w-64 z-0">
-                <TransactionSummary
-                  write={write}
-                  dismissedTransactions={dismissedTransactions}
-                  setDismissedTransactions={setDismissedTransactions}
-                />
-              </div>
-            </div>
-          )
-        )}
+          </div>
+        ))}
       </div>
     )
   );

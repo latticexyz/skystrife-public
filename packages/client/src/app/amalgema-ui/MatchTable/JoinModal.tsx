@@ -101,7 +101,7 @@ export function JoinModal({
           <div className="w-full flex gap-x-4">
             {!currentPlayerInMatch && (
               <a href={getMatchUrl(matchEntity)} target="_blank" rel="noopener noreferrer" className="grow">
-                <Button buttonType={"tertiary"} className="w-full">
+                <Button buttonType="tertiary" className="w-full">
                   Spectate
                 </Button>
               </a>
@@ -109,7 +109,7 @@ export function JoinModal({
 
             {currentPlayerInMatch && (
               <a href={getMatchUrl(matchEntity)} target="_blank" rel="noopener noreferrer" className="grow">
-                <Button buttonType={"tertiary"} className="w-full">
+                <Button buttonType="tertiary" className="w-full">
                   Play
                 </Button>
               </a>
@@ -118,7 +118,7 @@ export function JoinModal({
             {!currentPlayerInMatch && matchJoinable && (
               <PromiseButton
                 disabled={!isAllowed || !canAffordEntrance}
-                buttonType={"secondary"}
+                buttonType="secondary"
                 className="grow"
                 promise={() => joinMatch()}
               >

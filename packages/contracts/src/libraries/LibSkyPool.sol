@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { MatchSweepstake, MatchConfig, MatchRewardPercentages, MatchIndexToEntity, LastMatchIndex, MatchIndex, MatchRanking, MatchReward, SkyPoolConfig, MatchSky, MatchSkyTableId, MatchSkyData, OwnedBy } from "../codegen/index.sol";
+import { MatchSweepstake, MatchSweepstakeData, MatchConfig, MatchRewardPercentages, MatchIndexToEntity, LastMatchIndex, MatchIndex, MatchRanking, MatchReward, SkyPoolConfig, OwnedBy, MatchSky } from "../codegen/index.sol";
 
 import { hasToken } from "../hasToken.sol";
 import { entityToAddress, getMatch, getLevelSpawnIndices } from "./LibUtils.sol";
@@ -34,24 +34,24 @@ function dispenseRewards(bytes32 matchEntity) {
     transferTokenFromEscrow(address(escrowContract), entityToAddress(owner), MatchReward.get(matchEntity, i));
   }
 
-  (uint256 fee, uint256[] memory rewardPercentages) = MatchSweepstake.get(matchEntity);
+  MatchSweepstakeData memory sweepstakeData = MatchSweepstake.get(matchEntity);
 
   // Send sweepstake rewards
-  if (fee > 0) {
-    uint256 baseReward = fee * ranking.length;
+  if (sweepstakeData.entranceFee > 0) {
+    uint256 baseReward = sweepstakeData.entranceFee * ranking.length;
 
     for (uint256 i; i < ranking.length; i++) {
       bytes32 owner = OwnedBy.get(matchEntity, ranking[i]);
 
-      if (fee > 0) {
-        uint256 reward = (rewardPercentages[i] * baseReward) / DENOMINATOR;
+      if (sweepstakeData.entranceFee > 0) {
+        uint256 reward = (sweepstakeData.rewardPercentages[i] * baseReward) / DENOMINATOR;
         transferTokenFromEscrow(address(escrowContract), entityToAddress(owner), reward);
       }
     }
 
     // Match creator gets the final reward slot
     {
-      uint256 reward = (rewardPercentages[ranking.length] * baseReward) / DENOMINATOR;
+      uint256 reward = (sweepstakeData.rewardPercentages[ranking.length] * baseReward) / DENOMINATOR;
       transferTokenFromEscrow(address(escrowContract), entityToAddress(MatchConfig.getCreatedBy(matchEntity)), reward);
     }
   }

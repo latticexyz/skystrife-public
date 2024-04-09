@@ -7,7 +7,7 @@ export async function attack(context: { network: NetworkLayer }, attacker: Entit
   const {
     utils: { isOwnedByCurrentPlayer },
     network: {
-      components: { Position, Range },
+      components: { Position, Combat },
     },
     api: { attack: sendAttackTx },
   } = network;
@@ -24,10 +24,10 @@ export async function attack(context: { network: NetworkLayer }, attacker: Entit
   if (!defenderPosition) return;
 
   const distanceToTarget = manhattan(attackerPosition, defenderPosition);
-  const attackerRange = getComponentValue(Range, attacker);
-  if (!attackerRange) return;
+  const attackerCombat = getComponentValue(Combat, attacker);
+  if (!attackerCombat) return;
 
-  if (distanceToTarget <= attackerRange.max || distanceToTarget >= attackerRange.min) {
+  if (distanceToTarget <= attackerCombat.maxRange || distanceToTarget >= attackerCombat.minRange) {
     await sendAttackTx(attackerEntityID, defenderEntityID);
   }
 }

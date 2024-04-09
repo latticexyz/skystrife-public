@@ -28,7 +28,7 @@ const CopyButton = ({ matchEntity }: { matchEntity: Entity }) => {
 
   return (
     <Button
-      buttonType={"primary"}
+      buttonType="primary"
       onClick={() => {
         worldContract.write.copyMap([matchEntity as Hex]);
       }}
@@ -40,9 +40,10 @@ const CopyButton = ({ matchEntity }: { matchEntity: Entity }) => {
 
 const Row = ({ matchEntity }: { matchEntity: Entity }) => {
   const {
-    components: { MatchConfig, MatchFinished, MatchReady, SpawnReservedBy, MatchAccessControl, MatchName },
+    components: { MatchConfig, MatchFinished, MatchReady, MatchAccessControl, MatchName },
     utils: { getLevelSpawns },
     externalWorldContract,
+    externalWalletClient,
   } = useAmalgema();
 
   const matchConfig = getComponentValue(MatchConfig, matchEntity);
@@ -88,8 +89,11 @@ const Row = ({ matchEntity }: { matchEntity: Entity }) => {
           buttonType="secondary"
           onClick={() => {
             if (!externalWorldContract) return;
+            if (!externalWalletClient?.account) return;
 
-            externalWorldContract.write.adminDestroyMatch([matchEntity as Hex]);
+            externalWorldContract.write.adminDestroyMatch([matchEntity as Hex], {
+              account: externalWalletClient.account,
+            });
           }}
         >
           destroy match

@@ -8,7 +8,7 @@ import { useBalance } from "wagmi";
 import { useExternalAccount } from "../hooks/useExternalAccount";
 
 export function SeasonPass() {
-  const { externalWorldContract } = useAmalgema();
+  const { externalWorldContract, externalWalletClient } = useAmalgema();
 
   const [name, setName] = useState("");
   const [seasonStart, setSeasonStart] = useState(0);
@@ -45,7 +45,6 @@ export function SeasonPass() {
 
   const { data: worldBalance } = useBalance({
     address: externalWorldContract?.address,
-    watch: true,
   });
 
   return (
@@ -180,17 +179,23 @@ export function SeasonPass() {
           }
           promise={async () => {
             if (!externalWorldContract) return;
+            if (!externalWalletClient?.account) return;
 
-            await externalWorldContract.write.createNewSeasonPass([
-              stringToHex(name, { size: 14 }),
-              BigInt(seasonStart),
-              BigInt(seasonEnd),
-              BigInt(mintEnd),
-              BigInt(decreaseRate),
-              parseEther(startingPrice.toString()),
-              parseEther(minPrice.toString()),
-              BigInt(priceIncreasePercent),
-            ]);
+            await externalWorldContract.write.createNewSeasonPass(
+              [
+                stringToHex(name, { size: 14 }),
+                BigInt(seasonStart),
+                BigInt(seasonEnd),
+                BigInt(mintEnd),
+                BigInt(decreaseRate),
+                parseEther(startingPrice.toString()),
+                parseEther(minPrice.toString()),
+                BigInt(priceIncreasePercent),
+              ],
+              {
+                account: externalWalletClient.account,
+              }
+            );
           }}
         >
           Create Pass
@@ -217,11 +222,14 @@ export function SeasonPass() {
           disabled={!ethToWithdraw}
           promise={async () => {
             if (!externalWorldContract || !externalAddress) return;
+            if (!externalWalletClient?.account) return;
 
-            await externalWorldContract.write.withdrawEth([
-              externalAddress,
-              parseEther(ethToWithdraw.toString(), "wei"),
-            ]);
+            await externalWorldContract.write.withdrawEth(
+              [externalAddress, parseEther(ethToWithdraw.toString(), "wei")],
+              {
+                account: externalWalletClient.account,
+              }
+            );
           }}
         >
           Withdraw ETH

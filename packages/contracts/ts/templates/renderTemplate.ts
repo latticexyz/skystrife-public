@@ -1,9 +1,9 @@
 import { renderedSolidityHeader } from "@latticexyz/common/codegen";
 import { TemplateConfig } from "./templateConfig";
-import { StoreConfig } from "@latticexyz/store";
+import { World } from "@latticexyz/world";
 import config from "../../mud.config";
 
-const formatValue = (config: StoreConfig, fieldType: string, value: number | string) => {
+const formatValue = (config: World, fieldType: string, value: number | string) => {
   if (fieldType in config.enums) {
     return `${fieldType}(uint8(${value}))`;
   } else if (typeof value === "string" && value.includes("0x")) {
@@ -14,15 +14,18 @@ const formatValue = (config: StoreConfig, fieldType: string, value: number | str
   return `${value}`;
 };
 
-export const renderSetRecord = (config: StoreConfig, tableName: string, value: { [k: string]: number }, i: number) => {
-  const { valueSchema } = config.tables[tableName];
+export const renderSetRecord = (config: World, tableName: string, value: { [k: string]: number }, i: number) => {
+  const tableConfig = config.tables[tableName];
+  const { schema, key } = tableConfig;
+
+  const valueFieldNames = Object.keys(schema).filter((fieldName) => !key.includes(fieldName));
 
   // Iterate through the keys in the original schema to preserve ordering
-  const formattedValues = Object.keys(valueSchema).map((fieldName) => {
+  const formattedValues = valueFieldNames.map((fieldName) => {
     const fieldValue = value[fieldName];
 
     const variableName = `${tableName.toLowerCase()}_${fieldName}`;
-    const fieldType = valueSchema[fieldName];
+    const { internalType: fieldType } = schema[fieldName];
     const isArray = Array.isArray(fieldValue);
 
     if (isArray) {
@@ -48,31 +51,31 @@ export const renderSetRecord = (config: StoreConfig, tableName: string, value: {
     .map((v) => (v.name ? v.name : v.formattedValue))
     .join(",")});
   staticDatas[${i}] = staticData;
-  encodedLengthss[${i}] = PackedCounter.unwrap(encodedLengths);
+  encodedLengthss[${i}] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[${i}] = dynamicData;
       `;
 };
 
-export function renderTemplate(name: string, values: TemplateConfig<StoreConfig>) {
+export function renderTemplate(name: string, values: TemplateConfig<World>) {
   return `
   ${renderedSolidityHeader}
   
-  import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
+  import { EncodedLengths } from "@latticexyz/store/src/EncodedLengths.sol";
   import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
-  import { createTemplate } from "../../libraries/templates/createTemplate.sol";
+  import { createTemplate } from "base/libraries/templates/createTemplate.sol";
   ${
     Object.keys(config.enums).length > 0
       ? `import { ${Object.keys(config.enums)
           .map((e) => e)
-          .join(",")} } from "../common.sol";`
+          .join(",")} } from "base/codegen/common.sol";`
       : ""
   }
 
   ${
     Object.keys(values).length > 0
       ? `import {${Object.keys(values)
-          .map((key) => `${key}, ${key}TableId`)
-          .join(",")}} from "../index.sol";`
+          .map((key) => `${key}`)
+          .join(",")}} from "base/codegen/index.sol";`
       : ""
   }
   
@@ -87,11 +90,11 @@ export function renderTemplate(name: string, values: TemplateConfig<StoreConfig>
     bytes[] memory dynamicDatas = new bytes[](LENGTH);
 
     bytes memory staticData; 
-    PackedCounter encodedLengths; 
+    EncodedLengths encodedLengths; 
     bytes memory dynamicData;
 
     ${Object.keys(values)
-      .map((key, i) => `tableIds[${i}] = ResourceId.unwrap(${key}TableId)`)
+      .map((key, i) => `tableIds[${i}] = ResourceId.unwrap(${key}._tableId)`)
       .join(";")};
 
     ${Object.entries(values)

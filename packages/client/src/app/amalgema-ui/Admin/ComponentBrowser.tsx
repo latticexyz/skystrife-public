@@ -4,7 +4,7 @@ import { Type, defineComponent } from "@latticexyz/recs";
 import { useEffect, useState } from "react";
 import { Hex } from "viem";
 import { decodeEntity } from "@latticexyz/store-sync/recs";
-import { encodeValueArgs } from "@latticexyz/protocol-parser";
+import { encodeValueArgs } from "@latticexyz/protocol-parser/internal";
 
 export const ComponentBrowser = () => {
   const amalgemaLayer = useAmalgema();

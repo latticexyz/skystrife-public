@@ -91,7 +91,7 @@ export const PrototypeSpawner = () => {
         </select>
 
         <Button
-          buttonType={"primary"}
+          buttonType="primary"
           onClick={() => {
             if (spawning) {
               setSelectingLocation(true);

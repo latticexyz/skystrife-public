@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@latticexyz/recs": "2.0.0-march-19-skystrife-playtest-f486281e",
+    "@latticexyz/recs": "2.0.5-main-ccbb4876",
     "client": "workspace:*",
     "serve": "14.2.1",
     "serve-handler": "6.1.5",

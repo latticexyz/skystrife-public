@@ -230,7 +230,9 @@ export function SessionWalletManager() {
                   waitForTransaction(tx);
                 }
 
-                const tx = await externalWorldContract.write.unregisterDelegation([walletClient.account.address]);
+                const tx = await externalWorldContract.write.unregisterDelegation([walletClient.account.address], {
+                  account: externalWalletClient.account,
+                });
                 waitForTransaction(tx);
 
                 localStorage.removeItem("mud:burnerWallet");

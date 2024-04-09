@@ -1,12 +1,12 @@
 import { useEffect, useMemo } from "react";
 import { createNetworkLayer } from "../layers/Network/createNetworkLayer";
 import { usePromiseValue } from "../usePromiseValue";
-import { getNetworkConfig } from "../mud/getBrowserNetworkConfig";
+import { NetworkConfig } from "../mud/utils";
 
-export const useNetworkLayer = () => {
+export const useNetworkLayer = (networkConfig: NetworkConfig) => {
   const networkLayerPromise = useMemo(async () => {
-    return createNetworkLayer(await getNetworkConfig());
-  }, []);
+    return createNetworkLayer(networkConfig);
+  }, [networkConfig]);
 
   useEffect(() => {
     return () => {

@@ -9,17 +9,17 @@ export const usePlayerGold = (playerData: ReturnType<typeof useCurrentPlayer>) =
       components: { Chargee },
     },
     headlessLayer: {
-      components: { LocalStamina },
-      api: { getCurrentStamina, getCurrentRegen },
+      components: { LocalGold },
+      api: { getCurrentGold, getCurrentRegen },
     },
   } = useMUD();
 
-  const [stamina, setStamina] = useState(0);
+  const [gold, setGold] = useState(0);
   const [regen, setRegen] = useState(0);
 
-  const stamina$ = useMemo(
-    () => LocalStamina.update$.pipe(filter((update) => update.entity === playerData?.player)),
-    [LocalStamina.update$, playerData?.player]
+  const gold$ = useMemo(
+    () => LocalGold.update$.pipe(filter((update) => update.entity === playerData?.player)),
+    [LocalGold.update$, playerData?.player],
   );
 
   const regenRate$ = useMemo(
@@ -27,9 +27,9 @@ export const usePlayerGold = (playerData: ReturnType<typeof useCurrentPlayer>) =
       Chargee.update$.pipe(
         filter((update) => {
           return update.value[0]?.value === playerData?.player;
-        })
+        }),
       ),
-    [Chargee.update$, playerData?.player]
+    [Chargee.update$, playerData?.player],
   );
 
   useEffect(() => {
@@ -37,20 +37,20 @@ export const usePlayerGold = (playerData: ReturnType<typeof useCurrentPlayer>) =
 
     const { player } = playerData;
 
-    setStamina(getCurrentStamina(player));
+    setGold(getCurrentGold(player));
     setRegen(getCurrentRegen(player));
 
-    const sub = merge(stamina$, regenRate$).subscribe(() => {
+    const sub = merge(gold$, regenRate$).subscribe(() => {
       if (!player) return;
 
-      setStamina(getCurrentStamina(player));
+      setGold(getCurrentGold(player));
       setRegen(getCurrentRegen(player));
     });
     return () => sub.unsubscribe();
-  }, [stamina$, getCurrentStamina, playerData?.player, regenRate$, getCurrentRegen, playerData]);
+  }, [gold$, getCurrentGold, playerData?.player, regenRate$, getCurrentRegen, playerData]);
 
   return {
-    amount: stamina,
+    amount: gold,
     regen,
   };
 };

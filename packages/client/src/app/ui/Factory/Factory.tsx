@@ -77,7 +77,7 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
 
       setComponent(BuildingUnit, selectedFactory, unit);
     },
-    [BuildingUnit, selectedFactory]
+    [BuildingUnit, selectedFactory],
   );
 
   const playerData = useCurrentPlayer(matchEntity);
@@ -94,12 +94,12 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
 
     if (factoryData) {
       for (let i = 0; i < factoryData.prototypeIds.length; i++) {
-        const staminaCost = factoryData.staminaCosts[i];
+        const goldCost = factoryData.goldCosts[i];
 
         const prototypeId = factoryData.prototypeIds[i] as Entity;
         const name = hexToString(prototypeId as Hex, { size: 32 });
         const unitType = UnitTypes[name as keyof typeof UnitTypes];
-        data.push({ factory: selectedFactory, unitType, staminaCost, prototypeId });
+        data.push({ factory: selectedFactory, unitType, goldCost, prototypeId });
       }
     }
 
@@ -127,8 +127,8 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
       const unitData = buildData.find((build) => build.unitType === (parseInt(foundUnit[0]) as UnitTypes));
       if (!unitData) return;
 
-      const staminaCost = unitData.staminaCost;
-      if (staminaCost > goldAmount) return;
+      const goldCost = unitData.goldCost;
+      if (goldCost > goldAmount) return;
 
       setBuildingUnit(unitData);
     };
@@ -181,7 +181,7 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
           className="align-center flex flex-row flex-wrap w-[400px] gap-y-4"
         >
           {buildData.map((build, i) => {
-            const disabled = build.staminaCost > goldAmount;
+            const disabled = build.goldCost > goldAmount;
 
             return (
               <ClickWrapper key={`${i}-${build.unitType}`}>
@@ -198,7 +198,7 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
                       "align-center ml-3 flex h-fit w-fit cursor-pointer flex-col justify-center border-none rounded-sm transition-all duration-200 ease-in-out hover:-translate-y-2 ",
                       "p-2",
                       "bg-white/80 hover:bg-ss-gold/90",
-                      disabled && "cursor-not-allowed hover:translate-y-0 hover:bg-white/80"
+                      disabled && "cursor-not-allowed hover:translate-y-0 hover:bg-white/80",
                     )}
                     style={{
                       opacity: disabled ? 0.5 : 1,
@@ -228,7 +228,7 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
                       }}
                       className="self-center text-xl font-medium text-ss-text-default"
                     >
-                      {build.staminaCost}g
+                      {build.goldCost}g
                     </span>
                   </Card>
                 </div>

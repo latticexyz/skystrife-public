@@ -25,6 +25,16 @@ export const generateTemplates = async (templates: TemplatesConfig<StoreConfig>,
     const output = renderTemplate(name, templates[name]);
     const fullOutputPath = path.join(outputBaseDirectory, `templates/${name}Template.sol`);
 
-    await formatAndWriteSolidity(output, fullOutputPath, "Generated template");
+    try {
+      await formatAndWriteSolidity(output, fullOutputPath, "Generated template");
+    } catch (e) {
+      console.error(
+        output
+          .split("\n")
+          .map((line, i) => `${i + 1}: ${line}`)
+          .join("\n"),
+      );
+      console.log(e);
+    }
   }
 };

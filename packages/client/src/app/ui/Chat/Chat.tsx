@@ -156,8 +156,6 @@ export function Chat() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (app?.status !== "connected") return;
-
       if (document.activeElement === inputRef.current) return;
       if (e.key === "Enter") {
         focusInput();
@@ -213,7 +211,7 @@ export function Chat() {
                   overflowWrap: "anywhere",
                 }}
                 key={message.id}
-                className="flex text-white items-baseline flex-wrap space-x-1 w-full"
+                className="text-white w-full whitespace-normal break-words"
               >
                 <span
                   style={{
@@ -222,8 +220,8 @@ export function Chat() {
                   className="font-bold"
                 >
                   {message.name}:
-                </span>
-                <span>{message.content}</span>
+                </span>{" "}
+                {message.content}
               </li>
             ))}
             <div ref={scrollIntoViewRef} />
@@ -262,9 +260,13 @@ export function Chat() {
             type="text"
             className="w-full outline-none px-2 pl-[46px] text-white py-1 bg-black/70 opacity-0 focus:opacity-100 border border-ss-stroke rounded"
             value={newMessage}
-            placeholder="Type a message"
-            onChange={(e) => setNewMessage(e.target.value)}
-            disabled={!app || app.status !== "connected"}
+            placeholder={app?.status === "connected" ? "Press enter to chat" : "Connecting..."}
+            onChange={(e) => {
+              if (app?.status !== "connected") return;
+
+              setNewMessage(e.target.value);
+            }}
+            disabled={!app}
           />
           {inputFocused &&
             (app?.status === "connected" ? (

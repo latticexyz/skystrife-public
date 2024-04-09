@@ -1,4 +1,4 @@
-import { UnitTypes, ItemTypes, StructureTypes } from "../../Network";
+import { UnitTypes, StructureTypes } from "../../Network";
 
 export const TILE_WIDTH = 32;
 export const TILE_HEIGHT = 32;
@@ -46,6 +46,7 @@ export enum Sprites {
   SpawnSettlement,
   Gold,
   GoldMine,
+  GoldCache,
   SelectUI,
   SummoningAltar,
   WoodenWall,
@@ -70,8 +71,11 @@ export enum Sprites {
 
   BarBackground,
   HealthBar,
+  HealthBarTick,
   HealthBarRed,
+  HealthBarRedTick,
   GoldBar,
+  GoldBarTick,
 
   Banner,
 
@@ -115,13 +119,9 @@ export enum Animations {
   Gold = "Gold",
 
   // Structures
-  Portal = "Portal",
-  GoldShrine = "GoldShrine",
-  GoldMine = "GoldMine",
-  SummoningAltar = "SummoningAltar",
-  Sphinx = "Sphinx",
   SpawnSettlement = "SpawnSettlement",
   Settlement = "Settlement",
+  GoldMine = "GoldMine",
 
   // Units
   SwordsmanIdle = "SwordsmanIdle",
@@ -181,11 +181,14 @@ function createWalkAnimations() {
     UnitTypes.Knight,
     UnitTypes.Dragoon,
     UnitTypes.Brute,
-  ].reduce((anims, unitType) => {
-    anims[unitType] = [`${unitType}WalkUp`, `${unitType}WalkDown`, `${unitType}WalkLeft`, `${unitType}WalkRight`];
+  ].reduce(
+    (anims, unitType) => {
+      anims[unitType] = [`${unitType}WalkUp`, `${unitType}WalkDown`, `${unitType}WalkLeft`, `${unitType}WalkRight`];
 
-    return anims;
-  }, {} as Record<UnitTypes, [string, string, string, string]>);
+      return anims;
+    },
+    {} as Record<UnitTypes, [string, string, string, string]>,
+  );
 }
 
 export const WALK_ANIMATIONS = createWalkAnimations();
@@ -213,6 +216,7 @@ export const StructureTypeSprites: Record<number, Sprites> = {
   [StructureTypes.SpawnSettlement]: Sprites.SpawnSettlement,
   [StructureTypes.WoodenWall]: Sprites.WoodenWall,
   [StructureTypes.GoldMine]: Sprites.GoldMine,
+  [StructureTypes.GoldCache]: Sprites.GoldCache,
 };
 
 export const UnitTypeAnimations: Record<number, Animations> = {
@@ -264,13 +268,7 @@ export const UnitTypeDeathAnimations: Record<number, Animations> = {
 };
 
 export const StructureTypeAnimations: Record<number, Animations> = {
-  [StructureTypes.EscapePortal]: Animations.Portal,
-  [StructureTypes.Portal]: Animations.Portal,
-  [StructureTypes.BlazingHeartShrine]: Animations.Sphinx,
   [StructureTypes.GoldMine]: Animations.GoldMine,
-  [StructureTypes.SummoningAltar]: Animations.SummoningAltar,
   [StructureTypes.SpawnSettlement]: Animations.SpawnSettlement,
   [StructureTypes.Settlement]: Animations.Settlement,
 };
-
-export const ItemTypeAnimations: Record<number, Animations> = {};

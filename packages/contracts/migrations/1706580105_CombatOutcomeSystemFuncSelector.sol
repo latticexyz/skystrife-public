@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Script.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
@@ -12,7 +12,7 @@ import { RESOURCE_SYSTEM } from "@latticexyz/world/src/worldResourceTypes.sol";
 // table imports
 import { CombatOutcome } from "../src/codegen/index.sol";
 
-import { CombatOutcomeSystem } from "../src/systems/CombatOutcomeSystem.sol";
+// import { CombatOutcomeSystem } from "../src/systems/CombatOutcomeSystem.sol";
 
 contract CombatOutcomeSystemFuncSelector is Script {
   function run(address worldAddress) external {
@@ -23,11 +23,11 @@ contract CombatOutcomeSystemFuncSelector is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     ResourceId systemId = WorldResourceIdLib.encode(RESOURCE_SYSTEM, "", "CombatOutcomeSys");
-    world.registerRootFunctionSelector(
-      systemId,
-      "setCombatOutcome(bytes32,(bytes32,bytes32,int32,int32,int32,int32,bool,bool,bool,bool,uint256,uint256))",
-      CombatOutcomeSystem.setCombatOutcome.selector
-    );
+    // world.registerRootFunctionSelector(
+    //   systemId,
+    //   "setCombatOutcome(bytes32,(bytes32,bytes32,int32,int32,int32,int32,bool,bool,bool,bool,uint256,uint256))",
+    //   CombatOutcomeSystem.setCombatOutcome.selector
+    // );
 
     vm.stopBroadcast();
   }

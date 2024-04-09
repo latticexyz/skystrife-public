@@ -2,7 +2,7 @@ import { Hex, stringToHex } from "viem";
 import { NetworkLayer } from "../../../layers/Network";
 import { chunk } from "@latticexyz/common/utils";
 import { LEVEL_UPLOAD_SYSTEM_ID } from "../../../constants";
-import { encodeSystemCallFrom } from "@latticexyz/world";
+import { encodeSystemCallFrom } from "@latticexyz/world/internal";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 
 export type Level = Array<{

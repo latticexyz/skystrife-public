@@ -61,7 +61,7 @@ export function drawGoldBar(
     type: UpdateType;
   },
   xOffset: number,
-  yOffset: number
+  yOffset: number,
 ) {
   const {
     parentLayers: {
@@ -125,7 +125,7 @@ export function drawHealthBar(
     type: UpdateType;
   },
   xOffset: number,
-  yOffset: number
+  yOffset: number,
 ) {
   const {
     components: { IncomingDamage },
@@ -156,10 +156,18 @@ export function drawHealthBar(
   const { entity, type } = update;
 
   if (type === UpdateType.Exit) {
-    objectPool.remove(`${entity}-health`);
+    for (let i = 0; i < 18; i++) {
+      objectPool.remove(`${entity}-health-tick-${i}`);
+      objectPool.remove(`${entity}-health-loss-tick-${i}`);
+    }
+
     objectPool.remove(`${entity}-health-bar`);
     objectPool.remove(`${entity}-health-loss`);
   } else if ([UpdateType.Enter, UpdateType.Update].includes(type)) {
+    for (let i = 0; i < 18; i++) {
+      objectPool.remove(`${entity}-health-tick-${i}`);
+    }
+
     let position = getComponentValueStrict(LocalPosition, entity);
     if (hasComponent(NextPosition, entity)) position = getComponentValueStrict(NextPosition, entity);
 
@@ -167,23 +175,28 @@ export function drawHealthBar(
     const health = getComponentValueStrict(LocalHealth, entity).value;
     const currentHealthPercentage = health / maxHealth;
     const healthBarFrameSprite = config.sprites[Sprites.BarBackground as 0];
-    const healthBarSprite = config.sprites[Sprites.HealthBar];
+    const healthBarSprite = config.sprites[Sprites.HealthBarTick];
     const pixelCoord = tileCoordToPixelCoord(position, tileWidth, tileHeight);
 
-    const healthBar = objectPool.get(`${entity}-health`, "Sprite");
-    healthBar.setComponent({
-      id: "health-bar",
-      once: (healthBar) => {
-        healthBar.setScale(currentHealthPercentage, 1);
-        healthBar.setTexture(healthBarSprite.assetKey, healthBarSprite.frame);
-        healthBar.setPosition(pixelCoord.x + xOffset, pixelCoord.y + yOffset);
-        healthBar.setDepth(depthFromPosition(position, RenderDepth.UI5 + 6));
-      },
-    });
+    const totalTicks = 18;
+    const currentHealthTicks = Math.round(currentHealthPercentage * totalTicks);
+
+    const depth = depthFromPosition(position, RenderDepth.UI5 + 6);
+    for (let i = 0; i < currentHealthTicks; i++) {
+      const healthBarTick = objectPool.get(`${entity}-health-tick-${i}`, "Sprite");
+      healthBarTick.setComponent({
+        id: `health-tick-${i}`,
+        once: (healthBarTick) => {
+          healthBarTick.setTexture(healthBarSprite.assetKey, healthBarSprite.frame);
+          healthBarTick.setPosition(pixelCoord.x + xOffset + i, pixelCoord.y + yOffset);
+          healthBarTick.setDepth(depth);
+        },
+      });
+    }
 
     const healthBarFrame = objectPool.get(`${entity}-health-bar`, "Sprite");
     healthBarFrame.setComponent({
-      id: "health-bar-frame",
+      id: "health-bar",
       once: (healthBarFrame) => {
         healthBarFrame.setTexture(healthBarFrameSprite.assetKey, healthBarFrameSprite.frame);
         healthBarFrame.setPosition(pixelCoord.x + xOffset, pixelCoord.y + yOffset);
@@ -194,72 +207,83 @@ export function drawHealthBar(
     if (isComponentUpdate(update, IncomingDamage)) {
       const { value } = update;
       const [current, previous] = value;
-      const damage = current?.value ?? 0;
+      const damage = current?.values.reduce((acc, v) => acc + v, 0) ?? 0;
 
       if (damage === previous?.value) return;
-      if (damage === 0) return objectPool.remove(`${entity}-health-loss`);
+      if (damage === 0) {
+        for (let i = 0; i < 18; i++) {
+          objectPool.remove(`${entity}-health-loss-tick-${i}`);
+        }
+        return;
+      }
 
       const percentLoss = Math.min(damage, health) / maxHealth;
-      const healthBarRedSprite = config.sprites[Sprites.HealthBarRed];
-      const startX = pixelCoord.x + xOffset + (1 - percentLoss) * 19 - (1 - currentHealthPercentage) * 19;
+      const healthBarRedSprite = config.sprites[Sprites.HealthBarRedTick];
 
-      const healthLoss = objectPool.get(`${entity}-health-loss`, "Sprite");
-      healthLoss.setComponent({
-        id: `${entity}-health-loss`,
-        once: (healthLoss) => {
-          healthLoss.setTexture(healthBarRedSprite.assetKey, healthBarRedSprite.frame);
-          healthLoss.setPosition(startX, pixelCoord.y + yOffset);
-          healthLoss.setDepth(depthFromPosition(position, RenderDepth.UI5 + 8));
-          healthLoss.setScale(percentLoss, 1);
+      const numHealthLossTicks = Math.round(percentLoss * totalTicks);
+      const startX = pixelCoord.x + xOffset + currentHealthTicks - numHealthLossTicks;
 
-          // blink health bar with incoming damage
-          phaserScene.tweens.add({
-            targets: healthLoss,
-            alpha: 0.5,
-            duration: 500,
-            ease: Phaser.Math.Easing.Quadratic.InOut,
-            repeat: -1,
-            yoyo: true,
-          });
-        },
-      });
+      for (let i = 0; i < numHealthLossTicks; i++) {
+        const healthBarTick = objectPool.get(`${entity}-health-loss-tick-${i}`, "Sprite");
+        healthBarTick.setComponent({
+          id: `health-tick-${i}`,
+          once: (incomingDamageTick) => {
+            incomingDamageTick.setTexture(healthBarRedSprite.assetKey, healthBarRedSprite.frame);
+            incomingDamageTick.setPosition(startX + i, pixelCoord.y + yOffset);
+            incomingDamageTick.setDepth(depthFromPosition(position, RenderDepth.UI5 + 8));
+            phaserScene.tweens.add({
+              targets: incomingDamageTick,
+              alpha: 0.5,
+              duration: 500,
+              ease: Phaser.Math.Easing.Quadratic.InOut,
+              repeat: -1,
+              yoyo: true,
+            });
+          },
+        });
+      }
     }
 
     if (isComponentUpdate(update, LocalHealth)) {
       const { value } = update;
       const [current, previous] = value.map((v) => (v?.value as number) ?? 0);
 
-      // Animate health loss on the health bar
-      if (current < previous) {
-        objectPool.remove(`${entity}-health-loss`);
+      if (current >= previous) {
+        // for (let i = 0; i < 18; i++) {
+        //   objectPool.remove(`${entity}-health-loss-tick-${i}`);
+        // }
+        return;
+      }
 
+      if (current < previous) {
         const previousHealthPercentage = previous / maxHealth;
         const percentDifference = previousHealthPercentage - currentHealthPercentage;
         const startX = pixelCoord.x + xOffset + currentHealthPercentage * 19;
 
-        const healthBarRedSprite = config.sprites[Sprites.HealthBarRed];
+        const healthBarRedSprite = config.sprites[Sprites.HealthBarRedTick];
+        const numHealthLossTicks = Math.round(percentDifference * totalTicks);
 
-        const redBar = objectPool.get(`${entity}-red-bar`, "Sprite");
-        redBar.setComponent({
-          id: "red-bar",
-          once: (redBar) => {
-            redBar.setTexture(healthBarRedSprite.assetKey, healthBarRedSprite.frame);
-            redBar.setPosition(startX, pixelCoord.y + yOffset);
-            redBar.setDepth(depthFromPosition(position, RenderDepth.UI5 + 5));
-            redBar.setAlpha(0.6);
-            redBar.setScale(percentDifference, 1);
+        for (let i = 0; i < numHealthLossTicks; i++) {
+          const healthBarTick = objectPool.get(`${entity}-health-loss-anim-tick-${i}`, "Sprite");
+          healthBarTick.setComponent({
+            id: `health-tick-${i}`,
+            once: (healthBarTick) => {
+              healthBarTick.setTexture(healthBarRedSprite.assetKey, healthBarRedSprite.frame);
+              healthBarTick.setPosition(startX + i, pixelCoord.y + yOffset);
+              healthBarTick.setDepth(depthFromPosition(position, RenderDepth.UI5 + 8));
 
-            phaserScene.tweens.add({
-              targets: redBar,
-              scaleX: 0,
-              duration: 800,
-              ease: Phaser.Math.Easing.Quadratic.Out,
-              onComplete: () => {
-                objectPool.remove(`${entity}-red-bar`);
-              },
-            });
-          },
-        });
+              phaserScene.tweens.add({
+                targets: healthBarTick,
+                y: pixelCoord.y + yOffset - 3,
+                duration: (numHealthLossTicks - i) * 50 + 100,
+                ease: Phaser.Math.Easing.Quadratic.Out,
+                onComplete: () => {
+                  objectPool.remove(`${entity}-health-loss-anim-tick-${i}`);
+                },
+              });
+            },
+          });
+        }
       }
     }
   }

@@ -1,16 +1,16 @@
 [profile.default]
-solc = "0.8.21"
+solc = "0.8.24"
 ffi = false
 fuzz_runs = 256
 optimizer = true
 optimizer_runs = 3000
 verbosity = 1
-libs = ["../../node_modules", "../../../mud"]
+libs = ["../../node_modules"]
 src = "src"
 test = "test"
 out = "out"
 extra_output_files = ["abi", "evm.bytecode"]
 fs_permissions = [{ access = "read", path = "./" }]
 
-[profile.redstone-holesky]
-eth_rpc_url = "https://rpc.holesky.redstone.xyz/"
+[profile.redstone-garnet]
+eth_rpc_url = "https://rpc.garnet.qry.live/"

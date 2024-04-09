@@ -3,7 +3,7 @@ import { useAmalgema } from "../../../useAmalgema";
 import { Button } from "../../ui/Theme/SkyStrife/Button";
 import { createMatchEntity } from "../../../createMatchEntity";
 import { Hex, padHex } from "viem";
-import { SystemCall, encodeSystemCalls } from "@latticexyz/world";
+import { SystemCall, encodeSystemCalls } from "@latticexyz/world/internal";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { getMatchUrl } from "../../../getMatchUrl";
 import { useSkyPoolConfig } from "../hooks/useSkyPoolConfig";
@@ -148,7 +148,7 @@ export function Footer({
         externalWalletClient.account &&
         hasSystemDelegation(externalWalletClient.account.address, walletClient.account.address, LOBBY_SYSTEM_ID);
 
-      const systemCalls: readonly Omit<SystemCall<typeof IWorldAbi>, "abi">[] = [
+      const systemCalls = [
         // create a match
         {
           systemId: MATCH_SYSTEM_ID,

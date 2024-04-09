@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { ChargedByStart, Charger, Chargers, Chargee, Stamina } from "../codegen/index.sol";
+import { ChargedByStart, Charger, Chargers, Chargee, Gold } from "../codegen/index.sol";
 
 import { ArrayLib } from "@latticexyz/world-modules/src/modules/utils/ArrayLib.sol";
 
 using ArrayLib for bytes32[];
 
 /**
- * Used to increase the Stamina regeneration of an entity
+ * Used to increase the Gold regeneration of an entity
  * by "charging" it with another entity.
  * This is how Gold is implemented.
  * A bunch of Gold Mines "charge" the player.

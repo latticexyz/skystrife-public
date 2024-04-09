@@ -1,7 +1,14 @@
-import { Entity, HasValue, getComponentValueStrict, runQuery, setComponent, updateComponent } from "@latticexyz/recs";
+import {
+  Entity,
+  HasValue,
+  getComponentValueStrict,
+  hasComponent,
+  runQuery,
+  setComponent,
+  updateComponent,
+} from "@latticexyz/recs";
 import { setupNetwork } from "../../mud/setupNetwork";
-import { ContractType } from "../../useMUD";
-import { useStore } from "../../useStore";
+import { ContractType, useStore } from "../../useStore";
 import { Hex, formatEther } from "viem";
 import { createClientComponents } from "../../mud/createClientComponents";
 import lodash from "lodash";
@@ -41,6 +48,7 @@ type SystemExecutorArgs<T extends keyof ContractType["write"]> = {
     forceManualGasEstimate?: boolean;
   };
   confirmCompletionCallback?: () => Promise<void>;
+  onRevertCallback?: () => Promise<void>;
 };
 
 export const createSystemExecutor = ({
@@ -142,6 +150,7 @@ export const createSystemExecutor = ({
     args,
     options,
     confirmCompletionCallback,
+    onRevertCallback,
   }: SystemExecutorArgs<T>): Promise<Hex | undefined> => {
     const actionId = options?.actionId ?? (uuid() as string);
     const disableRetry = options?.disableRetry ?? false;
@@ -152,10 +161,19 @@ export const createSystemExecutor = ({
 
     const txEntity = uuid() as Entity;
 
+    // Action groups together many transactions as one "user intended action"
+    if (!hasComponent(components.Action, actionId as Entity)) {
+      setComponent(components.Action, actionId as Entity, {
+        entity,
+        type: systemId,
+        status: "pending",
+      });
+    }
+
     setComponent(components.Transaction, txEntity, {
       status: "pending",
       entity,
-      systemCall,
+      systemCall: systemCall as string,
       systemId,
       actionId,
       gasEstimate: undefined,
@@ -167,6 +185,7 @@ export const createSystemExecutor = ({
       completedTimestamp: undefined,
       submittedBlock: undefined,
       completedBlock: undefined,
+      clientSubmittedTimestamp: undefined,
     });
 
     updateComponent(components.Transaction, txEntity, {
@@ -186,7 +205,7 @@ export const createSystemExecutor = ({
       });
       const mostRecentNonPendingTx = sortBy(
         filter(previousTxsOfSameSystemCall, (tx) => ["completed", "reverted"].includes(tx.status)),
-        (tx) => tx.completedTimestamp
+        (tx) => tx.completedTimestamp,
       ).reverse()[0];
 
       // in this case we have a successful tx, so we use the cached gas estimate
@@ -256,17 +275,16 @@ export const createSystemExecutor = ({
         });
       }
 
-      await network.waitForTransaction(txHash, (receipt) => {
-        updateComponent(components.Transaction, txEntity, {
-          completedBlock: receipt.blockNumber,
-        });
-      });
+      await network.waitForTransaction(txHash);
 
       updateComponent(components.Transaction, txEntity, {
         status: "completed",
         hash: txHash,
         completedTimestamp: BigInt(Date.now()),
         completedBlock: latestBlock,
+      });
+      updateComponent(components.Action, actionId as Entity, {
+        status: "completed",
       });
     } catch (e) {
       updateComponent(components.Transaction, txEntity, {
@@ -276,6 +294,10 @@ export const createSystemExecutor = ({
       });
 
       if (disableRetry || currentRetryCount + 1 > 1) {
+        onRevertCallback?.();
+        updateComponent(components.Action, actionId as Entity, {
+          status: "failed",
+        });
         throw e;
       } else {
         txHash = await executeSystem({
@@ -287,6 +309,8 @@ export const createSystemExecutor = ({
             actionId,
             currentRetryCount: currentRetryCount + 1,
           },
+          confirmCompletionCallback,
+          onRevertCallback,
         });
       }
     }
@@ -302,7 +326,7 @@ export const createSystemExecutor = ({
   };
 
   const executeSystemWithExternalWallet = async <T extends keyof ContractType["write"]>(
-    args: Omit<SystemExecutorArgs<T>, "options">
+    args: Omit<SystemExecutorArgs<T>, "options">,
   ): Promise<Hex | undefined> => {
     const { externalWorldContract } = useStore.getState();
 

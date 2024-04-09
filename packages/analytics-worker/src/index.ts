@@ -22,6 +22,8 @@ app.post("/track-client-event/:chain_id/:world_address", async (c) => {
   console.log(`  data: ${data}`);
   console.log(`  country: ${country}`);
 
+  const now = new Date().toISOString();
+
   try {
     await client.query(
       `
@@ -31,16 +33,18 @@ app.post("/track-client-event/:chain_id/:world_address", async (c) => {
         player_address,
         session_wallet_address,
         data,
-        country
+        country,
+        created_at
       ) VALUES (
         '${event_name}',
         '${world_address}',
         '${player_address}',
         '${session_wallet_address}',
         '${data}',
-        '${country}'
+        '${country}',
+        '${now}'
       );
-    `
+    `,
     );
 
     return c.json({ ok: true, message: `Stored event ${event_name}` });
@@ -56,6 +60,7 @@ app.post("/track/:chain_id/:world_address", async (c) => {
   await client.connect();
 
   const country = c.req.raw.cf?.country || "unknown";
+  const ip = c.req.header("CF-Connecting-IP") || "unknown";
 
   const { chain_id, world_address } = c.req.param();
   const {
@@ -98,6 +103,7 @@ app.post("/track/:chain_id/:world_address", async (c) => {
   console.log(`  action_id: ${action_id}`);
   console.log(`  client_submitted_timestamp: ${client_submitted_timestamp}`);
   console.log(`  country: ${country}`);
+  console.log(`  ip: ${ip}`);
 
   try {
     await client.query(
@@ -121,7 +127,8 @@ app.post("/track/:chain_id/:world_address", async (c) => {
         session_wallet_address,
         action_id,
         client_submitted_timestamp,
-        country
+        country,
+        ip
       ) VALUES (
         '${world_address}',
         '${entity}',
@@ -142,8 +149,9 @@ app.post("/track/:chain_id/:world_address", async (c) => {
         '${session_wallet_address}',
         '${action_id}',
         ${client_submitted_timestamp},
-        '${country}'
-      );`
+        '${country}',
+        '${ip}'
+      );`,
     );
 
     return c.json({ ok: true, message: `Stored tx ${hash}` });

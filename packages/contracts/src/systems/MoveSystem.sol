@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 import { System } from "@latticexyz/world/src/System.sol";
-import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 
-import { LibStamina } from "../libraries/LibStamina.sol";
+import { LibGold } from "../libraries/LibGold.sol";
 import { LibMove } from "../libraries/LibMove.sol";
 import { isOwnedBy } from "../libraries/LibUtils.sol";
 import { setPosition } from "../libraries/LibPosition.sol";
 
-import { MatchConfig, Combat, Movable, LastAction, Position, PositionData, Range, RangeData, Stamina, RequiresSetup } from "../codegen/index.sol";
+import { MatchConfig, Combat, Movable, LastAction, Position, PositionData, RequiresSetup } from "../codegen/index.sol";
 
-import { addressToEntity, matchHasStarted, getOwningPlayer, manhattan, min } from "../libraries/LibUtils.sol";
+import { addressToEntity, matchHasStarted, getOwningPlayer, manhattan } from "../libraries/LibUtils.sol";
 
-import { AttackSystem } from "./AttackSystem.sol";
+import { LibAttack } from "base/libraries/LibAttack.sol";
 
 contract MoveSystem is System {
   function _act(bytes32 matchEntity, bytes32 entity) internal {
@@ -21,7 +20,7 @@ contract MoveSystem is System {
 
     uint256 lastActionAt = LastAction.get(matchEntity, entity);
     require(
-      LibStamina.getCurrentTurn(matchEntity) > LibStamina.getTurnAt(matchEntity, lastActionAt),
+      LibGold.getCurrentTurn(matchEntity) > LibGold.getTurnAt(matchEntity, lastActionAt),
       "not enough time has passed since last action"
     );
 
@@ -46,12 +45,13 @@ contract MoveSystem is System {
     require(Combat.getStrength(matchEntity, entity) > 0, "attacker has no strength");
     require(Combat.getHealth(matchEntity, target) > 0, "defender has no health");
 
-    RangeData memory range = Range.get(matchEntity, entity);
+    int32 minRange = Combat.getMinRange(matchEntity, entity);
+    int32 maxRange = Combat.getMaxRange(matchEntity, entity);
     int32 distanceToTarget = manhattan(Position.get(matchEntity, entity), Position.get(matchEntity, target));
-    require(distanceToTarget >= range.min, "target is below minimum range");
-    require(distanceToTarget <= range.max, "target is above maximum range");
+    require(distanceToTarget >= minRange, "target is below minimum range");
+    require(distanceToTarget <= maxRange, "target is above maximum range");
 
-    SystemSwitch.call(abi.encodeCall(AttackSystem.attack, (matchEntity, entity, target)));
+    LibAttack.attack(matchEntity, entity, target);
   }
 
   function move(bytes32 matchEntity, bytes32 entity, PositionData[] memory path) public {

@@ -96,6 +96,7 @@ export function createEmbodiedEntity<Type extends keyof GameObjectTypes>(
     gameObject.off("pointerout");
     gameObject.off("pointerdown");
     gameObject.off("pointerup");
+    gameObject.removeAllListeners();
     if (isSprite(gameObject, type)) {
       gameObject.clearTint();
       gameObject.setTexture("");

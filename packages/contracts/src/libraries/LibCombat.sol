@@ -1,39 +1,32 @@
 // SPDX-License-Identifier: Unlicense
 pragma solidity >=0.8.0;
 
-import { Bytes } from "@latticexyz/store/src/Bytes.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
-import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
-
-import { MatchConfig, LevelTemplatesIndex, Capturable, Combat, Charger, CombatData, Range, OwnedBy, RangeData, Position, PositionData, ArmorModifierTableId, StructureType, SpawnPointTableId, OwnedBy, Stamina, LastAction, MatchRanking, SpawnPoint, StaminaOnKill, StructureType, CombatArchetype, ArchetypeModifier } from "../codegen/index.sol";
+import { MatchConfig, LevelTemplatesIndex, Capturable, Combat, Charger, OwnedBy, Position, PositionData, StructureType, OwnedBy, Gold, MatchRanking, SpawnPoint, GoldOnKill, StructureType, ArchetypeModifier, Match } from "../codegen/index.sol";
 import { SpawnSettlementTemplateId } from "../codegen/Templates.sol";
 import { StructureTypes, CombatArchetypes } from "../codegen/common.sol";
 
-import { max, getOwningPlayer, getIndicesAtPosition } from "./LibUtils.sol";
-import { LibStamina } from "./LibStamina.sol";
+import { getOwningPlayer } from "./LibUtils.sol";
+import { LibGold } from "./LibGold.sol";
 import { LibMove } from "./LibMove.sol";
+import { LibMatchFinish } from "./LibMatchFinish.sol";
 import { charge } from "./LibCharge.sol";
 import { removePosition } from "./LibPosition.sol";
-
-import { FinishSystem } from "../systems/FinishSystem.sol";
 
 library LibCombat {
   function onKill(bytes32 matchEntity, bytes32 attackerOwningPlayer, bytes32 defender) internal {
     if (attackerOwningPlayer != 0)
-      LibStamina.addStamina(matchEntity, attackerOwningPlayer, StaminaOnKill.get(matchEntity, defender));
+      LibGold.addGold(matchEntity, attackerOwningPlayer, GoldOnKill.get(matchEntity, defender));
 
     // If a spawn has been destroyed, a player is out of the game
     if (SpawnPoint.get(matchEntity, defender)) {
       bytes32 levelId = MatchConfig.getLevelId(matchEntity);
 
       // Prepend the defender owner to the start of the ranking array
-      SystemSwitch.call(
-        abi.encodeCall(FinishSystem.prependRanking, (matchEntity, getOwningPlayer(matchEntity, defender)))
-      );
+      LibMatchFinish.prependRanking(matchEntity, getOwningPlayer(matchEntity, defender));
 
       // If all but one player has been killed, end the game
       if (MatchRanking.length(matchEntity) == LevelTemplatesIndex.length(levelId, SpawnSettlementTemplateId) - 1) {
-        SystemSwitch.call(abi.encodeCall(FinishSystem.finish, (matchEntity, getOwningPlayer(matchEntity, defender))));
+        LibMatchFinish.finish(matchEntity, getOwningPlayer(matchEntity, defender));
       }
     }
   }
@@ -68,8 +61,8 @@ library LibCombat {
   ) internal view returns (int32) {
     int32 baseStrength = Combat.getStrength(matchEntity, attacker);
 
-    CombatArchetypes attackerArchetype = CombatArchetype.get(matchEntity, attacker);
-    CombatArchetypes defenderArchetype = CombatArchetype.get(matchEntity, defender);
+    CombatArchetypes attackerArchetype = Combat.getArchetype(matchEntity, attacker);
+    CombatArchetypes defenderArchetype = Combat.getArchetype(matchEntity, defender);
     int32 archetypeMatchupModifier = ArchetypeModifier.getMod(attackerArchetype, defenderArchetype);
 
     int32 terrainModifier = getCombatModifierAtPosition(matchEntity, defender);
@@ -85,8 +78,8 @@ library LibCombat {
   ) internal view returns (int32) {
     int32 baseStrength = Combat.getStrength(matchEntity, defender);
 
-    CombatArchetypes attackerArchetype = CombatArchetype.get(matchEntity, attacker);
-    CombatArchetypes defenderArchetype = CombatArchetype.get(matchEntity, defender);
+    CombatArchetypes attackerArchetype = Combat.getArchetype(matchEntity, attacker);
+    CombatArchetypes defenderArchetype = Combat.getArchetype(matchEntity, defender);
 
     int32 archetypeMatchupModifier = ArchetypeModifier.getMod(defenderArchetype, attackerArchetype);
     int32 terrainModifier = getCombatModifierAtPosition(matchEntity, attacker);
@@ -122,7 +115,6 @@ library LibCombat {
   function kill(bytes32 matchEntity, bytes32 entity) internal {
     removePosition(matchEntity, entity);
     Combat.deleteRecord(matchEntity, entity);
-    Stamina.deleteRecord(matchEntity, entity);
     OwnedBy.deleteRecord(matchEntity, entity);
   }
 
@@ -130,7 +122,7 @@ library LibCombat {
     bytes32 previousOwner = getOwningPlayer(matchEntity, defender);
     if (previousOwner != 0) {
       // update the previous owner's gold total before capturing
-      LibStamina.persistStamina(matchEntity, previousOwner);
+      LibGold.persistGold(matchEntity, previousOwner);
     }
 
     OwnedBy.set(matchEntity, defender, attackerOwningPlayer);

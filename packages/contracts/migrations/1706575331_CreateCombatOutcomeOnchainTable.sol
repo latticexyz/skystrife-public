@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Script.sol";
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
@@ -10,8 +10,8 @@ import { CombatOutcome } from "../src/codegen/index.sol";
 
 import { redeploySystem, deploySystem } from "./migrationUtils.sol";
 
-import { CombatOutcomeSystem } from "../src/systems/CombatOutcomeSystem.sol";
-import { AttackSystem } from "../src/systems/AttackSystem.sol";
+// import { CombatOutcomeSystem } from "../src/systems/CombatOutcomeSystem.sol";
+// import { AttackSystem } from "../src/systems/AttackSystem.sol";
 
 contract CreateCombatOutcomeOnchainTable is Script {
   function run(address worldAddress) external {
@@ -22,8 +22,8 @@ contract CreateCombatOutcomeOnchainTable is Script {
     vm.startBroadcast(deployerPrivateKey);
 
     CombatOutcome.register();
-    deploySystem(world, new CombatOutcomeSystem(), "CombatOutcomeSys", false);
-    redeploySystem(world, new AttackSystem(), "AttackSystem");
+    // deploySystem(world, new CombatOutcomeSystem(), "CombatOutcomeSys", false);
+    // redeploySystem(world, new AttackSystem(), "AttackSystem");
 
     vm.stopBroadcast();
   }

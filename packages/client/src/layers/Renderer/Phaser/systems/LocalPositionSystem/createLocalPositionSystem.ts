@@ -25,7 +25,7 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
     components: { Appearance },
     parentLayers: {
       network: {
-        components: { UnitType, Movable, Tier },
+        components: { UnitType, Movable },
       },
       local: {
         components: { LocalPosition },
@@ -55,7 +55,7 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
     }
   }
 
-  defineSystem(world, [Has(LocalPosition), Has(Appearance), Not(Tier)], ({ entity, type }) => {
+  defineSystem(world, [Has(LocalPosition), Has(Appearance), Not(UnitType)], ({ entity, type }) => {
     if (type === UpdateType.Enter) {
       const embodiedEntity = objectPool.get(entity, "Sprite");
       const position = getComponentValue(LocalPosition, entity);
@@ -71,28 +71,17 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
     }
   });
 
-  defineSystem(world, [Has(LocalPosition), Has(Appearance), Has(Tier)], ({ entity, type }) => {
+  defineSystem(world, [Has(LocalPosition), Has(Appearance), Has(UnitType)], ({ entity, type }) => {
     if (type === UpdateType.Enter) {
       const embodiedEntity = objectPool.get(entity, "Sprite");
       const position = getComponentValue(LocalPosition, entity);
       if (!position) return;
 
-      let scale = 1;
-      let pixel = tileCoordToPixelCoord(position, tileWidth, tileHeight);
-      const tier = getComponentValue(Tier, entity)?.value;
-      if (tier) {
-        scale = 0.7 + tier * 0.1;
-        pixel = {
-          x: pixel.x,
-          y: pixel.y + ((1 - scale) * tileHeight) / 2,
-        };
-      }
-
+      const pixelPosition = tileCoordToPixelCoord(position, tileWidth, tileHeight);
       embodiedEntity.setComponent({
         id: LocalPosition.id,
         once: (gameObject) => {
-          gameObject.setScale(scale);
-          gameObject.setPosition(pixel.x, pixel.y - UNIT_OFFSET);
+          gameObject.setPosition(pixelPosition.x, pixelPosition.y - UNIT_OFFSET);
         },
       });
     }
@@ -118,7 +107,7 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
     objectPool.remove(entity);
   });
 
-  defineSystem(world, [Has(LocalPosition), Has(UnitType), Has(Tier), Has(Appearance)], (update) => {
+  defineSystem(world, [Has(LocalPosition), Has(UnitType), Has(Appearance)], (update) => {
     if (update.type === UpdateType.Exit) {
       return objectPool.remove(update.entity);
     }
@@ -138,22 +127,11 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
       const isAdjacentMove = manhattan(newPosition, oldPosition) === 1;
       const walkAnimations = WALK_ANIMATIONS[unitType as UnitTypes];
 
-      let scale = 1;
-      let pixel = tileCoordToPixelCoord(newPosition, tileWidth, tileHeight);
-      const tier = getComponentValue(Tier, update.entity)?.value;
-      if (tier) {
-        scale = 0.7 + tier * 0.1;
-        pixel = {
-          x: pixel.x,
-          y: pixel.y + ((1 - scale) * tileHeight) / 2,
-        };
-      }
+      const pixelPosition = tileCoordToPixelCoord(newPosition, tileWidth, tileHeight);
 
       embodiedEntity.setComponent({
         id: LocalPosition.id,
         now: async (gameObject) => {
-          gameObject.setScale(scale);
-
           if (isAdjacentMove && walkAnimations) {
             const directionIndex = calculateDirectionIndex(oldPosition, newPosition);
             const anim = walkAnimations[directionIndex];
@@ -170,17 +148,16 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
               targets: gameObject,
               duration: moveSpeed,
               props: {
-                x: pixel.x,
-                y: pixel.y - UNIT_OFFSET,
+                x: pixelPosition.x,
+                y: pixelPosition.y - UNIT_OFFSET,
               },
               ease: Phaser.Math.Easing.Linear,
             },
-            { keepExistingTweens: true }
+            { keepExistingTweens: true },
           );
         },
         once: (gameObject) => {
-          gameObject.setScale(scale);
-          gameObject.setPosition(pixel.x, pixel.y - UNIT_OFFSET);
+          gameObject.setPosition(pixelPosition.x, pixelPosition.y - UNIT_OFFSET);
         },
       });
     }

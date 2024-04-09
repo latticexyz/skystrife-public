@@ -1,5 +1,5 @@
 import { useAmalgema } from "../../../useAmalgema";
-import { Entity, Has, getComponentValueStrict } from "@latticexyz/recs";
+import { Entity, Has, getComponentValue, getComponentValueStrict } from "@latticexyz/recs";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { Hex, hexToString } from "viem";
 import { hexToResource } from "@latticexyz/common";
@@ -21,9 +21,9 @@ function StandardHero({ templateId }: { templateId: Entity }) {
       <Button
         buttonType="secondary"
         onClick={() => externalWorldContract?.write.setHeroInRotation([templateId as Hex, !inRotation])}
-        style={{ color: inRotation ? "green" : "darkred" }}
+        style={{ backgroundColor: inRotation ? "green" : "darkred", color: "white" }}
       >
-        {inRotation ? "true" : "false"}
+        Standard Hero: {inRotation ? "true" : "false"}
       </Button>
     </td>
   );
@@ -44,9 +44,9 @@ function SeasonPassHero({ templateId }: { templateId: Entity }) {
       <Button
         buttonType="secondary"
         onClick={() => externalWorldContract?.write.setHeroInSeasonPassRotation([templateId as Hex, !inRotation])}
-        style={{ color: inRotation ? "green" : "darkred" }}
+        style={{ backgroundColor: inRotation ? "green" : "darkred", color: "white" }}
       >
-        {inRotation ? "true" : "false"}
+        Season Pass Hero: {inRotation ? "true" : "false"}
       </Button>
     </td>
   );
@@ -54,22 +54,38 @@ function SeasonPassHero({ templateId }: { templateId: Entity }) {
 
 export const Templates = () => {
   const {
-    components: { TemplateTables },
+    components: { TemplateTables, HeroInRotation, HeroInSeasonPassRotation },
     utils: { getTemplateValueStrict },
   } = useAmalgema();
 
-  const templates = useEntityQuery([Has(TemplateTables)]).map((templateId) => {
-    const { value: tableIds } = getComponentValueStrict(TemplateTables, templateId);
+  const templates = useEntityQuery([Has(TemplateTables)])
+    .map((templateId) => {
+      const { value: tableIds } = getComponentValueStrict(TemplateTables, templateId);
 
-    const values: Record<string, SchemaToPrimitives<any>> = {};
+      const values: Record<string, SchemaToPrimitives<any>> = {};
 
-    tableIds.forEach((tableId) => (values[tableId] = getTemplateValueStrict(tableId as Hex, templateId as Hex)));
+      tableIds.forEach((tableId) => (values[tableId] = getTemplateValueStrict(tableId as Hex, templateId as Hex)));
 
-    return {
-      templateId,
-      values: values,
-    };
-  });
+      return {
+        templateId,
+        values: values,
+      };
+    })
+    .sort((a, b) => {
+      const standardHero = getComponentValue(HeroInRotation, a.templateId)?.value;
+      const seasonPassHero = getComponentValue(HeroInSeasonPassRotation, a.templateId)?.value;
+
+      const standardHeroB = getComponentValue(HeroInRotation, b.templateId)?.value;
+      const seasonPassHeroB = getComponentValue(HeroInSeasonPassRotation, b.templateId)?.value;
+
+      if (standardHero && !standardHeroB) return -1;
+      if (standardHeroB && !standardHero) return 1;
+
+      if (seasonPassHero && !seasonPassHeroB) return -1;
+      if (seasonPassHeroB && !seasonPassHero) return 1;
+
+      return 0;
+    });
 
   return (
     <div>

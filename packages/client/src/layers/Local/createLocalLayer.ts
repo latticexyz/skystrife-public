@@ -61,7 +61,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
   const {
     parentLayers: {
       network: {
-        components: { Player, Name, Untraversable, Range, Combat, CombatOutcome, OwnedBy, RequiresSetup },
+        components: { Player, Name, Untraversable, Combat, CombatOutcome, OwnedBy, RequiresSetup },
         utils: { getOwningPlayer, isOwnedByCurrentPlayer },
         api: { move: moveApi, moveAndAttack },
       },
@@ -81,7 +81,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
   const PotentialPath = defineComponent(
     world,
     { x: Type.NumberArray, y: Type.NumberArray, costs: Type.NumberArray },
-    { id: "PotentialPath" }
+    { id: "PotentialPath" },
   );
   const AttackableEntities = defineComponent(world, { value: Type.EntityArray }, { id: "AttackableEntities" });
   const LocalName = defineComponent(world, { value: Type.String }, { id: "LocalName" });
@@ -90,14 +90,14 @@ export async function createLocalLayer(headless: HeadlessLayer) {
     {
       value: Type.Number,
     },
-    { id: "LocalHealth" }
+    { id: "LocalHealth" },
   );
   const DevMode = defineComponent(world, { value: Type.Boolean }, { id: "DevMode" });
   const Alert = defineComponent(world, { on: Type.Entity, type: Type.Number, message: Type.String }, { id: "Alert" });
   const ChoosingTeleportLocation = defineComponent(
     world,
     { teleportee: Type.Entity, entrance: Type.Entity },
-    { id: "ChoosingTeleportLocation" }
+    { id: "ChoosingTeleportLocation" },
   );
   const Preferences = defineComponent(
     world,
@@ -109,14 +109,14 @@ export async function createLocalLayer(headless: HeadlessLayer) {
       disableClouds: Type.Boolean,
       disableBackground: Type.Boolean,
     },
-    { id: "Preferences" }
+    { id: "Preferences" },
   );
   const UIState = defineComponent(
     world,
     {
       hideLoading: Type.Boolean,
     },
-    { id: "UIState" }
+    { id: "UIState" },
   );
   const Interactable = defineComponent(world, { value: Type.Boolean }, { id: "Interactable" });
   const Capturer = defineComponent(world, { value: Type.Entity }, { id: "Capturer" });
@@ -228,11 +228,8 @@ export async function createLocalLayer(headless: HeadlessLayer) {
     if (attackerOwner === defenderOwner) return;
 
     if (!hasComponent(Combat, defender)) return;
-    const range = getComponentValue(Range, attacker);
-    if (!range) return;
-
-    const minRange = range.min || 1;
-    const maxRange = range.max || 1;
+    const combat = getComponentValue(Combat, attacker);
+    if (!combat) return;
 
     if (hasComponent(headlessComponents.OnCooldown, attacker)) return;
 
@@ -241,8 +238,8 @@ export async function createLocalLayer(headless: HeadlessLayer) {
       hasPotentialPath,
       attacker,
       defender,
-      minRange,
-      maxRange
+      combat.minRange,
+      combat.maxRange,
     );
     if (!closestUnblockedPosition) return;
 
@@ -283,7 +280,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
       name: string;
       playerId: Entity;
       playerColor: ReturnType<typeof getOwnerColor>;
-    }) => void
+    }) => void,
   ) {
     const {
       parentLayers: {
@@ -325,7 +322,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
       attackerDied: boolean;
       defenderDied: boolean;
       defenderCaptured: boolean;
-    }) => void
+    }) => void,
   ) => {
     const stoppedMoving$ = defineExitQuery([Has(Path)]);
     const triggerMoveAndAttack$ = merge(CombatOutcome.update$).pipe(
@@ -359,7 +356,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
           defenderDied: combatResult.defenderDied,
           defenderCaptured: combatResult.defenderCaptured,
         };
-      })
+      }),
     );
 
     defineRxSystem(world, triggerMoveAndAttack$, (combatResult) => {
@@ -426,7 +423,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
       localPosition,
       moveSpeed,
       curry(getMovementDifficulty)(LocalPosition),
-      curry(isUntraversableHeadless)(LocalPosition, playerEntity)
+      curry(isUntraversableHeadless)(LocalPosition, playerEntity),
     );
 
     for (const coord of paths) {
@@ -491,8 +488,8 @@ export async function createLocalLayer(headless: HeadlessLayer) {
 
     const owningPlayer = getOwningPlayer(attacker);
     const allEnemyUnits = [...runQuery([Has(LocalPosition), Has(Combat), NotValue(OwnedBy, { value: owningPlayer })])];
-    const range = getComponentValue(Range, attacker);
-    if (!range) return;
+    const combat = getComponentValue(Combat, attacker);
+    if (!combat) return;
 
     for (const targetLocation of potentialTargetLocations) {
       for (const enemy of allEnemyUnits) {
@@ -500,7 +497,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
         if (!enemyPosition) continue;
 
         const distance = manhattan(targetLocation, enemyPosition);
-        if (distance <= range.max && distance >= range.min) {
+        if (distance <= combat.maxRange && distance >= combat.minRange) {
           attackableEntities.add(enemy);
         }
       }

@@ -17,7 +17,7 @@ export function createCombatSystem(layer: PhaserLayer) {
     parentLayers: {
       network: {
         network: { matchEntity },
-        components: { UnitType, StructureType, Combat, StaminaOnKill },
+        components: { UnitType, StructureType, Combat, GoldOnKill },
         utils: { isOwnedByCurrentPlayer },
       },
       local: {
@@ -38,7 +38,7 @@ export function createCombatSystem(layer: PhaserLayer) {
       Main: { objectPool, phaserScene },
     },
     animations: { triggerBloodSplatter },
-    api: { playTintedAnimation, depthFromPosition },
+    api: { playTintedAnimation, depthFromPosition, clearIncomingDamage },
   } = layer;
 
   function playGoldOnKillAnimation(position: { x: number; y: number }, gold: number) {
@@ -89,7 +89,7 @@ export function createCombatSystem(layer: PhaserLayer) {
       onStart?: (sprite?: Phaser.GameObjects.Sprite) => void;
       onContact?: (sprite?: Phaser.GameObjects.Sprite) => void;
       onComplete?: (sprite?: Phaser.GameObjects.Sprite) => void;
-    }
+    },
   ) {
     const unitType = getComponentValue(UnitType, entity)?.value;
     if (!unitType) {
@@ -207,6 +207,9 @@ export function createCombatSystem(layer: PhaserLayer) {
           if (sprite) sprite.flipX = flipAttacker;
         },
         onContact: () => {
+          clearIncomingDamage(attacker, defender);
+          clearIncomingDamage(defender, attacker);
+
           if (attackerDied) {
             setComponent(LocalHealth, attacker, { value: 0 });
           } else if (attackerTookDamage) {
@@ -249,7 +252,7 @@ export function createCombatSystem(layer: PhaserLayer) {
               removeComponent(LocalPosition, defender);
             });
 
-            const goldOnKill = getComponentValue(StaminaOnKill, defender)?.value;
+            const goldOnKill = getComponentValue(GoldOnKill, defender)?.value;
             if (isOwnedByCurrentPlayer(attacker) && goldOnKill) {
               playGoldOnKillAnimation(defenderPosition, goldOnKill);
             }
@@ -265,6 +268,6 @@ export function createCombatSystem(layer: PhaserLayer) {
             if (sprite && flipDefender) sprite.flipX = false;
           },
         });
-    }
+    },
   );
 }

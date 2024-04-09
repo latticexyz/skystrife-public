@@ -1,0 +1,1 @@
+export { createCurrentGoldSystem } from "./createCurrentGoldSystem";

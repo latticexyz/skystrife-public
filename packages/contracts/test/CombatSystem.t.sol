@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
-import { BaseTest } from "./BaseTest.sol";
+import { SkyStrifeTest } from "./SkyStrifeTest.sol";
 
 import { LibCombat } from "../src/libraries/LibCombat.sol";
-import { LibStamina } from "../src/libraries/LibStamina.sol";
+import { LibGold } from "../src/libraries/LibGold.sol";
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
-import { Combat, CombatData, Charger, Position, PositionData, Range, RangeData, OwnedBy, SpawnPoint, Stamina, Capturable, StructureType, Match, MatchRanking, StaminaOnKill, MatchConfig, Chargers, RequiresSetup, CombatOutcomeData, CombatArchetype, ArchetypeModifier } from "../src/codegen/index.sol";
+import { Combat, CombatData, Charger, PositionData, OwnedBy, Capturable, StructureType, GoldOnKill, MatchConfig, Chargers, RequiresSetup, CombatOutcomeData, ArchetypeModifier } from "../src/codegen/index.sol";
 
 import { StructureTypes, CombatArchetypes } from "../src/codegen/common.sol";
 
@@ -16,7 +16,9 @@ import { createPlayerEntity } from "../src/libraries/LibPlayer.sol";
 import { setPosition } from "../src/libraries/LibPosition.sol";
 import { spawnTemplateAt } from "../src/libraries/LibTemplate.sol";
 
-contract CombatSystemTest is BaseTest, GasReporter {
+import { LibCombatOutcome } from "base/libraries/LibCombatOutcome.sol";
+
+contract CombatSystemTest is SkyStrifeTest, GasReporter {
   bytes32 player;
   bytes32 defenderPlayer;
   bytes32 attacker;
@@ -29,14 +31,14 @@ contract CombatSystemTest is BaseTest, GasReporter {
       CombatData({
         health: 100_000,
         maxHealth: 100_000,
-        armor: 0,
         strength: 20_000,
-        structureStrength: 0,
-        counterStrength: 0
+        counterStrength: 0,
+        minRange: 1,
+        maxRange: 1,
+        archetype: CombatArchetypes.Unknown
       })
     );
     setPosition(testMatch, entity, position);
-    Range.set(testMatch, entity, RangeData({ min: 1, max: 1 }));
     OwnedBy.set(testMatch, entity, owner);
 
     // Pass time beyond units last actions timestamps
@@ -71,8 +73,6 @@ contract CombatSystemTest is BaseTest, GasReporter {
     prankAdmin();
     Combat.setHealth(testMatch, attacker, attackerHealth);
     Combat.setHealth(testMatch, defender, defenderHealth);
-    Combat.setArmor(testMatch, attacker, attackerArmor);
-    Combat.setArmor(testMatch, defender, defenderArmor);
     vm.stopPrank();
 
     startGasReport("Attack unit");
@@ -172,42 +172,42 @@ contract CombatSystemTest is BaseTest, GasReporter {
     runSystem();
   }
 
-  function testStaminaOnKill() public {
+  function testGoldOnKill() public {
     combatSetup();
 
     prankAdmin();
-    StaminaOnKill.set(testMatch, defender, 100);
+    GoldOnKill.set(testMatch, defender, 100);
     Combat.setHealth(testMatch, defender, 1);
     vm.stopPrank();
 
-    int32 originalStamina = LibStamina.getCurrent(testMatch, player);
+    int32 originalGold = LibGold.getCurrent(testMatch, player);
     runSystem();
 
-    assertEq(LibStamina.getCurrent(testMatch, player), originalStamina + 100, "attacking player did not gain stamina");
+    assertEq(LibGold.getCurrent(testMatch, player), originalGold + 100, "attacking player did not gain gold");
   }
 
-  function testStaminaOnKillWhenUnitsKillEachOther() public {
+  function testGoldOnKillWhenUnitsKillEachOther() public {
     combatSetup();
 
     prankAdmin();
-    StaminaOnKill.set(testMatch, defender, 100);
+    GoldOnKill.set(testMatch, defender, 100);
     Combat.setHealth(testMatch, defender, 1);
-    StaminaOnKill.set(testMatch, attacker, 100);
+    GoldOnKill.set(testMatch, attacker, 100);
     Combat.setHealth(testMatch, attacker, 1);
     vm.stopPrank();
 
-    int32 originalStamina = LibStamina.getCurrent(testMatch, player);
-    int32 originalDefenderStamina = LibStamina.getCurrent(testMatch, defenderPlayer);
+    int32 originalGold = LibGold.getCurrent(testMatch, player);
+    int32 originalDefenderGold = LibGold.getCurrent(testMatch, defenderPlayer);
     runSystem();
 
     assertEq(Combat.getHealth(testMatch, attacker), 0, "attacker did not die");
     assertEq(Combat.getHealth(testMatch, defender), 0, "defender did not die");
 
-    assertEq(LibStamina.getCurrent(testMatch, player), originalStamina + 100, "attacking player did not gain stamina");
+    assertEq(LibGold.getCurrent(testMatch, player), originalGold + 100, "attacking player did not gain gold");
     assertEq(
-      LibStamina.getCurrent(testMatch, defenderPlayer),
-      originalDefenderStamina + 100,
-      "defending player did not gain stamina"
+      LibGold.getCurrent(testMatch, defenderPlayer),
+      originalDefenderGold + 100,
+      "defending player did not gain gold"
     );
   }
 
@@ -223,7 +223,7 @@ contract CombatSystemTest is BaseTest, GasReporter {
     Combat.setStrength(testMatch, defender, 300_000);
     vm.stopPrank();
 
-    int32 originalStamina = LibStamina.getCurrent(testMatch, player);
+    int32 originalGold = LibGold.getCurrent(testMatch, player);
 
     vm.startPrank(alice);
     world.fight(testMatch, attacker, goldMine);
@@ -237,12 +237,12 @@ contract CombatSystemTest is BaseTest, GasReporter {
 
     assertEq(Chargers.length(testMatch, player), 1, "unexpected charger count");
 
-    // check alice has gained stamina
+    // check alice has gained gold
     prankAdmin();
     assertEq(
-      LibStamina.getCurrent(testMatch, player),
-      originalStamina + Charger.get(testMatch, goldMine) * 2,
-      "unexpected stamina gain"
+      LibGold.getCurrent(testMatch, player),
+      originalGold + Charger.get(testMatch, goldMine) * 2,
+      "unexpected gold gain"
     );
     vm.stopPrank();
   }
@@ -257,11 +257,11 @@ contract CombatSystemTest is BaseTest, GasReporter {
     vm.expectRevert("cannot move and attack");
     world.moveAndAttack(testMatch, attacker, new PositionData[](0), defender);
   }
-  
+
   function testCombatOutcomeSystemIsInternal() public {
     vm.startPrank(alice);
     vm.expectRevert();
-    world.setCombatOutcome(
+    LibCombatOutcome.setCombatOutcome(
       0,
       CombatOutcomeData({
         attacker: attacker,
@@ -285,8 +285,8 @@ contract CombatSystemTest is BaseTest, GasReporter {
     combatSetup();
 
     prankAdmin();
-    CombatArchetype.set(testMatch, attacker, CombatArchetypes.Swordsman);
-    CombatArchetype.set(testMatch, defender, CombatArchetypes.Pikeman);
+    Combat.setArchetype(testMatch, attacker, CombatArchetypes.Swordsman);
+    Combat.setArchetype(testMatch, defender, CombatArchetypes.Pikeman);
 
     ArchetypeModifier.setMod(CombatArchetypes.Swordsman, CombatArchetypes.Pikeman, 30); // 30% damage increase
     ArchetypeModifier.setMod(CombatArchetypes.Pikeman, CombatArchetypes.Swordsman, -30); // 30% damage decrease

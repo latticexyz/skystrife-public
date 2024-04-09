@@ -3,6 +3,7 @@ import { SkyStrife } from "./app/SkyStrife";
 import { DesignSystem } from "./app/DesignSystem";
 import { Amalgema } from "./app/Amalgema";
 import { Admin } from "./app/Admin";
+import PrivacyPolicy from "./app/PrivacyPolicy";
 
 export const router = createBrowserRouter([
   {
@@ -20,5 +21,9 @@ export const router = createBrowserRouter([
   {
     path: "/design-system",
     element: <DesignSystem />,
+  },
+  {
+    path: "/privacy-policy",
+    element: <PrivacyPolicy />,
   },
 ]);

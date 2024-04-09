@@ -29,7 +29,7 @@ export function PercentageInput({
   setAmount?: (amount: bigint) => void;
 }) {
   return (
-    <div className={"relative w-full"}>
+    <div className="relative w-full">
       <input
         className={twMerge("w-full bg-ss-bg-2 px-4 py-2 border border-[#DDDAD0]", className)}
         type="text"

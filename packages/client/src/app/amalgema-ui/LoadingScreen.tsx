@@ -58,7 +58,7 @@ function createAnalyticsSender(networkLayer: NetworkLayer) {
       sendAnalyticsEvent("loading-screen", {
         endSnapshotFetch: getNowSeconds(),
         matchEntity,
-        blockNumber: loadingState.lastBlockNumberProcessed,
+        blockNumber: loadingState.lastBlockNumberProcessed.toString(),
       });
       sentEndSnapshotFetch = true;
     }
@@ -92,7 +92,7 @@ function createAnalyticsSender(networkLayer: NetworkLayer) {
       sendAnalyticsEvent("loading-screen", {
         startRpcHydrate: getNowSeconds(),
         matchEntity,
-        blockNumber: loadingState.lastBlockNumberProcessed,
+        blockNumber: loadingState.lastBlockNumberProcessed.toString(),
       });
       sentStartRpcHydrate = true;
     }
@@ -101,7 +101,7 @@ function createAnalyticsSender(networkLayer: NetworkLayer) {
       sendAnalyticsEvent("loading-screen", {
         endRpcHydrate: getNowSeconds(),
         matchEntity,
-        blockNumber: loadingState.lastBlockNumberProcessed,
+        blockNumber: loadingState.lastBlockNumberProcessed.toString(),
       });
       sentEndRpcHydrate = true;
     }
@@ -138,7 +138,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
           const loadingState = getComponentValue(SyncProgress, singletonEntity);
           return loadingState ?? null;
         }),
-        filterNullish()
+        filterNullish(),
       );
     }, [networkLayer]),
     {
@@ -147,7 +147,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
       step: SyncStep.INITIALIZE,
       lastBlockNumberProcessed: 0n,
       latestBlockNumber: 0n,
-    }
+    },
   );
 
   const [worldValid, setWorldValid] = useState(false);
@@ -180,15 +180,18 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
   useEffect(() => {
     if (!startGameProgress) return;
 
-    const interval = setInterval(() => {
-      setPrepareGameProgress((prev) => {
-        if (prev === 100) {
-          clearInterval(interval);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, (prepTimeSeconds * 1000) / 100);
+    const interval = setInterval(
+      () => {
+        setPrepareGameProgress((prev) => {
+          if (prev === 100) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 1;
+        });
+      },
+      (prepTimeSeconds * 1000) / 100,
+    );
 
     return () => clearInterval(interval);
   }, [networkLayer, prepTimeSeconds, startGameProgress, usePrepTime]);
@@ -227,12 +230,12 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
         </OverlineLarge>
         <div className="h-3" />
         <Body className="text-ss-text-light text-center">
-          Sky Strife is a fully onchain RTS. Compete for control of islands, earn {EMOJI}, and summon your own matches.
+          Sky Strife is a fully onchain RTS game. Compete for control of islands, earn {EMOJI}, and create your own
+          matches.
         </Body>
 
         {doneLoading && worldValid && (
-          <div className="flex flex-col mt-8 grow">
-            <Body className="text-center text-ss-text-default">Connected!</Body>
+          <div className="flex flex-col mt-4 grow">
             <Button
               buttonType="primary"
               size="lg"
@@ -241,12 +244,12 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
               }}
               className="mt-4 w-full"
             >
-              Play
+              Enter
             </Button>
             <div className="h-4"></div>
             <a
               className="w-full"
-              href="https://latticexyz.notion.site/How-to-play-Sky-Strife-8c9f951c605e487cad9e8158bc641835?pvs=4}"
+              href="https://latticexyz.notion.site/How-to-Play-72640de2c45e4735954f8ab54b9bd593"
               target="_blank"
               rel="noreferrer"
             >
@@ -254,6 +257,18 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
                 How To Play
               </Button>
             </a>
+
+            <Body style={{ fontSize: "12px" }} className="px-4 mt-4 text-center text-sm font-thin">
+              By clicking &apos;Enter&apos;, you acknowledge that you (i) agree to the{" "}
+              <Link style={{ fontSize: "12px" }} className="" href={"/terms.pdf"}>
+                Terms of Service
+              </Link>{" "}
+              and (ii) have read and understood our{" "}
+              <Link style={{ fontSize: "12px" }} href={"/privacy-policy"}>
+                Privacy Policy
+              </Link>
+              .
+            </Body>
           </div>
         )}
 
@@ -303,6 +318,18 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
 
           <Link className="text-ss-gold" href={HOW_TO_PLAY_URL}>
             getting started
+          </Link>
+
+          <div className="w-6 text-center text-ss-divider-stroke">|</div>
+
+          <Link className="text-ss-gold" href={"/privacy-policy"}>
+            privacy policy
+          </Link>
+
+          <div className="w-6 text-center text-ss-divider-stroke">|</div>
+
+          <Link className="text-ss-gold" href={"/terms.pdf"}>
+            terms of use
           </Link>
         </div>
 

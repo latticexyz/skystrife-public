@@ -2,7 +2,6 @@ import { Has, getComponentValueStrict, defineSystem, Not, setComponent, HasValue
 import { StructureTypes } from "../../../../Network";
 import { PhaserLayer } from "../../types";
 import { drawGoldBar, drawHealthBar, drawPlayerColorBanner } from "./drawingUtils";
-import { UNIT_OFFSET } from "../../../../Local/constants";
 
 export function createDrawEntityHeader(layer: PhaserLayer) {
   const {
@@ -10,7 +9,7 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     components: { HeaderHeight, IncomingDamage },
     parentLayers: {
       network: {
-        components: { Tier, StructureType, Combat, ChargeCap, OwnedBy },
+        components: { StructureType, Combat, ChargeCap, OwnedBy },
       },
       local: {
         components: { LocalPosition, LocalHealth, Path },
@@ -21,9 +20,8 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     },
   } = layer;
 
-  defineSystem(world, [Has(Tier), Has(InCurrentMatch)], ({ entity }) => {
-    const tier = getComponentValueStrict(Tier, entity).value;
-    const yOffset = 3 - tier * 2 - UNIT_OFFSET;
+  defineSystem(world, [Has(InCurrentMatch)], ({ entity }) => {
+    const yOffset = -11;
     setComponent(HeaderHeight, entity, { value: yOffset });
   });
 
@@ -55,7 +53,7 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     ({ entity, type }) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
       drawPlayerColorBanner(layer, entity, type, headerHeight);
-    }
+    },
   );
 
   defineSystem(
@@ -70,7 +68,7 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     ({ entity, type }) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
       drawPlayerColorBanner(layer, entity, type, headerHeight);
-    }
+    },
   );
 
   // Health Bar Systems
@@ -89,7 +87,7 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     (update) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
       drawHealthBar(layer, update, 7, headerHeight);
-    }
+    },
   );
 
   defineSystem(
@@ -106,7 +104,7 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     (update) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
       drawHealthBar(layer, update, 7, headerHeight);
-    }
+    },
   );
 
   defineSystem(
@@ -122,7 +120,7 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     (update) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
       drawHealthBar(layer, update, 11, headerHeight);
-    }
+    },
   );
 
   // Gold Bar Systems
@@ -138,7 +136,7 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     (update) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
       drawGoldBar(layer, update, 7, headerHeight + 3);
-    }
+    },
   );
 
   defineSystem(
@@ -148,10 +146,11 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
       Has(HeaderHeight),
       Has(ChargeCap),
       HasValue(StructureType, { value: StructureTypes.GoldMine }),
+      Not(Depleted),
     ],
     (update) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
       drawGoldBar(layer, update, 11, headerHeight + 3);
-    }
+    },
   );
 }

@@ -35,18 +35,16 @@ import { highlightCoord } from "./api";
 import { curry } from "lodash";
 import { Coord, ValueOf } from "@latticexyz/utils";
 import { createConstrainCameraSystem } from "./systems/ConstrainCameraSystem";
-import { createCycleUsableUnitsSystem } from "./systems/CycleUsableUnitsSystem";
 import { Animations, Scenes, Sprites, UnitTypeAnimations } from "./phaserConstants";
 import { createCombatSystem } from "./systems/CombatSystem";
 import { createAnimations } from "./animations";
-import { createScreenFlashes } from "./systems/ScreenFlashes";
 import { observable } from "mobx";
 import { createSmoothCameraControls } from "./camera";
 import { RenderDepth } from "./types";
 import { createPreferencesSystem } from "./systems/PreferencesSystem";
 import { createDrawShadowSystem } from "./systems/DrawShadowSystem";
 import { createSounds } from "./createSounds";
-import { createTintNoStaminaSystem } from "./systems/TintNoStaminaSystem";
+import { createTintOnCooldownSystem } from "./systems/TintOnCooldownSystem";
 import { createHideBlackBoxSystem } from "./systems/HideBlackBoxSystem";
 import { createCaptureAnimationSystem } from "./systems/CaptureAnimationSystem";
 import { EmbodiedEntity, GameObjectTypes, WorldCoord } from "phaserx/src/types";
@@ -59,6 +57,7 @@ import { createDepthSystem } from "./systems/DepthSystem";
 import { createSkullSystem } from "./systems/SkullSystem";
 import { createShieldSystem } from "./systems/ShieldSystem";
 import { createUnitBuildSystem } from "./systems/UnitBuildSystem";
+import { createPluginAnalyticsSystem } from "./systems/PluginAnalyticsSystem";
 
 type PhaserEngineConfig = Parameters<typeof createPhaserEngine>[0];
 
@@ -188,7 +187,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     entity: Entity,
     animation: Animations,
     colorName: ValueOf<typeof PLAYER_COLORS>,
-    callback?: (gameObject: Phaser.GameObjects.Sprite) => void
+    callback?: (gameObject: Phaser.GameObjects.Sprite) => void,
   ) {
     const { objectPool } = scenes.Main;
 
@@ -209,7 +208,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
   function playAnimationWithOwnerColor(
     entity: Entity,
     animation: Animations,
-    callback?: (gameObject: Phaser.GameObjects.Sprite) => void
+    callback?: (gameObject: Phaser.GameObjects.Sprite) => void,
   ) {
     const color = getOwnerColor(entity, matchEntity);
     return playTintedAnimation(entity, animation, color.name, callback);
@@ -237,7 +236,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     gameObjectType: Type,
     query: QueryFragment[],
     system: (update: ComponentUpdate & { type: UpdateType }, gameObjects: EmbodiedEntity<Type>[]) => void,
-    idPrefix?: string
+    idPrefix?: string,
   ) => {
     const _idPrefix = idPrefix ?? uniqueId("game-object");
 
@@ -279,7 +278,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     spriteId: Sprites,
     tileCoord: WorldCoord,
     depth: RenderDepth,
-    options?: { depthPosition?: WorldCoord; yOffset?: number; xOffset?: number }
+    options?: { depthPosition?: WorldCoord; yOffset?: number; xOffset?: number },
   ) => {
     const {
       objectPool,
@@ -385,6 +384,32 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     });
   };
 
+  const clearIncomingDamage = (attacker: Entity, defender: Entity) => {
+    const incomingDamage = getComponentValue(components.IncomingDamage, defender);
+    if (!incomingDamage) return;
+
+    const commitments = incomingDamage.commitments;
+    const sources = incomingDamage.sources;
+    const values = incomingDamage.values;
+
+    for (let i = 0; i < incomingDamage.sources.length; i++) {
+      const source = sources[i];
+      const commitment = incomingDamage.commitments[i];
+
+      if (source === attacker && commitment === 1) {
+        commitments.splice(i, 1);
+        sources.splice(i, 1);
+        values.splice(i, 1);
+      }
+    }
+
+    setComponent(components.IncomingDamage, defender, {
+      sources,
+      values,
+      commitments,
+    });
+  };
+
   const arrowPainter = createArrowPainter(scenes.Main);
 
   // Layer
@@ -420,6 +445,8 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
       buildAt,
 
       arrowPainter,
+
+      clearIncomingDamage,
     },
     animations: createAnimations(playAnimationWithOwnerColor, depthFromPosition, scenes, local),
     ui: {
@@ -447,19 +474,18 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
   createDrawEntityHeader(layer);
   createDrawAttackableEntitiesSystem(layer);
   createConstrainCameraSystem(layer);
-  createCycleUsableUnitsSystem(layer);
   createCalculateCombatResultSystem(layer);
   createCombatSystem(layer);
-  createScreenFlashes(layer);
   createSmoothCameraControls(layer);
   createPreferencesSystem(layer);
   createDrawShadowSystem(layer);
-  createTintNoStaminaSystem(layer);
+  createTintOnCooldownSystem(layer);
   createCaptureAnimationSystem(layer);
   createDepthSystem(layer);
   createSkullSystem(layer);
   createShieldSystem(layer);
   createUnitBuildSystem(layer);
+  createPluginAnalyticsSystem(layer);
 
   createHideBlackBoxSystem(layer);
 

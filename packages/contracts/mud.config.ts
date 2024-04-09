@@ -1,9 +1,12 @@
-import { mudConfig, resolveTableId } from "@latticexyz/world/register";
+import { defineWorld } from "@latticexyz/world";
 
-export default mudConfig({
+export default defineWorld({
+  codegen: {
+    outputDirectory: "codegen",
+  },
   userTypes: {
-    PackedCounter: { filePath: "@latticexyz/store/src/PackedCounter.sol", internalType: "bytes32" },
-    ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", internalType: "bytes32" },
+    EncodedLengths: { filePath: "@latticexyz/store/src/EncodedLengths.sol", type: "bytes32" },
+    ResourceId: { filePath: "@latticexyz/store/src/ResourceId.sol", type: "bytes32" },
   },
   enums: {
     UnitTypes: [
@@ -35,74 +38,8 @@ export default mudConfig({
       "GoldMine", // 12
       "Brute", // 13
     ],
-    TerrainTypes: [
-      "Unknown",
-      "Grass",
-      "Mountain",
-      "Water",
-      "Wall",
-      "Forest",
-      "StoneWall",
-      "LavaGround",
-      "LavaMountain",
-      "LavaForest",
-      "Lava",
-      "RockWall",
-    ],
-    StructureTypes: [
-      "Unknown",
-      "Settlement",
-      "SpawnSettlement",
-      "GoldShrine",
-      "EscapePortal",
-      "Portal",
-      "Container",
-      "SummoningAltar",
-      "BlazingHeartShrine",
-      "WoodenWall",
-      "GoldMine",
-      "Village",
-      "EmberCrownShrine",
-      "CrystalGenerator",
-      "MetalGenerator",
-      "FossilGenerator",
-      "WidgetGenerator",
-    ],
-    ItemTypes: [
-      "Unknown",
-      "Gold",
-      "EmberCrown",
-      "BlazingHeart",
-      "MovementBanner",
-      "SwordBanner",
-      "StaminaBanner",
-      "Crystal",
-      "Metal",
-      "Fossil",
-      "Widget",
-    ],
-  },
-  systems: {
-    AttackSystem: {
-      openAccess: false,
-      accessList: [],
-      name: "AttackSystem",
-    },
-    CombatOutcomeSystem: {
-      openAccess: false,
-      accessList: [],
-      name: "CombatOutcomeSystem",
-    },
-    FinishSystem: {
-      openAccess: false,
-      accessList: [],
-      name: "FinishSystem",
-    },
-    PlayerSetupSystem: {
-      openAccess: false,
-      accessList: [],
-      name: "PlayerSetupSystem",
-    },
+    TerrainTypes: ["Unknown", "Grass", "Mountain", "Forest"],
+    StructureTypes: ["Unknown", "Settlement", "SpawnSettlement", "WoodenWall", "GoldMine", "GoldCache"],
   },
   excludeSystems: ["SeasonPassOnlySystem"],
   tables: {
@@ -110,12 +47,11 @@ export default mudConfig({
     // this marks entities (eg. units, structures) as being part of the `matchEntity` match
     // TODO: remove
     Match: {
-      offchainOnly: true,
-      keySchema: {
+      type: "offchainTable",
+      key: ["matchEntityKey", "entity"],
+      schema: {
         matchEntityKey: "bytes32", // same as matchEntity below, but renamed to avoid arg name conflicts in tablegen
         entity: "bytes32",
-      },
-      valueSchema: {
         matchEntity: "bytes32", // leave this as matchEntity because frontend queries based on this value
       },
     },
@@ -123,11 +59,12 @@ export default mudConfig({
      * Used on terrain to modify the armor of entities standing on it.
      */
     ArmorModifier: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "int32",
       },
-      valueSchema: "int32", // expressed as a percentage
     },
     /**
      * Marks an entity as capturable.
@@ -135,67 +72,69 @@ export default mudConfig({
      * and change ownership to the capturer.
      */
     Capturable: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "bool",
       },
-      valueSchema: "bool",
     },
     /**
      * The time at which charging started. This is used to determine
-     * how much stamina to recharge when refreshing the charged unit in the
+     * how much gold to recharge when refreshing the charged unit in the
      * future.
      * Charger => StartTime
      */
     ChargedByStart: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "uint256",
       },
-      valueSchema: "uint256",
     },
     /**
      * References the entity that is being charged.
      * Charger => Chargee
      */
     Chargee: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "bytes32",
       },
-      valueSchema: "bytes32",
     },
     Chargers: {
-      keySchema: {
+      key: ["matchEntity", "chargee"],
+      schema: {
         matchEntity: "bytes32",
         chargee: "bytes32",
-      },
-      valueSchema: {
         chargers: "bytes32[]",
       },
     },
     /**
      * Sets an entity as a charger. The value here is
-     * added to the total amount of stamina recharged
+     * added to the total amount of gold recharged
      * when the target entity is refreshed.
      */
     Charger: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "int32",
       },
-      valueSchema: "int32",
     },
     /**
-     * Used to track the total amount of stamina recharged by a Charger.
+     * Used to track the total amount of gold recharged by a Charger.
      * Used to implement depletable Gold Mines.
      */
     ChargeCap: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
-      },
-      valueSchema: {
         cap: "int32",
         totalCharged: "int32",
       },
@@ -206,29 +145,18 @@ export default mudConfig({
      * i.e. 100_000 HP = 100 HP
      */
     Combat: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
-      },
-      valueSchema: {
         health: "int32",
         maxHealth: "int32",
-        armor: "int32", // LEGACY, unused
         strength: "int32",
-        structureStrength: "int32", // LEGACY, unused
         counterStrength: "int32",
+        minRange: "int32",
+        maxRange: "int32",
+        archetype: "CombatArchetypes",
       },
-    },
-    /**
-     * Marks what CombatArchetype an entity is.
-     * This is used to determine bonuses and penalties in combat.
-     */
-    CombatArchetype: {
-      keySchema: {
-        matchEntity: "bytes32",
-        entity: "bytes32",
-      },
-      valueSchema: "CombatArchetypes",
     },
     /**
      * Set a value for a specific Archetype combat matchup.
@@ -236,11 +164,10 @@ export default mudConfig({
      * i,e. 30 = 30% bonus, -30 = 30% penalty
      */
     ArchetypeModifier: {
-      keySchema: {
+      key: ["attacker", "defender"],
+      schema: {
         attacker: "CombatArchetypes",
         defender: "CombatArchetypes",
-      },
-      valueSchema: {
         // expressed as a percentage
         mod: "int32",
         // We store the keys here to aid in offchain lookups
@@ -250,24 +177,24 @@ export default mudConfig({
       },
     },
     /**
-     * The amount of Stamina (Gold) a Player receives when killing a unit.
+     * The amount of Gold a Player receives when killing a unit.
      */
-    StaminaOnKill: {
-      keySchema: {
+    GoldOnKill: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "int32",
       },
-      valueSchema: "int32",
     },
     /**
      * Emitted during combat to inform client animations.
      */
     CombatOutcome: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
-      },
-      valueSchema: {
         attacker: "bytes32",
         defender: "bytes32",
         attackerDamageReceived: "int32",
@@ -286,46 +213,37 @@ export default mudConfig({
      * Marks an entity as able to construct other entities.
      */
     Factory: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
-      },
-      valueSchema: {
         prototypeIds: "bytes32[]",
-        staminaCosts: "int32[]",
+        goldCosts: "int32[]",
       },
     },
     /**
-     * Used to mark something as an Item.
-     * NOTE: Only use this to determine if something is an item contract-side.
-     * Specific Item Types are only used client-side to deteremine rendering.
-     */
-    ItemType: {
-      keySchema: {
-        matchEntity: "bytes32",
-        entity: "bytes32",
-      },
-      valueSchema: "ItemTypes",
-    },
-    /**
-     * Used in conjuction with Stamina to lazily calculate Stamina regen.
+     * Used in conjuction with Gold to lazily calculate Gold regen.
+     * Also used to determine the last time an entity took an action
+     * in order to calculate their cooldown.
      */
     LastAction: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "uint256",
       },
-      valueSchema: "uint256",
     },
     /**
      * Used in map creation to mark the center of the map.
      */
     MapCenter: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "bool",
       },
-      valueSchema: "bool",
     },
     /**
      * Marks an entity as able to move.
@@ -334,134 +252,123 @@ export default mudConfig({
      * i.e. 1000 = 1 unit.
      */
     Movable: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "int32",
       },
-      valueSchema: "int32",
     },
     /**
      * Given to terrain to determine how much it costs to move onto it.
      * Used in conjunction with Movable during path calculation.
      */
     MoveDifficulty: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "int32",
       },
-      valueSchema: "int32",
     },
     /**
      * HEAVILY used to determine ownership chains.
      * i.e. Player -> Unit
      */
     OwnedBy: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "bytes32",
       },
-      valueSchema: "bytes32",
     },
     /**
      * Marks a player address as a player.
      * Value is an incrementing integer.
      */
     Player: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "uint32",
       },
-      valueSchema: "uint32",
     },
     /**
      * Used in the lobby system to determine if a player is ready.
      */
     PlayerReady: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "uint256",
       },
-      valueSchema: "uint256",
     },
     /**
      * The position of an entity.
      */
     Position: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
-      },
-      valueSchema: {
         x: "int32",
         y: "int32",
       },
     },
     EntitiesAtPosition: {
-      keySchema: {
+      key: ["matchEntity", "x", "y"],
+      schema: {
         matchEntity: "bytes32",
         x: "int32",
         y: "int32",
-      },
-      valueSchema: {
         entities: "bytes32[]",
-      },
-    },
-    /**
-     * The range at which an entity can engage in combat.
-     */
-    Range: {
-      keySchema: {
-        matchEntity: "bytes32",
-        entity: "bytes32",
-      },
-      valueSchema: {
-        min: "int32",
-        max: "int32",
       },
     },
     /**
      * Marks a unit as unable to Move and Attack in the same turn.
      */
     RequiresSetup: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "bool",
       },
-      valueSchema: "bool",
     },
     /**
      * Set during Player registration to reserve a specific SpawnPoint in a level for a player entity.
      */
     SpawnReservedBy: {
-      keySchema: {
+      key: ["matchEntity", "index"],
+      schema: {
         matchEntity: "bytes32",
         index: "uint256",
+        value: "bytes32",
       },
-      valueSchema: "bytes32",
     },
     /**
      * Marks an entity as a Spawn Point.
      * Players can use it to enter a match.
      */
     SpawnPoint: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "bool",
       },
-      valueSchema: "bool",
     },
     /**
-     * Stamina is the base resource that everything in the game uses to take actions.
-     * It is lazily calculated whenever an entity takes an action.
-     * Stamina is regenerated every turn.
-     * Used in conjunction with LastAction to lazily calculate Stamina regen.
+     * Used by players to construct units from Factories.
      */
-    Stamina: {
-      keySchema: {
+    Gold: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
-      },
-      valueSchema: {
         current: "int32",
       },
     },
@@ -471,11 +378,12 @@ export default mudConfig({
      * Specific Structure Types are only used client-side to deteremine rendering.
      */
     StructureType: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "StructureTypes",
       },
-      valueSchema: "StructureTypes",
     },
     /**
      * Used to mark something as Terrain.
@@ -483,12 +391,13 @@ export default mudConfig({
      * Specific Terrain Types are only used client-side to deteremine rendering.
      */
     TerrainType: {
-      offchainOnly: true,
-      keySchema: {
+      type: "offchainTable",
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "TerrainTypes",
       },
-      valueSchema: "TerrainTypes",
     },
     /**
      * Used to mark something as a Unit.
@@ -496,40 +405,33 @@ export default mudConfig({
      * Specific Unit Types are only used client-side to deteremine rendering.
      */
     UnitType: {
-      offchainOnly: true,
-      keySchema: {
+      type: "offchainTable",
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "UnitTypes",
       },
-      valueSchema: "UnitTypes",
     },
     /**
      * Whethere this entity blocks the movement of other entities.
      */
     Untraversable: {
-      keySchema: {
+      key: ["matchEntity", "entity"],
+      schema: {
         matchEntity: "bytes32",
         entity: "bytes32",
+        value: "bool",
       },
-      valueSchema: "bool",
-    },
-    Tier: {
-      offchainOnly: true,
-      keySchema: {
-        matchEntity: "bytes32",
-        entity: "bytes32",
-      },
-      valueSchema: "uint32",
     },
     /**
      * Index for finding a player in a given Match.
      */
     MatchPlayer: {
-      keySchema: {
+      key: ["matchEntity", "playerAddress"],
+      schema: {
         matchEntity: "bytes32",
         playerAddress: "address",
-      },
-      valueSchema: {
         playerEntity: "bytes32",
       },
     },
@@ -540,6 +442,16 @@ export default mudConfig({
      * Stores players chosen names.
      */
     Name: "string",
+    /**
+     * Used to check if a name is already taken.
+     */
+    NameExists: {
+      key: ["nameData"],
+      schema: {
+        nameData: "bytes32",
+        value: "bool",
+      },
+    },
 
     /**
      * Marks an entity as an admin. Used on address entities.
@@ -562,8 +474,9 @@ export default mudConfig({
      * - Token that is used in SkyPool rewards.
      */
     SkyPoolConfig: {
-      keySchema: {},
-      valueSchema: {
+      key: [],
+      schema: {
+        locked: "bool",
         cost: "uint256",
         window: "uint256",
         orbToken: "address",
@@ -576,10 +489,9 @@ export default mudConfig({
      * the number of players in a match.
      */
     MatchRewardPercentages: {
-      keySchema: {
+      key: ["numPlayers"],
+      schema: {
         numPlayers: "uint256",
-      },
-      valueSchema: {
         percentages: "uint256[]",
       },
     },
@@ -588,36 +500,39 @@ export default mudConfig({
      * Used to differentiate between dev-made and community-made levels.
      */
     OfficialLevel: {
-      offchainOnly: true,
-      keySchema: {
+      type: "offchainTable",
+      key: ["levelId"],
+      schema: {
         levelId: "bytes32",
+        value: "bool",
       },
-      valueSchema: "bool",
     },
 
     /**
      * Level can be used to create a match.
      */
     LevelInStandardRotation: {
-      keySchema: {
+      key: ["levelId"],
+      schema: {
         levelId: "bytes32",
+        value: "bool",
       },
-      valueSchema: "bool",
     },
 
     /**
      * Only Season Pass holders can create a match with this level.
      */
     LevelInSeasonPassRotation: {
-      keySchema: {
+      key: ["levelId"],
+      schema: {
         levelId: "bytes32",
+        value: "bool",
       },
-      valueSchema: "bool",
     },
 
     LastMatchIndex: {
-      keySchema: {},
-      valueSchema: {
+      key: [],
+      schema: {
         matchIndex: "uint32",
       },
     },
@@ -625,10 +540,9 @@ export default mudConfig({
      * Map match entities to their match index (derived from auto-incrementing LastMatchIndex), used in pool rewards
      */
     MatchIndex: {
-      keySchema: {
+      key: ["matchEntity"],
+      schema: {
         matchEntity: "bytes32",
-      },
-      valueSchema: {
         matchIndex: "uint32",
       },
     },
@@ -638,10 +552,9 @@ export default mudConfig({
      * by their index only.
      */
     MatchIndexToEntity: {
-      keySchema: {
+      key: ["matchIndex"],
+      schema: {
         matchIndex: "uint32",
-      },
-      valueSchema: {
         matchEntity: "bytes32",
       },
     },
@@ -650,8 +563,8 @@ export default mudConfig({
      * The incrementing token ID of season passes
      */
     SeasonPassIndex: {
-      keySchema: {},
-      valueSchema: {
+      key: [],
+      schema: {
         tokenIndex: "uint256",
       },
     },
@@ -661,9 +574,8 @@ export default mudConfig({
      * - price is multiplied by this on each purchase
      */
     SeasonPassConfig: {
-      dataStruct: false,
-      keySchema: {},
-      valueSchema: {
+      key: [],
+      schema: {
         minPrice: "uint256",
         startingPrice: "uint256",
         rate: "uint256",
@@ -678,9 +590,8 @@ export default mudConfig({
      * to an existing World is not well-supported in MUD yet.
      */
     SeasonTimes: {
-      keySchema: {},
-      dataStruct: false,
-      valueSchema: {
+      key: [],
+      schema: {
         seasonStart: "uint256",
         seasonEnd: "uint256",
       },
@@ -691,9 +602,25 @@ export default mudConfig({
      * Used to calculate price decrease over time.
      */
     SeasonPassLastSaleAt: {
-      keySchema: {},
-      valueSchema: {
+      key: [],
+      schema: {
         lastSaleAt: "uint256",
+      },
+    },
+
+    /**
+     * Record of season pass sales.
+     * Used for analytics and tax purposes.
+     */
+    SeasonPassSale: {
+      type: "offchainTable",
+      key: ["buyer", "tokenId"],
+      schema: {
+        buyer: "address",
+        tokenId: "uint256",
+        price: "uint256",
+        purchasedAt: "uint256",
+        tokenAddress: "address",
       },
     },
 
@@ -704,10 +631,9 @@ export default mudConfig({
      * We'll use this as a fallback in case we don't ship match composite keys in time.
      */
     MatchEntityCounter: {
-      keySchema: {
+      key: ["matchEntity"],
+      schema: {
         matchEntity: "bytes32",
-      },
-      valueSchema: {
         // ~4 billion entities per match seems like plenty for now
         entityCounter: "uint32",
       },
@@ -724,7 +650,9 @@ export default mudConfig({
      * Match data for SkyPool
      */
     MatchSky: {
-      valueSchema: {
+      key: ["matchEntity"],
+      schema: {
+        matchEntity: "bytes32",
         createdAt: "uint256",
         reward: "uint256",
       },
@@ -732,12 +660,20 @@ export default mudConfig({
     /**
      * Match Name set by match creator.
      */
-    MatchName: "string",
+    MatchName: {
+      key: ["matchEntity"],
+      schema: {
+        matchEntity: "bytes32",
+        value: "string",
+      },
+    },
     /**
      * Match gameplay settings.
      */
     MatchConfig: {
-      valueSchema: {
+      key: ["matchEntity"],
+      schema: {
+        matchEntity: "bytes32",
         registrationTime: "uint256",
         startTime: "uint256",
         turnLength: "uint256",
@@ -750,16 +686,19 @@ export default mudConfig({
      * Match access control resource and function selector.
      */
     MatchAccessControl: {
-      valueSchema: {
+      key: ["matchEntity"],
+      schema: {
+        matchEntity: "bytes32",
         systemId: "ResourceId",
       },
     },
     MatchAllowed: {
-      keySchema: {
+      key: ["matchEntity", "account"],
+      schema: {
         matchEntity: "bytes32",
         account: "address",
+        value: "bool",
       },
-      valueSchema: "bool",
     },
     /**
      * Whether a match has finished.
@@ -774,12 +713,17 @@ export default mudConfig({
      * The ordered ranks of each player in the match.
      */
     MatchRanking: {
-      valueSchema: "bytes32[]",
+      key: ["matchEntity"],
+      schema: {
+        matchEntity: "bytes32",
+        value: "bytes32[]",
+      },
     },
 
     MatchSweepstake: {
-      dataStruct: false,
-      valueSchema: {
+      key: ["matchEntity"],
+      schema: {
+        matchEntity: "bytes32",
         entranceFee: "uint256",
         rewardPercentages: "uint256[]",
       },
@@ -789,11 +733,12 @@ export default mudConfig({
      * The rewards for each place (1st, 2nd etc...) of match players.
      */
     MatchReward: {
-      keySchema: {
+      key: ["entity", "rank"],
+      schema: {
         entity: "bytes32",
         rank: "uint256",
+        value: "uint256",
       },
-      valueSchema: "uint256",
     },
 
     // ______________________ TEMPLATES + LEVELS ____________________________
@@ -806,13 +751,12 @@ export default mudConfig({
      * Stores the content of each record in a template.
      */
     TemplateContent: {
-      dataStruct: false,
-      keySchema: {
+      key: ["templateId", "tableId"],
+      schema: {
         templateId: "bytes32",
         tableId: "ResourceId",
-      },
-      valueSchema: {
-        encodedLengths: "PackedCounter",
+
+        encodedLengths: "EncodedLengths",
         staticData: "bytes",
         dynamicData: "bytes",
       },
@@ -825,22 +769,22 @@ export default mudConfig({
      * Stores the indices of Level entities with a given `templateId`.
      */
     LevelTemplatesIndex: {
-      keySchema: {
+      key: ["levelId", "templateId"],
+      schema: {
         levelId: "bytes32",
         templateId: "bytes32",
+        value: "uint256[]",
       },
-      valueSchema: "uint256[]",
     },
     /**
      * Stores the position of each level index.
      */
     LevelPosition: {
-      dataStruct: false,
-      keySchema: {
+      key: ["levelId", "index"],
+      schema: {
         levelId: "bytes32",
         index: "uint256",
-      },
-      valueSchema: {
+
         x: "int32",
         y: "int32",
       },
@@ -849,24 +793,23 @@ export default mudConfig({
      * Stores the indices of Level entities with the given position.
      */
     LevelPositionIndex: {
-      keySchema: {
+      key: ["levelId", "x", "y"],
+      schema: {
         levelId: "bytes32",
         x: "int32",
         y: "int32",
+        value: "uint256[]",
       },
-      valueSchema: "uint256[]",
     },
     /**
      * Whether a template is "virtual", meaning it is not instantiated during Level copying.
      */
-    VirtualLevelTemplates: "bool",
-  },
-  modules: [
-    // KeysWithValueModule
-    {
-      name: "KeysWithValueModule",
-      root: true,
-      args: [resolveTableId("Name")],
+    VirtualLevelTemplates: {
+      key: ["templateId"],
+      schema: {
+        templateId: "bytes32",
+        value: "bool",
+      },
     },
-  ],
+  },
 });

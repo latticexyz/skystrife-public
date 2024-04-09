@@ -19,12 +19,12 @@ import {
 } from "@latticexyz/recs";
 import { SkyStrife, env, createSkyStrife } from "../src/createSkyStrife";
 import { sleep } from "@latticexyz/utils";
-import { encodeSystemCalls } from "@latticexyz/world";
+import { encodeSystemCalls } from "@latticexyz/world/internal";
 import { BFS } from "client/src/utils/pathfinding";
 import lodash from "lodash";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { matchIdFromEntity } from "client/src/matchIdFromEntity";
-import { BYTES32_ZERO, LOBBY_SYSTEM_ID, NAME_SYSTEM_ID, PLAYER_REGISTER_SYSTEM_ID } from "client/src/constants";
+import { LOBBY_SYSTEM_ID, NAME_SYSTEM_ID, PLAYER_REGISTER_SYSTEM_ID } from "client/src/constants";
 import { decodeMatchEntity } from "client/src/decodeMatchEntity";
 
 const { curry, sample } = lodash;

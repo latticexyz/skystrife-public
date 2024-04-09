@@ -1,7 +1,8 @@
 import "dotenv/config";
 import { Client, Events, GatewayIntentBits, TextChannel } from "discord.js";
 import { createSkyStrife } from "headless-client/src/createSkyStrife";
-import { createMatchUpdater } from "./matchUpdater";
+import { createMatchUpdater } from "./createMatchUpdater";
+import { createSeasonPassNotifier } from "./createSeasonPassNotifier";
 
 const skyStrife = await createSkyStrife();
 
@@ -22,7 +23,11 @@ client.once(Events.ClientReady, (readyClient) => {
   const notifChannel = readyClient.channels.cache.get(process.env.CHANNEL_ID ?? "0") as TextChannel | undefined;
   if (!notifChannel) throw new Error("Channel not found");
 
+  console.log(`Server Name: ${notifChannel.guild.name}`);
+  console.log(`Linked to channel: ${notifChannel.name} (${notifChannel.id})`);
+
   createMatchUpdater(skyStrife, notifChannel);
+  createSeasonPassNotifier(skyStrife, notifChannel);
 
   readyClient.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return;

@@ -16,7 +16,7 @@ import useLocalStorageState from "use-local-storage-state";
 import { PromiseButton } from "../hooks/PromiseButton";
 import { useExternalAccount } from "../hooks/useExternalAccount";
 import { DelegationAbi } from "../Admin/delegationAbi";
-import { encodeSystemCallFrom } from "@latticexyz/world";
+import { encodeSystemCallFrom } from "@latticexyz/world/internal";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { findOldestMatchInWindow } from "../../amalgema-ui/utils/skypool";
 import { createMatchTimes } from "../../amalgema-ui/utils/matchSchedule";
@@ -29,6 +29,7 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
   const networkLayer = useAmalgema();
   const {
     externalWorldContract,
+    externalWalletClient,
     network: {
       components: { LevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation },
       waitForTransaction,
@@ -105,7 +106,7 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
 
               <div className="w-10" />
 
-              <Button buttonType={"tertiary"} onClick={close} className="h-fit">
+              <Button buttonType="tertiary" onClick={close} className="h-fit">
                 <CrossIcon />
               </Button>
             </div>
@@ -116,20 +117,28 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                   <OverlineLarge>Give permission for burner wallet to create matches</OverlineLarge>
                   <div className="flex flex-col m-2">
                     <PromiseButton
-                      buttonType={"primary"}
+                      buttonType="primary"
                       disabled={hasDelegation}
                       promise={async () => {
                         if (!externalWorldContract) return;
+                        if (!externalWalletClient || !externalWalletClient.account) return;
 
-                        return await externalWorldContract.write.registerDelegation([
-                          walletClient.account.address,
-                          SYSTEMBOUND_DELEGATION,
-                          encodeFunctionData({
-                            abi: DelegationAbi,
-                            functionName: "initDelegation",
-                            args: [walletClient.account.address, MATCH_SYSTEM_ID, maxUint256],
-                          }),
-                        ]);
+                        const account = externalWalletClient.account;
+
+                        return await externalWorldContract.write.registerDelegation(
+                          [
+                            walletClient.account.address,
+                            SYSTEMBOUND_DELEGATION,
+                            encodeFunctionData({
+                              abi: DelegationAbi,
+                              functionName: "initDelegation",
+                              args: [walletClient.account.address, MATCH_SYSTEM_ID, maxUint256],
+                            }),
+                          ],
+                          {
+                            account: account.address,
+                          }
+                        );
                       }}
                     >
                       Delegate

@@ -34,9 +34,9 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
     api: { drawSpriteAtTile, drawTileHighlight },
   } = layer;
 
-  function drawAttackSpritesOnTarget(attacker: Entity, target: Entity) {
-    const id = `${target}-attackable-highlight`;
-    const outlineId = `${target}-attackable-outline`;
+  function drawAttackSpritesOnTarget(attacker: Entity, target: Entity, index: number) {
+    const id = `${index}-attackable-highlight`;
+    const outlineId = `${index}-attackable-outline`;
 
     const position = getComponentValue(LocalPosition, target);
     if (!position) return;
@@ -60,16 +60,9 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
     const attacker = update.entity;
 
     objectPool.remove(`${attacker}-attackable-destination`);
-
-    if (isComponentUpdate(update, AttackableEntities)) {
-      const [, previousAttackableEntities] = update.value;
-
-      if (previousAttackableEntities) {
-        for (let i = 0; i < previousAttackableEntities.value.length; i++) {
-          objectPool.remove(`${previousAttackableEntities.value[i] as Entity}-attackable-highlight`);
-          objectPool.remove(`${previousAttackableEntities.value[i] as Entity}-attackable-outline`);
-        }
-      }
+    for (let i = 0; i < 30; i++) {
+      objectPool.remove(`${i}-attackable-highlight`);
+      objectPool.remove(`${i}-attackable-outline`);
     }
 
     const attackableEntities = getComponentValue(AttackableEntities, attacker)?.value;
@@ -83,18 +76,18 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
     }
 
     if (nextPosition && nextPosition.intendedTarget) {
-      attackableEntities.forEach((entity) => {
+      attackableEntities.forEach((entity, i) => {
         if (entity !== nextPosition.intendedTarget) {
-          objectPool.remove(`${entity}-attackable-highlight`);
+          objectPool.remove(`${i}-attackable-highlight`);
         }
       });
 
       const target = nextPosition.intendedTarget;
-      drawAttackSpritesOnTarget(attacker, target);
+      drawAttackSpritesOnTarget(attacker, target, 0);
     } else {
       for (let i = 0; i < attackableEntities.length; i++) {
         const target = attackableEntities[i] as Entity;
-        drawAttackSpritesOnTarget(attacker, target);
+        drawAttackSpritesOnTarget(attacker, target, i);
       }
     }
   }

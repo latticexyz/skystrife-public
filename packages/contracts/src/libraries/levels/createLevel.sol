@@ -1,9 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
-
-import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+pragma solidity >=0.8.24;
 
 import { LevelTemplates, LevelTemplatesIndex, LevelPosition, LevelPositionIndex } from "../../codegen/index.sol";
 

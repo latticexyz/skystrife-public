@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import { Bytes } from "@latticexyz/store/src/Bytes.sol";
 
@@ -7,7 +7,7 @@ import { isOwnedBy, manhattan, getIndicesAtPosition } from "./LibUtils.sol";
 
 import { StructureTypes } from "../codegen/common.sol";
 
-import { ArmorModifierTableId, EntitiesAtPosition, Position, PositionData, MatchConfig, MoveDifficulty, MoveDifficultyTableId, Untraversable, StructureType, TemplateContent, LevelTemplates } from "../codegen/index.sol";
+import { EntitiesAtPosition, Position, PositionData, MatchConfig, MoveDifficulty, Untraversable, StructureType, TemplateContent, LevelTemplates, ArmorModifier, MoveDifficulty } from "../codegen/index.sol";
 
 function moveIsBlocked(bytes32 matchEntity, bytes32 playerAddress, PositionData[] memory path, uint256 pathIndex) view {
   bytes32[] memory entities = EntitiesAtPosition.get(matchEntity, path[pathIndex].x, path[pathIndex].y);
@@ -23,7 +23,7 @@ function moveIsBlocked(bytes32 matchEntity, bytes32 playerAddress, PositionData[
 }
 
 function decodeInt32(bytes memory staticData) pure returns (int32) {
-  return int32(uint32(Bytes.slice4(staticData, 0)));
+  return int32(uint32(Bytes.getBytes4(staticData, 0)));
 }
 
 library LibMove {
@@ -61,7 +61,7 @@ library LibMove {
 
     for (uint256 i; i < indices.length; i++) {
       bytes32 templateId = LevelTemplates.getItem(levelId, indices[i]);
-      bytes memory staticData = TemplateContent.getStaticData(templateId, MoveDifficultyTableId);
+      bytes memory staticData = TemplateContent.getStaticData(templateId, MoveDifficulty._tableId);
 
       // Manual MUD decoding
       movementDifficulty += decodeInt32(staticData);
@@ -79,7 +79,7 @@ library LibMove {
 
     for (uint256 i; i < indices.length; i++) {
       bytes32 templateId = LevelTemplates.getItem(levelId, indices[i]);
-      bytes memory staticData = TemplateContent.getStaticData(templateId, ArmorModifierTableId);
+      bytes memory staticData = TemplateContent.getStaticData(templateId, ArmorModifier._tableId);
 
       // Manual MUD decoding
       armorModifier += decodeInt32(staticData);

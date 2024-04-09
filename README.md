@@ -114,4 +114,4 @@ The client is deployed automatically when a commit is pushed to any branch. By d
 
 Contract deployment is currently manual.
 
-To deploy to the Sky Strife testnet run `pnpm deploy:redstone-holesky` in `packages/contracts`. After deployment has finished, you'll need to make a commit with the `worlds.json` changes and open a PR to the `develop` branch. The live client uses this to determine which world to connect to.
+To deploy to the Sky Strife testnet run `pnpm deploy:redstone-garnet` in `packages/contracts`. After deployment has finished, you'll need to make a commit with the `worlds.json` changes and open a PR to the `develop` branch. The live client uses this to determine which world to connect to.

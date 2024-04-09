@@ -5,7 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import useLocalStorageState from "use-local-storage-state";
 
 export function AnnouncementModal() {
-  const [seenPatchNotes, setSeenPatchNotes] = useLocalStorageState("viewed-patch-notes-1", {
+  const [seenPatchNotes, setSeenPatchNotes] = useLocalStorageState("viewed-patch-notes-2", {
     defaultValue: false,
   });
 
@@ -15,7 +15,7 @@ export function AnnouncementModal() {
       <Modal
         footer={
           <Dialog.Close asChild={true} className="w-fit">
-            <Button className="mx-auto" buttonType={"primary"}>
+            <Button className="mx-auto" buttonType="primary">
               start playing
             </Button>
           </Dialog.Close>
@@ -23,7 +23,7 @@ export function AnnouncementModal() {
         title="announcements"
         trigger={
           <div onClick={() => setSeenPatchNotes(true)} className="relative">
-            <Button buttonType={"tertiary"}>read patch notes</Button>
+            <Button buttonType="tertiary">read patch notes</Button>
 
             {!seenPatchNotes && (
               <span className="absolute -right-1 -top-1 w-2 h-2 rounded-full animate-ping bg-red-500" />
@@ -31,6 +31,67 @@ export function AnnouncementModal() {
           </div>
         }
       >
+        <Heading>Final testnet season — and plugins!</Heading>
+        <OverlineSmall>Mar 19th, 2024</OverlineSmall>
+
+        <Heading className="mt-6 mb-4 font-bold text-ss-text-default">FINAL TESTNET SEASON</Heading>
+        <div className="text-ss-text-light">
+          <p>
+            This season, Season 0.3, will be the final testnet season before we release on Redstone Mainnet.
+            <br />
+            <br />
+            That&apos;s right — mainnet.
+            <br />
+            No more testnet, no more Holesky ETH. Just the real stuff.
+            <br />
+            <br />
+            Enough about that for now, though. We have much more to share about this in the coming months.
+          </p>
+        </div>
+
+        <Heading className="mt-6 mb-4 font-bold text-ss-text-default">PLUGINS!?</Heading>
+        <div className="text-ss-text-light">
+          <p>
+            We&apos;re excited to announce plugins — a way to experience Sky Strife in a completely different way.
+            <br />
+            <br />
+            You can access plugins, in-game, at the top-right of your screen with the plugin icon. Once there you can
+            enable or disable plugins for use during your match.
+          </p>
+          <img
+            className="my-4"
+            src="/public/assets/plugins.png"
+            alt="Showing the location of plugins in the top-right of the screen with a red arrow"
+          />
+          <img className="my-4" src="/public/assets/plugin-manager.png" alt="Showing plugin manager when it is open" />
+
+          <ul className="list-disc list-inside text-ss-text-light">
+            <li>Added client plugins</li>
+            <li>Added three core plugins built by the Sky Strife team:</li>
+            <ul className="ml-4 list-disc list-inside text-ss-text-light">
+              <li>
+                <span className="font-bold text-ss-text-default">Frenzy (default)</span>: press f to make the most
+                powerful attack available for your selected unit.
+                <img
+                  className="my-4"
+                  src="/public/assets/frenzy.gif"
+                  alt="The frenzy plugin in action, showing a player pressing `f` to attack a nearby unit with a strong attack."
+                />
+              </li>
+              <li>
+                <span className="font-bold text-ss-text-default">Opponent Gold (default)</span>: view your
+                opponents&apos; current amount of gold. No more surprise attacks!
+              </li>
+              <li>
+                <span className="font-bold text-ss-text-default">Action Log</span>: view more detailed transaction
+                information
+              </li>
+            </ul>
+            <li>More community plugins on the way!</li>
+          </ul>
+        </div>
+        <div className="h-32"></div>
+
         <Heading>New units, combat redesign, and more!</Heading>
         <OverlineSmall>Feb 23rd, 2024</OverlineSmall>
 

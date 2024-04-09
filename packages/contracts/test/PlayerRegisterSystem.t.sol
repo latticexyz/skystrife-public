@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Test.sol";
-import { BaseTest, createPublicMatch } from "./BaseTest.sol";
+import { SkyStrifeTest, createPublicMatch } from "./SkyStrifeTest.sol";
 
 import { GasReporter } from "@latticexyz/gas-report/src/GasReporter.sol";
 
@@ -12,7 +12,7 @@ import { SpawnSettlementTemplateId, HalberdierTemplateId } from "../src/codegen/
 
 bytes32 constant levelId = "debug";
 
-contract PlayerRegisterSystemTest is BaseTest, GasReporter {
+contract PlayerRegisterSystemTest is SkyStrifeTest, GasReporter {
   bytes32 matchEntity;
 
   function setupRegister() private {

@@ -1,25 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { System } from "@latticexyz/world/src/System.sol";
 import { SystemSwitch } from "@latticexyz/world-modules/src/utils/SystemSwitch.sol";
 
-import { SkyPoolConfig, MatchAccessControl, MatchSweepstake, LevelTemplates, MatchConfig, Player, SpawnPoint, SpawnReservedBy, Position, PositionTableId, PositionData, MapCenterTableId, PlayerTableId, MatchSpawnPoints } from "../codegen/index.sol";
-import { MatchAccessControl, LevelTemplates, MatchConfig, Player, SpawnPoint, SpawnReservedBy, Position, PositionTableId, PositionData, MapCenterTableId, PlayerTableId, MatchSpawnPoints, HeroInRotation, HeroInSeasonPassRotation, MatchPlayer } from "../codegen/index.sol";
+import { SkyPoolConfig, MatchAccessControl, MatchSweepstake, LevelTemplates, MatchConfig, Player, SpawnPoint, SpawnReservedBy, Position, PositionData, MatchSpawnPoints } from "../codegen/index.sol";
+import { MatchAccessControl, LevelTemplates, MatchConfig, Player, SpawnPoint, SpawnReservedBy, Position, PositionData, MatchSpawnPoints, HeroInRotation, HeroInSeasonPassRotation, MatchPlayer } from "../codegen/index.sol";
 import { SpawnSettlementTemplateId } from "../codegen/Templates.sol";
-
-import { createMatchEntity } from "../createMatchEntity.sol";
-import { instantiateLevelEntity } from "../libraries/levels/instantiateLevel.sol";
-import { addressToEntity, entityToKeyTuple } from "../libraries/LibUtils.sol";
-import { spawnStarter, startMatchIfAllRegistered } from "../libraries/LibMatch.sol";
-import { createPlayerEntity, spawnPlayer } from "../libraries/LibPlayer.sol";
 
 import { IAllowSystem } from "../IAllowSystem.sol";
 import { transferToken } from "../transferToken.sol";
 import { hasSeasonPass } from "../hasToken.sol";
 
-import { PlayerSetupSystem } from "./PlayerSetupSystem.sol";
+import { LibPlayerSetup } from "base/libraries/LibPlayerSetup.sol";
 
 function checkAccessControl(bytes32 matchEntity, address account) returns (bool) {
   ResourceId systemId = MatchAccessControl.get(matchEntity);
@@ -54,10 +48,6 @@ contract PlayerRegisterSystem is System {
 
     transferToken(_world(), MatchConfig.getEscrowContract(matchEntity), MatchSweepstake.getEntranceFee(matchEntity));
 
-    bytes memory data = SystemSwitch.call(
-      abi.encodeCall(PlayerSetupSystem.setup, (matchEntity, spawnIndex, heroChoice))
-    );
-
-    return abi.decode(data, (bytes32));
+    return LibPlayerSetup.setup(_msgSender(), matchEntity, spawnIndex, heroChoice);
   }
 }

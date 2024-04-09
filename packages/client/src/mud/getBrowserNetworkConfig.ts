@@ -1,7 +1,7 @@
 import { Wallet } from "ethers";
 import { getChain, getWorldFromChainId } from "./utils";
 import { Entity } from "@latticexyz/recs";
-import { redstoneHolesky } from "./supportedChains";
+import { redstoneGarnet } from "./supportedChains";
 
 export const getBurnerWallet = () => {
   const params = new URLSearchParams(window.location.search);
@@ -48,10 +48,10 @@ export const getBurnerWallet = () => {
  * - useExternalWallet(boolean): Force the use of an external wallet.
  * - asPlayer(boolean): Force the generation of a non-admin burner wallet.
  */
-export async function getNetworkConfig() {
+export function getNetworkConfig() {
   const params = new URLSearchParams(window.location.search);
 
-  const chainId = Number(params.get("chainId") || (import.meta.env.DEV ? 31337 : redstoneHolesky.id));
+  const chainId = Number(params.get("chainId") || (import.meta.env.DEV ? 31337 : redstoneGarnet.id));
   const chain = getChain(chainId);
 
   const world = getWorldFromChainId(chain.id);

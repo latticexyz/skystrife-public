@@ -15,8 +15,8 @@ import {
 import { attack } from "./api";
 import { isPassive, isNeutralStructure, canRetaliate, formatAddress } from "./utils";
 
-import { NetworkLayer, StructureTypes } from "../Network";
-import { createCurrentStaminaSystem, createScopeClientToMatchSystem } from "./systems";
+import { NetworkLayer } from "../Network";
+import { createCurrentGoldSystem, createScopeClientToMatchSystem } from "./systems";
 import lodash from "lodash";
 import { createTurnStream } from "./setup";
 import { getClosestTraversablePositionToTarget, manhattan } from "../../utils/distance";
@@ -51,8 +51,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
         MoveDifficulty,
         OwnedBy,
         Position,
-        Range,
-        Stamina,
+        Gold,
         StructureType,
         TerrainType,
         UnitType,
@@ -67,7 +66,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     },
   } = network;
 
-  const LocalStamina = defineComponent(world, { current: Type.Number }, { id: "LocalStamina" });
+  const LocalGold = defineComponent(world, { current: Type.Number }, { id: "LocalGold" });
   const NextPosition = defineComponent(
     world,
     {
@@ -76,14 +75,14 @@ export async function createHeadlessLayer(network: NetworkLayer) {
       userCommittedToPosition: Type.Boolean,
       intendedTarget: Type.OptionalEntity,
     },
-    { id: "NextPosition" }
+    { id: "NextPosition" },
   );
   const OnCooldown = defineComponent(world, { value: Type.Boolean }, { id: "OnCooldown" });
   const Depleted = defineComponent(world, { value: Type.Boolean }, { id: "Depleted" });
   const InCurrentMatch = defineComponent(world, { value: Type.Boolean }, { id: "InCurrentMatch" });
   const PreviousOwner = defineComponent(world, { value: Type.Entity }, { id: "PreviousOwner" });
 
-  const components = { LocalStamina, OnCooldown, NextPosition, Depleted, InCurrentMatch, PreviousOwner };
+  const components = { LocalGold, OnCooldown, NextPosition, Depleted, InCurrentMatch, PreviousOwner };
 
   const turn$ = createTurnStream(() => {
     const matchConfig = getCurrentMatchConfig();
@@ -95,25 +94,21 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     };
   }, clock);
 
-  const getCurrentStamina = (entity: Entity) => {
-    const contractStamina = getComponentValue(Stamina, entity)?.current;
-    if (contractStamina == undefined) return 0;
+  const getCurrentGold = (entity: Entity) => {
+    const contractGold = getComponentValue(Gold, entity)?.current;
+    if (contractGold == undefined) return 0;
 
-    const localStamina = getComponentValue(LocalStamina, entity)?.current;
-    if (localStamina == undefined) return 0;
+    const localGold = getComponentValue(LocalGold, entity)?.current;
+    if (localGold == undefined) return 0;
 
-    return contractStamina + localStamina;
-  };
-
-  const getActionStaminaCost = () => {
-    return 1_000;
+    return contractGold + localGold;
   };
 
   const isUntraversable = (
     positionComponent: Component<{ x: Type.Number; y: Type.Number }>,
     playerEntity: Entity,
     isFinalPosition: boolean,
-    position: WorldCoord
+    position: WorldCoord,
   ) => {
     const blockingEntities = runQuery([Has(InCurrentMatch), HasValue(positionComponent, position), Has(Untraversable)]);
 
@@ -123,9 +118,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
 
     const blockingEntity = [...blockingEntities][0];
 
-    if (hasComponent(StructureType, blockingEntity)) {
-      return getComponentValueStrict(StructureType, blockingEntity).value !== StructureTypes.Container;
-    }
+    if (hasComponent(StructureType, blockingEntity)) return true;
 
     if (!isOwnedBy(blockingEntity, playerEntity)) return true;
 
@@ -134,7 +127,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
 
   const getMovementDifficulty = (
     positionComponent: Component<{ x: Type.Number; y: Type.Number }>,
-    targetPosition: WorldCoord
+    targetPosition: WorldCoord,
   ) => {
     const entity = [...runQuery([HasValue(positionComponent, targetPosition), Has(MoveDifficulty)])][0];
     if (entity == null) return Infinity;
@@ -143,11 +136,11 @@ export async function createHeadlessLayer(network: NetworkLayer) {
   };
 
   function unitSort(a: Entity, b: Entity) {
-    const aOutOfStamina = getCurrentStamina(a) < 1000;
-    const bOutOfStamina = getCurrentStamina(b) < 1000;
+    const aOutOfGold = getCurrentGold(a) < 1000;
+    const bOutOfGold = getCurrentGold(b) < 1000;
 
-    if (aOutOfStamina && !bOutOfStamina) return 1;
-    if (bOutOfStamina && !aOutOfStamina) return -1;
+    if (aOutOfGold && !bOutOfGold) return 1;
+    if (bOutOfGold && !aOutOfGold) return -1;
 
     const aUnitType = getComponentValue(UnitType, a)?.value;
     const bUnitType = getComponentValue(UnitType, b)?.value;
@@ -184,8 +177,11 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     if (!attackerOwner) return false;
     if (attackerOwner.value === defenderOwner?.value) return false;
 
-    const combat = getComponentValue(Combat, defender);
-    if (!combat) return false;
+    const attackerCombat = getComponentValue(Combat, attacker);
+    if (!attackerCombat) return false;
+
+    const defenderCombat = getComponentValue(Combat, defender);
+    if (!defenderCombat) return false;
 
     const attackerPosition = getComponentValue(Position, attacker);
     if (!attackerPosition) return;
@@ -195,9 +191,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
 
     const distanceToTarget = manhattan(attackerPosition, defenderPosition);
 
-    const attackerRange = getComponentValue(Range, attacker);
-    if (!attackerRange) return;
-    if (attackerRange && (distanceToTarget > attackerRange.max || distanceToTarget < attackerRange.min)) return false;
+    if (distanceToTarget > attackerCombat.maxRange || distanceToTarget < attackerCombat.minRange) return false;
 
     return true;
   };
@@ -223,10 +217,12 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     if (!atCoord) atCoord = getComponentValue(Position, attacker);
     if (!atCoord) return;
 
-    const attackerRange = getComponentValue(Range, attacker);
+    const attackerCombat = getComponentValue(Combat, attacker);
+    if (!attackerCombat) return;
+
     let entities;
-    if (attackerRange) {
-      entities = getEntitiesInRange(atCoord, attackerRange.min, attackerRange.max);
+    if (attackerCombat.maxRange > 1) {
+      entities = getEntitiesInRange(atCoord, attackerCombat.minRange, attackerCombat.maxRange);
     } else {
       entities = getEntitiesInRange(atCoord, 1, 1);
     }
@@ -255,7 +251,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     positionComponent: Component<{ x: Type.Number; y: Type.Number }>,
     entity: Entity,
     pos1: WorldCoord,
-    pos2: WorldCoord
+    pos2: WorldCoord,
   ) => {
     const player = getOwningPlayer(entity);
     const moveSpeed = getMoveSpeed(entity);
@@ -269,7 +265,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
       (targetPosition: WorldCoord) => {
         return getMovementDifficulty(positionComponent, targetPosition) / 1_000;
       },
-      curry(isUntraversable)(positionComponent, player)
+      curry(isUntraversable)(positionComponent, player),
     );
   };
 
@@ -277,7 +273,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     positionComponent: Component<{ x: Type.Number; y: Type.Number }>,
     attacker: Entity,
     defender: Entity,
-    preferredEndPosition?: WorldCoord
+    preferredEndPosition?: WorldCoord,
   ) => {
     if (hasComponent(OnCooldown, attacker)) return [];
 
@@ -287,17 +283,17 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     const defenderPosition = getComponentValue(positionComponent, defender);
     if (!defenderPosition) return [];
 
-    const attackerRange = getComponentValue(Range, attacker);
-    if (!attackerRange) return [];
+    const attackerCombat = getComponentValue(Combat, attacker);
+    if (!attackerCombat) return [];
 
     if (preferredEndPosition) {
       const distanceToTarget = manhattan(preferredEndPosition, defenderPosition);
-      if (distanceToTarget <= attackerRange.max && distanceToTarget >= attackerRange.min) {
+      if (distanceToTarget <= attackerCombat.maxRange && distanceToTarget >= attackerCombat.minRange) {
         const pathToPreferredPosition = calculateMovementPath(
           positionComponent,
           attacker,
           attackerPosition,
-          preferredEndPosition
+          preferredEndPosition,
         );
         if (pathToPreferredPosition.length > 0) {
           return pathToPreferredPosition;
@@ -319,8 +315,8 @@ export async function createHeadlessLayer(network: NetworkLayer) {
       isTraversable,
       attacker,
       defender,
-      attackerRange.min,
-      attackerRange.max
+      attackerCombat.minRange,
+      attackerCombat.maxRange,
     );
     if (!closestUnblockedPosition) return [];
 
@@ -339,7 +335,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     if (!playerEntity) return noColor;
 
     const reservedSpawnPointKeys = Array.from(
-      runQuery([HasValue(SpawnReservedBy, { value: decodeMatchEntity(playerEntity).entity })])
+      runQuery([HasValue(SpawnReservedBy, { value: decodeMatchEntity(playerEntity).entity })]),
     )
       .map((entity) => decodeEntity(SpawnReservedBy.metadata.keySchema, entity))
       .filter((key) => key.matchEntity === matchEntity);
@@ -414,12 +410,11 @@ export async function createHeadlessLayer(network: NetworkLayer) {
       getAttackableEntities,
 
       unitSort,
-      getCurrentStamina,
+      getCurrentGold,
 
       calculateMovementPath,
       getMoveAndAttackPath,
       getMoveSpeed,
-      getActionStaminaCost,
 
       getCurrentRegen,
 
@@ -430,7 +425,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     },
   };
 
-  createCurrentStaminaSystem(layer);
+  createCurrentGoldSystem(layer);
   createCooldownSystem(layer);
   createScopeClientToMatchSystem(layer);
   createPreviousOwnerSystem(layer);

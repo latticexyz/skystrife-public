@@ -6,15 +6,15 @@ import { useCurrentPlayer } from "../hooks/useCurrentPlayer";
 import { Button } from "../Theme/SkyStrife/Button";
 import { Heading, OverlineSmall } from "../Theme/SkyStrife/Typography";
 import { addressToEntityID } from "../../../mud/setupNetwork";
-import { Hex, formatEther, stringToHex } from "viem";
+import { ContractFunctionName, Hex, formatEther, stringToHex } from "viem";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useMatchInfo } from "../hooks/useMatchInfo";
 import { CreatedBy } from "../../amalgema-ui/CreatedBy";
 import { SendTxButton } from "../hooks/SendTxButton";
 import { getMatchUrl } from "../../../getMatchUrl";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
-import { SystemCall, encodeSystemCallFrom, encodeSystemCalls } from "@latticexyz/world";
-import { LOBBY_SYSTEM_ID, NAME_SYSTEM_ID, PLAYER_REGISTER_SYSTEM_ID } from "../../../constants";
+import { SystemCall, encodeSystemCallFrom, encodeSystemCalls } from "@latticexyz/world/internal";
+import { BUILD_SYSTEM_ID, LOBBY_SYSTEM_ID, NAME_SYSTEM_ID, PLAYER_REGISTER_SYSTEM_ID } from "../../../constants";
 import { SessionWalletManager } from "../../amalgema-ui/SessionWalletManager";
 import { useExternalAccount } from "../hooks/useExternalAccount";
 import { getDelegationSystemCalls } from "../../../getDelegationSystemCalls";
@@ -121,9 +121,9 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
         const hasDelegation =
           externalWalletClient &&
           externalWalletClient.account &&
-          hasSystemDelegation(externalWalletClient.account.address, walletClient.account.address);
+          hasSystemDelegation(externalWalletClient.account.address, walletClient.account.address, BUILD_SYSTEM_ID);
 
-        const systemCalls: readonly Omit<SystemCall<typeof IWorldAbi>, "abi">[] = [
+        const systemCalls = [
           {
             systemId: PLAYER_REGISTER_SYSTEM_ID,
             functionName: "register",
@@ -134,7 +134,10 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
             functionName: "setName",
             args: [newName],
           },
-        ];
+        ] as const satisfies readonly Omit<
+          SystemCall<typeof IWorldAbi, ContractFunctionName<typeof IWorldAbi>>,
+          "abi"
+        >[];
 
         await executeSystemWithExternalWallet({
           systemCall: "batchCall",
@@ -215,7 +218,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
         >
           <div className="relative h-fit">
             <input
-              type={"text"}
+              type="text"
               className="w-full py-2 px-3 rounded border border-1 border-white bg-[#F4F3F1] flex flex-row"
               placeholder="Enter a name"
               disabled={Boolean(pendingTx || currentPlayer?.player)}

@@ -6,9 +6,11 @@ import { Hex } from "viem";
 
 const MATCH_SPECIFIC_TABLES_NEEDED_IN_AMALGEMA = ["Player", "SpawnReservedBy", "OwnedBy", "LevelContent"];
 
+const EXTRA_MATCH_SPECIFIC_TABLES = ["EntitiesAtPosition", "Match", "Chargers"];
+
 const tables = Object.values(mudConfig.tables).map((table) => {
   const tableId = resourceToHex({
-    type: table.offchainOnly ? "offchainTable" : "table",
+    type: table.type,
     // TODO: update once this multiple namespaces is supported (https://github.com/latticexyz/mud/issues/994)
     namespace: mudConfig.namespace,
     name: table.name,
@@ -17,7 +19,9 @@ const tables = Object.values(mudConfig.tables).map((table) => {
 });
 
 const matchSpecificTables = tables.filter((table) => {
-  const keyNames = Object.keys(table.keySchema);
+  if (EXTRA_MATCH_SPECIFIC_TABLES.includes(table.name)) return true;
+
+  const keyNames = table.key;
   return keyNames[0] === "matchEntity" && keyNames[1] === "entity";
 });
 const nonMatchSpecificTables = tables.filter((table) => {

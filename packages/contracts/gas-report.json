@@ -3,96 +3,96 @@
     "file": "test/BuildSystem.t.sol",
     "test": "testBuildUnit",
     "name": "Build unit",
-    "gasUsed": 584292
+    "gasUsed": 496325
   },
   {
     "file": "test/CombatSystem.t.sol",
     "test": "testCapturing",
     "name": "Attack unit and capturing",
-    "gasUsed": 445614
+    "gasUsed": 399067
   },
   {
     "file": "test/CombatSystem.t.sol",
     "test": "testCapturingCharger",
     "name": "Attack unit and capturing a charger",
-    "gasUsed": 582465
+    "gasUsed": 533512
   },
   {
     "file": "test/CombatSystem.t.sol",
     "test": "testKilling",
     "name": "Attack unit and killing",
-    "gasUsed": 481973
+    "gasUsed": 420842
   },
   {
     "file": "test/MatchSystem.t.sol",
     "test": "testBuySeasonPass",
     "name": "buy season pass",
-    "gasUsed": 323646
+    "gasUsed": 318855
   },
   {
     "file": "test/MatchSystem.t.sol",
     "test": "testCanCreateAMatchWithNoEntranceFee",
     "name": "create public match with season pass",
-    "gasUsed": 911938
+    "gasUsed": 896587
   },
   {
     "file": "test/MatchSystem.t.sol",
     "test": "testCreateMatch",
     "name": "create public match",
-    "gasUsed": 897327
+    "gasUsed": 883704
   },
   {
     "file": "test/MatchSystem.t.sol",
     "test": "testCreateMatchSeasonPass",
     "name": "create public match with season pass",
-    "gasUsed": 976691
+    "gasUsed": 961048
   },
   {
     "file": "test/MatchSystem.t.sol",
     "test": "testCreateMatchSkyKey",
     "name": "create public match with sky key",
-    "gasUsed": 965872
+    "gasUsed": 952812
   },
   {
     "file": "test/MoveSystem.t.sol",
     "test": "testMoveAndAttack",
     "name": "Move and attack unit",
-    "gasUsed": 527218
+    "gasUsed": 482160
   },
   {
     "file": "test/MoveSystem.t.sol",
     "test": "testMoveOneTile",
     "name": "Move unit 1 tile",
-    "gasUsed": 215080
+    "gasUsed": 207352
   },
   {
     "file": "test/MoveSystem.t.sol",
     "test": "testMoveThreeTiles",
     "name": "Move unit 3 tiles",
-    "gasUsed": 247614
+    "gasUsed": 237216
   },
   {
     "file": "test/MoveSystem.t.sol",
     "test": "testMoveTwoTiles",
     "name": "Move unit 2 tiles",
-    "gasUsed": 231337
+    "gasUsed": 222277
   },
   {
     "file": "test/PlayerRegisterSystem.t.sol",
     "test": "testRegister",
     "name": "Register for a match",
-    "gasUsed": 1804116
+    "gasUsed": 1732088
   },
   {
     "file": "test/Templates.t.sol",
     "test": "testTemplates",
     "name": "Creating settlement template",
-    "gasUsed": 244889
+    "gasUsed": 241471
   },
   {
     "file": "test/Templates.t.sol",
     "test": "testTemplates",
     "name": "Instantiating settlement template",
-    "gasUsed": 500484
+    "gasUsed": 538954
   }
 ]

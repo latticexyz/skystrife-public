@@ -4,7 +4,7 @@ import { createNetworkConfig } from "./createNetworkConfig";
 import { SyncStep } from "@latticexyz/store-sync";
 import { filter, firstValueFrom, take } from "rxjs";
 import { Wallet } from "ethers";
-import { createBurnerAccount, createContract, transportObserver } from "@latticexyz/common";
+import { createBurnerAccount, transportObserver } from "@latticexyz/common";
 import {
   createPublicClient,
   fallback,
@@ -23,6 +23,7 @@ import {
   Address,
   isHex,
   pad,
+  getContract,
 } from "viem";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { HeadlessLayer, createHeadlessLayer } from "client/src/layers/Headless";
@@ -54,12 +55,7 @@ export async function createSkyStrife(): Promise<{
   networkLayer: NetworkLayer;
   headlessLayer: HeadlessLayer;
   createPlayer: (privateKey?: Hex) => {
-    worldContract: GetContractReturnType<
-      typeof IWorldAbi,
-      PublicClient<Transport, Chain>,
-      WalletClient<Transport, Chain, Account>,
-      Address
-    >;
+    worldContract: GetContractReturnType<typeof IWorldAbi, PublicClient<Transport, Chain>, Address>;
     walletClient: ReturnType<typeof createWalletClient>;
     address: Hex;
     entity: Hex;
@@ -118,11 +114,13 @@ export async function createSkyStrife(): Promise<{
       account: burnerAccount,
     });
 
-    const worldContract = createContract({
+    const worldContract = getContract({
       address: networkConfig.worldAddress as Hex,
       abi: IWorldAbi,
-      publicClient,
-      walletClient: burnerWalletClient,
+      client: {
+        public: publicClient,
+        wallet: burnerWalletClient,
+      },
     });
 
     return {

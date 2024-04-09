@@ -1,4 +1,4 @@
-import { defineRxSystem, getComponentValue, setComponent } from "@latticexyz/recs";
+import { defineRxSystem, getComponentValue, hasComponent, setComponent } from "@latticexyz/recs";
 import { LocalLayer } from "../../types";
 
 export function createMatchStartSystem(layer: LocalLayer) {
@@ -22,7 +22,7 @@ export function createMatchStartSystem(layer: LocalLayer) {
     const startTime = getComponentValue(MatchConfig, matchEntity)?.startTime;
     if (!startTime) return;
 
-    if (time / 1000 >= startTime) {
+    if (time / 1000 >= startTime && !hasComponent(MatchStarted, matchEntity)) {
       setComponent(MatchStarted, matchEntity, { value: true });
     }
   });

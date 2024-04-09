@@ -1,13 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
-
-import { IStore } from "@latticexyz/store/src/IStore.sol";
-import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
-import { PackedCounter } from "@latticexyz/store/src/PackedCounter.sol";
-import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
+pragma solidity >=0.8.24;
 
 import { instantiateTemplate } from "../templates/instantiateTemplate.sol";
-import { LevelPosition, LevelTemplates, Position } from "../../codegen/index.sol";
+import { LevelPosition, LevelPositionData, LevelTemplates, Position } from "../../codegen/index.sol";
 
 /**
  * Create an entity within an instance of `levelId`.
@@ -17,9 +12,9 @@ function instantiateLevelEntity(bytes32 levelId, uint256 index, bytes32[] memory
   instantiateTemplate(LevelTemplates.getItem(levelId, index), keyTuple);
 
   // Set position override
-  (int32 x, int32 y) = LevelPosition.get(levelId, index);
+  LevelPositionData memory levelPosition = LevelPosition.get(levelId, index);
 
-  Position.set(keyTuple[0], keyTuple[1], x, y);
+  Position.set(keyTuple[0], keyTuple[1], levelPosition.x, levelPosition.y);
 }
 
 /**

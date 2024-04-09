@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0;
+pragma solidity >=0.8.24;
 
 import "forge-std/Script.sol";
 
 import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { Systems } from "@latticexyz/world/src/codegen/index.sol";
-import { FunctionSelectors } from "@latticexyz/world/src/codegen/tables/FunctionSelectors.sol";
 
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 import { WorldResourceIdLib } from "@latticexyz/world/src/WorldResourceId.sol";
@@ -35,23 +34,23 @@ contract DeployUserMatchNames is Script {
     (addr, publicAccess) = Systems.get(matchSystemId);
     console.log("new MatchSystem address: %s, public access: %s", addr, publicAccess);
 
-    world.registerRootFunctionSelector(
-      matchSystemId,
-      "createMatch(string,bytes32,bytes32,bytes32)",
-      MatchSystem.createMatch.selector
-    );
+    // world.registerRootFunctionSelector(
+    //   matchSystemId,
+    //   "createMatch(string,bytes32,bytes32,bytes32)",
+    //   MatchSystem.createMatch.selector
+    // );
 
-    world.registerRootFunctionSelector(
-      matchSystemId,
-      "createMatchSkyKey(string,bytes32,bytes32,bytes32,bytes32,uint256,uint256[],uint256)",
-      MatchSystem.createMatchSkyKey.selector
-    );
+    // world.registerRootFunctionSelector(
+    //   matchSystemId,
+    //   "createMatchSkyKey(string,bytes32,bytes32,bytes32,bytes32,uint256,uint256[],uint256)",
+    //   MatchSystem.createMatchSkyKey.selector
+    // );
 
-    world.registerRootFunctionSelector(
-      matchSystemId,
-      "createMatchSeasonPass(string,bytes32,bytes32,bytes32,bytes32,uint256,uint256[])",
-      MatchSystem.createMatchSeasonPass.selector
-    );
+    // world.registerRootFunctionSelector(
+    //   matchSystemId,
+    //   "createMatchSeasonPass(string,bytes32,bytes32,bytes32,bytes32,uint256,uint256[])",
+    //   MatchSystem.createMatchSeasonPass.selector
+    // );
 
     vm.stopBroadcast();
   }

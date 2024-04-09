@@ -1,5 +1,5 @@
 import { useChainModal } from "@rainbow-me/rainbowkit";
-import { useNetwork } from "wagmi";
+import { useAccount } from "wagmi";
 import { useAmalgema } from "../../useAmalgema";
 import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Caption } from "../ui/Theme/SkyStrife/Typography";
@@ -9,7 +9,7 @@ export function NetworkStatus() {
     network: { publicClient },
   } = useAmalgema();
 
-  const { chain } = useNetwork();
+  const { chain } = useAccount();
   const { openChainModal } = useChainModal();
 
   return (

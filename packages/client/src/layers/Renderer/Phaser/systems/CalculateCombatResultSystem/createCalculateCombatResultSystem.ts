@@ -1,13 +1,12 @@
 import {
-  defineComponent,
   defineSyncSystem,
   defineSystem,
   getComponentValue,
   getComponentValueStrict,
   Has,
   removeComponent,
+  runQuery,
   setComponent,
-  Type,
   UpdateType,
 } from "@latticexyz/recs";
 import { calculateCombatResult, getModiferAtPosition } from "../../../../Headless/utils";
@@ -32,46 +31,43 @@ export function createCalculateCombatResultSystem(layer: PhaserLayer) {
     world,
     [Has(Combat)],
     () => IncomingDamage,
-    () => ({ value: 0 }),
-    { runOnInit: true }
-  );
-
-  const PreviouslySetIncomingDamage = defineComponent(
-    world,
-    {
-      attacker: Type.OptionalEntity,
-      defender: Type.OptionalEntity,
-    },
-    { id: "PreviouslySetIncomingDamage" }
-  );
-
-  defineSyncSystem(
-    world,
-    [Has(Combat)],
-    () => PreviouslySetIncomingDamage,
     () => ({
-      attacker: undefined,
-      defender: undefined,
+      sources: [],
+      values: [],
+      commitments: [],
     }),
-    { runOnInit: true }
+    { runOnInit: true },
   );
 
   defineSystem(world, [Has(NextPosition)], ({ entity, type }) => {
-    const prev = getComponentValue(PreviouslySetIncomingDamage, entity);
-    if (prev) {
-      const attacker = prev.attacker;
-      const defender = prev.defender;
+    const entitiesWithIncomingDamage = [...runQuery([Has(IncomingDamage)])];
 
-      if (attacker) {
-        setComponent(IncomingDamage, attacker, { value: 0 });
-        setComponent(WillBeDestroyed, attacker, { value: false });
-        removeComponent(TerrainArmorBonus, attacker);
+    for (const entity of entitiesWithIncomingDamage) {
+      const incomingDamage = getComponentValue(IncomingDamage, entity);
+      if (!incomingDamage) continue;
+
+      const sources = incomingDamage.sources;
+      const values = incomingDamage.values;
+      const commitments = incomingDamage.commitments;
+
+      for (let i = 0; i < incomingDamage.sources.length; i++) {
+        const commitment = incomingDamage.commitments[i];
+
+        if (commitment === 0) {
+          sources.splice(i, 1);
+          values.splice(i, 1);
+          commitments.splice(i, 1);
+          continue;
+        }
       }
-      if (defender) {
-        setComponent(IncomingDamage, defender, { value: 0 });
-        setComponent(WillBeDestroyed, defender, { value: false });
-        removeComponent(TerrainArmorBonus, defender);
-      }
+
+      setComponent(IncomingDamage, entity, {
+        sources,
+        values,
+        commitments,
+      });
+      setComponent(WillBeDestroyed, entity, { value: false });
+      removeComponent(TerrainArmorBonus, entity);
     }
 
     if (type === UpdateType.Exit) {
@@ -88,17 +84,28 @@ export function createCalculateCombatResultSystem(layer: PhaserLayer) {
         y: nextPosition.y,
       });
 
-      setComponent(IncomingDamage, attacker, { value: combatResult.defenderDamage * 1000 });
-      setComponent(IncomingDamage, defender, { value: combatResult.attackerDamage * 1000 });
+      const attackerIncomingDamage = getComponentValueStrict(IncomingDamage, attacker);
+      attackerIncomingDamage.sources.push(defender);
+      attackerIncomingDamage.values.push(combatResult.defenderDamage * 1000);
+      attackerIncomingDamage.commitments.push(0);
+      setComponent(IncomingDamage, attacker, attackerIncomingDamage);
+
+      const defenderIncomingDamage = getComponentValueStrict(IncomingDamage, defender);
+      defenderIncomingDamage.sources.push(attacker);
+      defenderIncomingDamage.values.push(combatResult.attackerDamage * 1000);
+      defenderIncomingDamage.commitments.push(0);
+      setComponent(IncomingDamage, defender, defenderIncomingDamage);
 
       const attackerHealth = (getComponentValue(Combat, attacker)?.health ?? 0) / 1000;
       const defenderHealth = (getComponentValue(Combat, defender)?.health ?? 0) / 1000;
 
-      if (attackerHealth - combatResult.defenderDamage <= 0) {
+      const attackerTotalIncomingDamage = attackerIncomingDamage.values.reduce((acc, val) => acc + val / 1000, 0);
+      if (attackerHealth - attackerTotalIncomingDamage <= 0) {
         setComponent(WillBeDestroyed, attacker, { value: true });
       }
 
-      if (defenderHealth - combatResult.attackerDamage <= 0) {
+      const defenderTotalIncomingDamage = defenderIncomingDamage.values.reduce((acc, val) => acc + val / 1000, 0);
+      if (defenderHealth - defenderTotalIncomingDamage <= 0) {
         setComponent(WillBeDestroyed, defender, { value: true });
       }
 
@@ -108,21 +115,16 @@ export function createCalculateCombatResultSystem(layer: PhaserLayer) {
         {
           x: nextPosition.x,
           y: nextPosition.y,
-        } || { x: 0, y: 0 }
+        } || { x: 0, y: 0 },
       );
       setComponent(TerrainArmorBonus, attacker, { value: attackerTerrainModifier });
 
       const defenderTerrainModifier = getModiferAtPosition(
         networkLayer,
         ArmorModifier,
-        getComponentValue(Position, defender) || { x: 0, y: 0 }
+        getComponentValue(Position, defender) || { x: 0, y: 0 },
       );
       setComponent(TerrainArmorBonus, defender, { value: defenderTerrainModifier });
-
-      setComponent(PreviouslySetIncomingDamage, entity, {
-        attacker,
-        defender,
-      });
     }
   });
 }

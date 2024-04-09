@@ -1,4 +1,4 @@
-import { Has, HasValue, getComponentValue, hasComponent, runQuery, setComponent } from "@latticexyz/recs";
+import { Entity, Has, HasValue, getComponentValue, hasComponent, runQuery, setComponent } from "@latticexyz/recs";
 import { filter, map, merge } from "rxjs";
 import { WorldCoord } from "../../../../../types";
 import { worldCoordEq } from "../../../../../utils/coords";
@@ -28,7 +28,30 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
     scenes: {
       Main: { input, maps },
     },
+    components: { IncomingDamage },
   } = layer;
+
+  const commitIncomingDamage = (attacker: Entity, defender: Entity) => {
+    const incomingDamage = getComponentValue(IncomingDamage, defender);
+    if (!incomingDamage) return;
+
+    const commitments = incomingDamage.commitments;
+    const sources = incomingDamage.sources;
+
+    for (let i = 0; i < incomingDamage.sources.length; i++) {
+      const source = sources[i];
+      const commitment = incomingDamage.commitments[i];
+
+      if (source === attacker && commitment === 0) {
+        commitments[i] = 1;
+      }
+    }
+
+    setComponent(IncomingDamage, defender, {
+      ...incomingDamage,
+      commitments,
+    });
+  };
 
   const onClick = function (clickedPosition: WorldCoord) {
     const selectedEntity = getSelectedEntity();
@@ -108,9 +131,13 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
         const nextPosition = getComponentValue(NextPosition, selectedEntity);
 
         if (nextPosition && !worldCoordEq(nextPosition, currentPosition)) {
+          commitIncomingDamage(selectedEntity, highlightedEntity);
+          commitIncomingDamage(highlightedEntity, selectedEntity);
           move(selectedEntity, nextPosition, highlightedEntity);
           resetSelection(false);
         } else if (canAttack(selectedEntity, highlightedEntity)) {
+          commitIncomingDamage(selectedEntity, highlightedEntity);
+          commitIncomingDamage(highlightedEntity, selectedEntity);
           attack(selectedEntity, highlightedEntity);
           resetSelection(false);
         } else {
@@ -142,7 +169,7 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
         return clickingCanvas;
       }),
       map((pointer) => ({ x: pointer.worldX, y: pointer.worldY })),
-      map((pixel) => pixelToWorldCoord(maps.Main, pixel))
+      map((pixel) => pixelToWorldCoord(maps.Main, pixel)),
     )
     .subscribe((coord) => {
       onClick(coord);

@@ -1,14 +1,10 @@
 import {
   defineSystem,
-  Entity,
   getComponentValue,
   Has,
-  HasValue,
   isComponentUpdate,
   Not,
-  NotValue,
   removeComponent,
-  runQuery,
   setComponent,
   UpdateType,
 } from "@latticexyz/recs";
@@ -17,15 +13,14 @@ import { LocalLayer } from "../../types";
 export function createAttackableEntitiesSystem(layer: LocalLayer) {
   const {
     world,
-    components: { Selected, AttackableEntities, LocalPosition, PotentialPath },
+    components: { Selected, AttackableEntities, LocalPosition },
     parentLayers: {
       headless: {
         components: { OnCooldown, NextPosition },
         api: { getAttackableEntities },
       },
       network: {
-        components: { Combat, Untraversable, Range, OwnedBy, RequiresSetup },
-        utils: { getOwningPlayer },
+        components: { Combat, RequiresSetup },
       },
     },
     api: { getAllAttackableEntities },
@@ -52,7 +47,7 @@ export function createAttackableEntitiesSystem(layer: LocalLayer) {
       if (!allAttackableEntities) return;
 
       setComponent(AttackableEntities, entity, { value: [...allAttackableEntities] });
-    }
+    },
   );
 
   /**
@@ -74,7 +69,7 @@ export function createAttackableEntitiesSystem(layer: LocalLayer) {
       if (!attackableEntities) return;
 
       setComponent(AttackableEntities, entity, { value: attackableEntities });
-    }
+    },
   );
 
   defineSystem(
@@ -102,6 +97,6 @@ export function createAttackableEntitiesSystem(layer: LocalLayer) {
 
         setComponent(AttackableEntities, entity, { value: attackableEntities });
       }
-    }
+    },
   );
 }

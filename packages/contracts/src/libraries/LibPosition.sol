@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicense
-pragma solidity >=0.8.21;
+pragma solidity >=0.8.24;
 
 import { Position, PositionData, EntitiesAtPosition } from "../codegen/index.sol";
 import { ArrayLib } from "@latticexyz/world-modules/src/modules/utils/ArrayLib.sol";

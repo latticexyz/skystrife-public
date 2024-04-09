@@ -1,18 +1,15 @@
 import { world } from "./world";
 import mudConfig from "contracts/mud.config";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
-import { ContractWrite, createBurnerAccount, getContract, transportObserver } from "@latticexyz/common";
+import { getContract } from "viem";
+import { ContractWrite, createBurnerAccount, transportObserver } from "@latticexyz/common";
 import { encodeEntity, syncToRecs } from "@latticexyz/store-sync/recs";
 import { map, filter, Subject, share } from "rxjs";
 import { useStore } from "../useStore";
-import { toAccount } from "viem/accounts";
 import { NetworkConfig } from "./utils";
 import { createClock } from "./createClock";
 import { createPublicClient, fallback, webSocket, http, createWalletClient, Hex, ClientConfig, custom } from "viem";
-import { WindowProvider, configureChains, createConfig } from "wagmi";
-import { connectorsForWallets } from "@rainbow-me/rainbowkit";
-import { metaMaskWallet, coinbaseWallet } from "@rainbow-me/rainbowkit/wallets";
-import { publicProvider } from "wagmi/providers/public";
+import { transactionQueue, writeObserver } from "@latticexyz/common/actions";
 import { createWaitForTransaction } from "./waitForTransaction";
 import { createSyncFilters } from "./createSyncFilters";
 import { tables as extraTables, syncFilters as extraSyncFilters } from "./extraTables";
@@ -92,82 +89,29 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
   });
 
   const write$ = new Subject<ContractWrite>();
+  const txQueue = transactionQueue({
+    queueConcurrency: 3,
+  });
+  const onWrite = (write: ContractWrite) => {
+    write$.next(write);
+    const { writes } = useStore.getState();
+    useStore.setState({ writes: [...writes, write] });
+  };
+  const customWalletClient = walletClient.extend(txQueue).extend(writeObserver({ onWrite }));
+
   const worldContract = getContract({
     address: networkConfig.worldAddress as Hex,
     abi: IWorldAbi,
-    publicClient,
-    walletClient,
-    onWrite: (write) => {
-      write$.next(write);
-      const { writes } = useStore.getState();
-      useStore.setState({ writes: [...writes, write] });
-    },
+    client: { public: publicClient, wallet: customWalletClient },
   });
-
-  const initialiseWallet = async (address: Hex | undefined) => {
-    if (!networkConfig.useBurner) {
-      if (address) {
-        if (window.ethereum && window.ethereum.providers && window.ethereum.providers.length > 1) {
-          const metamaskProvider = window.ethereum.providers.find((provider: WindowProvider) => provider.isMetaMask);
-          if (metamaskProvider) window.ethereum = metamaskProvider;
-        }
-
-        if (!window.ethereum) {
-          console.error("No ethereum provider found during wallet initialisation.");
-          return;
-        }
-
-        const externalWalletClient = createWalletClient({
-          chain: networkConfig.chain,
-          transport: custom(window.ethereum),
-          account: toAccount(address),
-        });
-
-        const externalWorldContract = getContract({
-          address: networkConfig.worldAddress as Hex,
-          abi: IWorldAbi,
-          publicClient,
-          walletClient: externalWalletClient,
-          onWrite: (write) => {
-            const { writes } = useStore.getState();
-            useStore.setState({ writes: [...writes, write] });
-          },
-        });
-
-        useStore.setState({ externalWalletClient, externalWorldContract });
-      } else {
-        useStore.setState({ externalWalletClient: null, externalWorldContract: null });
-      }
-    }
-  };
 
   // If flag is set, use the burner key as the "External" wallet
   if (networkConfig.useBurner) {
-    const externalWalletClient = walletClient;
+    const externalWalletClient = customWalletClient;
     const externalWorldContract = worldContract;
 
     useStore.setState({ externalWalletClient, externalWorldContract });
   }
-
-  const { chain } = publicClient;
-  const chainCopy = { ...chain };
-  if (chainCopy.fees) {
-    delete chainCopy.fees; // Delete the BigInt property as it cannot be serialised by Wagmi
-  }
-  const { chains } = configureChains([chainCopy], [publicProvider()]);
-
-  const connectors = connectorsForWallets([
-    {
-      groupName: "Recommended",
-      wallets: [metaMaskWallet({ projectId: "YOUR_PROJECT_ID", chains })],
-    },
-  ]);
-
-  const wagmiConfig = createConfig({
-    autoConnect: true,
-    connectors,
-    publicClient,
-  });
 
   return {
     world,
@@ -180,12 +124,10 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
     networkConfig,
     matchEntity: networkConfig.matchEntity,
     clock,
-    initialiseWallet,
     write$: write$.asObservable().pipe(share()),
     latestBlock$,
     storedBlockLogs$,
-    chains,
-    wagmiConfig,
+    chains: [networkConfig.chain],
     responseTime: {
       updateMeanResponseTime,
       getMeanResponseTime,

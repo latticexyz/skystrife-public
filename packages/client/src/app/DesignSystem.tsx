@@ -9,24 +9,24 @@ export function DesignSystem() {
     <div className="bg-slate-200 min-h-screen h-fit">
       <div className="p-8">
         <OverlineLarge>Buttons</OverlineLarge>
-        <Button buttonType={"primary"}>Primary</Button> &nbsp;
-        <Button buttonType={"primary"} size="lg">
+        <Button buttonType="primary">Primary</Button> &nbsp;
+        <Button buttonType="primary" size="lg">
           Primary Large
         </Button>{" "}
         &nbsp;
-        <Button buttonType={"primary"} disabled>
+        <Button buttonType="primary" disabled>
           Disabled
         </Button>
         <br />
         <br />
-        <Button buttonType={"secondary"}>Secondary Medium</Button>&nbsp;
-        <Button buttonType={"secondary"} disabled>
+        <Button buttonType="secondary">Secondary Medium</Button>&nbsp;
+        <Button buttonType="secondary" disabled>
           Disabled
         </Button>
         <br />
         <br />
-        <Button buttonType={"tertiary"}>Tertiary</Button>&nbsp;
-        <Button buttonType={"tertiary"} disabled>
+        <Button buttonType="tertiary">Tertiary</Button>&nbsp;
+        <Button buttonType="tertiary" disabled>
           Disabled
         </Button>
       </div>
@@ -53,11 +53,11 @@ export function DesignSystem() {
 
           <div className="mb-4"></div>
 
-          <Button buttonType={"secondary"} className="w-full">
+          <Button buttonType="secondary" className="w-full">
             Join
           </Button>
           <div className="mb-2"></div>
-          <Button buttonType={"tertiary"} className="w-full">
+          <Button buttonType="tertiary" className="w-full">
             Spectate
           </Button>
         </Card>
@@ -68,7 +68,7 @@ export function DesignSystem() {
           <OverlineLarge>Card / Primary</OverlineLarge>
 
           <div className="mb-4"></div>
-          <Button buttonType={"tertiary"} className="w-full">
+          <Button buttonType="tertiary" className="w-full">
             Spectate
           </Button>
         </Card>

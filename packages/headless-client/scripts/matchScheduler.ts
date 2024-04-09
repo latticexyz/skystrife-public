@@ -9,6 +9,9 @@ import { SEASON_PASS_ONLY_SYSTEM_ID } from "client/src/constants";
 import { z } from "zod";
 
 /**
+ * Be sure to use the Sky Strife Holder private key for this script.
+ * Use the PRIVATE_KEY environment variable to set it.
+ *
  * This script is designed to be run any time and will create all matches in the current
  * 24 hour window. Running it multiple times in the same window will not create
  * duplicate matches.
@@ -19,19 +22,9 @@ import { z } from "zod";
 
 // matchName, levelName, seasonPassOnly
 const matchesToCreate = [
-  ["Knife Fight (Free)", "Knife_Fight_2", false],
-  ["Knife Fight (Free)", "Knife_Fight_2", false],
-  ["Knife Fight (Free)", "Knife_Fight_2", false],
-  ["Knife Fight (Free)", "Knife_Fight_2", false],
-  ["Knife Fight (Free)", "Knife_Fight_2", false],
   ["Cauldron (Free)", "Cauldron-2", false],
-  ["Cauldron (Free)", "Cauldron-2", false],
-  ["Cauldron (Free)", "Cauldron-2", false],
-  ["Cauldron (Free)", "Cauldron-2", false],
-  ["Cauldron (Free)", "Cauldron-2", false],
-  ["Pinwheel (SP)", "Pinwheel", true],
-  ["Pinwheel (SP)", "Pinwheel", true],
-  ["Pinwheel (SP)", "Pinwheel", true],
+  ["Antelope (Free)", "Antelope 2", false],
+  ["Isle (SP)", "The Isle", true],
 ] as const;
 
 const {
