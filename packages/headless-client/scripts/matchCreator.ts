@@ -4,12 +4,15 @@ import { Hex, padHex, stringToHex } from "viem";
 import { sleep } from "@latticexyz/utils";
 import { createMatchEntity } from "client/src/createMatchEntity";
 import { getOldestMatchInWindow, getSkypoolConfig } from "client/src/app/amalgema-ui/utils/skypool";
+import { COPY_MAP_SYSTEM_ID, MATCH_SYSTEM_ID } from "client/src/constants";
+import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
+import { encodeSystemCalls } from "@latticexyz/world/internal";
 
 const { networkLayer } = await createSkyStrife();
 
 const {
-  components: { MatchConfig, MatchFinished, LevelTemplates },
-  network: { worldContract, waitForTransaction },
+  components: { MatchConfig, MatchFinished },
+  executeSystem,
 } = networkLayer;
 
 const LEVEL_NAME = env.LEVEL_ID || "GM Island";
@@ -18,15 +21,6 @@ const LEVEL_ID = stringToHex(LEVEL_NAME, { size: 32 });
 
 // eslint-disable-next-line no-constant-condition
 while (true) {
-  if (!getComponentValue(LevelTemplates, LEVEL_ID as Entity)) {
-    console.log(`Level (${LEVEL_NAME}) is not yet available, waiting...`);
-    await sleep(1_000);
-    continue;
-  }
-
-  console.log("Waiting some time to let PostDeploy finish...");
-  await sleep(5_000);
-
   const allMatches = runQuery([Has(MatchConfig), Not(MatchFinished)]);
   const unstartedMatches = [] as Entity[];
 
@@ -45,23 +39,39 @@ while (true) {
     const oldestMatchInWindow = getOldestMatchInWindow(
       networkLayer,
       BigInt(Math.round(Date.now() / 1000)),
-      skypoolConfig.window
+      skypoolConfig.window,
     );
 
     const matchEntity = createMatchEntity();
     try {
       console.log(`Creating match...`);
-      const tx = await worldContract.write.createMatchSkyKey([
-        "debug match",
-        (oldestMatchInWindow as Hex) ?? matchEntity,
-        matchEntity,
-        LEVEL_ID,
-        padHex("0x"),
-        0n,
-        [],
-        0n,
-      ]);
-      await waitForTransaction(tx);
+      const systemCalls = [
+        {
+          systemId: MATCH_SYSTEM_ID,
+          functionName: "createMatchSkyKey",
+          args: [
+            "debug match",
+            (oldestMatchInWindow as Hex) ?? matchEntity,
+            matchEntity,
+            LEVEL_ID,
+            padHex("0x"),
+            0n,
+            [],
+            0n,
+          ],
+        },
+        {
+          systemId: COPY_MAP_SYSTEM_ID,
+          functionName: "copyMap",
+          args: [matchEntity],
+        },
+      ];
+
+      await executeSystem({
+        systemCall: "batchCall",
+        systemId: "CreateMatch",
+        args: [[encodeSystemCalls(IWorldAbi, systemCalls).map(([systemId, callData]) => ({ systemId, callData }))], {}],
+      });
     } catch (e) {
       console.error(e);
     }

@@ -2,6 +2,11 @@ import { Assets, Sprites } from "./phaserConstants";
 import PlayerColors from "../../Local/player-colors.json";
 
 const baseSprites = {
+  [Sprites.Blank]: {
+    assetKey: Assets.MainAtlas,
+    frame: "sprites/blank.png",
+  },
+
   [Sprites.Boot]: {
     assetKey: Assets.MainAtlas,
     frame: "sprites/greyscale/ui/icons/boot.png",

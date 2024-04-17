@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { MatchSweepstake, MatchSweepstakeData, MatchConfig, MatchRewardPercentages, MatchIndexToEntity, LastMatchIndex, MatchIndex, MatchRanking, MatchReward, SkyPoolConfig, OwnedBy, MatchSky } from "../codegen/index.sol";
+import { MatchSweepstake, MatchSweepstakeData, MatchConfig, MatchRewardPercentages, MatchIndexToEntity, LastMatchIndex, MatchIndex, MatchRanking, MatchReward, SkyPoolConfig, CreatedByAddress, MatchSky } from "../codegen/index.sol";
 
 import { hasToken } from "../hasToken.sol";
 import { entityToAddress, getMatch, getLevelSpawnIndices } from "./LibUtils.sol";
@@ -30,7 +30,7 @@ function dispenseRewards(bytes32 matchEntity) {
   // Send basic rewards to owner of the ranking player entities
   for (uint256 i; i < ranking.length; i++) {
     // Transfer tokens from the world to the owner of the player entity
-    bytes32 owner = OwnedBy.get(matchEntity, ranking[i]);
+    bytes32 owner = CreatedByAddress.get(matchEntity, ranking[i]);
     transferTokenFromEscrow(address(escrowContract), entityToAddress(owner), MatchReward.get(matchEntity, i));
   }
 
@@ -41,7 +41,7 @@ function dispenseRewards(bytes32 matchEntity) {
     uint256 baseReward = sweepstakeData.entranceFee * ranking.length;
 
     for (uint256 i; i < ranking.length; i++) {
-      bytes32 owner = OwnedBy.get(matchEntity, ranking[i]);
+      bytes32 owner = CreatedByAddress.get(matchEntity, ranking[i]);
 
       if (sweepstakeData.entranceFee > 0) {
         uint256 reward = (sweepstakeData.rewardPercentages[i] * baseReward) / DENOMINATOR;

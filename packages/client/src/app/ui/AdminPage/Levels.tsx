@@ -5,6 +5,7 @@ import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { Button } from "../Theme/SkyStrife/Button";
 import { Hex, hexToString } from "viem";
 import { CreateLevel } from "./CreateLevel";
+import { LevelDisplay } from "../../amalgema-ui/SummonIsland/LevelDisplay";
 
 function StandardRotation({ levelId }: { levelId: Entity }) {
   const {
@@ -144,7 +145,7 @@ export function Levels() {
         <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
             <th>ID</th>
-            <th>Size</th>
+            <th></th>
             <th>In standard rotation?</th>
             <th>In season pass rotation?</th>
             <th>Official Level?</th>
@@ -152,10 +153,12 @@ export function Levels() {
           </tr>
         </thead>
         <tbody>
-          {levels.map(({ levelId, value }) => (
+          {levels.map(({ levelId }) => (
             <tr key={levelId} className="border-4">
               <td>{hexToString(levelId as Hex)}</td>
-              <td>{value.length}</td>
+              <td className="w-[360px]">
+                <LevelDisplay levelId={levelId} />
+              </td>
               <StandardRotation levelId={levelId} />
               <SeasonPassRotation levelId={levelId} />
               <OfficialLevel levelId={levelId} />

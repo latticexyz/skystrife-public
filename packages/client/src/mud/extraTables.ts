@@ -1,12 +1,14 @@
 import { resourceToHex } from "@latticexyz/common";
 import { SyncFilter } from "@latticexyz/store-sync";
 
-const SEASON_PASS_NAMESPACE = "szn0.3";
+const SEASON_PASS_NAMESPACE = "test_season";
+const ORB_NAMESPACE = "test_orb";
+const SKY_KEY_NAMESPACE = "test_sky_key";
 
 const ERC20RegistryTableId = resourceToHex({ type: "table", namespace: "erc20-puppet", name: "ERC20Registry" });
-const OrbBalancesTableId = resourceToHex({ type: "table", namespace: "Orb", name: "Balances" });
+const OrbBalancesTableId = resourceToHex({ type: "table", namespace: ORB_NAMESPACE, name: "Balances" });
 const SeasonPassBalancesTableId = resourceToHex({ type: "table", namespace: SEASON_PASS_NAMESPACE, name: "Balances" });
-const SkyKeyBalancesTableId = resourceToHex({ type: "table", namespace: "SkyKey", name: "Balances" });
+const SkyKeyBalancesTableId = resourceToHex({ type: "table", namespace: SKY_KEY_NAMESPACE, name: "Balances" });
 const UserDelegationControlTableId = resourceToHex({ type: "table", namespace: "", name: "UserDelegationControl" });
 const SystemboundDelegationsTableId = resourceToHex({ type: "table", namespace: "", name: "SystemboundDelegations" });
 
@@ -44,7 +46,7 @@ export const tables = {
     },
   },
   Orb_Balances: {
-    namespace: "Orb",
+    namespace: ORB_NAMESPACE,
     name: "Balances",
     tableId: OrbBalancesTableId,
     keySchema: {
@@ -66,7 +68,7 @@ export const tables = {
     },
   },
   SkyKey_Balances: {
-    namespace: "SkyKey",
+    namespace: SKY_KEY_NAMESPACE,
     name: "Balances",
     tableId: SkyKeyBalancesTableId,
     keySchema: {

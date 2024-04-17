@@ -185,7 +185,7 @@ export function drawHealthBar(
     for (let i = 0; i < currentHealthTicks; i++) {
       const healthBarTick = objectPool.get(`${entity}-health-tick-${i}`, "Sprite");
       healthBarTick.setComponent({
-        id: `health-tick-${i}`,
+        id: `health-tick`,
         once: (healthBarTick) => {
           healthBarTick.setTexture(healthBarSprite.assetKey, healthBarSprite.frame);
           healthBarTick.setPosition(pixelCoord.x + xOffset + i, pixelCoord.y + yOffset);
@@ -226,7 +226,7 @@ export function drawHealthBar(
       for (let i = 0; i < numHealthLossTicks; i++) {
         const healthBarTick = objectPool.get(`${entity}-health-loss-tick-${i}`, "Sprite");
         healthBarTick.setComponent({
-          id: `health-tick-${i}`,
+          id: `health-tick`,
           once: (incomingDamageTick) => {
             incomingDamageTick.setTexture(healthBarRedSprite.assetKey, healthBarRedSprite.frame);
             incomingDamageTick.setPosition(startX + i, pixelCoord.y + yOffset);
@@ -266,7 +266,7 @@ export function drawHealthBar(
         for (let i = 0; i < numHealthLossTicks; i++) {
           const healthBarTick = objectPool.get(`${entity}-health-loss-anim-tick-${i}`, "Sprite");
           healthBarTick.setComponent({
-            id: `health-tick-${i}`,
+            id: `health-tick`,
             once: (healthBarTick) => {
               healthBarTick.setTexture(healthBarRedSprite.assetKey, healthBarRedSprite.frame);
               healthBarTick.setPosition(startX + i, pixelCoord.y + yOffset);

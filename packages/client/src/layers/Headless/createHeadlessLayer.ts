@@ -47,6 +47,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
       clock,
       components: {
         Combat,
+        CreatedByAddress,
         Movable,
         MoveDifficulty,
         OwnedBy,
@@ -361,7 +362,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
   }
 
   function getPlayerInfo(player: Entity) {
-    const owner = getComponentValue(OwnedBy, player)?.value;
+    const owner = getComponentValue(CreatedByAddress, player)?.value;
     if (!owner) return;
 
     const ownerName = getComponentValue(Name, owner as Entity);

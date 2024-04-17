@@ -6,7 +6,7 @@ import { toSlice, StrCharsIter } from "@dk1a/solidity-stringutils/src/StrSlice.s
 import { System } from "@latticexyz/world/src/System.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-import { Admin, Match, MatchName, MatchIndex, MatchSweepstake, LevelTemplatesIndex, LevelInStandardRotation, LevelInSeasonPassRotation, MatchAccessControl, MatchConfig, MatchSky, MatchConfigData, SkyPoolConfig } from "../codegen/index.sol";
+import { Admin, Match, MatchName, MatchIndex, MatchSweepstake, LevelTemplatesIndex, LevelInStandardRotation, LevelInSeasonPassRotation, MatchAccessControl, MatchConfig, MatchSky, MatchConfigData, SkyPoolConfig, MatchesPerDay } from "../codegen/index.sol";
 import { SpawnSettlementTemplateId } from "../codegen/Templates.sol";
 
 import { addressToEntity, entityToAddress } from "../libraries/LibUtils.sol";
@@ -26,6 +26,8 @@ function getCharLength(string memory str) pure returns (uint256) {
   return chars.count();
 }
 
+uint256 constant MATCHES_PER_DAY_HARD_CAP = 1000;
+
 contract MatchSystem is System {
   modifier worldUnlocked() {
     require(!SkyPoolConfig.getLocked(), "world is locked");
@@ -41,6 +43,12 @@ contract MatchSystem is System {
   ) internal {
     require(getCharLength(name) <= 24, "name too long");
     require(MatchConfig.getTurnLength(matchEntity) == 0, "this match already exists");
+
+    uint256 day = block.timestamp / 1 days;
+    uint256 matchesToday = MatchesPerDay.get(day);
+    require(matchesToday < MATCHES_PER_DAY_HARD_CAP, "too many matches created today");
+
+    MatchesPerDay.set(day, matchesToday + 1);
 
     bytes32 createdBy = addressToEntity(_msgSender());
 

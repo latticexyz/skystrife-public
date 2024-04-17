@@ -7,7 +7,7 @@ import { useExternalAccount } from "./useExternalAccount";
 export const useExternalInMatch = (matchEntity: Entity) => {
   const {
     networkLayer: {
-      components: { Match, OwnedBy, Player },
+      components: { Match, CreatedByAddress, Player },
     },
   } = useMUD();
 
@@ -16,7 +16,7 @@ export const useExternalInMatch = (matchEntity: Entity) => {
   const players = useEntityQuery([
     Has(Player),
     HasValue(Match, { matchEntity }),
-    HasValue(OwnedBy, {
+    HasValue(CreatedByAddress, {
       value: address ? addressToEntityID(address) : "",
     }),
   ]);

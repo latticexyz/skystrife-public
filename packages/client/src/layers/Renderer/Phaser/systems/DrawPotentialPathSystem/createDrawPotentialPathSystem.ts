@@ -29,7 +29,7 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
     components: { HoverHighlight },
     parentLayers: {
       network: {
-        components: { OwnedBy, Combat, Transaction },
+        components: { OwnedBy, Combat, Action },
         utils: { isOwnedByCurrentPlayer, getOwningPlayer },
       },
       local: {
@@ -94,7 +94,7 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
       to,
       100_000,
       curry(getMovementDifficulty)(LocalPosition),
-      curry(isUntraversable)(LocalPosition, player)
+      curry(isUntraversable)(LocalPosition, player),
     );
 
     unitPath.unshift(from);
@@ -160,10 +160,10 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
         zip(potentialPath.x, potentialPath.y).map(([x, y]) => {
           if (x === undefined || y === undefined) return null;
           return { x, y };
-        })
+        }),
       );
       const hoveringOverPotentialPath = potentialPathCoords.find(
-        ({ x, y }) => x === hoverHighlight.x && y === hoverHighlight.y
+        ({ x, y }) => x === hoverHighlight.x && y === hoverHighlight.y,
       );
       const hoveredAttackableEntities = [
         ...runQuery([
@@ -203,14 +203,14 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
   });
 
   const tweens = {} as Record<Entity, Phaser.Tweens.Tween>;
-  Transaction.update$.subscribe((update) => {
+  Action.update$.subscribe((update) => {
     const [currentValue] = update.value;
     if (!currentValue) return;
 
     const { entity } = currentValue;
     if (!entity) return;
 
-    if (["submitted", "pending"].includes(currentValue.status)) {
+    if (["pending"].includes(currentValue.status)) {
       const moveArrow = entityToPathObjects[entity]?.linesNext;
       if (moveArrow && !tweens[entity]) {
         const blinkTween = phaserScene.add.tween({
@@ -226,7 +226,7 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
       }
     }
 
-    if (["reverted", "completed"].includes(currentValue.status)) {
+    if (["failed", "completed"].includes(currentValue.status)) {
       if (tweens[entity]) {
         tweens[entity].destroy();
         delete tweens[entity];

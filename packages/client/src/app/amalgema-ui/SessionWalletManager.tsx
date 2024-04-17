@@ -1,10 +1,9 @@
-import { parseEther } from "viem";
+import { formatEther, parseEther } from "viem";
 import { EthInput, ReadOnlyTextInput } from "./SummonIsland/common";
-import { LOW_BALANCE_THRESHOLD, useBurnerBalance } from "./hooks/useBurnerBalance";
+import { LOW_BALANCE_THRESHOLD, useBalance } from "./hooks/useBalance";
 import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Modal } from "./Modal";
 import { useAmalgema } from "../../useAmalgema";
-import { useMainWalletBalance } from "./hooks/useMainWalletBalance";
 import { Body } from "../ui/Theme/SkyStrife/Typography";
 import { PromiseButton } from "../ui/hooks/PromiseButton";
 import { useState } from "react";
@@ -42,8 +41,8 @@ function LowBalanceWarning() {
           <div className="text-[#BF1818] font-medium">Session wallet running low</div>
         </div>
         <Body className="text-ss-text-default">
-          Your session wallet balance is below the recommended minimum of 0.001 ETH. Top up now or you will not be able
-          to play matches!
+          Your session wallet balance is below the recommended minimum of{" "}
+          {formatEther(LOW_BALANCE_THRESHOLD).toString()} ETH. Top up now or you will not be able to play matches!
         </Body>
       </div>
     </div>
@@ -60,8 +59,8 @@ export function SessionWalletManager() {
   const mainWalletAddress = externalWalletClient?.account?.address ?? "0x00";
   const burnerWalletAddress = walletClient.account.address;
 
-  const burnerBalance = useBurnerBalance();
-  const mainWalletBalance = useMainWalletBalance();
+  const burnerBalance = useBalance(burnerWalletAddress);
+  const mainWalletBalance = useBalance(mainWalletAddress);
 
   const [transferAmount, setTransferAmount] = useState<number | null>(0);
 
@@ -73,7 +72,7 @@ export function SessionWalletManager() {
         label="Session Wallet Balance"
       />
 
-      {!import.meta.env.DEV && burnerBalance?.belowMinimum && (
+      {burnerBalance?.belowMinimum && (
         <>
           <div className="h-2" />
           <LowBalanceWarning />
@@ -145,7 +144,7 @@ export function SessionWalletManager() {
           className="w-full"
           buttonType="primary"
         >
-          top up session wallet
+          top up session wallet with 0.001 ETH
         </PromiseButton>
 
         <div className="h-3" />
@@ -199,9 +198,9 @@ export function SessionWalletManager() {
           </PromiseButton>
         </div>
 
-        <div className="h-3" />
+        <div className="h-8" />
 
-        <div className="mx-auto w-fit text-ss-text-x-light">or</div>
+        <div className="w-fit text-red-600 text-2xl">Danger Zone:</div>
 
         <div className="h-3" />
 
@@ -216,6 +215,11 @@ export function SessionWalletManager() {
                 if (!externalWorldContract || !externalWalletClient || !externalWalletClient.account) {
                   throw new Error("No external wallet connected");
                 }
+
+                const yes = confirm(
+                  "Are you absolutely sure you want to generate a new session wallet? You will be unable to finish any in-progress matches.",
+                );
+                if (!yes) return;
 
                 let value = burnerBalance.value ?? 0n;
                 if (value > parseEther("0.0001")) {

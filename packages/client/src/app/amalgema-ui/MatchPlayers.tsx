@@ -11,7 +11,7 @@ import { encodeMatchEntity } from "../../encodeMatchEntity";
 
 export function MatchPlayers({ matchEntity }: { matchEntity: Entity }) {
   const {
-    components: { MatchConfig, SpawnReservedBy, OwnedBy },
+    components: { MatchConfig, SpawnReservedBy, CreatedByAddress },
     utils: { getLevelSpawns },
   } = useAmalgema();
 
@@ -24,7 +24,7 @@ export function MatchPlayers({ matchEntity }: { matchEntity: Entity }) {
       {spawns.map((index, i) => {
         const spawnReserved = hasComponent(
           SpawnReservedBy,
-          encodeEntity(SpawnReservedBy.metadata.keySchema, { matchEntity: matchEntity as Hex, index })
+          encodeEntity(SpawnReservedBy.metadata.keySchema, { matchEntity: matchEntity as Hex, index }),
         );
 
         return (
@@ -33,7 +33,7 @@ export function MatchPlayers({ matchEntity }: { matchEntity: Entity }) {
             className={twMerge(
               "h-[24px] w-full border border-ss-white",
               spawnReserved ? "bg-ss-blue" : "bg-ss-bg-0",
-              i === 0 ? "rounded-l-md" : i === spawns.length - 1 ? "rounded-r-md" : ""
+              i === 0 ? "rounded-l-md" : i === spawns.length - 1 ? "rounded-r-md" : "",
             )}
           >
             {spawnReserved && (
@@ -56,7 +56,7 @@ export function MatchPlayers({ matchEntity }: { matchEntity: Entity }) {
               {spawns.map((index, i) => {
                 const spawnReservedBy = getComponentValue(
                   SpawnReservedBy,
-                  encodeEntity(SpawnReservedBy.metadata.keySchema, { matchEntity: matchEntity as Hex, index })
+                  encodeEntity(SpawnReservedBy.metadata.keySchema, { matchEntity: matchEntity as Hex, index }),
                 );
 
                 if (!spawnReservedBy) {
@@ -69,7 +69,7 @@ export function MatchPlayers({ matchEntity }: { matchEntity: Entity }) {
                 }
 
                 const player = encodeMatchEntity(matchEntity, spawnReservedBy.value);
-                const owner = getComponentValue(OwnedBy, player as Entity);
+                const owner = getComponentValue(CreatedByAddress, player as Entity);
 
                 return (
                   <div key={`spawn-${i}`} className="flex justify-between">

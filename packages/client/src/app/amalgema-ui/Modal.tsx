@@ -62,7 +62,7 @@ export const Modal = ({
           }}
           className="fixed top-0 left-0 w-screen h-screen flex flex-col justify-around"
         >
-          <Dialog.Content className="my-32 mx-auto w-[640px] min-h-min max-h-full overflow-y-scroll">
+          <Dialog.Content className="my-16 mx-auto w-[640px] min-h-min max-h-full overflow-y-scroll">
             <Card className="relative w-full h-full p-0">
               <div className="absolute top-0 left-0 flex flex-row justify-between items-center bg-white w-full pt-8 p-6 pb-4 border-b border-ss-stroke z-50">
                 <Dialog.Title asChild>

@@ -19,6 +19,10 @@ function calculateCurrentPrice() view returns (uint256 price) {
   uint256 minPrice = SeasonPassConfig.getMinPrice();
   uint256 rate = SeasonPassConfig.getRate();
 
+  if (rate == 0) {
+    return startingPrice;
+  }
+
   uint256 lastSaleAt = SeasonPassLastSaleAt.get();
   // This cannot overflow because block.timestamp is always ahead of last sale
   uint256 timeSinceLastSale = block.timestamp - lastSaleAt;

@@ -41,7 +41,7 @@ export function useIsAllowed(matchEntity: Entity) {
           externalWalletClient &&
           externalWalletClient.account &&
           entity === matchEntity &&
-          account === externalWalletClient.account.address
+          account === externalWalletClient.account.address,
       );
   }
 
@@ -94,12 +94,6 @@ export function useJoinMatch(matchEntity: Entity, hero: Hex) {
     if (!externalWorldContract) return;
     if (externalWalletClient.account?.address === undefined) return;
 
-    // Try add chain for external wallets, in case they are on the wrong network
-    if (externalWalletClient.account && externalWalletClient.transport.type === "custom") {
-      await externalWalletClient.addChain({ chain: publicClient.chain });
-      await externalWalletClient.switchChain({ id: publicClient.chain.id });
-    }
-
     const spawns = getAvailableLevelSpawns(matchConfig.levelId, matchEntity as Hex);
 
     const spawn = spawns[Math.floor(Math.random() * spawns.length)];
@@ -107,13 +101,18 @@ export function useJoinMatch(matchEntity: Entity, hero: Hex) {
     const hasDelegation = hasSystemDelegation(
       externalWalletClient.account.address,
       walletClient.account.address,
-      LOBBY_SYSTEM_ID
+      LOBBY_SYSTEM_ID,
     );
 
     if (hasDelegation) {
       await executeSystemWithExternalWallet({
         systemCall: "register",
-        args: [[matchEntity as Hex, spawn, hero]],
+        args: [
+          [matchEntity as Hex, spawn, hero],
+          {
+            account: externalWalletClient.account.address,
+          },
+        ],
       });
     } else {
       await executeSystemWithExternalWallet({
@@ -130,6 +129,9 @@ export function useJoinMatch(matchEntity: Entity, hero: Hex) {
               ...getDelegationSystemCalls(walletClient.account.address),
             ]).map(([systemId, callData]) => ({ systemId, callData })),
           ],
+          {
+            account: externalWalletClient.account.address,
+          },
         ],
       });
     }
@@ -145,7 +147,6 @@ export function useJoinMatch(matchEntity: Entity, hero: Hex) {
     matchConfig,
     matchEntity,
     openConnectModal,
-    publicClient.chain,
     walletClient.account.address,
   ]);
 }

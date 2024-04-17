@@ -5,7 +5,7 @@
     },
     "textures": [
         {
-            "image": "atlas.png?timestamp=1712268160639",
+            "image": "atlas.png?timestamp=1712884866929",
             "format": "RGBA8888",
             "size": {
                 "w": 2048,
@@ -50306,6 +50306,27 @@
                         "y": 1237,
                         "w": 1,
                         "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/blank.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 1,
+                        "h": 1
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 1,
+                        "h": 1
+                    },
+                    "frame": {
+                        "x": 1210,
+                        "y": 1958,
+                        "w": 1,
+                        "h": 1
                     }
                 },
                 {

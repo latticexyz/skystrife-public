@@ -28,7 +28,7 @@ export function ExternalWalletProvider({ networkConfig, children }: Props) {
           const { writes } = useStore.getState();
           useStore.setState({ writes: [...writes, write] });
         },
-      })
+      }),
     );
 
     // TODO: centralize this somewhere

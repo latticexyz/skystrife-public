@@ -18,13 +18,14 @@ import { BUILD_SYSTEM_ID, LOBBY_SYSTEM_ID, NAME_SYSTEM_ID, PLAYER_REGISTER_SYSTE
 import { SessionWalletManager } from "../../amalgema-ui/SessionWalletManager";
 import { useExternalAccount } from "../hooks/useExternalAccount";
 import { getDelegationSystemCalls } from "../../../getDelegationSystemCalls";
-import { useBurnerBalance } from "../../amalgema-ui/hooks/useBurnerBalance";
+import { useBurnerBalance } from "../../amalgema-ui/hooks/useBalance";
 import { useOrbBalance } from "../../amalgema-ui/hooks/useOrbBalance";
 import { LabeledOrbInput } from "../../amalgema-ui/SummonIsland/common";
 import { HeroSelect } from "../../amalgema-ui/HeroSelect";
 import { useIsAllowed } from "../../amalgema-ui/MatchTable/hooks";
 import { SeasonPassIcon } from "../../amalgema-ui/SeasonPassIcon";
 import { JoinModal } from "../../amalgema-ui/MatchTable/JoinModal";
+import { useNameIsValid } from "../../amalgema-ui/hooks/useNameIsValid";
 
 function ChainSVG({ onClick }: { onClick?: () => void }) {
   const [hover, setHover] = useState(false);
@@ -94,9 +95,6 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
   const playerReadys = useEntityQuery([Has(PlayerReady), HasValue(Match, { matchEntity })]);
   const currentPlayerReady = Boolean(playerReadys.find((i) => i === currentPlayer?.player));
 
-  const otherNames = useEntityQuery([Has(Name)]).map((entity) => getComponentValue(Name, entity)?.value);
-  const nameTaken = otherNames.includes(newName);
-
   const matchConfig = useComponentValue(MatchConfig, matchEntity);
   const levelId = matchConfig?.levelId;
 
@@ -148,9 +146,10 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
                 IWorldAbi,
                 hasDelegation
                   ? systemCalls
-                  : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)]
+                  : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)],
               ).map(([systemId, callData]) => ({ systemId, callData })),
             ],
+            { account: address },
           ],
         });
       } catch (e) {
@@ -170,7 +169,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
           systemId: LOBBY_SYSTEM_ID,
           functionName: "toggleReady",
           args: [matchEntity as Hex],
-        })
+        }),
       );
     } else {
       // otherwise return a promise to satisfy button types
@@ -181,21 +180,21 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
           systemId: LOBBY_SYSTEM_ID,
           functionName: "toggleReady",
           args: [matchEntity as Hex],
-        })
+        }),
       );
     }
   };
 
+  const { nameValid, nameValidityMessage } = useNameIsValid(newName);
+
   let disabledMessage = "";
-  if (newName.length === 0) disabledMessage = "Pick a name";
-  if (newName.length > 32) disabledMessage = "Name too long";
-  if (nameTaken) disabledMessage = "Name taken";
+  if (!nameValid) disabledMessage = nameValidityMessage;
   if (orbBalance < matchRewards.entranceFee) disabledMessage = `Cannot pay ${entranceFeeEth}🔮`;
   if (!isAllowed && isSeasonPassOnly) disabledMessage = "Season Pass hodlers only";
   if (!isAllowed && hasAllowList) disabledMessage = "You are not on the access list";
 
   let registerDisabled = false;
-  if (newName.length === 0 || newName.length > 32 || (nameTaken && name?.value !== newName)) registerDisabled = true;
+  if (!nameValid) registerDisabled = true;
   if (orbBalance < matchRewards.entranceFee) registerDisabled = true;
   if (!isAllowed) registerDisabled = true;
 
@@ -224,9 +223,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
               disabled={Boolean(pendingTx || currentPlayer?.player)}
               value={newName}
               onChange={(e) => {
-                let name = e.target.value;
-                if (name.length > 32) name = name.slice(0, 32);
-
+                const name = e.target.value;
                 setNewName(name);
                 return false;
               }}

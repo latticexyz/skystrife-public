@@ -84,7 +84,7 @@ const SeasonCountdown = () => {
   }
   const timeLeftMessage = `${pluralize(days, "day")}, ${pluralize(hours, "hour")}, ${pluralize(
     minutes,
-    "minute"
+    "minute",
   )}, and ${pluralize(Math.floor(seconds), "second")}`;
 
   const countdown = (

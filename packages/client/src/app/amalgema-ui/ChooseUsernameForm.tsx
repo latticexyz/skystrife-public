@@ -1,13 +1,13 @@
-import { useComponentValue, useEntityQuery } from "@latticexyz/react";
+import { useComponentValue } from "@latticexyz/react";
 import { useAmalgema } from "../../useAmalgema";
 import { useExternalAccount } from "./hooks/useExternalAccount";
 import { addressToEntityID } from "../../mud/setupNetwork";
-import { Entity, Has, getComponentValue } from "@latticexyz/recs";
-import { useEffect, useState } from "react";
+import { Entity } from "@latticexyz/recs";
+import { useState } from "react";
 import { Body, Heading } from "../ui/Theme/SkyStrife/Typography";
 import { NetworkStatus } from "./NetworkStatus";
-import { AnalyticsConsentForm } from "../AnalyticsConsentForm";
 import { PromiseButton } from "../ui/hooks/PromiseButton";
+import { useNameIsValid } from "./hooks/useNameIsValid";
 
 export function ChooseUsernameForm() {
   const {
@@ -18,30 +18,11 @@ export function ChooseUsernameForm() {
 
   const { address } = useExternalAccount();
   const name = useComponentValue(Name, address ? addressToEntityID(address) : ("0" as Entity))?.value;
-  const allNames = useEntityQuery([Has(Name)]).map((e) => getComponentValue(Name, e)?.value);
 
   const [newName, setNewName] = useState(name ?? "");
-
-  const nameTaken = allNames.includes(newName);
-
-  const nameIncludesWhitespaces = [" ", "\t", "\n", "\r"].some((char) => newName.includes(char));
-
-  useEffect(() => {
-    if (newName.length > 32) setNewName(newName.slice(0, 32));
-  }, [newName]);
+  const { nameValid, nameValidityMessage } = useNameIsValid(newName);
 
   if (!externalWorldContract || !address) return;
-
-  let disabledMessage = "";
-  if (nameTaken) {
-    disabledMessage = "Name taken";
-  } else if (newName.length === 0) {
-    disabledMessage = "Save and Continue";
-  } else if (nameIncludesWhitespaces) {
-    disabledMessage = "No whitespaces allowed";
-  }
-
-  const disabled = nameTaken || newName.length === 0 || nameIncludesWhitespaces;
 
   return (
     <div>
@@ -56,7 +37,7 @@ export function ChooseUsernameForm() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (!disabled) {
+          if (!nameValid) {
             executeSystemWithExternalWallet({
               systemCall: "setName",
               args: [[newName], { account: address }],
@@ -86,7 +67,7 @@ export function ChooseUsernameForm() {
       <div className="flex">
         <PromiseButton
           buttonType="primary"
-          disabled={disabled}
+          disabled={!nameValid}
           promise={() => {
             return executeSystemWithExternalWallet({
               systemCall: "setName",
@@ -95,7 +76,7 @@ export function ChooseUsernameForm() {
           }}
           className="uppercase grow"
         >
-          {disabledMessage || "Save and Continue"}
+          {nameValidityMessage || "Save and Continue"}
         </PromiseButton>
       </div>
     </div>

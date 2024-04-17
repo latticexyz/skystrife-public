@@ -42,6 +42,8 @@ export enum Assets {
 }
 
 export enum Sprites {
+  Blank,
+
   Settlement,
   SpawnSettlement,
   Gold,

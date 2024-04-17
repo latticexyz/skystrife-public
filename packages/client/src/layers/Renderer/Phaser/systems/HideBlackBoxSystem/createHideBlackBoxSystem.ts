@@ -3,28 +3,29 @@ import { PhaserLayer } from "../../types";
 
 export function createHideBlackBoxSystem(layer: PhaserLayer) {
   const {
-    world,
     scenes: {
       Main: { phaserScene, objectPool },
     },
   } = layer;
 
   setInterval(() => {
+    let numRemoved = 0;
+
     phaserScene.children.getAll().forEach((gameObject) => {
       if (gameObject instanceof Phaser.GameObjects.Sprite) {
-        if (gameObject.texture.key === "__MISSING") {
+        if (gameObject.texture.key === "MainAtlas" && gameObject.frame.name === "sprites/blank.png") {
           const id = gameObject.getData("objectPoolId");
 
-          console.warn(`[HideBlackBoxSystem] despawn object ${id} because of missing texture`);
-          console.warn(`[HideBlackBoxSystem] components:`);
-          const components = getEntityComponents(world, id as Entity).reduce((acc, component) => {
-            acc[component.id] = getComponentValue(component, id as Entity);
-            return acc;
-          }, {} as Record<string, unknown>);
-          console.table(components);
-          objectPool.remove(id);
+          if (id) {
+            objectPool.remove(id);
+            numRemoved++;
+          }
         }
       }
     });
-  }, 1000);
+
+    if (numRemoved > 0) {
+      console.warn(`Removed ${numRemoved} orphaned game objects.`);
+    }
+  }, 10_000);
 }

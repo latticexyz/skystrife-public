@@ -59,6 +59,13 @@ function getOwningPlayer(bytes32 matchEntity, bytes32 entity) view returns (byte
   return 0;
 }
 
+function isOwnedByAddress(bytes32 matchEntity, bytes32 entity, address owner) view returns (bool) {
+  bytes32 owningPlayer = getOwningPlayer(matchEntity, entity);
+  bytes32 player = playerFromAddress(matchEntity, owner);
+
+  return owningPlayer == player;
+}
+
 function isOwnedBy(bytes32 matchEntity, bytes32 entity, bytes32 owner) view returns (bool) {
   if (Admin.get(owner)) return true;
   if (entity == owner) return true;

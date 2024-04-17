@@ -1,7 +1,7 @@
 import prompts from "prompts";
 import fs from "fs/promises";
 import path from "path";
-import { exec } from "child_process";
+import { exec, execSync } from "child_process";
 import { supportedChains } from "client/src/mud/supportedChains";
 import worlds from "./worlds.json";
 
@@ -34,7 +34,8 @@ import worlds from "./worlds.json";
   const contractName = migrationName.split("_")[1].split(".")[0];
 
   const foundryChain = supportedChains.find((chain) => chain.id === 31337);
-  const redstoneChain = supportedChains.find((chain) => chain.id === 17001);
+  const garnetChain = supportedChains.find((chain) => chain.id === 17069);
+  const redstoneChain = supportedChains.find((chain) => chain.id === 690);
 
   const chainChoice = await prompts({
     type: "select",
@@ -46,7 +47,11 @@ import worlds from "./worlds.json";
         value: foundryChain,
       },
       {
-        title: "Redstone",
+        title: "Garnet",
+        value: garnetChain,
+      },
+      {
+        title: "Redstone Mainnet",
         value: redstoneChain,
       },
     ],
@@ -65,13 +70,23 @@ import worlds from "./worlds.json";
   const worldAddress = worlds[chainChoice.chain.id as keyof typeof worlds]?.address;
   if (!worldAddress) throw new Error(`No world address found for chain ${chainChoice.chain.id}`);
 
+  const gasPriceCommand = `cast gas-price --rpc-url "${chainChoice.chain.rpcUrls.default.http[0]}"`;
+  console.log(`Running: ${gasPriceCommand}`);
+  const gasPriceOutput = execSync(gasPriceCommand).toString();
+  const gasPrice = parseInt(gasPriceOutput);
+
+  if (isNaN(gasPrice)) {
+    throw new Error("Failed to get gas price");
+  }
+  console.log(`Gas price: ${gasPrice}`);
+
   const forgeScriptCommand = `${
     chainChoice.chain.id === foundryChain?.id
       ? "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 "
       : ""
-  }forge script --sig "run(address)" --rpc-url "${chainChoice.chain.rpcUrls.default.http[0]}"${
-    broadcast.value ? " --broadcast" : ""
-  } migrations/${migrationName}:${contractName} ${worldAddress}`;
+  }forge script --with-gas-price ${gasPrice} --sig "run(address)" --rpc-url "${
+    chainChoice.chain.rpcUrls.default.http[0]
+  }"${broadcast.value ? " --broadcast" : ""} migrations/${migrationName}:${contractName} ${worldAddress}`;
 
   // exec command
   console.log(`Running: ${forgeScriptCommand}`);

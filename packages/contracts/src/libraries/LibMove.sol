@@ -3,7 +3,7 @@ pragma solidity >=0.8.24;
 
 import { Bytes } from "@latticexyz/store/src/Bytes.sol";
 
-import { isOwnedBy, manhattan, getIndicesAtPosition } from "./LibUtils.sol";
+import { isOwnedByAddress, manhattan, getIndicesAtPosition, entityToAddress } from "./LibUtils.sol";
 
 import { StructureTypes } from "../codegen/common.sol";
 
@@ -14,7 +14,7 @@ function moveIsBlocked(bytes32 matchEntity, bytes32 playerAddress, PositionData[
   for (uint256 i; i < entities.length; i++) {
     bytes32 entity = entities[i];
     if (Untraversable.get(matchEntity, entity)) {
-      require(isOwnedBy(matchEntity, entity, playerAddress), "cannot move through enemies");
+      require(isOwnedByAddress(matchEntity, entity, entityToAddress(playerAddress)), "cannot move through enemies");
       require(StructureType.get(matchEntity, entity) == StructureTypes.Unknown, "cannot move through structures");
 
       require(pathIndex != path.length - 1, "cannot finish movement on an Untraversable entity");

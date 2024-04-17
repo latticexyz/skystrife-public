@@ -190,7 +190,7 @@ export const createSystemExecutor = ({
 
     updateComponent(components.Transaction, txEntity, {
       submittedTimestamp: BigInt(Date.now()),
-      clientSubmittedTimestamp: BigInt(network.clock.currentTime * 1000),
+      clientSubmittedTimestamp: BigInt(network.clock.currentTime),
     });
 
     let gasEstimate = 0n;

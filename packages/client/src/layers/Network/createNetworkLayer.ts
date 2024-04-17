@@ -172,7 +172,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
     console.log(
       `Moving entity ${attacker} to position (${path[path.length - 1].x}, ${
         path[path.length - 1].y
-      }) and attacking entity ${defender}`
+      }) and attacking entity ${defender}`,
     );
 
     const { externalWalletClient } = useStore.getState();
@@ -252,7 +252,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
     }: {
       owner?: Entity;
       matchId?: number;
-    }
+    },
   ) {
     console.log(`Spawning prototype ${prototypeId} at ${JSON.stringify(position)}`);
     const matchId = maybeMatchId ?? currentMatchId ?? -1;
@@ -332,7 +332,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
 
   function getPlayerEntity(
     address: string | undefined,
-    matchEntity: Entity | null = currentMatchEntity
+    matchEntity: Entity | null = currentMatchEntity,
   ): Entity | undefined {
     if (!address) return;
     if (!matchEntity) return;
@@ -340,7 +340,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
     const addressEntity = address as Entity;
     const playerEntity = [
       ...runQuery([
-        HasValue(components.OwnedBy, { value: addressEntity }),
+        HasValue(components.CreatedByAddress, { value: addressEntity }),
         Has(components.Player),
         HasValue(components.Match, { matchEntity }),
       ]),
@@ -459,7 +459,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
     const initialValue: bigint[] = [];
     return templateIds.value.reduce(
       (c, _templateId, i) => (_templateId === templateId ? c.concat(BigInt(i)) : c),
-      initialValue
+      initialValue,
     );
   };
 
@@ -469,7 +469,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
     return getLevelSpawns(levelId).filter((index) => {
       const reserved = hasComponent(
         SpawnReservedBy,
-        encodeEntity(SpawnReservedBy.metadata.keySchema, { matchEntity, index })
+        encodeEntity(SpawnReservedBy.metadata.keySchema, { matchEntity, index }),
       );
 
       return !reserved;
@@ -505,7 +505,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
 
     const { staticData } = getComponentValueStrict(
       components.TemplateContent,
-      encodeEntity(keySchema, { templateId, tableId })
+      encodeEntity(keySchema, { templateId, tableId }),
     );
 
     return decodeData(tableId, staticData as Hex);
@@ -517,7 +517,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
       encodeEntity(components.LevelPosition.metadata.keySchema, {
         levelId,
         index,
-      })
+      }),
     );
   }
 

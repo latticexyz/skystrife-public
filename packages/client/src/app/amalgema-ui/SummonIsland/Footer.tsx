@@ -175,7 +175,7 @@ export function Footer({
           [
             encodeSystemCalls(
               IWorldAbi,
-              hasDelegation ? systemCalls : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)]
+              hasDelegation ? systemCalls : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)],
             ).map(([systemId, callData]) => ({ systemId, callData })),
           ],
         ],
@@ -307,7 +307,7 @@ export function Footer({
           [
             encodeSystemCalls(
               IWorldAbi,
-              hasDelegation ? systemCalls : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)]
+              hasDelegation ? systemCalls : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)],
             ).map(([systemId, callData]) => ({ systemId, callData })),
           ],
         ],
@@ -368,7 +368,7 @@ export function Footer({
           [
             encodeSystemCalls(
               IWorldAbi,
-              hasDelegation ? systemCalls : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)]
+              hasDelegation ? systemCalls : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)],
             ).map(([systemId, callData]) => ({ systemId, callData })),
           ],
         ],
@@ -423,7 +423,7 @@ export function Footer({
           [
             encodeSystemCalls(
               IWorldAbi,
-              hasDelegation ? systemCalls : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)]
+              hasDelegation ? systemCalls : [...systemCalls, ...getDelegationSystemCalls(walletClient.account.address)],
             ).map(([systemId, callData]) => ({ systemId, callData })),
           ],
         ],

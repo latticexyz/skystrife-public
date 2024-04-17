@@ -12,5 +12,8 @@ out = "out"
 extra_output_files = ["abi", "evm.bytecode"]
 fs_permissions = [{ access = "read", path = "./" }]
 
-[profile.redstone-garnet]
+[profile.garnet]
 eth_rpc_url = "https://rpc.garnet.qry.live/"
+
+[profile.redstone]
+eth_rpc_url = "https://rpc.redstonechain.com/"

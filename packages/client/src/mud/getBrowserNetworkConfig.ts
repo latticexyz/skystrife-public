@@ -1,7 +1,6 @@
 import { Wallet } from "ethers";
 import { getChain, getWorldFromChainId } from "./utils";
 import { Entity } from "@latticexyz/recs";
-import { redstoneGarnet } from "./supportedChains";
 
 export const getBurnerWallet = () => {
   const params = new URLSearchParams(window.location.search);
@@ -51,7 +50,7 @@ export const getBurnerWallet = () => {
 export function getNetworkConfig() {
   const params = new URLSearchParams(window.location.search);
 
-  const chainId = Number(params.get("chainId") || (import.meta.env.DEV ? 31337 : redstoneGarnet.id));
+  const chainId = Number(params.get("chainId") || import.meta.env.VITE_CHAIN_ID || 31337);
   const chain = getChain(chainId);
 
   const world = getWorldFromChainId(chain.id);

@@ -4,19 +4,19 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 import { LibGold } from "../libraries/LibGold.sol";
 import { LibMove } from "../libraries/LibMove.sol";
-import { isOwnedBy } from "../libraries/LibUtils.sol";
+import { isOwnedByAddress } from "../libraries/LibUtils.sol";
 import { setPosition } from "../libraries/LibPosition.sol";
 
 import { MatchConfig, Combat, Movable, LastAction, Position, PositionData, RequiresSetup } from "../codegen/index.sol";
 
-import { addressToEntity, matchHasStarted, getOwningPlayer, manhattan } from "../libraries/LibUtils.sol";
+import { matchHasStarted, getOwningPlayer, manhattan, addressToEntity } from "../libraries/LibUtils.sol";
 
 import { LibAttack } from "base/libraries/LibAttack.sol";
 
 contract MoveSystem is System {
   function _act(bytes32 matchEntity, bytes32 entity) internal {
     require(matchHasStarted(matchEntity), "match has not started");
-    require(isOwnedBy(matchEntity, entity, addressToEntity(_msgSender())), "you do not own this unit");
+    require(isOwnedByAddress(matchEntity, entity, _msgSender()), "you do not own this unit");
 
     uint256 lastActionAt = LastAction.get(matchEntity, entity);
     require(

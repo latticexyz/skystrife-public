@@ -4,7 +4,7 @@ import { SyncFilter } from "@latticexyz/store-sync";
 import mudConfig from "contracts/mud.config";
 import { Hex } from "viem";
 
-const MATCH_SPECIFIC_TABLES_NEEDED_IN_AMALGEMA = ["Player", "SpawnReservedBy", "OwnedBy", "LevelContent"];
+const MATCH_SPECIFIC_TABLES_NEEDED_IN_AMALGEMA = ["Player", "SpawnReservedBy", "LevelContent", "CreatedByAddress"];
 
 const EXTRA_MATCH_SPECIFIC_TABLES = ["EntitiesAtPosition", "Match", "Chargers"];
 

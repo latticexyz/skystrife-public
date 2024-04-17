@@ -6,7 +6,7 @@ import { SkyStrifeTest } from "./SkyStrifeTest.sol";
 
 import { LibGold } from "../src/libraries/LibGold.sol";
 
-import { Gold, Player, SpawnPoint, Charger, OwnedBy, LastAction, Chargee } from "../src/codegen/index.sol";
+import { Gold, Player, SpawnPoint, Charger, OwnedBy, LastAction, Chargee, CreatedByAddress } from "../src/codegen/index.sol";
 
 import { addressToEntity } from "../src/libraries/LibUtils.sol";
 
@@ -21,8 +21,8 @@ contract PlayerTest is SkyStrifeTest {
     vm.stopPrank();
 
     assertEq(Player.get(testMatch, player), 1, "did not set Player table");
-    assertEq(Gold.get(testMatch, player), 250, "did not set Gold table");
-    assertEq(OwnedBy.get(testMatch, player), addressToEntity(alice), "did not set OwnedBy table");
+    assertEq(Gold.get(testMatch, player), 500, "did not set Gold table");
+    assertEq(CreatedByAddress.get(testMatch, player), addressToEntity(alice), "did not set CreatedByAddress table");
   }
 
   function testSpawnPlayer() public {
@@ -42,8 +42,7 @@ contract PlayerTest is SkyStrifeTest {
 
     // test gold generation
     vm.warp(block.timestamp + 10 minutes);
-    assertEq(LibGold.getCurrent(testMatch, player), 40250, "did not generate gold");
-
+    assertEq(LibGold.getCurrent(testMatch, player), 40500, "did not generate gold");
     assertEq(Chargee.get(testMatch, spawnPoint), player, "did not set Chargee table");
   }
 }

@@ -17,12 +17,12 @@ import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import { SkyStrifeTest, createPublicMatch, findFirstMatchInWindow } from "./SkyStrifeTest.sol";
 
 import { SpawnSettlementTemplateId, HalberdierTemplateId } from "../src/codegen/Templates.sol";
-import { calculateCurrentPrice, MAX_TOKEN_ID } from "../src/systems/SeasonPassSystem.sol";
+import { calculateCurrentPrice } from "../src/systems/SeasonPassSystem.sol";
 import { dispenseRewards } from "../src/libraries/LibSkyPool.sol";
 import { addressToEntity } from "../src/libraries/LibUtils.sol";
 import { createLevelIndex } from "../src/libraries/levels/createLevel.sol";
 
-import { MatchIndex, MatchConfig, MatchConfigData, MatchRanking, LevelTemplatesIndex, OwnedBy, SkyPoolConfig, SeasonPassConfig, SeasonPassLastSaleAt, MatchSky, MatchReward, LastMatchIndex, MatchRewardPercentages } from "../src/codegen/index.sol";
+import { MatchIndex, MatchConfig, MatchConfigData, MatchRanking, LevelTemplatesIndex, OwnedBy, SkyPoolConfig, SeasonPassConfig, SeasonPassLastSaleAt, MatchSky, MatchReward, LastMatchIndex, MatchRewardPercentages, MatchesPerDay } from "../src/codegen/index.sol";
 
 import { SeasonPassSystem, calculateCurrentPrice } from "../src/systems/SeasonPassSystem.sol";
 
@@ -52,6 +52,9 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
 
     vm.startPrank(alice);
 
+    uint256 day = block.timestamp / 1 days;
+    uint256 matchesToday = MatchesPerDay.get(day);
+
     startGasReport("create public match");
     world.createMatch("match", firstMatchInWindow, matchEntity, LEVEL_ID);
     endGasReport();
@@ -65,6 +68,29 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     assertEq(MatchConfig.get(matchEntity).turnLength, 15);
     assertEq(MatchConfig.get(matchEntity).levelId, LEVEL_ID);
     assertEq(MatchIndex.get(matchEntity), 2);
+
+    assertEq(MatchesPerDay.get(day), matchesToday + 1);
+  }
+
+  function testMatchPerDayHardCap() public {
+    uint256 today = block.timestamp / 1 days;
+
+    prankAdmin();
+    MatchesPerDay.set(today, 1001);
+    vm.stopPrank();
+
+    bytes32 firstMatchInWindow = findFirstMatchInWindow();
+    bytes32 matchEntity;
+
+    vm.startPrank(alice);
+    vm.expectRevert("too many matches created today");
+    world.createMatch("too many", firstMatchInWindow, matchEntity, LEVEL_ID);
+    vm.stopPrank();
+
+    vm.warp(block.timestamp + 1 days);
+
+    bytes32 createdMatch = createPublicMatch(world, "debug");
+    assertEq(MatchConfig.getTurnLength(createdMatch), 15);
   }
 
   function testCreateMatchNameTooLong() public {
@@ -151,8 +177,10 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     IERC721(token).transferFrom(alice, bob, 0);
 
     // Attempt to buy season pass after a sale, without enough value
-    vm.expectRevert("you must pay enough");
-    world.buySeasonPass{ value: value }(bob);
+    if (SeasonPassConfig.getMultiplier() > 100) {
+      vm.expectRevert("you must pay enough");
+      world.buySeasonPass{ value: value }(bob);
+    }
 
     // Buy season pass with multiplied value
     value = (value * SEASON_PASS_PURCHASE_MULTIPLIER_PERCENT) / 100;

@@ -1,5 +1,5 @@
 import { useAmalgema } from "../../useAmalgema";
-import { Body, Caption, Heading, Link } from "../ui/Theme/SkyStrife/Typography";
+import { Body, Caption, Heading } from "../ui/Theme/SkyStrife/Typography";
 import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Hex, formatEther } from "viem";
 import { useSeasonPassExternalWallet } from "./hooks/useSeasonPass";
@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { PromiseButton } from "../ui/hooks/PromiseButton";
 import { DateTime, Duration } from "luxon";
 import { Modal } from "./Modal";
-import { useMainWalletBalance } from "./hooks/useMainWalletBalance";
+import { useMainWalletBalance } from "./hooks/useBalance";
 import { SEASON_NAME } from "../../constants";
 import { SeasonPassImg } from "./SeasonPassImg";
 import { Has, getComponentValue } from "@latticexyz/recs";
@@ -61,15 +61,6 @@ export function SeasonPass({ account }: { account?: Hex }) {
     .sort((a, b) => Number(b?.purchasedAt) - Number(a?.purchasedAt));
   const mostRecentSale = seasonPassSales[0]!;
 
-  const [enableSlippage, setEnableSlippage] = useState(false);
-  const [slippage, setSlippage] = useState(10); // 10%
-
-  useEffect(() => {
-    if (!enableSlippage) return;
-
-    setSlippage(10);
-  }, [enableSlippage]);
-
   const [enlarge, setEnlarge] = useState(false);
   useEffect(() => {
     const sub = SeasonPassLastSaleAt.update$.subscribe(() => {
@@ -106,17 +97,16 @@ export function SeasonPass({ account }: { account?: Hex }) {
 
   const hasSeasonPass = useSeasonPassExternalWallet();
   const price = useSeasonPassPrice(BigInt(Math.floor(now)));
-  const priceWithSlippage = price + (enableSlippage ? (price * BigInt(slippage)) / 100n : 0n);
   const { nativeCurrency } = publicClient.chain;
 
-  const canBuy = mainWalletBalance?.value && mainWalletBalance.value >= priceWithSlippage;
+  const canBuy = mainWalletBalance?.value && mainWalletBalance.value >= price;
 
   let disabledMessage = "";
   if (!canBuy) disabledMessage = "not enough funds";
 
   const formatEthPrice = useCallback(
     (price: bigint) => {
-      return `${parseFloat(formatEther(price)).toFixed(6)} ${nativeCurrency.symbol}`;
+      return `${parseFloat(formatEther(price)).toFixed(2)} ${nativeCurrency.symbol}`;
     },
     [nativeCurrency.symbol],
   );
@@ -154,7 +144,7 @@ export function SeasonPass({ account }: { account?: Hex }) {
 
         {!hasSeasonPass ? (
           <Modal
-            open={modalOpen}
+            isOpen={modalOpen}
             setOpen={setModalOpen}
             title={`Season Pass (${SEASON_NAME})`}
             trigger={
@@ -183,7 +173,7 @@ export function SeasonPass({ account }: { account?: Hex }) {
 
                     const tx = await executeSystemWithExternalWallet({
                       systemCall: "buySeasonPass",
-                      args: [[account as Hex], { account, value: priceWithSlippage }],
+                      args: [[account as Hex], { account, value: price }],
                     });
                     if (tx) await waitForTransaction(tx);
                   }}
@@ -240,12 +230,7 @@ export function SeasonPass({ account }: { account?: Hex }) {
 
             <div className="flex w-full space-x-4">
               <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2 grow">
-                <span className="text-ss-text-x-light">Starting Price</span>
-                <span>0.01 ETH</span>
-              </div>
-
-              <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2 grow">
-                <span className="text-ss-text-x-light">Current Price</span>
+                <span className="text-ss-text-x-light">Price</span>
                 <span className="font-mono">{formatEthPrice(price)}</span>
               </div>
             </div>
@@ -253,57 +238,11 @@ export function SeasonPass({ account }: { account?: Hex }) {
             <div className="h-3" />
 
             <Body className="text-ss-text-default">
-              The Season Pass price increases with every sale, then decreases over time according to Dutch Auction
-              rules. Read about it <Link>here</Link>.
-            </Body>
-
-            <div className="h-4" />
-
-            <Body className="text-ss-text-default">
               The Season Pass is non-transferable and can only be minted once per account.
             </Body>
-
-            <div className="h-4" />
-
-            <div>
-              <div className="flex items-baseline gap-3">
-                <label htmlFor="slippage-checkbox">
-                  <Body className="text-ss-text-default">
-                    Enable Slippage Protection <br /> (send more ETH than needed in case the price increases while your
-                    transaction is confirming)
-                  </Body>
-                </label>
-                <input
-                  id="slippage-checkbox"
-                  type="checkbox"
-                  checked={enableSlippage}
-                  onChange={(e) => setEnableSlippage(e.target.checked)}
-                />
-              </div>
-
-              {enableSlippage && (
-                <div className="flex items-center gap-3">
-                  <div className="h-4" />
-
-                  <input
-                    type="range"
-                    min={10}
-                    max={40}
-                    value={slippage}
-                    onChange={(e) => setSlippage(Number(e.target.value))}
-                  />
-                  <Body className="text-ss-text-default">
-                    {slippage}% - Send {formatEthPrice((price * (BigInt(slippage) + 100n)) / 100n)} (excess ETH will be
-                    refunded)
-                  </Body>
-                </div>
-              )}
-            </div>
           </Modal>
         ) : (
-          <div className="mx-auto text-ss-text-light">
-            Current Price: <span className="font-mono">{formatEthPrice(price)}</span>
-          </div>
+          <></>
         )}
 
         {seasonPassSales.length > 0 && (
@@ -315,11 +254,9 @@ export function SeasonPass({ account }: { account?: Hex }) {
                 <div className="flex items-center gap-2">
                   <SeasonPassImg className="w-[50px]" />
                   <div className="flex flex-col items-start">
+                    <Caption className="text-ss-text-light font-bold font-mono">Last Purchased:</Caption>
                     <Caption className="text-ss-text-light font-mono">
                       {DateTime.fromSeconds(Number(mostRecentSale.purchasedAt)).toRelative()}
-                    </Caption>
-                    <Caption className="text-ss-text-light font-bold font-mono">
-                      {formatEthPrice(mostRecentSale.price)}
                     </Caption>
                   </div>
                 </div>

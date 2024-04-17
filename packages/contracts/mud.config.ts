@@ -272,7 +272,18 @@ export default defineWorld({
       },
     },
     /**
-     * HEAVILY used to determine ownership chains.
+     * Stores a reference to the address that created a Player entity.
+     */
+    CreatedByAddress: {
+      key: ["matchEntity", "playerEntity"],
+      schema: {
+        matchEntity: "bytes32",
+        playerEntity: "bytes32",
+        value: "bytes32",
+      },
+    },
+    /**
+     * Used to determine the owner of an entity created in a match.
      * i.e. Player -> Unit
      */
     OwnedBy: {
@@ -636,6 +647,17 @@ export default defineWorld({
         matchEntity: "bytes32",
         // ~4 billion entities per match seems like plenty for now
         entityCounter: "uint32",
+      },
+    },
+    /**
+     * Stores the number of matches that are created in a day.
+     * Calculated using block.timestamp / 86400
+     */
+    MatchesPerDay: {
+      key: ["day"],
+      schema: {
+        day: "uint256",
+        value: "uint256",
       },
     },
     /**

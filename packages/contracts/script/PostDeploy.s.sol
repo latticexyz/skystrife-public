@@ -24,7 +24,7 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { createTemplates } from "../src/codegen/scripts/CreateTemplates.sol";
-import { SeasonTimes, Admin, SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, VirtualLevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation, HeroInRotation, HeroInSeasonPassRotation, MatchRewardPercentages } from "../src/codegen/index.sol";
+import { SeasonTimes, Admin, SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, VirtualLevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation, HeroInRotation, HeroInSeasonPassRotation, MatchRewardPercentages, SeasonPassIndex } from "../src/codegen/index.sol";
 import { GrassTemplateId, ForestTemplateId, MountainTemplateId, GrassTemplateId, HalberdierTemplateId, DragoonTemplateId, MarksmanTemplateId } from "../src/codegen/Templates.sol";
 
 import { SeasonPassOnlySystem } from "../src/systems/SeasonPassOnlySystem.sol";
@@ -33,11 +33,11 @@ import { NoTransferHook } from "../src/NoTransferHook.sol";
 
 import { createArchetypeModifiers } from "../src/libraries/LibArchetypes.sol";
 
-uint256 constant SEASON_PASS_STARTING_PRICE = 0.005 ether;
-uint256 constant SEASON_PASS_MIN_PRICE = 0.001 ether;
-uint256 constant SEASON_PASS_PRICE_DECREASE_PER_SECOND = 277_779; // loses roughly 240% value a day
+uint256 constant SEASON_PASS_STARTING_PRICE = 0.00000005 ether;
+uint256 constant SEASON_PASS_MIN_PRICE = 0.00000001 ether;
+uint256 constant SEASON_PASS_PRICE_DECREASE_PER_SECOND = 0;
 uint256 constant SEASON_PASS_PRICE_DECREASE_DENOMINATOR = 10_000_000_000;
-uint256 constant SEASON_PASS_PURCHASE_MULTIPLIER_PERCENT = 110;
+uint256 constant SEASON_PASS_PURCHASE_MULTIPLIER_PERCENT = 100;
 uint256 constant SEASON_PASS_MINT_DURATION = 3 days;
 uint256 constant SEASON_DURATION = 30 days;
 
@@ -117,18 +117,18 @@ contract PostDeploy is Script {
       // Initialise tokens
       IERC20Mintable orbToken = registerERC20(
         world,
-        "Orb",
-        ERC20MetadataData({ decimals: 18, name: "Orb", symbol: unicode"🔮" })
+        "test_orb",
+        ERC20MetadataData({ decimals: 18, name: "test", symbol: "TEST" })
       );
       IERC721Mintable seasonPass = registerERC721(
         world,
-        "szn0.3",
-        ERC721MetadataData({ name: "Season Pass", symbol: unicode"🎫", baseURI: "" })
+        "test_season",
+        ERC721MetadataData({ name: "test_season_pass", symbol: "TEST", baseURI: "" })
       );
       IERC721Mintable skyKey = registerERC721(
         world,
-        "SkyKey",
-        ERC721MetadataData({ name: "Sky Key", symbol: unicode"🔑", baseURI: "" })
+        "test_sky_key",
+        ERC721MetadataData({ name: "test_sky_key", symbol: "TEST", baseURI: "" })
       );
 
       // Set SkyPool values
@@ -148,6 +148,9 @@ contract PostDeploy is Script {
       // orbToken.mint(admin, 10_000 ether);
 
       skyKey.mint(admin, SKY_KEY_TOKEN_ID);
+
+      seasonPass.mint(admin, 0);
+      SeasonPassIndex.set(1);
     }
 
     // Deploy SeasonPassOnly Match access system in the MatchAccess namespace
@@ -165,10 +168,10 @@ contract PostDeploy is Script {
     NoTransferHook subscriber = new NoTransferHook();
 
     // Register the non-transferability hook
-    world.registerSystemHook(_erc721SystemId("szn0.3"), subscriber, BEFORE_CALL_SYSTEM);
+    world.registerSystemHook(_erc721SystemId("test_season"), subscriber, BEFORE_CALL_SYSTEM);
 
     // Transfer season pass namespace to World
-    namespaceId = WorldResourceIdLib.encodeNamespace("szn0.3");
+    namespaceId = WorldResourceIdLib.encodeNamespace("test_season");
     world.transferOwnership(namespaceId, worldAddress);
 
     vm.stopBroadcast();

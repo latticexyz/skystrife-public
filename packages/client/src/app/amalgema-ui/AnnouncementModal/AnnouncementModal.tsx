@@ -10,7 +10,7 @@ export function AnnouncementModal() {
   });
 
   return (
-    <div className="fixed top-0x left-1/3 uppercase z-50 w-fit px-4 mt-3 flex items-center">
+    <div className="uppercase w-fit px-4 flex items-center">
       new update! <div className="w-3" />
       <Modal
         footer={

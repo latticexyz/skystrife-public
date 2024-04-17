@@ -24,7 +24,7 @@ const suffix = (function () {
 const PlayerName = ({ entity }: { entity: Entity }) => {
   const {
     networkLayer: {
-      components: { OwnedBy },
+      components: { CreatedByAddress },
     },
     localLayer: {
       api: { getPlayerInfo },
@@ -32,7 +32,7 @@ const PlayerName = ({ entity }: { entity: Entity }) => {
   } = useMUD();
 
   const playerInfo = getPlayerInfo(entity);
-  const owner = getComponentValue(OwnedBy, entity);
+  const owner = getComponentValue(CreatedByAddress, entity);
 
   return (
     <div

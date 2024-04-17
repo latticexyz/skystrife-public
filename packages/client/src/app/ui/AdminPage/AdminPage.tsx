@@ -7,6 +7,7 @@ import { Templates } from "./Templates";
 import { Delegations } from "./Delegations";
 import { Matches } from "./Matches";
 import { SeasonPass } from "./SeasonPass";
+import { SessionWalletManager } from "../../amalgema-ui/SessionWalletManager";
 
 export const AdminPage = () => {
   const [page, setPage] = useState("Matches");
@@ -21,7 +22,10 @@ export const AdminPage = () => {
 
   return (
     <div>
-      <ConnectButton />
+      <div className="flex gap-x-2 p-4">
+        <ConnectButton />
+        <SessionWalletManager />
+      </div>
       <div>
         {["Matches", "Templates", "Levels", "Players", "Delegations", "Season Pass"].map((p) => (
           <Button buttonType="tertiary" key={p} onClick={() => setPage(p)}>

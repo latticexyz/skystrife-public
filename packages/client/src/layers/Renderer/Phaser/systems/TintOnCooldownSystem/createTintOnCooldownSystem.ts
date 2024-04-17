@@ -74,18 +74,28 @@ export function createTintOnCooldownSystem(layer: PhaserLayer) {
     });
   });
 
+  const restartIdleAnim = (entity: Entity) => {
+    const spriteObj = objectPool.get(entity, "Sprite");
+    spriteObj.setComponent({
+      id: "stop-anim",
+      once: (sprite) => {
+        const currentAnim = sprite.anims.currentAnim;
+
+        if (!currentAnim) return;
+        if (!currentAnim.key.includes("Idle")) return;
+
+        sprite.off("animationstart");
+        const spriteAnimation = getComponentValue(SpriteAnimation, entity);
+        if (spriteAnimation) setComponent(SpriteAnimation, entity, spriteAnimation);
+      },
+    });
+  };
+
   defineSystem(world, [Has(UnitType), Has(SpriteAnimation), Has(OnCooldown)], ({ entity, type, component }) => {
     const spriteObj = objectPool.get(entity, "Sprite");
 
     if (component.id === OnCooldown.id && type === UpdateType.Exit) {
-      spriteObj.setComponent({
-        id: "stop-anim",
-        once: (sprite) => {
-          sprite.off("animationstart");
-          const spriteAnimation = getComponentValue(SpriteAnimation, entity);
-          if (spriteAnimation) setComponent(SpriteAnimation, entity, spriteAnimation);
-        },
-      });
+      restartIdleAnim(entity);
       return;
     }
 
@@ -93,7 +103,9 @@ export function createTintOnCooldownSystem(layer: PhaserLayer) {
       id: "stop-anim",
       once: (sprite) => {
         sprite.on("animationstart", (anim: Phaser.Animations.Animation) => {
-          if (anim.key.includes("Idle")) sprite.stop();
+          if (anim.key.includes("Idle")) {
+            sprite.stop();
+          }
         });
       },
     });

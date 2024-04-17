@@ -18,10 +18,7 @@ enum Tabs {
   Historical = "historical",
 }
 
-const BUGGED_MATCHES = [
-  "0x72ae50e300000000000000000000000000000000000000000000000000000000",
-  "0x7b1b8d9000000000000000000000000000000000000000000000000000000000",
-] as Entity[];
+const BUGGED_MATCHES = [] as Entity[];
 
 export function MatchTable() {
   const {
@@ -99,7 +96,7 @@ export function MatchTable() {
         onClick={() => setCurrentTab(tab)}
         className={twMerge(
           "text-ss-text-light h-full text-lg w-1/3",
-          currentTab === tab ? "bg-ss-gold text-ss-text-default" : "hover:bg-ss-gold hover:text-ss-text-default"
+          currentTab === tab ? "bg-ss-gold text-ss-text-default" : "hover:bg-ss-gold hover:text-ss-text-default",
         )}
       >
         {text} <span className="text-ss-text-default">({count ?? "0"})</span>

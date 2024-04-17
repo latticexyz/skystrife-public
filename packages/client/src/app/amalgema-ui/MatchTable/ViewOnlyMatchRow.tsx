@@ -10,10 +10,10 @@ import { DateTime } from "luxon";
 
 const PlayerName = ({ entity }: { entity: Entity }) => {
   const {
-    components: { OwnedBy },
+    components: { CreatedByAddress },
   } = useAmalgema();
 
-  const owner = getComponentValue(OwnedBy, entity);
+  const owner = getComponentValue(CreatedByAddress, entity);
 
   return <DisplayNameWithLink entity={(owner?.value ?? "") as Entity} />;
 };
