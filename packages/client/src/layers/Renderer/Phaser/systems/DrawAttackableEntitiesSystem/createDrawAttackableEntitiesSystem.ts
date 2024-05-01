@@ -1,13 +1,4 @@
-import {
-  ComponentUpdate,
-  defineSystem,
-  Entity,
-  getComponentValue,
-  Has,
-  hasComponent,
-  isComponentUpdate,
-  Not,
-} from "@latticexyz/recs";
+import { ComponentUpdate, defineSystem, Entity, getComponentValue, Has, hasComponent, Not } from "@latticexyz/recs";
 import { Sprites } from "../../phaserConstants";
 import { PhaserLayer, RenderDepth } from "../../types";
 import { getArchetypeMatchupModifier } from "../../../../Headless/utils";
@@ -20,6 +11,7 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
       network: {
         world,
         components: { UnitType },
+        utils: { hasPendingAction },
       },
       headless: {
         components: { NextPosition },
@@ -28,9 +20,7 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
         components: { AttackableEntities, LocalPosition },
       },
     },
-    scenes: {
-      Main: { objectPool },
-    },
+    globalObjectPool,
     api: { drawSpriteAtTile, drawTileHighlight },
   } = layer;
 
@@ -59,11 +49,13 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
   function drawAttackableEntities(update: ComponentUpdate) {
     const attacker = update.entity;
 
-    objectPool.remove(`${attacker}-attackable-destination`);
+    globalObjectPool.remove(`${attacker}-attackable-destination`);
     for (let i = 0; i < 30; i++) {
-      objectPool.remove(`${i}-attackable-highlight`);
-      objectPool.remove(`${i}-attackable-outline`);
+      globalObjectPool.remove(`${i}-attackable-highlight`);
+      globalObjectPool.remove(`${i}-attackable-outline`);
     }
+
+    if (hasPendingAction(update.entity)) return;
 
     const attackableEntities = getComponentValue(AttackableEntities, attacker)?.value;
     if (!attackableEntities) return;
@@ -78,7 +70,7 @@ export function createDrawAttackableEntitiesSystem(layer: PhaserLayer) {
     if (nextPosition && nextPosition.intendedTarget) {
       attackableEntities.forEach((entity, i) => {
         if (entity !== nextPosition.intendedTarget) {
-          objectPool.remove(`${i}-attackable-highlight`);
+          globalObjectPool.remove(`${i}-attackable-highlight`);
         }
       });
 

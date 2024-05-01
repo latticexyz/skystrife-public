@@ -24,6 +24,7 @@ export function createCaptureAnimationSystem(layer: PhaserLayer) {
     const { x, y } = getEntityPixelCoord(entity);
     const gameObject = phaserScene.add.sprite(x, y, "");
     const ownerColorName = getOwnerColor(entity, matchEntity).name;
+    if (ownerColorName === "white") return;
 
     const tileCoord = pixelCoordToTileCoord({ x, y }, TILE_WIDTH, TILE_HEIGHT);
 

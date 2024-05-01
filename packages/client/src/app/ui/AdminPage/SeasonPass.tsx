@@ -1,11 +1,53 @@
 import { useEffect, useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { PromiseButton } from "../hooks/PromiseButton";
-import { formatEther, parseEther, stringToHex } from "viem";
+import { Hex, formatEther, parseEther, stringToHex, isAddress } from "viem";
 import { DateTime, Duration } from "luxon";
 import { Heading } from "../Theme/SkyStrife/Typography";
 import { useBalance } from "wagmi";
 import { useExternalAccount } from "../hooks/useExternalAccount";
+import { Input } from "../Theme/SkyStrife/Input";
+import { useSeasonPassPrice } from "../../amalgema-ui/hooks/useSeasonPassPrice";
+import { useCurrentTime } from "../../amalgema-ui/hooks/useCurrentTime";
+
+function BuySeasonPassForAddress() {
+  const {
+    network: { waitForTransaction },
+    executeSystemWithExternalWallet,
+    utils: { refreshBalance },
+  } = useAmalgema();
+
+  const { address: account } = useExternalAccount();
+  const [address, setAddress] = useState<string>("");
+  const now = useCurrentTime();
+  const price = useSeasonPassPrice(BigInt(Math.floor(now.toSeconds())));
+
+  if (!account) return <></>;
+
+  return (
+    <div className="border-4 p-4 rounded-lg">
+      <Heading>Buy Season Pass for Address</Heading>
+      <Input label="Address" value={address} setValue={setAddress} />
+      <PromiseButton
+        buttonType="primary"
+        disabled={!isAddress(address)}
+        promise={async () => {
+          if (!isAddress(address)) return;
+
+          const tx = await executeSystemWithExternalWallet({
+            systemCall: "buySeasonPass",
+            systemId: "Buy Season Pass",
+            args: [[address as Hex], { account, value: price }],
+          });
+          if (tx) await waitForTransaction(tx);
+          refreshBalance(account);
+        }}
+      >
+        Mint
+      </PromiseButton>
+    </div>
+  );
+}
 
 export function SeasonPass() {
   const { externalWorldContract, externalWalletClient } = useAmalgema();
@@ -194,7 +236,7 @@ export function SeasonPass() {
               ],
               {
                 account: externalWalletClient.account,
-              }
+              },
             );
           }}
         >
@@ -228,13 +270,15 @@ export function SeasonPass() {
               [externalAddress, parseEther(ethToWithdraw.toString(), "wei")],
               {
                 account: externalWalletClient.account,
-              }
+              },
             );
           }}
         >
           Withdraw ETH
         </PromiseButton>
       </div>
+
+      <BuySeasonPassForAddress />
     </div>
   );
 }

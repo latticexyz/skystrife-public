@@ -73,7 +73,6 @@ export function useJoinMatch(matchEntity: Entity, hero: Hex) {
     network: {
       components: { MatchConfig },
       walletClient,
-      publicClient,
     },
     utils: { getAvailableLevelSpawns, hasSystemDelegation },
     externalWalletClient,
@@ -107,6 +106,7 @@ export function useJoinMatch(matchEntity: Entity, hero: Hex) {
     if (hasDelegation) {
       await executeSystemWithExternalWallet({
         systemCall: "register",
+        systemId: "Join Match",
         args: [
           [matchEntity as Hex, spawn, hero],
           {
@@ -117,7 +117,7 @@ export function useJoinMatch(matchEntity: Entity, hero: Hex) {
     } else {
       await executeSystemWithExternalWallet({
         systemCall: "batchCall",
-        systemId: "JoinMatch",
+        systemId: "Join Match (New Session Wallet)",
         args: [
           [
             encodeSystemCalls(IWorldAbi, [

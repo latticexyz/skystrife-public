@@ -6,12 +6,14 @@ import {
   getComponentValueStrict,
   hasComponent,
   runQuery,
+  setComponent,
 } from "@latticexyz/recs";
 import { setup } from "../../mud/setup";
 import { BigNumber } from "ethers";
 import { WorldCoord } from "phaserx/src/types";
 import { manhattan } from "../../utils/distance";
 import { Hex } from "viem";
+import { getBalance } from "viem/actions";
 import { NetworkConfig } from "../../mud/utils";
 import { decodeEntity, encodeEntity } from "@latticexyz/store-sync/recs";
 import { createSystemExecutor } from "./createSystemExecutor";
@@ -39,9 +41,13 @@ import {
 import { decodeMatchEntity } from "../../decodeMatchEntity";
 import { encodeMatchEntity } from "../../encodeMatchEntity";
 import { ANALYTICS_URL } from "./utils";
-import { uuid } from "@latticexyz/utils";
+import { sleep, uuid } from "@latticexyz/utils";
 import { createJoinableMatchSystem } from "./systems/JoinableMatchSystem";
 import lodash from "lodash";
+import { skystrifeDebug } from "../../debug";
+import { createWalletBalanceSystem } from "./systems/WalletBalanceSystem";
+
+const debug = skystrifeDebug.extend("network-layer");
 
 /**
  * The Network layer is the lowest layer in the client architecture.
@@ -89,7 +95,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
   async function move(entity: Entity, path: WorldCoord[]) {
     if (!currentMatchEntity) return;
 
-    console.log(`Moving entity ${entity} to position (${path[path.length - 1].x}, ${path[path.length - 1].y})}`);
+    debug(`Moving entity ${entity} to position (${path[path.length - 1].x}, ${path[path.length - 1].y})}`);
 
     const finalPoint = path[path.length - 1];
 
@@ -130,7 +136,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
   async function attack(attacker: Entity, defender: Entity) {
     if (!currentMatchEntity) return;
 
-    console.log(`Attacking entity ${defender} with entity ${attacker}`);
+    debug(`Attacking entity ${defender} with entity ${attacker}`);
 
     const { externalWalletClient } = useStore.getState();
     if (!externalWalletClient?.account) return;
@@ -169,7 +175,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
   async function moveAndAttack(attacker: Entity, path: WorldCoord[], defender: Entity) {
     if (!currentMatchEntity) return;
 
-    console.log(
+    debug(
       `Moving entity ${attacker} to position (${path[path.length - 1].x}, ${
         path[path.length - 1].y
       }) and attacking entity ${defender}`,
@@ -217,7 +223,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
   async function buildAt(builderId: Entity, prototypeId: Entity, position: WorldCoord) {
     if (!currentMatchEntity) return;
 
-    console.log(`Building prototype ${prototypeId} at ${JSON.stringify(position)}`);
+    debug(`Building prototype ${prototypeId} at ${JSON.stringify(position)}`);
 
     const { externalWalletClient } = useStore.getState();
     if (!externalWalletClient?.account) return;
@@ -254,7 +260,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
       matchId?: number;
     },
   ) {
-    console.log(`Spawning prototype ${prototypeId} at ${JSON.stringify(position)}`);
+    debug(`Spawning prototype ${prototypeId} at ${JSON.stringify(position)}`);
     const matchId = maybeMatchId ?? currentMatchId ?? -1;
     return await worldContract.write.spawnTemplate([
       matchIdToEntity(matchId),
@@ -607,6 +613,34 @@ export async function createNetworkLayer(config: NetworkConfig) {
     return;
   }
 
+  const refreshBalance = async (address: Hex) => {
+    try {
+      debug(`Refreshing wallet balance for address: ${address}`);
+      const balance = await getBalance(network.walletClient, {
+        address,
+      });
+      const addressEntity = addressToEntityID(address);
+      setComponent(components.WalletBalance, addressEntity, {
+        value: balance,
+      });
+    } catch (e) {
+      debug(`Failed to fetch external wallet balance for address ${address}`);
+    }
+  };
+
+  const hasPendingAction = (entity: Entity) => {
+    const pendingAction = [
+      ...runQuery([
+        HasValue(components.Action, {
+          entity,
+          status: "pending",
+        }),
+      ]),
+    ][0];
+
+    return Boolean(pendingAction);
+  };
+
   const layer = {
     world: network.world,
     network,
@@ -664,16 +698,21 @@ export async function createNetworkLayer(config: NetworkConfig) {
 
       getMatchRewards,
       getMatchAccessDetails,
+
+      refreshBalance,
+
+      hasPendingAction,
     },
     isBrowser,
   };
 
-  const indexedDbAvailable = isBrowser && "indexedDB" in window;
-  if (indexedDbAvailable) {
-    const txDb = new TransactionDB(network.networkConfig.worldAddress, network.networkConfig.chainId);
-    createTransactionCacheSystem(layer, txDb);
-  }
+  // const indexedDbAvailable = isBrowser && "indexedDB" in window;
+  // if (indexedDbAvailable) {
+  //   const txDb = new TransactionDB(network.networkConfig.worldAddress, network.networkConfig.chainId);
+  //   createTransactionCacheSystem(layer, txDb);
+  // }
   if (!currentMatchEntity) createJoinableMatchSystem(layer);
+  createWalletBalanceSystem(layer);
 
   return layer;
 }

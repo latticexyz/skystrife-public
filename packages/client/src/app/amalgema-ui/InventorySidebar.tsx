@@ -2,7 +2,6 @@ import { Entity } from "@latticexyz/recs";
 import { useAmalgema } from "../../useAmalgema";
 import { IconButton } from "../ui/Theme/SkyStrife/IconButton";
 import { Discord } from "../ui/Theme/SkyStrife/Icons/Discord";
-import { Body, OverlineSmall } from "../ui/Theme/SkyStrife/Typography";
 import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Twitter } from "../ui/Theme/SkyStrife/Icons/Twitter";
 import { DISCORD_URL, FEEDBACK_URL, HOW_TO_PLAY_URL, TWITTER_URL } from "../links";
@@ -15,10 +14,10 @@ import { LabeledOrbInput } from "./SummonIsland/common";
 import { SessionWalletManager } from "./SessionWalletManager";
 import { SeasonPass } from "./SeasonPass";
 import { useExternalAccount } from "./hooks/useExternalAccount";
-import { HoleskyEth } from "./HoleskyEth";
 import { MATCH_COST } from "./SummonIsland/MatchCost";
 import { useCurrentMatchReward } from "./hooks/useCurrentMatchReward";
 import { useHasSkyKeyExternalWallet } from "./hooks/useHasSkyKey";
+import { useBurnerBalance } from "./hooks/useBalance";
 
 const DECIMALS = 18;
 
@@ -32,7 +31,7 @@ function Resources() {
 
   const registry = useComponentValue(
     ERC20Registry,
-    "0x6e734f7262000000000000000000000000000000000000000000000000000000" as Entity // TODO: encodeNamespace?
+    "0x6e734f7262000000000000000000000000000000000000000000000000000000" as Entity, // TODO: encodeNamespace?
   );
 
   const balance = useComponentValue(Orb_Balances, address ? addressToEntityID(address) : ("0" as Entity));
@@ -62,17 +61,16 @@ export function InventorySidebar() {
   const { address } = useExternalAccount();
   const matchReward = useCurrentMatchReward();
   const hasSkyKey = useHasSkyKeyExternalWallet();
+  const burnerBalance = useBurnerBalance();
 
   return (
     <div className="flex flex-col bg-ss-bg-1 border-l border-ss-stroke h-screen overflow-y-auto p-8 pt-4 items-stretch w-[420px] shrink-0">
       <CurrentProfile />
-      <div className="h-4 shrink-0" />
-
-      <HoleskyEth />
 
       <div className="h-4 shrink-0"></div>
 
       <SeasonPass account={address} />
+
       <div className="h-4" />
 
       {address && (
@@ -87,8 +85,12 @@ export function InventorySidebar() {
             </>
           )}
 
-          <div className="h-8 shrink-0" />
-          <SessionWalletManager />
+          {burnerBalance?.danger && (
+            <>
+              <div className="h-8 shrink-0" />
+              <SessionWalletManager />
+            </>
+          )}
         </>
       )}
 

@@ -26,6 +26,8 @@ import { MatchIndex, MatchConfig, MatchConfigData, MatchRanking, LevelTemplatesI
 
 import { SeasonPassSystem, calculateCurrentPrice } from "../src/systems/SeasonPassSystem.sol";
 
+import { MATCHES_PER_DAY_HARD_CAP } from "../constants.sol";
+
 import { SEASON_PASS_STARTING_PRICE, SEASON_PASS_PURCHASE_MULTIPLIER_PERCENT, SEASON_PASS_PRICE_DECREASE_PER_SECOND } from "../script/PostDeploy.s.sol";
 
 uint256 constant COST = 100;
@@ -76,7 +78,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     uint256 today = block.timestamp / 1 days;
 
     prankAdmin();
-    MatchesPerDay.set(today, 1001);
+    MatchesPerDay.set(today, MATCHES_PER_DAY_HARD_CAP + 1);
     vm.stopPrank();
 
     bytes32 firstMatchInWindow = findFirstMatchInWindow();

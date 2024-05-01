@@ -1,4 +1,4 @@
-const colors = require('tailwindcss/colors')
+const colors = require("tailwindcss/colors");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -11,7 +11,7 @@ module.exports = {
         "ss-active": "2px 2px 0px 0px rgba(24, 23, 16, 0.90)",
         "ss-small": "2px 2px 0px 0px rgba(24, 23, 16, 0.90)",
         "ss-small-active": "1px 1px 0px 0px rgba(24, 23, 16, 0.90)",
-      }
+      },
     },
 
     colors: {
@@ -28,15 +28,14 @@ module.exports = {
       "ss-bg-1": "#F1EDE4",
       "ss-bg-2": "#E6E1D6",
       "ss-stroke": "#DDDAD0",
+      "ss-warning": "#BF1818",
       "ss-text-highlight": "1F80E0",
       "ss-text-default": "#25241D",
       "ss-text-light": "#5D5D4C",
       "ss-text-x-light": "#7E7E6D",
       "ss-text-link": "#A28010",
       "ss-text-link-hover": "#66510A",
-    }
+    },
   },
-  plugins: [
-    require("tailwindcss-animate")
-  ],
+  plugins: [require("tailwindcss-animate")],
 };

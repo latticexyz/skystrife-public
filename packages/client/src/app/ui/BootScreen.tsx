@@ -13,7 +13,7 @@ export const BootScreen = ({ children }: Props) => {
     <Container
       style={{
         zIndex: 1000,
-        background: "linear-gradient(rgba(24, 23, 16, 0.4), rgba(24, 23, 16, 0.4)), url(assets/ss-splash-1.png)",
+        background: "linear-gradient(rgba(24, 23, 16, 0.4), rgba(24, 23, 16, 0.4)), url(assets/ss-splash-min.png)",
         backgroundPosition: "right",
         backgroundSize: "cover",
       }}

@@ -8,7 +8,7 @@ import {
   removeComponent,
   setComponent,
 } from "@latticexyz/recs";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { useMUD } from "../../../useMUD";
 import { usePlayerGold } from "../hooks/usePlayerGold";
@@ -50,6 +50,8 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
       },
     },
   } = useMUD();
+
+  const [show, setShow] = useState(false);
 
   // for performance, don't worry about it
   const selectedAnyFactory = useEntityQuery([Has(Selected), Has(Factory), Has(LocalPosition)])[0];
@@ -134,6 +136,7 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
     };
 
     if (!selectedFactory) {
+      setShow(false);
       document.removeEventListener("keydown", startBuildingUnit);
       return;
     }
@@ -141,6 +144,7 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
     const factoryData = getComponentValue(Factory, selectedFactory);
     if (!factoryData) return;
 
+    setTimeout(() => setShow(true), 20);
     document.addEventListener("keydown", startBuildingUnit);
 
     return () => {
@@ -164,10 +168,13 @@ export const Factory = ({ matchEntity }: { matchEntity: Entity }) => {
     <div
       style={{
         position: "absolute",
+        opacity: show ? 1 : 0,
+        transform: show ? "none" : "translateY(-10%)",
         top: screenPosition.y,
         left: screenPosition.x,
         display: buildingUnit ? "none" : "block",
-        zIndex: 1000,
+        zIndex: 50,
+        transition: "all 0.2s ease-in-out",
       }}
       className="h-fit w-fit"
     >

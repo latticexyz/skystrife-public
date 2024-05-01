@@ -4,6 +4,8 @@ import { createSkyStrife } from "headless-client/src/createSkyStrife";
 import { createMatchUpdater } from "./createMatchUpdater";
 import { createSeasonPassNotifier } from "./createSeasonPassNotifier";
 
+const LAUNCH_TIMESTAMP = 1714579200;
+
 const skyStrife = await createSkyStrife();
 
 const client = new Client({
@@ -33,6 +35,10 @@ client.once(Events.ClientReady, (readyClient) => {
     if (message.author.bot) return;
     if (!message.guild) return;
     if (!message.member) return;
+
+    if (message.content.includes("!wenplay")) {
+      message.reply(`🚀 Sky Strife launch: <t:${LAUNCH_TIMESTAMP}> 🚀`);
+    }
 
     if (message.content.includes("!join")) {
       try {

@@ -31,8 +31,8 @@ function HalberdierTemplate() {
   tableIds[4] = ResourceId.unwrap(Untraversable._tableId);
 
   (staticData, encodedLengths, dynamicData) = Combat.encode(
-    400000,
-    400000,
+    500000,
+    500000,
     70000,
     -30,
     0,
@@ -53,7 +53,7 @@ function HalberdierTemplate() {
   encodedLengthss[2] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Movable.encode(4000);
+  (staticData, encodedLengths, dynamicData) = Movable.encode(3000);
   staticDatas[3] = staticData;
   encodedLengthss[3] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;

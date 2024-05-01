@@ -15,8 +15,11 @@ import lodash from "lodash";
 import { uuid } from "@latticexyz/utils";
 import { getTransaction } from "viem/actions";
 import { ANALYTICS_URL } from "./utils";
+import { skystrifeDebug } from "../../debug";
 
 const { sortBy, filter } = lodash;
+
+const debug = skystrifeDebug.extend("system-executor");
 
 type CreateSystemExecutorArgs = {
   worldContract: ContractType;
@@ -46,6 +49,7 @@ type SystemExecutorArgs<T extends keyof ContractType["write"]> = {
     disableRetry?: boolean;
     worldContractOverride?: ContractType;
     forceManualGasEstimate?: boolean;
+    disableNonceManager?: boolean;
   };
   confirmCompletionCallback?: () => Promise<void>;
   onRevertCallback?: () => Promise<void>;
@@ -67,10 +71,11 @@ export const createSystemExecutor = ({
 
   const sendTxAnalytics = async (txEntity: Entity) => {
     const txData = getComponentValueStrict(components.Transaction, txEntity);
+    debug(`Sending tx analytics`, txData);
 
     let gasPrice = 0n;
     if (txData.hash) {
-      const txDetails = await getTransaction(network.walletClient, {
+      const txDetails = await getTransaction(network.txReceiptClient, {
         hash: txData.hash as Hex,
       });
 
@@ -122,7 +127,7 @@ export const createSystemExecutor = ({
       completed_timestamp: Number(completedTimestamp ?? 0n),
       player_address: playerAddress ?? null,
       match_entity: network.matchEntity,
-      session_wallet_address: network.walletClient.account.address,
+      session_wallet_address: network.walletClient?.account?.address,
     });
 
     try {
@@ -157,12 +162,16 @@ export const createSystemExecutor = ({
     const currentRetryCount = options?.currentRetryCount ?? 0;
     const contract = options?.worldContractOverride ?? worldContract;
     const forceManualGasEstimate = options?.forceManualGasEstimate ?? false;
+    const disableNonceManager = Boolean(options?.disableNonceManager);
     systemId = systemId ?? systemCall.toString();
 
     const txEntity = uuid() as Entity;
 
+    debug(`Executing action ${systemId}(${systemCall})`);
+
     // Action groups together many transactions as one "user intended action"
     if (!hasComponent(components.Action, actionId as Entity)) {
+      debug(`Beginning new action ${actionId}`);
       setComponent(components.Action, actionId as Entity, {
         entity,
         type: systemId,
@@ -196,6 +205,7 @@ export const createSystemExecutor = ({
     let gasEstimate = 0n;
 
     if (!forceManualGasEstimate) {
+      debug("Attempting to set gas estimate based on previous successful txs of same type");
       const previousTxsOfSameSystemCall = [...runQuery([HasValue(components.Transaction, { systemId })])].map((tx) => {
         const txData = getComponentValueStrict(components.Transaction, tx);
         return {
@@ -214,17 +224,25 @@ export const createSystemExecutor = ({
         mostRecentNonPendingTx.status !== "reverted" &&
         mostRecentNonPendingTx.gasEstimate
       ) {
+        debug(`Successfully found gas estimate ${mostRecentNonPendingTx.gasEstimate.toString()}`);
         gasEstimate = mostRecentNonPendingTx.gasEstimate;
+      } else {
+        debug("Could not find previous gas estimate.");
       }
     }
 
     const systemArgs = args[0];
     let txOptions = args[1] || {};
+    const defaultParameters = {
+      chain: network.networkConfig.chain,
+      ...(network.networkConfig.chain?.fees ? { type: "eip1559" } : {}),
+    };
 
     let txHash: Hex | undefined;
     try {
       if (gasEstimate === 0n) {
         if (network.networkConfig.chain.id === 31337) {
+          debug("Manually setting 0 fees for local anvil chain");
           txOptions = {
             ...txOptions,
             maxFeePerGas: 0n,
@@ -233,8 +251,25 @@ export const createSystemExecutor = ({
         }
 
         try {
-          gasEstimate = await ((contract.estimateGas[systemCall] as any)(systemArgs, txOptions) as Promise<bigint>);
+          debug("Attempting to manually estimate gas");
+          const estimateFunction = contract.estimateGas[systemCall];
+          const gasEstimateOptions = {
+            ...txOptions,
+            ...defaultParameters,
+            maxFeePerGas: 0n,
+            maxPriorityFeePerGas: 0n,
+            blockTag: "pending",
+          } as any;
+          if (!disableNonceManager) {
+            debug(`Manually setting nonce to prevent extra network calls in viem`);
+            const nonce = network.walletNonceManager.getNonce();
+            gasEstimateOptions["nonce"] = nonce;
+          }
+
+          gasEstimate = await ((estimateFunction as any)(systemArgs, gasEstimateOptions) as Promise<bigint>);
+          debug(`Successfully estimated gas: ${gasEstimate.toString()}`);
         } catch (e) {
+          debug(`Manual gas estimation failed.`);
           updateComponent(components.Transaction, txEntity, {
             status: "reverted",
             completedTimestamp: BigInt(Date.now()),
@@ -255,12 +290,14 @@ export const createSystemExecutor = ({
         gasEstimate,
       });
 
+      debug(`Submitting tx...`);
       const txPromise = (contract.write[systemCall] as any)(systemArgs, {
         ...txOptions,
         gas: gasEstimate,
       }) as Promise<Hex>;
 
       const txHash = await txPromise;
+      debug(`Successfully submitted tx with hash ${txHash}`);
       updateComponent(components.Transaction, txEntity, {
         status: "submitted",
         submittedBlock: latestBlock,
@@ -275,7 +312,9 @@ export const createSystemExecutor = ({
         });
       }
 
+      debug(`Waiting for transaction to reduce...`);
       await network.waitForTransaction(txHash);
+      debug(`Transaction reduction complete.`);
 
       updateComponent(components.Transaction, txEntity, {
         status: "completed",
@@ -287,6 +326,7 @@ export const createSystemExecutor = ({
         status: "completed",
       });
     } catch (e) {
+      debug(`Tx reverted. Hash: ${txHash}`);
       updateComponent(components.Transaction, txEntity, {
         status: "reverted",
         error: (e as Error).toString().replaceAll(",", "").replaceAll("\n", " "),
@@ -294,12 +334,14 @@ export const createSystemExecutor = ({
       });
 
       if (disableRetry || currentRetryCount + 1 > 1) {
+        debug(`Not retrying, reverting.`);
         onRevertCallback?.();
         updateComponent(components.Action, actionId as Entity, {
           status: "failed",
         });
         throw e;
       } else {
+        debug(`Can retry tx, attempting again. Retry count ${currentRetryCount + 1}`);
         txHash = await executeSystem({
           entity,
           systemCall,
@@ -340,6 +382,7 @@ export const createSystemExecutor = ({
         worldContractOverride: externalWorldContract,
         disableRetry: true,
         forceManualGasEstimate: true,
+        disableNonceManager: true,
       },
     });
   };

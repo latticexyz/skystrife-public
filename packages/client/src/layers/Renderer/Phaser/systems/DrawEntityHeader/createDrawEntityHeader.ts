@@ -1,21 +1,22 @@
 import { Has, getComponentValueStrict, defineSystem, Not, setComponent, HasValue, NotValue } from "@latticexyz/recs";
 import { StructureTypes } from "../../../../Network";
 import { PhaserLayer } from "../../types";
-import { drawGoldBar, drawHealthBar, drawPlayerColorBanner } from "./drawingUtils";
+import { drawGoldBar, drawPlayerColorBanner } from "./drawingUtils";
+import { createDrawHealthBarSystem } from "./createDrawHealthBarSystem";
 
 export function createDrawEntityHeader(layer: PhaserLayer) {
   const {
     world,
-    components: { HeaderHeight, IncomingDamage },
+    components: { HeaderHeight },
     parentLayers: {
       network: {
-        components: { StructureType, Combat, ChargeCap, OwnedBy },
+        components: { StructureType, ChargeCap, OwnedBy },
       },
       local: {
-        components: { LocalPosition, LocalHealth, Path },
+        components: { LocalPosition },
       },
       headless: {
-        components: { InCurrentMatch, NextPosition, Depleted },
+        components: { InCurrentMatch, Depleted },
       },
     },
   } = layer;
@@ -39,6 +40,9 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
 
     setComponent(HeaderHeight, entity, { value: yOffset });
   });
+
+  // Health Bar Systems
+  createDrawHealthBarSystem(layer);
 
   // Player Color Banner
   defineSystem(
@@ -68,58 +72,6 @@ export function createDrawEntityHeader(layer: PhaserLayer) {
     ({ entity, type }) => {
       const headerHeight = getComponentValueStrict(HeaderHeight, entity).value;
       drawPlayerColorBanner(layer, entity, type, headerHeight);
-    },
-  );
-
-  // Health Bar Systems
-  defineSystem(
-    world,
-    [
-      Has(LocalPosition),
-      Has(LocalHealth),
-      Has(Combat),
-      Has(HeaderHeight),
-      Has(IncomingDamage),
-      NotValue(StructureType, { value: StructureTypes.GoldMine }),
-      Not(Path),
-      Not(NextPosition),
-    ],
-    (update) => {
-      const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
-      drawHealthBar(layer, update, 7, headerHeight);
-    },
-  );
-
-  defineSystem(
-    world,
-    [
-      Has(LocalPosition),
-      Has(LocalHealth),
-      Has(Combat),
-      Has(HeaderHeight),
-      Has(IncomingDamage),
-      Has(NextPosition),
-      NotValue(StructureType, { value: StructureTypes.GoldMine }),
-    ],
-    (update) => {
-      const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
-      drawHealthBar(layer, update, 7, headerHeight);
-    },
-  );
-
-  defineSystem(
-    world,
-    [
-      Has(LocalPosition),
-      Has(LocalHealth),
-      Has(Combat),
-      Has(HeaderHeight),
-      Has(IncomingDamage),
-      HasValue(StructureType, { value: StructureTypes.GoldMine }),
-    ],
-    (update) => {
-      const headerHeight = getComponentValueStrict(HeaderHeight, update.entity).value;
-      drawHealthBar(layer, update, 11, headerHeight);
     },
   );
 

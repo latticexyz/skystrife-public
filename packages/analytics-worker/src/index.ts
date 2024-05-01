@@ -166,44 +166,14 @@ app.post("/track/:chain_id/:world_address", async (c) => {
   }
 });
 
-app.get("/is-eu", async (c) => {
-  const EU_COUNTRIES = [
-    "AT",
-    "BE",
-    "BG",
-    "CY",
-    "CZ",
-    "DE",
-    "DK",
-    "EE",
-    "ES",
-    "FI",
-    "FR",
-    "GR",
-    "HR",
-    "HU",
-    "IE",
-    "IT",
-    "LT",
-    "LU",
-    "LV",
-    "MT",
-    "NL",
-    "PL",
-    "PT",
-    "RO",
-    "SE",
-    "SI",
-    "SK",
-  ];
-
+app.get("/show-gdpr", async (c) => {
   const country = (c.req.raw.cf?.country || "unknown") as string;
 
   c.res.headers.set("Access-Control-Allow-Origin", "*");
 
   return c.json(
     {
-      isEu: EU_COUNTRIES.includes(country),
+      shouldShow: country !== "US",
     },
     200,
   );

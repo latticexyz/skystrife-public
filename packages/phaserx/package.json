@@ -22,7 +22,7 @@
     "test": "tsc --noEmit"
   },
   "dependencies": {
-    "@latticexyz/utils": "2.0.5-main-ccbb4876",
+    "@latticexyz/utils": "2.0.8",
     "@use-gesture/vanilla": "10.2.9",
     "mobx": "^6.10.2",
     "phaser": "3.60.0-beta.14",

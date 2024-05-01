@@ -6,10 +6,8 @@ import { RenderDepth } from "../Renderer/Phaser/types";
 
 export function createTileHighlighter(phaserLayer: PhaserLayer, namespace: string) {
   const {
-    scenes: {
-      Main: { objectPool },
-    },
     api: { depthFromPosition },
+    globalObjectPool,
   } = phaserLayer;
 
   const highlightedTiles: Set<string> = new Set();
@@ -21,18 +19,13 @@ export function createTileHighlighter(phaserLayer: PhaserLayer, namespace: strin
 
       highlightedTiles.add(highlightKey);
 
-      const object = objectPool.get(highlightKey, "Rectangle");
-      object.setComponent({
-        id: `tile-highlight`,
-        once: async (box) => {
-          const pixelCoord = tileCoordToPixelCoord(coord, TILE_WIDTH, TILE_HEIGHT);
-          box.setOrigin(0, 0);
-          box.setPosition(pixelCoord.x, pixelCoord.y);
-          box.setSize(TILE_WIDTH, TILE_HEIGHT);
-          box.setDepth(depthFromPosition(coord, RenderDepth.UI1));
-          box.setFillStyle(color, alpha);
-        },
-      });
+      const box = globalObjectPool.get(highlightKey, "Rectangle");
+      const pixelCoord = tileCoordToPixelCoord(coord, TILE_WIDTH, TILE_HEIGHT);
+      box.setOrigin(0, 0);
+      box.setPosition(pixelCoord.x, pixelCoord.y);
+      box.setSize(TILE_WIDTH, TILE_HEIGHT);
+      box.setDepth(depthFromPosition(coord, RenderDepth.UI1));
+      box.setFillStyle(color, alpha);
     },
     getAllHighlightedTiles: () => {
       return Object.keys(highlightedTiles).map((key) => {
@@ -42,12 +35,12 @@ export function createTileHighlighter(phaserLayer: PhaserLayer, namespace: strin
     },
     clear: (coord: WorldCoord) => {
       const highlightKey = `${coord.x},${coord.y}-highlight-${namespace}`;
-      objectPool.remove(highlightKey);
+      globalObjectPool.remove(highlightKey);
       highlightedTiles.delete(highlightKey);
     },
     clearAll: () => {
       highlightedTiles.forEach((key) => {
-        objectPool.remove(key);
+        globalObjectPool.remove(key);
         highlightedTiles.delete(key);
       });
     },

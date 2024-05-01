@@ -4,6 +4,9 @@ import { chunk } from "@latticexyz/common/utils";
 import { LEVEL_UPLOAD_SYSTEM_ID } from "../../../constants";
 import { encodeSystemCallFrom } from "@latticexyz/world/internal";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
+import { skystrifeDebug } from "../../../debug";
+
+const debug = skystrifeDebug.extend("map-upload");
 
 export type Level = Array<{
   templateId: string;
@@ -13,7 +16,7 @@ export type Level = Array<{
 const STATE_UPDATES_PER_TX = 25;
 
 export async function bulkUploadMap(layer: NetworkLayer, from: Hex, level: Level, name: string) {
-  console.log(`Uploading ${name} level`);
+  debug(`Uploading ${name} level`);
 
   const chunkedState = Array.from(chunk(level, STATE_UPDATES_PER_TX));
   await Promise.all(
@@ -35,12 +38,12 @@ export async function bulkUploadMap(layer: NetworkLayer, from: Hex, level: Level
               systemId: LEVEL_UPLOAD_SYSTEM_ID,
               functionName: "uploadLevel",
               args: [levelId, templateIds, xs, ys],
-            })
+            }),
           );
           await layer.network.waitForTransaction(tx);
           success = true;
         } catch (e) {
-          console.log(e);
+          debug(e);
           retryCount++;
           continue;
         }
@@ -51,8 +54,8 @@ export async function bulkUploadMap(layer: NetworkLayer, from: Hex, level: Level
       }
 
       return true;
-    })
+    }),
   );
 
-  console.log(`Uploaded ${name} level!`);
+  debug(`Uploaded ${name} level!`);
 }

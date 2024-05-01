@@ -40,13 +40,13 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
     },
     scenes: {
       Main: {
-        objectPool,
         phaserScene,
         maps: {
           Main: { tileWidth, tileHeight },
         },
       },
     },
+    globalObjectPool,
     api: {
       playTintedAnimation,
       arrowPainter: { paintArrowAlongPath },
@@ -69,8 +69,8 @@ export function createDrawNextPositionSystem(layer: PhaserLayer) {
     const spriteId = `${entity}-nextPosition` as Entity;
     const attackSpriteId = `${entity}-attack` as Entity;
 
-    objectPool.remove(spriteId);
-    objectPool.remove(attackSpriteId);
+    globalObjectPool.remove(spriteId);
+    globalObjectPool.remove(attackSpriteId);
 
     if (type === UpdateType.Exit) {
       return;

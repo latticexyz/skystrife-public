@@ -99,7 +99,7 @@ export function Footer({
 
       await executeSystemWithExternalWallet({
         systemCall: "batchCall",
-        systemId: "CreateMatch",
+        systemId: "Create Match",
         args: [[encodeSystemCalls(IWorldAbi, systemCalls).map(([systemId, callData]) => ({ systemId, callData }))]],
       });
     });
@@ -132,7 +132,7 @@ export function Footer({
 
       await executeSystemWithExternalWallet({
         systemCall: "batchCall",
-        systemId: "CreateMatch",
+        systemId: "Create Match",
         args: [[encodeSystemCalls(IWorldAbi, systemCalls).map(([systemId, callData]) => ({ systemId, callData }))]],
       });
     });
@@ -170,7 +170,7 @@ export function Footer({
 
       await executeSystemWithExternalWallet({
         systemCall: "batchCall",
-        systemId: "CreateAndJoinMatch",
+        systemId: "Create and Join Match",
         args: [
           [
             encodeSystemCalls(
@@ -191,7 +191,7 @@ export function Footer({
       const matchEntity = createMatchEntity();
       await executeSystemWithExternalWallet({
         systemCall: "batchCall",
-        systemId: "CreatePrivateMatch",
+        systemId: "Create Private Match",
         args: [
           [
             encodeSystemCalls(IWorldAbi, [
@@ -255,7 +255,7 @@ export function Footer({
 
       await executeSystemWithExternalWallet({
         systemCall: "batchCall",
-        systemId: "CreateMatch",
+        systemId: "Create Match",
         args: [
           [encodeSystemCalls(IWorldAbi, [...systemCalls]).map(([systemId, callData]) => ({ systemId, callData }))],
         ],
@@ -302,7 +302,7 @@ export function Footer({
 
       await executeSystemWithExternalWallet({
         systemCall: "batchCall",
-        systemId: "CreateAndJoinMatch",
+        systemId: "Create and Join Match",
         args: [
           [
             encodeSystemCalls(
@@ -363,7 +363,7 @@ export function Footer({
 
       await executeSystemWithExternalWallet({
         systemCall: "batchCall",
-        systemId: "CreateAndJoinPrivateMatch",
+        systemId: "Create and Join Private Match",
         args: [
           [
             encodeSystemCalls(
@@ -418,7 +418,7 @@ export function Footer({
 
       await executeSystemWithExternalWallet({
         systemCall: "batchCall",
-        systemId: "CreateAndJoinMatch",
+        systemId: "Create and Join Match",
         args: [
           [
             encodeSystemCalls(

@@ -16,9 +16,7 @@ export default defineConfig({
   build: {
     outDir: "../dist",
     emptyOutDir: true,
-    // If you get out-of-memory issues, it's probably due to sourcemaps. Try
-    // doing more code splitting more manual chunks below.
-    sourcemap: true,
+    sourcemap: false,
     assetsInlineLimit: 0,
     target: "es2022",
     commonjsOptions: {

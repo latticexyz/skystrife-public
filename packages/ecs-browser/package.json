@@ -22,9 +22,9 @@
     "test": "tsc --noEmit"
   },
   "dependencies": {
-    "@latticexyz/react": "2.0.5-main-ccbb4876",
-    "@latticexyz/recs": "2.0.5-main-ccbb4876",
-    "@latticexyz/utils": "2.0.5-main-ccbb4876",
+    "@latticexyz/react": "2.0.8",
+    "@latticexyz/recs": "2.0.8",
+    "@latticexyz/utils": "2.0.8",
     "goober": "^2.1.13",
     "lodash": "^4.17.21",
     "mobx": "^6.10.2",

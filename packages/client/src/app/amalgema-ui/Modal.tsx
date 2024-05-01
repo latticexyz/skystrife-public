@@ -32,6 +32,7 @@ export const Modal = ({
   footer,
   isOpen,
   setOpen,
+  small,
 }: {
   trigger?: React.ReactNode;
   title: string;
@@ -39,6 +40,7 @@ export const Modal = ({
   footer?: React.ReactNode;
   isOpen?: boolean;
   setOpen?: (open: boolean) => void;
+  small?: boolean;
 }) => {
   return (
     <Dialog.Root open={isOpen}>
@@ -60,10 +62,16 @@ export const Modal = ({
             background: "rgba(24, 23, 16, 0.65)",
             zIndex: 100,
           }}
-          className="fixed top-0 left-0 w-screen h-screen flex flex-col justify-around"
+          className="DialogOverlay fixed top-0 left-0 w-screen h-screen flex flex-col justify-around"
         >
-          <Dialog.Content className="my-16 mx-auto w-[640px] min-h-min max-h-full overflow-y-scroll">
-            <Card className="relative w-full h-full p-0">
+          <Dialog.Content
+            style={{
+              width: small ? "600px" : "640px",
+              maxHeight: "calc(100vh - 120px)",
+            }}
+            className="mx-auto DialogContent"
+          >
+            <Card className="relative w-full p-0">
               <div className="absolute top-0 left-0 flex flex-row justify-between items-center bg-white w-full pt-8 p-6 pb-4 border-b border-ss-stroke z-50">
                 <Dialog.Title asChild>
                   <OverlineLarge>{title}</OverlineLarge>
@@ -86,12 +94,12 @@ export const Modal = ({
                 )}
               </div>
 
-              <div className="h-full overflow-y-scroll px-6">
+              <div className="h-full overflow-y-auto px-6">
                 <div className="h-24" />
 
                 {children}
 
-                <div className="h-24" />
+                {footer && <div className="h-24" />}
               </div>
 
               {footer && <Footer>{footer}</Footer>}

@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../../ui/Theme/SkyStrife/Button";
-import { Caption, OverlineLarge } from "../../ui/Theme/SkyStrife/Typography";
 import { Card } from "../../ui/Theme/SkyStrife/Card";
 import { useAmalgema } from "../../../useAmalgema";
-import { Plus } from "../../ui/Theme/SkyStrife/Icons/Plus";
 import { Has, HasValue } from "@latticexyz/recs";
 import { useEntityQuery } from "@latticexyz/react";
 import { Hex } from "viem";
@@ -16,7 +13,6 @@ import { Footer } from "./Footer";
 import { MatchType } from "./MatchType";
 import { EntranceFee } from "./EntranceFee";
 import { MatchRewards } from "./MatchRewards";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useSeasonPassExternalWallet } from "../hooks/useSeasonPass";
 import { MatchName } from "./MatchName";
 
@@ -37,7 +33,7 @@ function ArrowSvg() {
 /**
  * Store all the state for the multi-step Match config form.
  */
-function SummonIslandForm({ closeModal }: { closeModal: () => void }) {
+function SummonIslandForm({ closeModal, modalOpen }: { closeModal: () => void; modalOpen: boolean }) {
   const {
     network: {
       components: { LevelTemplates, LevelInStandardRotation },
@@ -82,12 +78,13 @@ function SummonIslandForm({ closeModal }: { closeModal: () => void }) {
         background: "rgba(24, 23, 16, 0.65)",
         zIndex: 100,
       }}
-      className="fixed top-0 left-0 w-screen h-screen flex flex-col justify-around"
+      data-state={modalOpen ? "open" : "closed"}
+      className="DialogOverlay fixed top-0 left-0 w-screen h-screen flex flex-col justify-around"
     >
-      <Card className="relative w-[640px] max-w-[640px] h-3/4 mx-auto p-0">
+      <Card className="DialogContent relative w-[640px] max-w-[640px] h-3/4 mx-auto p-0">
         <Header closeModal={closeModal} />
 
-        <div ref={scrollDiv} className="h-full overflow-y-scroll px-6">
+        <div ref={scrollDiv} className="h-full overflow-y-auto px-6">
           <div className="h-20" />
 
           <MatchName matchName={matchName} setMatchName={setMatchName} />
@@ -172,10 +169,16 @@ function SummonIslandForm({ closeModal }: { closeModal: () => void }) {
 
 export function useSummonIslandModal() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [mount, setMount] = useState(false);
+
+  useEffect(() => {
+    if (modalOpen) setMount(true);
+    else setTimeout(() => setMount(false), 300);
+  }, [modalOpen]);
 
   return {
     modalOpen,
     setModalOpen,
-    modal: modalOpen ? <SummonIslandForm closeModal={() => setModalOpen(false)} /> : <></>,
+    modal: mount ? <SummonIslandForm closeModal={() => setModalOpen(false)} modalOpen={modalOpen} /> : <></>,
   };
 }

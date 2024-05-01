@@ -9,8 +9,9 @@ export function createAppearanceSystem(layer: PhaserLayer) {
     world,
     components: { Appearance },
     scenes: {
-      Main: { objectPool, config },
+      Main: { config },
     },
+    globalObjectPool,
     parentLayers: {
       local: {
         components: { LocalPosition },
@@ -27,15 +28,9 @@ export function createAppearanceSystem(layer: PhaserLayer) {
     if (type === UpdateType.Enter) {
       const appearance = getComponentValue(Appearance, entity);
       if (!appearance) return;
-      const sprite = config.sprites[appearance.value as 0];
-      const embodiedEntity = objectPool.get(entity, "Sprite");
-
-      embodiedEntity.setComponent({
-        id: Appearance.id,
-        once: (gameObject) => {
-          gameObject.setTexture(sprite.assetKey, sprite.frame);
-        },
-      });
+      const spriteConfig = config.sprites[appearance.value as 0];
+      const sprite = globalObjectPool.get(entity, "Sprite");
+      sprite.setTexture(spriteConfig.assetKey, spriteConfig.frame);
     }
   });
 
@@ -45,15 +40,9 @@ export function createAppearanceSystem(layer: PhaserLayer) {
     if (type === UpdateType.Enter || type === UpdateType.Update) {
       const appearance = getComponentValue(Appearance, entity);
       if (!appearance) return;
-      const sprite = config.sprites[appearance.value as 0];
-      const embodiedEntity = objectPool.get(entity, "Sprite");
-
-      embodiedEntity.setComponent({
-        id: Appearance.id,
-        once: (gameObject) => {
-          gameObject.setTexture(sprite.assetKey, sprite.frame);
-        },
-      });
+      const spriteConfig = config.sprites[appearance.value as 0];
+      const sprite = globalObjectPool.get(entity, "Sprite");
+      sprite.setTexture(spriteConfig.assetKey, spriteConfig.frame);
     }
   });
 }

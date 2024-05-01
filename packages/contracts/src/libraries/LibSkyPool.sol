@@ -62,29 +62,43 @@ function dispenseRewards(bytes32 matchEntity) {
 function getReward(uint256 numberOfMatches) view returns (uint256) {
   uint256 cost = SkyPoolConfig.getCost();
 
-  if (numberOfMatches < 200) {
+  if (numberOfMatches < 300) {
     return 5 * cost;
-  } else if (numberOfMatches < 400) {
+  } else if (numberOfMatches < 500) {
     return 4 * cost;
   } else if (numberOfMatches < 600) {
+    return (7 * cost) / 2;
+  } else if (numberOfMatches < 700) {
     return 3 * cost;
   } else if (numberOfMatches < 800) {
+    return (5 * cost) / 2;
+  } else if (numberOfMatches < 900) {
     return 2 * cost;
   } else if (numberOfMatches < 1000) {
+    return (3 * cost) / 2;
+  } else if (numberOfMatches < 1100) {
     return cost;
   } else if (numberOfMatches < 1200) {
-    return (4 * cost) / 5;
-  } else if (numberOfMatches < 1400) {
+    return (3 * cost) / 4;
+  } else if (numberOfMatches < 1300) {
     return (3 * cost) / 5;
-  } else if (numberOfMatches < 1600) {
+  } else if (numberOfMatches < 1400) {
+    return cost / 2;
+  } else if (numberOfMatches < 1500) {
     return (2 * cost) / 5;
+  } else if (numberOfMatches < 1600) {
+    return (7 * cost) / 20;
+  } else if (numberOfMatches < 1700) {
+    return (3 * cost) / 10;
   } else if (numberOfMatches < 1800) {
-    return (1 * cost) / 5;
+    return cost / 4;
+  } else if (numberOfMatches < 1900) {
+    return (2 * cost) / 10;
   } else if (numberOfMatches < 2000) {
-    return (1 * cost) / 10;
+    return (3 * cost) / 20;
   }
 
-  return 0;
+  return cost / 10;
 }
 
 function getStartTimeOfWindow(uint256 window) view returns (uint256) {

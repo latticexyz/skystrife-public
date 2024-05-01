@@ -1,16 +1,16 @@
 import { DateTime } from "luxon";
 
 export const HOURS_BETWEEN_MATCHES = 8;
+export const START_HOUR = 0;
 
 export function createMatchTimes(time: DateTime, daysAhead = 1) {
   const hoursInDay = 24;
-  const dayTime = time.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
+  const startTime = time.toUTC().set({ hour: START_HOUR, minute: 0, second: 0, millisecond: 0 });
+  const numSummonTimes = daysAhead * (hoursInDay / HOURS_BETWEEN_MATCHES);
 
-  const times = [];
-  for (let d = 0; d < daysAhead; d++) {
-    for (let i = 0; i <= hoursInDay; i += HOURS_BETWEEN_MATCHES) {
-      times.push(dayTime.set({ hour: i, day: time.day + d }));
-    }
+  const times: DateTime[] = [];
+  for (let i = 0; i < numSummonTimes; i++) {
+    times.push(startTime.plus({ hours: HOURS_BETWEEN_MATCHES * i }));
   }
 
   return times;

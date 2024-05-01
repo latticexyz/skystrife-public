@@ -91,10 +91,10 @@ export function createMapSystem(layer: PhaserLayer) {
     scenes: {
       Main: {
         config,
-        objectPool,
         maps: { Main },
       },
     },
+    globalObjectPool,
   } = layer;
 
   // TODO: commented till we fix the uploader to bundle untraversable and entity type together
@@ -173,23 +173,17 @@ export function createMapSystem(layer: PhaserLayer) {
     const pixelCoord = tileCoordToPixelCoord(coord, tileWidth, tileHeight);
 
     for (const asset in Assets) {
-      objectPool.remove(`depth-${coord.x}-${coord.y}-${asset}`);
+      globalObjectPool.remove(`depth-${coord.x}-${coord.y}-${asset}`);
     }
 
     const addAsset = (asset: Assets, offset: Coord) => {
       const result = addCoords(pixelCoord, offset);
 
-      const object = objectPool.get(`depth-${coord.x}-${coord.y}-${asset}`, "Sprite");
-      object.setComponent({
-        id: `depth`,
-        once: async (obj) => {
-          const sprite = config.assets[asset];
-
-          obj.setTexture(sprite.key, 0);
-          obj.setPosition(result.x, result.y);
-          obj.setDepth(RenderDepth.Background4);
-        },
-      });
+      const obj = globalObjectPool.get(`depth-${coord.x}-${coord.y}-${asset}`, "Sprite");
+      const sprite = config.assets[asset];
+      obj.setTexture(sprite.key, 0);
+      obj.setPosition(result.x, result.y);
+      obj.setDepth(RenderDepth.Background4);
     };
 
     const empties = WANG_OFFSET.map((offset) =>
@@ -282,22 +276,18 @@ export function createMapSystem(layer: PhaserLayer) {
             const foregroundAnimation = terrainTypeToForegroundAnimation[type.value as TerrainTypes];
             if (foregroundAnimation) {
               // Main.putAnimationAt(coord, anim, "Foreground");
-              const obj = objectPool.get(`terrain-foreground-animation-${foregroundAnimationTileIndex++}`, "Sprite");
-              obj.setComponent({
-                id: "foreground-animation-tile",
-                once: (sprite) => {
-                  sprite.play(foregroundAnimation);
-                  sprite.setPosition(pixelCoord.x, pixelCoord.y);
-                  sprite.setDepth(RenderDepth.Foreground1);
-                },
-              });
+              const sprite = globalObjectPool.get(
+                `terrain-foreground-animation-${foregroundAnimationTileIndex++}`,
+                "Sprite",
+              );
+              sprite.play(foregroundAnimation);
+              sprite.setPosition(pixelCoord.x, pixelCoord.y);
+              sprite.setDepth(RenderDepth.Foreground1);
             }
           }
         }
 
         let tint: number | undefined;
-        if ((type.value as TerrainTypes) === TerrainTypes.StoneWall) tint = 0x444444;
-
         const backgroundTile = isArray(tile) ? sample(tile) : tile;
         if (!backgroundTile) return;
         Main.putTileAt(coord, backgroundTile, undefined, tint);

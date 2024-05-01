@@ -1,6 +1,6 @@
 import { isDefined } from "@latticexyz/common/utils";
 import { StorageAdapterBlock } from "@latticexyz/store-sync";
-import { Observable, concatMap, filter, firstValueFrom, scan, shareReplay } from "rxjs";
+import { Observable, mergeMap, filter, firstValueFrom, scan, shareReplay } from "rxjs";
 import { Hex, TransactionReceipt, TransactionReceiptNotFoundError, createPublicClient } from "viem";
 
 export function createWaitForTransaction({
@@ -14,15 +14,15 @@ export function createWaitForTransaction({
   const recentBlocks$ = storedBlockLogs$.pipe(
     scan<StorageAdapterBlock, StorageAdapterBlock[]>(
       (recentBlocks, block) => [block, ...recentBlocks].slice(0, recentBlocksWindow),
-      []
+      [],
     ),
     filter((recentBlocks) => recentBlocks.length > 0),
-    shareReplay(1)
+    shareReplay(1),
   );
 
   async function waitForTransaction(tx: Hex, onReceipt?: (receipt: TransactionReceipt) => void): Promise<void> {
     const hasTransaction$ = recentBlocks$.pipe(
-      concatMap(async (blocks) => {
+      mergeMap(async (blocks) => {
         const txs = blocks.flatMap((block) => block.logs.map((log) => log.transactionHash).filter(isDefined));
         if (txs.includes(tx)) return true;
 
@@ -42,7 +42,7 @@ export function createWaitForTransaction({
           }
           throw error;
         }
-      })
+      }),
     );
 
     await firstValueFrom(hasTransaction$.pipe(filter((v) => Boolean(v))));

@@ -37,7 +37,9 @@ export async function createSeasonPassNotifier(
       const blockExplorer = chain?.blockExplorers?.default?.url;
       const nameContent = blockExplorer ? `[${name}](${blockExplorer}/address/${toEthAddress(buyer)})` : name;
 
-      const msgContent = `🎫 ${nameContent} has purchased a Season Pass for ${parseFloat(formatEther(price)).toFixed(6)}ETH! 🎫`;
+      const msgContent = `🎫 ${nameContent} has purchased a Season Pass for ${parseFloat(formatEther(price))
+        .toFixed(6)
+        .replace(/\.?0+$/, "")} ETH! 🎫`;
 
       notifChannel.send({
         content: msgContent,

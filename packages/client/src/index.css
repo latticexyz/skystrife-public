@@ -29,7 +29,8 @@
 
 @font-face {
   font-family: "Nippo-Variable";
-  src: url("public/assets/fonts/Nippo-Variable.woff2") format("woff2"),
+  src:
+    url("public/assets/fonts/Nippo-Variable.woff2") format("woff2"),
     url("public/assets/fonts/Nippo-Variable.woff") format("woff"),
     url("public/assets/fonts/Nippo-Variable.ttf") format("truetype");
   font-weight: 200 700;
@@ -39,7 +40,8 @@
 
 @font-face {
   font-family: "Nippo-Extralight";
-  src: url("public/assets/fonts/Nippo-Extralight.woff2") format("woff2"),
+  src:
+    url("public/assets/fonts/Nippo-Extralight.woff2") format("woff2"),
     url("public/assets/fonts/Nippo-Extralight.woff") format("woff"),
     url("public/assets/fonts/Nippo-Extralight.ttf") format("truetype");
   font-weight: 200;
@@ -49,7 +51,8 @@
 
 @font-face {
   font-family: "Nippo-Light";
-  src: url("public/assets/fonts/Nippo-Light.woff2") format("woff2"),
+  src:
+    url("public/assets/fonts/Nippo-Light.woff2") format("woff2"),
     url("public/assets/fonts/Nippo-Light.woff") format("woff"),
     url("public/assets/fonts/Nippo-Light.ttf") format("truetype");
   font-weight: 300;
@@ -59,7 +62,8 @@
 
 @font-face {
   font-family: "Nippo-Regular";
-  src: url("public/assets/fonts/Nippo-Regular.woff2") format("woff2"),
+  src:
+    url("public/assets/fonts/Nippo-Regular.woff2") format("woff2"),
     url("public/assets/fonts/Nippo-Regular.woff") format("woff"),
     url("public/assets/fonts/Nippo-Regular.ttf") format("truetype");
   font-weight: 400;
@@ -69,7 +73,8 @@
 
 @font-face {
   font-family: "Nippo-Medium";
-  src: url("public/assets/fonts/Nippo-Medium.woff2") format("woff2"),
+  src:
+    url("public/assets/fonts/Nippo-Medium.woff2") format("woff2"),
     url("public/assets/fonts/Nippo-Medium.woff") format("woff"),
     url("public/assets/fonts/Nippo-Medium.ttf") format("truetype");
   font-weight: 500;
@@ -79,10 +84,39 @@
 
 @font-face {
   font-family: "Nippo-Bold";
-  src: url("public/assets/fonts/Nippo-Bold.woff2") format("woff2"),
+  src:
+    url("public/assets/fonts/Nippo-Bold.woff2") format("woff2"),
     url("public/assets/fonts/Nippo-Bold.woff") format("woff"),
     url("public/assets/fonts/Nippo-Bold.ttf") format("truetype");
   font-weight: 700;
   font-display: swap;
   font-style: normal;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.DialogOverlay[data-state="open"],
+.DialogContent[data-state="open"] {
+  animation: fadeIn 300ms ease-out;
+}
+
+.DialogOverlay[data-state="closed"],
+.DialogContent[data-state="closed"] {
+  animation: fadeOut 300ms ease-in;
 }

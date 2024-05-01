@@ -12,6 +12,7 @@ import { SyncStep } from "@latticexyz/store-sync";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
 import { EMOJI } from "../../constants";
 import { DateTime } from "luxon";
+import { useStore } from "../../useStore";
 
 type Props = {
   networkLayer: NetworkLayer | null;
@@ -117,7 +118,12 @@ function createAnalyticsSender(networkLayer: NetworkLayer) {
 }
 
 export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
-  const [hide, setHide] = React.useState(false);
+  const { loadingPageHidden: hide } = useStore();
+  const setHide = (h: boolean) => {
+    useStore.setState({ loadingPageHidden: h });
+  };
+
+  const [isMatch, setIsMatch] = React.useState(false);
 
   const [prepareGameProgress, setPrepareGameProgress] = useState(0);
   const [startGameProgress, setStartGameProgress] = useState(false);
@@ -127,9 +133,11 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
       if (!networkLayer) return;
       const {
         components: { SyncProgress },
+        network: { matchEntity },
       } = networkLayer;
 
       createAnalyticsSender(networkLayer);
+      setIsMatch(Boolean(matchEntity));
 
       // use LoadingState.update$ as a trigger rather than a value
       // and concat with an initial value to trigger the first look up
@@ -196,79 +204,98 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
     return () => clearInterval(interval);
   }, [networkLayer, prepTimeSeconds, startGameProgress, usePrepTime]);
 
-  if (hide) {
-    return null;
-  }
-
   const doneLoading = usePrepTime ? prepareGameProgress === 100 : loadingState.step === SyncStep.LIVE;
+  useEffect(() => {
+    if (doneLoading && isMatch && worldValid) setHide(true);
+  }, [doneLoading, isMatch, worldValid]);
+
   const showPrepMessage = loadingState.step === SyncStep.LIVE && usePrepTime;
 
   const loadingMessage = showPrepMessage ? "Preparing Game" : loadingState.message;
   const loadingPercentage = showPrepMessage ? prepareGameProgress : Math.round(loadingState.percentage);
   const showPercentage = showPrepMessage || loadingPercentage > 0;
 
+  if (hide) {
+    return null;
+  }
+
   return (
     <div
       style={{
         zIndex: 1200,
-        background: "linear-gradient(rgba(24, 23, 16, 0.4), rgba(24, 23, 16, 0.4)), url(assets/ss-splash-1.png)",
+        background: "linear-gradient(rgba(24, 23, 16, 0.4), rgba(24, 23, 16, 0.4)), url(assets/ss-splash-min.png)",
         backgroundPosition: "right",
         backgroundSize: "cover",
       }}
       className="fixed items-center justify-center w-screen h-screen bg-black p-12 flex flex-col"
     >
       <Card primary className="flex flex-col w-[540px] p-8 justify-items">
-        <OverlineLarge
-          style={{
-            fontSize: "80px",
-            lineHeight: "110%",
-            letterSpacing: "-2%",
-          }}
-          className="normal-case text-center"
-        >
-          Sky Strife
-        </OverlineLarge>
-        <div className="h-3" />
-        <Body className="text-ss-text-light text-center">
-          Sky Strife is a fully onchain RTS game. Compete for control of islands, earn {EMOJI}, and create your own
-          matches.
-        </Body>
+        {isMatch && (
+          <>
+            <OverlineLarge
+              style={{
+                fontSize: "40px",
+                lineHeight: "100%",
+                letterSpacing: "-2%",
+              }}
+              className="normal-case text-center"
+            >
+              Entering Match...
+            </OverlineLarge>
+          </>
+        )}
+
+        {!isMatch && (
+          <>
+            <OverlineLarge
+              style={{
+                fontSize: "80px",
+                lineHeight: "100%",
+                letterSpacing: "-2%",
+              }}
+              className="normal-case text-center"
+            >
+              Sky Strife
+            </OverlineLarge>
+          </>
+        )}
+
+        {!doneLoading && (
+          <div className="flex flex-col grow items-center mt-4 text-center">
+            <Body>Sky Strife is a fast-paced, onchain RTS game running on Redstone.</Body>
+
+            <div className="h-4"></div>
+
+            <a className="w-full" href={HOW_TO_PLAY_URL} target="_blank" rel="noreferrer">
+              <Button buttonType="tertiary" size="lg" className="w-full">
+                How To Play
+              </Button>
+            </a>
+          </div>
+        )}
 
         {doneLoading && worldValid && (
-          <div className="flex flex-col mt-4 grow">
+          <div className="flex flex-col grow">
+            <Body className="px-4 mt-4 text-center text-sm font-thin">
+              By clicking &apos;I agree&apos;, you acknowledge that you (i) agree to the{" "}
+              <Link className="" href={"/terms.pdf"}>
+                Terms of Service
+              </Link>{" "}
+              and (ii) have read and understood our <Link href={"/privacy-policy"}>Privacy Policy</Link>.
+            </Body>
+
+            <div className="h-3" />
+
             <Button
               buttonType="primary"
               size="lg"
               onClick={() => {
                 setHide(true);
               }}
-              className="mt-4 w-full"
-            >
-              Enter
-            </Button>
-            <div className="h-4"></div>
-            <a
               className="w-full"
-              href="https://latticexyz.notion.site/How-to-Play-72640de2c45e4735954f8ab54b9bd593"
-              target="_blank"
-              rel="noreferrer"
             >
-              <Button buttonType="tertiary" size="lg" className="w-full">
-                How To Play
-              </Button>
-            </a>
-
-            <Body style={{ fontSize: "12px" }} className="px-4 mt-4 text-center text-sm font-thin">
-              By clicking &apos;Enter&apos;, you acknowledge that you (i) agree to the{" "}
-              <Link style={{ fontSize: "12px" }} className="" href={"/terms.pdf"}>
-                Terms of Service
-              </Link>{" "}
-              and (ii) have read and understood our{" "}
-              <Link style={{ fontSize: "12px" }} href={"/privacy-policy"}>
-                Privacy Policy
-              </Link>
-              .
-            </Body>
+              I agree
+            </Button>
           </div>
         )}
 
@@ -329,7 +356,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
           <div className="w-6 text-center text-ss-divider-stroke">|</div>
 
           <Link className="text-ss-gold" href={"/terms.pdf"}>
-            terms of use
+            terms of service
           </Link>
         </div>
 

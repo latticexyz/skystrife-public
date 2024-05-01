@@ -45,5 +45,12 @@ export function createClientComponents({ components, world }: SetupNetworkResult
       { factory: Type.Entity, unitType: Type.Number, goldCost: Type.Number, prototypeId: Type.Entity },
       { id: "BuildingUnit" },
     ),
+    WalletBalance: defineComponent(
+      world,
+      {
+        value: Type.BigInt,
+      },
+      { id: "WalletBalance" },
+    ),
   };
 }

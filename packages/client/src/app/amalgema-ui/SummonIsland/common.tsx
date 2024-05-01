@@ -156,26 +156,35 @@ export function EthInput({
   amount,
   className,
   label,
+  danger,
 }: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
   amount: bigint;
   label?: React.ReactNode | string;
+  danger?: boolean;
 }) {
   return (
-    <div className="flex flex-row items-baseline w-full h-[36px] bg-ss-bg-2 px-4 py-1 border border-[#DDDAD0] align-middle">
+    <div
+      className={twMerge(
+        "flex flex-row items-baseline w-full h-[36px] bg-ss-bg-2 px-2 py-1 border align-middle",
+        danger ? "border-red-500" : "border-[#DDDAD0]",
+      )}
+    >
       <span
         style={{
-          fontSize: "12px",
+          fontSize: "14px",
         }}
-        className=" w-full left-3 text-ss-text-x-light uppercase"
+        className=" w-full text-ss-text-x-light uppercase"
       >
         {label}
       </span>
 
       <input
-        className={twMerge("w-[120px] align-middle shrink text-right pr-3 bg-ss-bg-2", className)}
+        className={twMerge("w-[100px] align-middle shrink text-right pr-3 bg-ss-bg-2", className)}
         type="text"
         readOnly
-        value={parseFloat(formatEther(amount)).toFixed(5)}
+        value={parseFloat(formatEther(amount))
+          .toFixed(5)
+          .replace(/\.?0+$/, "")}
       />
 
       <Body className="text-ss-text-default right-3">ETH</Body>

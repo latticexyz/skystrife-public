@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Entity, getComponentValue, Has, HasValue, runQuery } from "@latticexyz/recs";
+import { Entity, Has, HasValue, runQuery } from "@latticexyz/recs";
 import { useMUD } from "../../../useMUD";
 import { useCurrentPlayer } from "../hooks/useCurrentPlayer";
 import { Button } from "../Theme/SkyStrife/Button";
@@ -73,6 +73,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
       components: { PlayerReady },
       utils: { getAvailableLevelSpawns, hasSystemDelegation, getMatchRewards },
       executeSystemWithExternalWallet,
+      utils: { refreshBalance },
     },
   } = useMUD();
 
@@ -97,6 +98,12 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
 
   const matchConfig = useComponentValue(MatchConfig, matchEntity);
   const levelId = matchConfig?.levelId;
+
+  useEffect(() => {
+    const address = walletClient?.account?.address;
+    if (!address) return;
+    refreshBalance(address);
+  }, [walletClient, refreshBalance]);
 
   const burnerBalance = useBurnerBalance();
   const matchRewards = getMatchRewards(matchEntity);
@@ -139,7 +146,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
 
         await executeSystemWithExternalWallet({
           systemCall: "batchCall",
-          systemId: "JoinMatch",
+          systemId: "Join Match",
           args: [
             [
               encodeSystemCalls(
@@ -194,7 +201,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
   if (!isAllowed && hasAllowList) disabledMessage = "You are not on the access list";
 
   let registerDisabled = false;
-  if (!nameValid) registerDisabled = true;
+  if (!name && !nameValid) registerDisabled = true;
   if (orbBalance < matchRewards.entranceFee) registerDisabled = true;
   if (!isAllowed) registerDisabled = true;
 
@@ -220,7 +227,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
               type="text"
               className="w-full py-2 px-3 rounded border border-1 border-white bg-[#F4F3F1] flex flex-row"
               placeholder="Enter a name"
-              disabled={Boolean(pendingTx || currentPlayer?.player)}
+              disabled={Boolean(name || pendingTx || currentPlayer?.player)}
               value={newName}
               onChange={(e) => {
                 const name = e.target.value;
@@ -293,7 +300,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
         )}
       </div>
 
-      {burnerBalance?.belowDanger && (
+      {burnerBalance?.danger && (
         <>
           <div className="h-4"></div>
           <SessionWalletManager />

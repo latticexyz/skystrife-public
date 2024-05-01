@@ -8,7 +8,7 @@ import { createMatchEntity } from "../createMatchEntity.sol";
 
 import { charge } from "../libraries/LibCharge.sol";
 
-int32 constant STARTING_GOLD = 500;
+int32 constant STARTING_GOLD = 1000;
 
 function createPlayerEntity(bytes32 matchEntity, address playerAddress) returns (bytes32) {
   bytes32 addressEntity = addressToEntity(playerAddress);

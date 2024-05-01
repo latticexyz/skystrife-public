@@ -1,5 +1,5 @@
 import { transportObserver } from "@latticexyz/common";
-import { transactionQueue, writeObserver } from "@latticexyz/common/actions";
+import { transactionQueue } from "@latticexyz/common/actions";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { useEffect } from "react";
 import { createPublicClient, fallback, webSocket, http, getContract, Hex } from "viem";
@@ -22,14 +22,7 @@ export function ExternalWalletProvider({ networkConfig, children }: Props) {
       return;
     }
 
-    const customExternalWalletClient = externalWalletClient.extend(transactionQueue()).extend(
-      writeObserver({
-        onWrite: (write) => {
-          const { writes } = useStore.getState();
-          useStore.setState({ writes: [...writes, write] });
-        },
-      }),
-    );
+    const customExternalWalletClient = externalWalletClient.extend(transactionQueue());
 
     // TODO: centralize this somewhere
     const publicClient = createPublicClient({

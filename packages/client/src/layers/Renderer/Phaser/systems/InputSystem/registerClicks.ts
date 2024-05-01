@@ -10,7 +10,7 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
   const {
     parentLayers: {
       network: {
-        utils: { isOwnedByCurrentPlayer },
+        utils: { isOwnedByCurrentPlayer, hasPendingAction: _hasAction },
         components: { RequiresSetup, BuildingUnit },
       },
       headless: {
@@ -19,7 +19,7 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
       },
       local: {
         api: { selectArea, resetSelection, move },
-        components: { PotentialPath, LocalPosition },
+        components: { IncomingDamage, PotentialPath, LocalPosition },
       },
     },
     api: {
@@ -28,7 +28,6 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
     scenes: {
       Main: { input, maps },
     },
-    components: { IncomingDamage },
   } = layer;
 
   const commitIncomingDamage = (attacker: Entity, defender: Entity) => {
@@ -66,6 +65,8 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
 
     // If the player owns the select unit...
     if (selectedEntity && isOwnedByCurrentPlayer(selectedEntity)) {
+      const hasPendingAction = _hasAction(selectedEntity);
+      const clearNextPosition = !hasPendingAction;
       const highlightedEntity = getHighlightedEntity();
       const currentPosition = getComponentValue(LocalPosition, selectedEntity);
       if (!currentPosition) return;
@@ -73,7 +74,7 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
       // If the player is hovering over an empty tile
       if (highlightedEntity == null) {
         if (hasComponent(OnCooldown, selectedEntity)) {
-          resetSelection();
+          resetSelection(clearNextPosition);
           selectArea({ ...clickedPosition, width: 1, height: 1 });
           return;
         }
@@ -118,7 +119,7 @@ export function registerClicks(layer: PhaserLayer, { getSelectedEntity, getHighl
             resetSelection(false);
           }
         } else {
-          resetSelection();
+          resetSelection(clearNextPosition);
           selectArea({ ...clickedPosition, width: 1, height: 1 });
         }
       } else {

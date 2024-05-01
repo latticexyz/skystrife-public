@@ -12,33 +12,28 @@ export function createDrawDevHighlightSystem(layer: PhaserLayer) {
     },
     scenes: {
       Main: {
-        objectPool,
         maps: {
           Main: { tileWidth, tileHeight },
         },
       },
     },
     components: { DevHighlight },
+    globalObjectPool,
   } = layer;
 
   defineSystem(world, [Has(DevHighlight), Has(LocalPosition)], ({ entity, type }) => {
     if (type === UpdateType.Exit) {
-      return objectPool.remove(`${entity}-dev-highlight`);
+      return globalObjectPool.remove(`${entity}-dev-highlight`);
     }
 
     const devHighlight = getComponentValueStrict(DevHighlight, entity);
     const position = getComponentValueStrict(LocalPosition, entity);
-    const highlight = objectPool.get(`${entity}-dev-highlight`, "Rectangle");
+    const sprite = globalObjectPool.get(`${entity}-dev-highlight`, "Rectangle");
 
-    highlight.setComponent({
-      id: `highlight`,
-      once: (box) => {
-        const pixelCoord = tileCoordToPixelCoord(position, tileWidth, tileHeight);
+    const pixelCoord = tileCoordToPixelCoord(position, tileWidth, tileHeight);
 
-        box.setFillStyle(devHighlight.value ?? 0xf0e71d, 0.5);
-        box.setSize(tileWidth, tileHeight);
-        box.setPosition(pixelCoord.x, pixelCoord.y);
-      },
-    });
+    sprite.setFillStyle(devHighlight.value ?? 0xf0e71d, 0.5);
+    sprite.setSize(tileWidth, tileHeight);
+    sprite.setPosition(pixelCoord.x, pixelCoord.y);
   });
 }

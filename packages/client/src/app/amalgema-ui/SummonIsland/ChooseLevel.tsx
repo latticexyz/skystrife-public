@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { Entity, Has, HasValue, getComponentValue } from "@latticexyz/recs";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -6,7 +7,7 @@ import { Hex, hexToString } from "viem";
 import { Body, OverlineSmall } from "../../ui/Theme/SkyStrife/Typography";
 import { ChevronDown, RequiredAsterisk } from "./common";
 import { useEffect } from "react";
-import { LevelDisplay } from "./LevelDisplay";
+import { MapDisplay } from "./MapDisplay";
 import { twMerge } from "tailwind-merge";
 import { SeasonPassIcon } from "../SeasonPassIcon";
 import { ConfirmedCheck } from "../../ui/Theme/SkyStrife/Icons/ConfirmedCheck";
@@ -23,7 +24,7 @@ function LevelName({ levelId }: { levelId: Hex }) {
   const official = getComponentValue(OfficialLevel, levelId as Entity)?.value;
 
   const seasonPassOnly = useComponentValue(LevelInSeasonPassRotation, levelId as Entity);
-  const numSpawns = getLevelSpawns(levelId as Entity).length;
+  const numSpawns = useMemo(() => getLevelSpawns(levelId as Entity).length, [getLevelSpawns, levelId]);
 
   return (
     <div className="flex flex-row items-center">
@@ -57,7 +58,7 @@ export function ChooseLevel({
 }) {
   const {
     network: {
-      components: { LevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation, OfficialLevel },
+      components: { LevelTemplates, LevelInStandardRotation, LevelInSeasonPassRotation },
     },
     utils: { getLevelSpawns },
   } = useAmalgema();
@@ -108,7 +109,7 @@ export function ChooseLevel({
                       className={twMerge(
                         `w-96 p-2 border rounded-md text-ss-text-default`,
                         id === levelId ? "bg-ss-blue-hover" : "bg-white",
-                        seasonPassLevel && !hasSeasonPass ? "bg-gray-200 text-gray-400" : "hover:bg-ss-blue-hover"
+                        seasonPassLevel && !hasSeasonPass ? "bg-gray-200 text-gray-400" : "hover:bg-ss-blue-hover",
                       )}
                     >
                       <LevelName levelId={id as Hex} />
@@ -126,7 +127,7 @@ export function ChooseLevel({
           </div>
         </div>
 
-        <LevelDisplay levelId={levelId} />
+        <MapDisplay levelId={levelId} />
       </div>
     </div>
   );

@@ -77,6 +77,15 @@ export async function createLocalLayer(headless: HeadlessLayer) {
   const Selection = defineSelectionComponent(world);
   const Selected = defineSelectedComponent(world);
   const Selectable = defineSelectableComponent(world);
+  const IncomingDamage = defineComponent(
+    world,
+    {
+      sources: Type.EntityArray,
+      values: Type.NumberArray,
+      commitments: Type.NumberArray,
+    },
+    { id: "IncomingDamage" },
+  );
 
   const PotentialPath = defineComponent(
     world,
@@ -141,6 +150,7 @@ export async function createLocalLayer(headless: HeadlessLayer) {
     Selected,
     Selection,
     UIState,
+    IncomingDamage,
   };
 
   // Singleton entity

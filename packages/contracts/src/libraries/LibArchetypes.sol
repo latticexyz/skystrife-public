@@ -114,7 +114,7 @@ function createSwordsmanModifiers() {
     CombatArchetypes.Swordsman,
     CombatArchetypes.Settlement,
     ArchetypeModifierData({
-      mod: 50,
+      mod: 0,
       attackerArchetype: CombatArchetypes.Swordsman,
       defenderArchetype: CombatArchetypes.Settlement
     })
@@ -125,7 +125,7 @@ function createSwordsmanModifiers() {
     CombatArchetypes.Swordsman,
     CombatArchetypes.SpawnSettlement,
     ArchetypeModifierData({
-      mod: 0,
+      mod: -25,
       attackerArchetype: CombatArchetypes.Swordsman,
       defenderArchetype: CombatArchetypes.SpawnSettlement
     })
@@ -136,7 +136,7 @@ function createSwordsmanModifiers() {
     CombatArchetypes.Swordsman,
     CombatArchetypes.GoldMine,
     ArchetypeModifierData({
-      mod: 50,
+      mod: 0,
       attackerArchetype: CombatArchetypes.Swordsman,
       defenderArchetype: CombatArchetypes.GoldMine
     })
@@ -675,7 +675,7 @@ function createKnightModifiers() {
     CombatArchetypes.Knight,
     CombatArchetypes.Brute,
     ArchetypeModifierData({
-      mod: -25,
+      mod: 0,
       attackerArchetype: CombatArchetypes.Knight,
       defenderArchetype: CombatArchetypes.Brute
     })
@@ -896,7 +896,7 @@ function createArcherModifiers() {
     CombatArchetypes.Archer,
     CombatArchetypes.Swordsman,
     ArchetypeModifierData({
-      mod: 100,
+      mod: 125,
       attackerArchetype: CombatArchetypes.Archer,
       defenderArchetype: CombatArchetypes.Swordsman
     })
@@ -1081,7 +1081,7 @@ function createCatapultModifiers() {
     CombatArchetypes.Catapult,
     CombatArchetypes.Dragoon,
     ArchetypeModifierData({
-      mod: -50,
+      mod: -25,
       attackerArchetype: CombatArchetypes.Catapult,
       defenderArchetype: CombatArchetypes.Dragoon
     })

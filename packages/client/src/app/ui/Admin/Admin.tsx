@@ -6,7 +6,6 @@ import { useMUD } from "../../../useMUD";
 import { Body, OverlineLarge } from "../Theme/SkyStrife/Typography";
 import { useComponentValue } from "@latticexyz/react";
 import { ComponentBrowser } from "./ComponentBrowser";
-import { DevTools } from "./DevTools";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
 
 const Separator = () => <div className="border-b border-white-400 my-4 -mx-4" />;
@@ -40,7 +39,6 @@ export const Admin = () => {
 
   return (
     <>
-      <DevTools />
       {visible && (
         <div className="fixed right-0 top-0 z-100 h-screen w-1/3">
           <div className="h-2/3">

@@ -31,30 +31,25 @@ export function createSkullSystem(layer: PhaserLayer) {
     },
   } = layer;
 
-  function drawSkull(skullSprite: EmbodiedEntity<"Sprite">, position: WorldCoord) {
+  function drawSkull(skullSprite: Phaser.GameObjects.Sprite, position: WorldCoord) {
     const pixelCoord = tileCoordToPixelCoord(position, TILE_WIDTH, TILE_HEIGHT);
     const spriteConfig = sprites[Sprites.Skull];
 
-    skullSprite.setComponent({
-      id: "skull",
-      once: (obj) => {
-        obj.setPosition(pixelCoord.x + TILE_WIDTH / 2, pixelCoord.y - 28);
-        obj.setDepth(depthFromPosition(position, RenderDepth.UI1));
-        obj.setOrigin(0.5, 0);
-        obj.setTexture(spriteConfig.assetKey, spriteConfig.frame);
-        obj.setAlpha(0.25);
+    skullSprite.setPosition(pixelCoord.x + TILE_WIDTH / 2, pixelCoord.y - 28);
+    skullSprite.setDepth(depthFromPosition(position, RenderDepth.UI1));
+    skullSprite.setOrigin(0.5, 0);
+    skullSprite.setTexture(spriteConfig.assetKey, spriteConfig.frame);
+    skullSprite.setAlpha(0.25);
 
-        phaserScene.add.tween({
-          targets: obj,
-          duration: 500,
-          repeat: -1,
-          yoyo: true,
-          ease: "Sine.easeInOut",
-          alpha: 1,
-          scale: 1.1,
-          y: "-=2",
-        });
-      },
+    phaserScene.add.tween({
+      targets: skullSprite,
+      duration: 500,
+      repeat: -1,
+      yoyo: true,
+      ease: "Sine.easeInOut",
+      alpha: 1,
+      scale: 1.1,
+      y: "-=2",
     });
   }
 
@@ -67,7 +62,7 @@ export function createSkullSystem(layer: PhaserLayer) {
       if (!nextPosition) return;
 
       drawSkull(gameObjects[0], nextPosition);
-    }
+    },
   );
 
   defineGameObjectSystem(
@@ -79,6 +74,6 @@ export function createSkullSystem(layer: PhaserLayer) {
       if (!position) return;
 
       drawSkull(gameObjects[0], position);
-    }
+    },
   );
 }

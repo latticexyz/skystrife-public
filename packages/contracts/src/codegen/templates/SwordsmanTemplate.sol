@@ -31,9 +31,9 @@ function SwordsmanTemplate() {
   tableIds[4] = ResourceId.unwrap(Untraversable._tableId);
 
   (staticData, encodedLengths, dynamicData) = Combat.encode(
-    100000,
-    100000,
-    40000,
+    120000,
+    120000,
+    50000,
     -30,
     0,
     1,
@@ -53,7 +53,7 @@ function SwordsmanTemplate() {
   encodedLengthss[2] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Movable.encode(4000);
+  (staticData, encodedLengths, dynamicData) = Movable.encode(3000);
   staticDatas[3] = staticData;
   encodedLengthss[3] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;

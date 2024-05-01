@@ -24,15 +24,6 @@ export function createPhaserComponents(world: World) {
     left: Type.Number,
   });
   const HeaderHeight = defineComponent(world, { value: Type.Number }, { id: "HeaderHeight" });
-  const IncomingDamage = defineComponent(
-    world,
-    {
-      sources: Type.EntityArray,
-      values: Type.NumberArray,
-      commitments: Type.NumberArray,
-    },
-    { id: "IncomingDamage" },
-  );
   const DevHighlight = defineComponent(world, { value: Type.OptionalNumber }, { id: "DevHighlight" });
   const TerrainArmorBonus = defineComponent(world, { value: Type.Number }, { id: "TerrainArmorBonus" });
   const WillBeDestroyed = defineComponent(world, { value: Type.Boolean }, { id: "WillBeDestroyed" });
@@ -49,7 +40,6 @@ export function createPhaserComponents(world: World) {
     Alpha,
     MapBounds,
     HeaderHeight,
-    IncomingDamage,
     TerrainArmorBonus,
     WillBeDestroyed,
   };

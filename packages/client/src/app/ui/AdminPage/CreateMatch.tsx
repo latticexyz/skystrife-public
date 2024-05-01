@@ -3,7 +3,6 @@ import { Entity, Has, getComponentValue } from "@latticexyz/recs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { BrutalistCard } from "../Theme/BrutalistCard";
-import { DisplayLevel } from "./DisplayLevel";
 import { Hex, encodeFunctionData, hexToString, maxUint256, padHex } from "viem";
 import { createMatchEntity } from "../../../createMatchEntity";
 import useOnClickOutside from "../hooks/useOnClickOutside";
@@ -137,7 +136,7 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                           ],
                           {
                             account: account.address,
-                          }
+                          },
                         );
                       }}
                     >
@@ -263,7 +262,7 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                           [],
                           BigInt(registrationTime),
                         ],
-                      })
+                      }),
                     );
 
                     const receipt = waitForTransaction(hash);
@@ -282,8 +281,6 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                 Create
               </PromiseButton>
             </div>
-
-            {level && level !== "Select a level" && <DisplayLevel level={level as Hex} />}
           </div>
         </BrutalistCard>
       </div>

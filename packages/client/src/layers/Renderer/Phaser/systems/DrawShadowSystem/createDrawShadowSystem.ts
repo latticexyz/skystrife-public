@@ -28,7 +28,7 @@ export const createDrawShadowSystem = (layer: PhaserLayer) => {
     },
   } = layer;
 
-  defineGameObjectSystem(1, "Sprite", [Has(UnitType), Has(LocalPosition), Not(Path)], ({ entity }, [imageObj]) => {
+  defineGameObjectSystem(1, "Sprite", [Has(UnitType), Has(LocalPosition), Not(Path)], ({ entity }, [shadow]) => {
     const position = getComponentValue(LocalPosition, entity);
     if (!position) return;
 
@@ -36,17 +36,12 @@ export const createDrawShadowSystem = (layer: PhaserLayer) => {
     const spriteAsset = config.sprites[Sprites.Shadow];
     const unitType = getComponentValue(UnitType, entity)?.value;
 
-    imageObj.setComponent({
-      id: "Shadow",
-      once: (shadow) => {
-        shadow.setTexture(spriteAsset.assetKey, spriteAsset.frame);
-        let y = pixelCoord.y + tileHeight / 2 - UNIT_OFFSET + 4;
-        if (unitType === UnitTypes.Brute) y += 7;
-        shadow.setPosition(pixelCoord.x, y);
+    shadow.setTexture(spriteAsset.assetKey, spriteAsset.frame);
+    let y = pixelCoord.y + tileHeight / 2 - UNIT_OFFSET + 4;
+    if (unitType === UnitTypes.Brute) y += 7;
+    shadow.setPosition(pixelCoord.x, y);
 
-        shadow.setDepth(depthFromPosition(position, RenderDepth.Foreground5));
-        shadow.setOrigin(0, 0.5);
-      },
-    });
+    shadow.setDepth(depthFromPosition(position, RenderDepth.Foreground5));
+    shadow.setOrigin(0, 0.5);
   });
 };

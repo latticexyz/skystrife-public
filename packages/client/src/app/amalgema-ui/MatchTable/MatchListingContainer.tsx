@@ -40,7 +40,7 @@ export function MatchListingContainer({
           height: `calc(100% - ${header ? 96 : 48}px)`,
           top: `${header ? 96 : 48}px`,
         }}
-        className={`absolute left-0 overflow-y-scroll w-full`}
+        className={`absolute left-0 overflow-y-auto w-full`}
       >
         {shownMatches.map((matchEntity) => {
           return React.createElement(matchRowComponent, { matchEntity, key: matchEntity });
@@ -90,7 +90,7 @@ export function ViewOnlyMatchListingContainer({
           height: `calc(100% - ${header ? 96 : 48}px)`,
           top: `${header ? 96 : 48}px`,
         }}
-        className={`absolute left-0 overflow-y-scroll w-full`}
+        className={`absolute left-0 overflow-y-auto w-full`}
       >
         {shownMatches.map((matchEntity) => {
           return React.createElement(matchRowComponent, { matchEntity, key: matchEntity });

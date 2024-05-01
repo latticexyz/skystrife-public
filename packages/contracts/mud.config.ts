@@ -1,6 +1,9 @@
 import { defineWorld } from "@latticexyz/world";
 
 export default defineWorld({
+  deploy: {
+    upgradeableWorldImplementation: true,
+  },
   codegen: {
     outputDirectory: "codegen",
   },

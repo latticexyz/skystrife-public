@@ -53,7 +53,7 @@ function KnightTemplate() {
   encodedLengthss[2] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Movable.encode(5000);
+  (staticData, encodedLengths, dynamicData) = Movable.encode(4500);
   staticDatas[3] = staticData;
   encodedLengthss[3] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;

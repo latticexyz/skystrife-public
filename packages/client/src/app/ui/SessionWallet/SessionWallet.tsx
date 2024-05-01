@@ -39,6 +39,14 @@ function TopUpButton() {
   );
 }
 
+/**
+ * When the session wallet balance reaches the danger threshold, display a warning
+ * and a prompt to send more ETH to session wallet.
+ *
+ * When it goes below the minimum to send an in-game tx, display a fullscreen
+ * takeover Modal that requires them to send to the session wallet, or return to the main
+ * menu otherwise.
+ */
 export function SessionWallet() {
   const {
     network: { matchEntity },
@@ -50,7 +58,7 @@ export function SessionWallet() {
 
   return (
     <>
-      {!import.meta.env.DEV && inMatch && burnerBalance?.belowMinimum && (
+      {!import.meta.env.DEV && inMatch && burnerBalance?.danger && (
         <Card className="w-fit py-2 px-3 pointer-events-auto">
           <div className="flex items-center justify-between">
             <div className="rounded-full bg-red-600 h-3 w-3 animate-pulse" />
@@ -85,7 +93,7 @@ export function SessionWallet() {
           <TopUpButton />
 
           <Modal
-            isOpen={burnerBalance.belowDanger}
+            isOpen={burnerBalance.unplayable}
             title="no more session wallet funds"
             trigger={<></>}
             footer={
@@ -96,7 +104,7 @@ export function SessionWallet() {
                   </Button>
                 </a>
 
-                <TopUpButton />
+                {!mainWalletBalance.unplayable && <TopUpButton />}
               </div>
             }
           >
@@ -115,12 +123,16 @@ export function SessionWallet() {
 
             <div className="h-4" />
 
-            {burnerBalance.belowDanger && (
-              <Body>
-                You do not have enough ETH in your session wallet to play this match of Sky Strife. If you would like to
-                continue playing, you must top up your session wallet or transfer a custom amount.
-              </Body>
+            {!mainWalletBalance.unplayable && burnerBalance.unplayable && (
+              <>
+                <Body>
+                  You do not have enough ETH in your session wallet to play this match of Sky Strife. If you would like
+                  to continue playing, you must top up your session wallet or transfer a custom amount.
+                </Body>
+              </>
             )}
+
+            {mainWalletBalance.unplayable && <Body>You do not have enough ETH to play this match of Sky Strife.</Body>}
           </Modal>
         </Card>
       )}

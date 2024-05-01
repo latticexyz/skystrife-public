@@ -1,17 +1,16 @@
-import { Body, Heading, OverlineSmall } from "../../ui/Theme/SkyStrife/Typography";
+import { Body, Heading, Link, OverlineSmall } from "../../ui/Theme/SkyStrife/Typography";
 import { Modal } from "../Modal";
 import { Button } from "../../ui/Theme/SkyStrife/Button";
 import * as Dialog from "@radix-ui/react-dialog";
 import useLocalStorageState from "use-local-storage-state";
 
 export function AnnouncementModal() {
-  const [seenPatchNotes, setSeenPatchNotes] = useLocalStorageState("viewed-patch-notes-2", {
+  const [seenPatchNotes, setSeenPatchNotes] = useLocalStorageState("viewed-patch-notes-mainnet", {
     defaultValue: false,
   });
 
   return (
     <div className="uppercase w-fit px-4 flex items-center">
-      new update! <div className="w-3" />
       <Modal
         footer={
           <Dialog.Close asChild={true} className="w-fit">
@@ -23,7 +22,7 @@ export function AnnouncementModal() {
         title="announcements"
         trigger={
           <div onClick={() => setSeenPatchNotes(true)} className="relative">
-            <Button buttonType="tertiary">read patch notes</Button>
+            <Button buttonType="tertiary">read announcements</Button>
 
             {!seenPatchNotes && (
               <span className="absolute -right-1 -top-1 w-2 h-2 rounded-full animate-ping bg-red-500" />
@@ -31,6 +30,48 @@ export function AnnouncementModal() {
           </div>
         }
       >
+        <Heading>Redstone mainnet launch!</Heading>
+        <OverlineSmall>May 1st, 2024</OverlineSmall>
+
+        <Heading className="mt-6 mb-4 font-bold text-ss-text-default">🚀 Season 1 Begins 🚀</Heading>
+        <p className="text-ss-text-light">
+          The day has finally come. Sky Strife is officially released on{" "}
+          <Link style={{ fontSize: "16px" }} href="https://redstone.xyz">
+            Redstone
+          </Link>
+          .
+        </p>
+
+        <br />
+
+        <p className="text-ss-text-light">
+          Season 1 runs from May 1st to May 31st and the first Season Pass is available to mint until May 4th. The price
+          is a fixed 0.03 ETH.
+        </p>
+
+        <br />
+
+        <p className="text-ss-text-light">
+          We would like to give a HUGE thank you to all of our playtesters over the past couple years. Sky Strife could
+          not have become the game it is today without your support, feedback, and insane amounts of matches played.
+        </p>
+
+        <br />
+
+        <p className="text-ss-text-light">
+          This all started as a dream to create a game with no owner. A World with no God. It is up to you, the players,
+          to mold Sky Strife in any way you choose. The possibilities are endless.
+        </p>
+
+        <br />
+
+        <p className="text-ss-text-light text-center text-sm mt-2">
+          A screenshot from the first internal build of Sky Strife. Taken on August 22nd, 2022.
+        </p>
+        <img src="/public/assets/first_sky_strife_playtest.png" />
+
+        <div className="h-32"></div>
+
         <Heading>Final testnet season — and plugins!</Heading>
         <OverlineSmall>Mar 19th, 2024</OverlineSmall>
 

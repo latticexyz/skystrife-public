@@ -21,7 +21,7 @@ contract PlayerTest is SkyStrifeTest {
     vm.stopPrank();
 
     assertEq(Player.get(testMatch, player), 1, "did not set Player table");
-    assertEq(Gold.get(testMatch, player), 500, "did not set Gold table");
+    assertEq(Gold.get(testMatch, player), 1000, "did not set Gold table");
     assertEq(CreatedByAddress.get(testMatch, player), addressToEntity(alice), "did not set CreatedByAddress table");
   }
 
@@ -42,7 +42,7 @@ contract PlayerTest is SkyStrifeTest {
 
     // test gold generation
     vm.warp(block.timestamp + 10 minutes);
-    assertEq(LibGold.getCurrent(testMatch, player), 40500, "did not generate gold");
+    assertEq(LibGold.getCurrent(testMatch, player), 41000, "did not generate gold");
     assertEq(Chargee.get(testMatch, spawnPoint), player, "did not set Chargee table");
   }
 }

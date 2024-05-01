@@ -1,7 +1,9 @@
-import { MUDChain, mudFoundry } from "@latticexyz/common/chains";
+import { MUDChain, mudFoundry, redstone as mudRedstone } from "@latticexyz/common/chains";
+import { parseGwei } from "viem";
 
 type SkyStrifeChain = MUDChain & {
   indexerUrl?: string;
+  bridgeUrl?: string;
 };
 
 export const garnet = {
@@ -33,38 +35,16 @@ export const garnet = {
       url: "https://explorer.garnet.qry.live",
     },
   },
+  fees: {
+    baseFeeMultiplier: 1.2,
+    defaultPriorityFee: parseGwei("0.001"),
+  },
 };
 
 export const redstone = {
-  id: 690,
-  name: "Redstone Mainnet",
-  network: "redstone",
-  summary: {
-    location: "ETH Mainnet",
-  },
-  description: "Redstone Mainnet",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Ether",
-    symbol: "ETH",
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://rpc.redstonechain.com"],
-      webSocket: ["wss://rpc.redstonechain.com"],
-    },
-    public: {
-      http: ["https://rpc.redstonechain.com"],
-      webSocket: ["wss://rpc.redstonechain.com"],
-    },
-  },
-  blockExplorers: {
-    default: {
-      name: "Blockscout",
-      url: "https://api.explorer.redstonechain.com",
-    },
-  },
+  ...mudRedstone,
   indexerUrl: "https://indexer.skystrife.xyz",
+  bridgeUrl: "https://race.redstone.xyz/deposit",
 };
 
 // If you are deploying to chains other than anvil or Lattice testnet, add them here

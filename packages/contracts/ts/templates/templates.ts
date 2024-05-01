@@ -29,17 +29,17 @@ const settlementTemplate = {
       stringToHex("Brute", { size: 32 }),
       stringToHex("Catapult", { size: 32 }),
     ],
-    goldCosts: [100, 175, 200, 250, 375, 525, 700],
+    goldCosts: [100, 150, 200, 250, 400, 550, 700],
   },
 } satisfies TemplatesConfig<typeof config>["Settlement"];
 
 export const templates: TemplatesConfig<typeof config> = {
   Swordsman: {
     Combat: {
-      health: 100_000,
-      maxHealth: 100_000,
+      health: 120_000,
+      maxHealth: 120_000,
       armor: 0,
-      strength: 40_000,
+      strength: 50_000,
       structureStrength: 0,
       counterStrength: -30,
       minRange: 0,
@@ -48,7 +48,7 @@ export const templates: TemplatesConfig<typeof config> = {
     },
     UnitType: { value: 1 },
     GoldOnKill: { value: 25 },
-    Movable: { value: 4_000 },
+    Movable: { value: 3_000 },
     Untraversable: { value: true },
   },
   Pikeman: {
@@ -65,13 +65,13 @@ export const templates: TemplatesConfig<typeof config> = {
     },
     UnitType: { value: 2 },
     GoldOnKill: { value: 50 },
-    Movable: { value: 4_000 },
+    Movable: { value: 3_000 },
     Untraversable: { value: true },
   },
   Halberdier: {
     Combat: {
-      health: 400_000,
-      maxHealth: 400_000,
+      health: 500_000,
+      maxHealth: 500_000,
       armor: 0,
       strength: 70_000,
       structureStrength: 0,
@@ -82,7 +82,7 @@ export const templates: TemplatesConfig<typeof config> = {
     },
     UnitType: { value: 3 },
     GoldOnKill: { value: 500 },
-    Movable: { value: 4_000 },
+    Movable: { value: 3_000 },
     Untraversable: { value: true },
   },
   GodUnit: {
@@ -104,8 +104,8 @@ export const templates: TemplatesConfig<typeof config> = {
   },
   Pillager: {
     Combat: {
-      health: 100_000,
-      maxHealth: 100_000,
+      health: 120_000,
+      maxHealth: 120_000,
       armor: 0,
       strength: 50_000,
       structureStrength: 0,
@@ -116,7 +116,7 @@ export const templates: TemplatesConfig<typeof config> = {
     },
     UnitType: { value: 4 },
     GoldOnKill: { value: 50 },
-    Movable: { value: 5_000 },
+    Movable: { value: 4_000 },
     Untraversable: { value: true },
   },
   Knight: {
@@ -133,13 +133,13 @@ export const templates: TemplatesConfig<typeof config> = {
     },
     UnitType: { value: 5 },
     GoldOnKill: { value: 150 },
-    Movable: { value: 5_000 },
+    Movable: { value: 4_500 },
     Untraversable: { value: true },
   },
   Dragoon: {
     Combat: {
-      health: 300_000,
-      maxHealth: 300_000,
+      health: 400_000,
+      maxHealth: 400_000,
       armor: 0,
       strength: 70_000,
       structureStrength: 0,
@@ -150,7 +150,7 @@ export const templates: TemplatesConfig<typeof config> = {
     },
     UnitType: { value: 6 },
     GoldOnKill: { value: 500 },
-    Movable: { value: 5_000 },
+    Movable: { value: 4_500 },
     Untraversable: { value: true },
   },
   Archer: {
@@ -167,7 +167,7 @@ export const templates: TemplatesConfig<typeof config> = {
     },
     UnitType: { value: 7 },
     GoldOnKill: { value: 100 },
-    Movable: { value: 3_000 },
+    Movable: { value: 3_500 },
     Untraversable: { value: true },
   },
   Catapult: {
@@ -202,7 +202,7 @@ export const templates: TemplatesConfig<typeof config> = {
     },
     UnitType: { value: 9 },
     GoldOnKill: { value: 500 },
-    Movable: { value: 3_000 },
+    Movable: { value: 3_500 },
     Untraversable: { value: true },
   },
   Brute: {
@@ -256,8 +256,8 @@ export const templates: TemplatesConfig<typeof config> = {
       archetype: 11,
     },
     StructureType: { value: 2 },
-    Charger: { value: 0 },
-    ChargeCap: { cap: 0, totalCharged: 0 },
+    Charger: { value: 50 },
+    ChargeCap: { cap: 500, totalCharged: 0 },
     SpawnPoint: { value: true },
     GoldOnKill: { value: 500 },
     // Overriding the value on `settlementTemplate`
@@ -265,8 +265,8 @@ export const templates: TemplatesConfig<typeof config> = {
   },
   GoldMine: {
     StructureType: { value: 4 },
-    Charger: { value: 25 },
-    ChargeCap: { cap: 750, totalCharged: 0 },
+    Charger: { value: 50 },
+    ChargeCap: { cap: 1000, totalCharged: 0 },
     Capturable: { value: true },
     Untraversable: { value: true },
     Combat: {

@@ -1,1 +1,5 @@
 bot_player_output/*.txt
+wallets/**/*
+wallets/*.txt
+!wallets/.KEEP
+output/*.txt

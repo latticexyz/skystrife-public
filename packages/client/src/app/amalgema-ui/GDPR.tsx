@@ -4,6 +4,9 @@ import { Body, Link, OverlineLarge } from "../ui/Theme/SkyStrife/Typography";
 import { Button } from "../ui/Theme/SkyStrife/Button";
 import { ANALYTICS_URL } from "../../layers/Network/utils";
 import useLocalStorageState from "use-local-storage-state";
+import { skystrifeDebug } from "../../debug";
+
+const debug = skystrifeDebug.extend("gdpr");
 
 const GDPR: React.FC = () => {
   const [show, setShow] = useState(false);
@@ -12,9 +15,16 @@ const GDPR: React.FC = () => {
   });
 
   useEffect(() => {
-    fetch(ANALYTICS_URL + "/is-eu", {})
+    if (accepted) {
+      debug("User has accepted GDPR modal.");
+      return;
+    }
+
+    fetch(ANALYTICS_URL + "/show-gdpr", {
+      method: "GET",
+    })
       .then((r) => {
-        console.log(r.status);
+        debug(`Received status code ${r.status} from GDPR checker worker.`);
 
         if (r.status != 200) {
           setShow(true);
@@ -22,13 +32,15 @@ const GDPR: React.FC = () => {
         }
 
         r.json().then((data) => {
-          setShow(data.isEu);
+          debug("Showing GDPR modal");
+          setShow(data.shouldShow);
         });
       })
       .catch(() => {
+        debug("Fetching country information failed.");
         setShow(true);
       });
-  }, []);
+  }, [accepted]);
 
   return (
     <>

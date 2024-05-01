@@ -1,31 +1,34 @@
 import { bulkUploadMap } from "client/src/app/ui/Admin/bulkUploadMap";
+import { stringToHex } from "viem";
 import { createSkyStrife } from "../src/createSkyStrife";
-import debug from "../../../maps/debug.json" assert { type: "json" };
 import gmIsland from "../../../maps/gm-island.json" assert { type: "json" };
-import Cauldron from "../../../maps/*official/4p-pinwheel.json" assert { type: "json" };
-import KnifeFight from "../../../maps/*official/2p-knife-fight-v2.json" assert { type: "json" };
-import TheIsle from "../../../maps/in-progress/2p-isle-v2.json" assert { type: "json" };
-import Antelope from "../../../maps/*official/3p-antelope-v2.json" assert { type: "json" };
+import Vortex from "../../../maps/*official/4p-vortex.json" assert { type: "json" };
+import Scatter from "../../../maps/*official/3p-scatter.json" assert { type: "json" };
+import Rumble from "../../../maps/*official/4p-rumble-community.json" assert { type: "json" };
 
 export type Level = Array<{
   templateId: string;
   values: object;
 }>;
 
+const { networkLayer } = await createSkyStrife();
 const {
-  networkLayer,
-  networkLayer: {
-    network: { walletClient },
-  },
-} = await createSkyStrife();
+  network: { walletClient, worldContract },
+} = networkLayer;
+
+const address = walletClient?.account?.address;
+if (!address) throw new Error("no connected account");
 
 await Promise.all([
-  bulkUploadMap(networkLayer, walletClient.account.address, debug as Level, "debug"),
-  bulkUploadMap(networkLayer, walletClient.account.address, gmIsland as Level, "GM Island"),
-  bulkUploadMap(networkLayer, walletClient.account.address, Cauldron as Level, "Cauldron-2"),
-  bulkUploadMap(networkLayer, walletClient.account.address, KnifeFight as Level, "Knife_Fight_2"),
-  bulkUploadMap(networkLayer, walletClient.account.address, TheIsle as Level, "The Isle"),
-  bulkUploadMap(networkLayer, walletClient.account.address, Antelope as Level, "Antelope 2"),
+  bulkUploadMap(networkLayer, address, gmIsland as Level, "GM Island"),
+  bulkUploadMap(networkLayer, address, Vortex as Level, "Vortex"),
+  bulkUploadMap(networkLayer, address, Scatter as Level, "Scatter"),
+  bulkUploadMap(networkLayer, address, Rumble as Level, "Rumble"),
 ]);
+
+await worldContract.write.setRotationStandard([stringToHex("GM Island", { size: 32 }), true]);
+await worldContract.write.setRotationStandard([stringToHex("Vortex", { size: 32 }), true]);
+await worldContract.write.setRotationStandard([stringToHex("Scatter", { size: 32 }), true]);
+await worldContract.write.setRotationStandard([stringToHex("Rumble", { size: 32 }), true]);
 
 process.exit(0);

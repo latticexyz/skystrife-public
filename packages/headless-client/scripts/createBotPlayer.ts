@@ -26,26 +26,34 @@ import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { matchIdFromEntity } from "client/src/matchIdFromEntity";
 import { LOBBY_SYSTEM_ID, NAME_SYSTEM_ID, PLAYER_REGISTER_SYSTEM_ID } from "client/src/constants";
 import { decodeMatchEntity } from "client/src/decodeMatchEntity";
+import { skystrifeDebug } from "client/src/debug";
 
 const { curry, sample } = lodash;
+
+const debug = skystrifeDebug.extend("bot-player");
 
 type MatchCoord = { x: number; y: number };
 
 async function createBotPlayer(skyStrife: SkyStrife) {
   const { networkLayer, headlessLayer, createPlayer } = skyStrife;
 
-  let activeMatch: Entity | undefined;
-  let activePlayerEntity: Entity | undefined;
+  const activeMatch = env.MATCH_ENTITY as Entity;
+  if (!activeMatch) {
+    console.error("Must pass MATCH_ENTITY env var");
+    return;
+  }
 
   const player = createPlayer(env.PRIVATE_KEY);
 
+  // Check if we are already in the match
+  let activePlayerEntity = getMatchPlayerEntity(activeMatch);
+  if (activePlayerEntity) {
+    debug(`Found player entity: ${activePlayerEntity}`);
+    debug("Already in match, starting.");
+  }
+
   function handleError(e: unknown) {
-    if (
-      e instanceof ContractFunctionRevertedError ||
-      e instanceof CallExecutionError ||
-      e instanceof ContractFunctionExecutionError ||
-      e instanceof RpcRequestError
-    ) {
+    if (e?.shortMessage) {
       console.error(`Error: ${e.shortMessage}`);
     } else {
       console.error(e);
@@ -65,11 +73,11 @@ async function createBotPlayer(skyStrife: SkyStrife) {
 
   function getMatchPlayerEntity(matchEntity: Entity) {
     const {
-      components: { OwnedBy, Match },
+      components: { CreatedByAddress, Match },
     } = networkLayer;
 
     const playerEntity = [
-      ...runQuery([HasValue(OwnedBy, { value: player.entity }), HasValue(Match, { matchEntity })]),
+      ...runQuery([HasValue(CreatedByAddress, { value: player.entity }), HasValue(Match, { matchEntity })]),
     ][0];
     if (!playerEntity) return;
 
@@ -102,22 +110,16 @@ async function createBotPlayer(skyStrife: SkyStrife) {
     return;
   }
 
-  async function findAndJoinMatch() {
+  async function joinMatch() {
+    if (activePlayerEntity) return;
+
     const {
-      components: { MatchConfig, MatchFinished },
+      components: { MatchConfig },
       network: { waitForTransaction },
       utils: { getAvailableLevelSpawns },
     } = networkLayer;
 
-    console.log(`Searching for matches to join...`);
-
-    const unstartedMatch = [
-      ...runQuery([Has(MatchConfig), Not(MatchFinished), HasValue(MatchConfig, { startTime: 0n })]),
-    ];
-    if (!unstartedMatch.includes(activeMatch)) {
-      activePlayerEntity = getMatchPlayerEntity(activeMatch);
-      return;
-    }
+    debug("Attempting to join match", activeMatch);
 
     const { levelId } = getComponentValueStrict(MatchConfig, activeMatch);
     const spawns = getAvailableLevelSpawns(levelId, activeMatch as Hex);
@@ -162,8 +164,8 @@ async function createBotPlayer(skyStrife: SkyStrife) {
     const matchFinished = getComponentValue(MatchFinished, activeMatch)?.value;
     if (!matchFinished) return;
 
-    activeMatch = undefined;
-    activePlayerEntity = undefined;
+    debug("Match finished. Exiting...");
+    process.exit(0);
   }
 
   async function buildUnit() {
@@ -174,7 +176,6 @@ async function createBotPlayer(skyStrife: SkyStrife) {
 
     const {
       components: { OwnedBy, Factory, Position },
-      network: { waitForTransaction },
     } = networkLayer;
 
     const ownedFactories = [
@@ -190,18 +191,17 @@ async function createBotPlayer(skyStrife: SkyStrife) {
 
     if (!positionAdjacentToFactory) return;
 
-    console.log(`Building a ${prototype} at ${JSON.stringify(positionAdjacentToFactory)}`);
+    debug(`Building a ${prototype} at ${JSON.stringify(positionAdjacentToFactory)}`);
     try {
-      const tx = await player.worldContract.write.build([
+      await player.worldContract.write.build([
         activeMatch,
         decodeMatchEntity(factory).entity,
-        prototype as Hex,
+        stringToHex("Archer", { size: 32 }),
         positionAdjacentToFactory,
       ]);
-      await waitForTransaction(tx);
     } catch (e) {
       console.error(
-        `Player ${player.address} failed to build a ${prototype} at ${JSON.stringify(positionAdjacentToFactory)}`
+        `Player ${player.address} failed to build a ${prototype} at ${JSON.stringify(positionAdjacentToFactory)}`,
       );
     }
   }
@@ -215,7 +215,6 @@ async function createBotPlayer(skyStrife: SkyStrife) {
     const {
       components: { Position, SpawnPoint },
       utils: { getOwningPlayer },
-      network: { waitForTransaction },
     } = networkLayer;
 
     const {
@@ -234,14 +233,13 @@ async function createBotPlayer(skyStrife: SkyStrife) {
     const attackableEntities = getAttackableEntities(unitEntity, unitPosition);
     if (attackableEntities && attackableEntities.length > 0) {
       const target = attackableEntities[getRandomIntegerInRange(0, attackableEntities.length - 1)];
-      console.log(`Unit ${unitEntity} is attacking ${target}`);
+      debug(`Unit ${unitEntity} is attacking ${target}`);
       try {
-        const tx = await player.worldContract.write.fight([
+        await player.worldContract.write.fight([
           activeMatch,
           decodeMatchEntity(unitEntity).entity,
           decodeMatchEntity(target).entity,
         ]);
-        await waitForTransaction(tx);
         return;
       } catch (e) {
         handleError(e);
@@ -252,7 +250,7 @@ async function createBotPlayer(skyStrife: SkyStrife) {
       unitPosition,
       moveSpeed,
       curry(getMovementDifficulty)(Position),
-      curry(isUntraversable)(Position, playerEntity)
+      curry(isUntraversable)(Position, playerEntity),
     );
 
     for (const destination of potentialDestinations) {
@@ -264,24 +262,21 @@ async function createBotPlayer(skyStrife: SkyStrife) {
 
       for (const target of attackableEntities) {
         if (hasComponent(SpawnPoint, target)) {
-          console.log("found spawn point");
+          debug("found spawn point");
           finalTarget = target;
           break;
         }
       }
-      console.log(
-        `Unit ${unitEntity} is attempting to move to ${JSON.stringify(destination)} and attack ${finalTarget}`
-      );
+      debug(`Unit ${unitEntity} is attempting to move to ${JSON.stringify(destination)} and attack ${finalTarget}`);
 
       try {
         const path = calculateMovementPath(Position, unitEntity, unitPosition, destination);
-        const tx = await player.worldContract.write.moveAndAttack([
+        await player.worldContract.write.moveAndAttack([
           activeMatch,
           decodeMatchEntity(unitEntity).entity,
           path,
           decodeMatchEntity(finalTarget).entity,
         ]);
-        await waitForTransaction(tx);
         return;
       } catch (e) {
         handleError(e);
@@ -292,9 +287,8 @@ async function createBotPlayer(skyStrife: SkyStrife) {
       const destination = potentialDestinations[getRandomIntegerInRange(0, potentialDestinations.length - 1)];
       const path = calculateMovementPath(Position, unitEntity, unitPosition, destination);
 
-      console.log(`Unit ${unitEntity} is moving a unit to ${JSON.stringify(destination)}`);
-      const tx = await player.worldContract.write.move([activeMatch, decodeMatchEntity(unitEntity).entity, path]);
-      await waitForTransaction(tx);
+      debug(`Unit ${unitEntity} is moving a unit to ${JSON.stringify(destination)}`);
+      await player.worldContract.write.move([activeMatch, decodeMatchEntity(unitEntity).entity, path]);
     } catch (e) {
       handleError(e);
     }
@@ -344,17 +338,16 @@ async function createBotPlayer(skyStrife: SkyStrife) {
       Not(InCurrentMatch),
     ]);
     for (const unit of allUnscopedUnitsInMatch) {
-      console.log(`Scoping unit ${unit} to match ${activeMatchId}`);
+      debug(`Scoping unit ${unit} to match ${activeMatchId}`);
       setComponent(InCurrentMatch, unit, { value: true });
     }
   }
 
   async function start() {
-    activeMatch = env.MATCH_ENTITY;
     for (;;) {
       await scopeUnitsToCurrentMatch();
 
-      await findAndJoinMatch();
+      await joinMatch();
 
       await checkMatchFinished();
 
@@ -374,4 +367,4 @@ async function createBotPlayer(skyStrife: SkyStrife) {
 const headlessClient = await createSkyStrife();
 const botPlayer = await createBotPlayer(headlessClient);
 
-botPlayer.start();
+botPlayer?.start();

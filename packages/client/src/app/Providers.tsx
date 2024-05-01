@@ -7,6 +7,7 @@ import { WagmiProvider, http } from "wagmi";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { getNetworkConfig } from "../mud/getBrowserNetworkConfig";
 import { ExternalWalletProvider } from "./ExternalWalletProvider";
+import "@rainbow-me/rainbowkit/styles.css";
 
 export const queryClient = new QueryClient();
 
@@ -26,7 +27,7 @@ export function Providers({ children }: Props) {
           [networkConfig.chain.id]: http(),
         },
       }),
-    [networkConfig]
+    [networkConfig],
   );
 
   const networkLayer = useNetworkLayer(networkConfig);

@@ -37,8 +37,9 @@ export function createUnitBuildSystem(layer: PhaserLayer) {
       buildAt,
     },
     scenes: {
-      Main: { objectPool, input },
+      Main: { input },
     },
+    globalObjectPool,
   } = layer;
 
   let buildClickSub: Subscription | undefined;
@@ -46,8 +47,8 @@ export function createUnitBuildSystem(layer: PhaserLayer) {
   defineSystem(world, [Has(BuildingUnit)], ({ entity: factoryEntity, type }) => {
     buildClickSub?.unsubscribe();
     for (let i = 0; i < 4; i++) {
-      objectPool.remove(`unit-build-${i}`);
-      objectPool.remove(`unit-build-anim-${i}`);
+      globalObjectPool.remove(`unit-build-${i}`);
+      globalObjectPool.remove(`unit-build-anim-${i}`);
     }
 
     if (type === UpdateType.Exit) return;
@@ -87,36 +88,31 @@ export function createUnitBuildSystem(layer: PhaserLayer) {
       const pixelCoord = tileCoordToPixelCoord(buildPosition, TILE_WIDTH, TILE_HEIGHT);
 
       const animId = `unit-build-anim-${i}`;
-      const gameObject = objectPool.get(animId, "Sprite");
+      const sprite = globalObjectPool.get(animId, "Sprite");
 
-      gameObject.setComponent({
-        id: `idle-anim`,
-        once: (obj) => {
-          obj.setOrigin(0, 0);
-          if (unitType === UnitTypes.Brute) obj.setOrigin(0.18, 0.18);
+      sprite.setOrigin(0, 0);
+      if (unitType === UnitTypes.Brute) sprite.setOrigin(0.18, 0.18);
 
-          obj.setPosition(pixelCoord.x, pixelCoord.y - UNIT_OFFSET);
-          obj.setDepth(depthFromPosition(buildPosition, RenderDepth.Foreground1));
-          obj.play(coloredAnim?.key ?? anim);
-          obj.setAlpha(0.5);
+      sprite.setPosition(pixelCoord.x, pixelCoord.y - UNIT_OFFSET);
+      sprite.setDepth(depthFromPosition(buildPosition, RenderDepth.Foreground1));
+      sprite.play(coloredAnim?.key ?? anim);
+      sprite.setAlpha(0.5);
 
-          obj.setInteractive();
-          obj.on("pointerover", () => {
-            obj.setAlpha(1);
-          });
+      sprite.setInteractive();
+      sprite.on("pointerover", () => {
+        sprite.setAlpha(1);
+      });
 
-          obj.on("pointerout", () => {
-            obj.setAlpha(0.5);
-          });
+      sprite.on("pointerout", () => {
+        sprite.setAlpha(0.5);
+      });
 
-          obj.on("pointerdown", () => {
-            removeComponent(BuildingUnit, factoryEntity);
-            removeComponent(Selected, factoryEntity);
-            enableMapInteraction("unit-build");
+      sprite.on("pointerdown", () => {
+        removeComponent(BuildingUnit, factoryEntity);
+        removeComponent(Selected, factoryEntity);
+        enableMapInteraction("unit-build");
 
-            buildAt(factoryEntity, buildData.prototypeId, buildPosition);
-          });
-        },
+        buildAt(factoryEntity, buildData.prototypeId, buildPosition);
       });
     }
   });

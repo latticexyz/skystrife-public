@@ -54,12 +54,12 @@ function SpawnSettlementTemplate() {
   encodedLengthss[3] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Charger.encode(0);
+  (staticData, encodedLengths, dynamicData) = Charger.encode(50);
   staticDatas[4] = staticData;
   encodedLengthss[4] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[4] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(0, 0);
+  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(500, 0);
   staticDatas[5] = staticData;
   encodedLengthss[5] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[5] = dynamicData;
@@ -73,11 +73,11 @@ function SpawnSettlementTemplate() {
   factory_prototypeIds[6] = 0x4361746170756c74000000000000000000000000000000000000000000000000;
   int32[] memory factory_goldCosts = new int32[](7);
   factory_goldCosts[0] = 100;
-  factory_goldCosts[1] = 175;
+  factory_goldCosts[1] = 150;
   factory_goldCosts[2] = 200;
   factory_goldCosts[3] = 250;
-  factory_goldCosts[4] = 375;
-  factory_goldCosts[5] = 525;
+  factory_goldCosts[4] = 400;
+  factory_goldCosts[5] = 550;
   factory_goldCosts[6] = 700;
   (staticData, encodedLengths, dynamicData) = Factory.encode(factory_prototypeIds, factory_goldCosts);
   staticDatas[6] = staticData;

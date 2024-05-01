@@ -21,7 +21,7 @@
     "mud:up": "pnpm recursive exec mud set-version -v canary && pnpm install",
     "mud:link": "pnpm recursive exec mud set-version -l ../../../mud && pnpm install",
     "---": "---",
-    "dev": "pnpm --filter ecs-browser run build && pnpm --filter phaserx run build && mprocs 'pnpm run dev:client' 'pnpm run dev:node' 'pnpm run dev:contracts && pnpm run dev:upload-map && pnpm run dev:create-debug-matches' 'pnpm run dev:plugins'",
+    "dev": "pnpm --filter ecs-browser run build && pnpm --filter phaserx run build && mprocs 'pnpm run dev:contracts && pnpm run dev:upload-map && pnpm run dev:create-debug-matches' 'pnpm run dev:client' 'pnpm run dev:node' 'pnpm run dev:plugins'",
     "dev:client": "pnpm --filter client run dev",
     "dev:contracts": "DEBUG=mud:* pnpm --filter contracts run dev",
     "dev:node": "DEBUG=mud:* pnpm --filter contracts run devnode",
@@ -34,7 +34,7 @@
     "ci:build-contracts": "cd packages/contracts && ~/.foundry/bin/forge build && cd ../.."
   },
   "devDependencies": {
-    "@latticexyz/cli": "2.0.5-main-ccbb4876",
+    "@latticexyz/cli": "2.0.8",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "@typescript-eslint/parser": "6.6.0",
     "eslint": "8.29.0",

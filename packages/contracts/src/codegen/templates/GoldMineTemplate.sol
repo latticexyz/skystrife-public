@@ -36,12 +36,12 @@ function GoldMineTemplate() {
   encodedLengthss[0] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[0] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Charger.encode(25);
+  (staticData, encodedLengths, dynamicData) = Charger.encode(50);
   staticDatas[1] = staticData;
   encodedLengthss[1] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[1] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(750, 0);
+  (staticData, encodedLengths, dynamicData) = ChargeCap.encode(1000, 0);
   staticDatas[2] = staticData;
   encodedLengthss[2] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;

@@ -84,7 +84,7 @@ const baseSprites = {
   },
   [Sprites.HealthBar]: {
     assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/ui/bars/green.png",
+    frame: "sprites/entity_bars/green-bar.png",
   },
   [Sprites.HealthBarTick]: {
     assetKey: Assets.MainAtlas,
@@ -92,7 +92,7 @@ const baseSprites = {
   },
   [Sprites.HealthBarRed]: {
     assetKey: Assets.MainAtlas,
-    frame: "sprites/greyscale/ui/bars/red.png",
+    frame: "sprites/entity_bars/red-bar.png",
   },
   [Sprites.HealthBarRedTick]: {
     assetKey: Assets.MainAtlas,

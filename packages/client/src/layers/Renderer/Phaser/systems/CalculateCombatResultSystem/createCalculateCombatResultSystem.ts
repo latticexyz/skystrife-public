@@ -1,5 +1,5 @@
 import {
-  defineSyncSystem,
+  defineEnterSystem,
   defineSystem,
   getComponentValue,
   getComponentValueStrict,
@@ -11,6 +11,8 @@ import {
 } from "@latticexyz/recs";
 import { calculateCombatResult, getModiferAtPosition } from "../../../../Headless/utils";
 import { PhaserLayer } from "../../types";
+import { decodeMatchEntity } from "../../../../../decodeMatchEntity";
+import { encodeMatchEntity } from "../../../../../encodeMatchEntity";
 
 export function createCalculateCombatResultSystem(layer: PhaserLayer) {
   const {
@@ -18,24 +20,58 @@ export function createCalculateCombatResultSystem(layer: PhaserLayer) {
     parentLayers: {
       network: networkLayer,
       network: {
-        components: { Combat, ArmorModifier, Position },
+        components: { Combat, ArmorModifier, Position, CombatOutcome },
+        utils: { isOwnedByCurrentPlayer },
       },
       headless: {
         components: { NextPosition },
       },
+      local: {
+        components: { IncomingDamage },
+      },
     },
-    components: { IncomingDamage, WillBeDestroyed, TerrainArmorBonus },
+    components: { WillBeDestroyed, TerrainArmorBonus },
   } = layer;
 
-  defineSyncSystem(
+  defineEnterSystem(world, [Has(CombatOutcome)], ({ entity }) => {
+    const {
+      attacker: _a,
+      defender: _d,
+      attackerDamageReceived,
+      defenderDamageReceived,
+    } = getComponentValueStrict(CombatOutcome, entity);
+
+    const { matchEntity } = decodeMatchEntity(entity);
+    const attacker = encodeMatchEntity(matchEntity, _a);
+    const defender = encodeMatchEntity(matchEntity, _d);
+
+    if (isOwnedByCurrentPlayer(attacker)) return;
+
+    const attackerIncomingDamage = getComponentValue(IncomingDamage, attacker);
+    if (!attackerIncomingDamage) return;
+    attackerIncomingDamage.sources.push(defender);
+    attackerIncomingDamage.values.push(attackerDamageReceived);
+    attackerIncomingDamage.commitments.push(1);
+    setComponent(IncomingDamage, attacker, attackerIncomingDamage);
+
+    const defenderIncomingDamage = getComponentValue(IncomingDamage, defender);
+    if (!defenderIncomingDamage) return;
+    defenderIncomingDamage.sources.push(attacker);
+    defenderIncomingDamage.values.push(defenderDamageReceived);
+    defenderIncomingDamage.commitments.push(1);
+    setComponent(IncomingDamage, defender, defenderIncomingDamage);
+  });
+
+  defineEnterSystem(
     world,
     [Has(Combat)],
-    () => IncomingDamage,
-    () => ({
-      sources: [],
-      values: [],
-      commitments: [],
-    }),
+    ({ entity }) => {
+      setComponent(IncomingDamage, entity, {
+        sources: [],
+        values: [],
+        commitments: [],
+      });
+    },
     { runOnInit: true },
   );
 
@@ -50,10 +86,12 @@ export function createCalculateCombatResultSystem(layer: PhaserLayer) {
       const values = incomingDamage.values;
       const commitments = incomingDamage.commitments;
 
+      let changed = false;
       for (let i = 0; i < incomingDamage.sources.length; i++) {
         const commitment = incomingDamage.commitments[i];
 
         if (commitment === 0) {
+          changed = true;
           sources.splice(i, 1);
           values.splice(i, 1);
           commitments.splice(i, 1);
@@ -61,11 +99,13 @@ export function createCalculateCombatResultSystem(layer: PhaserLayer) {
         }
       }
 
-      setComponent(IncomingDamage, entity, {
-        sources,
-        values,
-        commitments,
-      });
+      if (changed) {
+        setComponent(IncomingDamage, entity, {
+          sources,
+          values,
+          commitments,
+        });
+      }
       setComponent(WillBeDestroyed, entity, { value: false });
       removeComponent(TerrainArmorBonus, entity);
     }

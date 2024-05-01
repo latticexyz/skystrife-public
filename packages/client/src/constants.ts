@@ -20,9 +20,7 @@ export const EMOJI = "🔮";
 
 export const LOCK_CLIENT = false;
 
-export const SEASON_NAME = "Season 0.3";
-export const SEASON_START = 1711944454;
-export const SEASON_END = 1711964454;
+export const SEASON_NAME = "Season 1";
 
 export const UNLIMITED_DELEGATION = resourceToHex({ type: "system", namespace: "", name: "unlimited" });
 export const SYSTEMBOUND_DELEGATION = resourceToHex({ type: "system", namespace: "", name: "systembound" });

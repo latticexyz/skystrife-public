@@ -8,13 +8,16 @@ import {
   Not,
   defineExitSystem,
 } from "@latticexyz/recs";
-import { tween, tileCoordToPixelCoord } from "phaserx";
+import { tileCoordToPixelCoord } from "phaserx";
 import { PhaserLayer } from "../../types";
 import { FAST_MOVE_SPEED, UNIT_OFFSET } from "../../../../Local/constants";
 import { Animations, WALK_ANIMATIONS } from "../../phaserConstants";
 import { UnitTypes } from "../../../../Network";
 import { WorldCoord } from "phaserx/src/types";
 import { manhattan } from "../../../../../utils/distance";
+import { skystrifeDebug } from "../../../../../debug";
+
+const debug = skystrifeDebug.extend("local-position-system");
 
 /**
  * The LocalPosition system handles moving phaser game objects to the WorldCoord specified in their LocalPosition component.
@@ -33,12 +36,13 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
     },
     scenes: {
       Main: {
-        objectPool,
+        phaserScene,
         maps: {
           Main: { tileWidth, tileHeight },
         },
       },
     },
+    globalObjectPool,
     api: { playAnimationWithOwnerColor },
   } = layer;
 
@@ -57,33 +61,23 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
 
   defineSystem(world, [Has(LocalPosition), Has(Appearance), Not(UnitType)], ({ entity, type }) => {
     if (type === UpdateType.Enter) {
-      const embodiedEntity = objectPool.get(entity, "Sprite");
+      const sprite = globalObjectPool.get(entity, "Sprite");
       const position = getComponentValue(LocalPosition, entity);
       if (!position) return;
 
       const pixel = tileCoordToPixelCoord(position, tileWidth, tileHeight);
-      embodiedEntity.setComponent({
-        id: LocalPosition.id,
-        once: (gameObject) => {
-          gameObject.setPosition(pixel.x, pixel.y);
-        },
-      });
+      sprite.setPosition(pixel.x, pixel.y);
     }
   });
 
   defineSystem(world, [Has(LocalPosition), Has(Appearance), Has(UnitType)], ({ entity, type }) => {
     if (type === UpdateType.Enter) {
-      const embodiedEntity = objectPool.get(entity, "Sprite");
+      const sprite = globalObjectPool.get(entity, "Sprite");
       const position = getComponentValue(LocalPosition, entity);
       if (!position) return;
 
-      const pixelPosition = tileCoordToPixelCoord(position, tileWidth, tileHeight);
-      embodiedEntity.setComponent({
-        id: LocalPosition.id,
-        once: (gameObject) => {
-          gameObject.setPosition(pixelPosition.x, pixelPosition.y - UNIT_OFFSET);
-        },
-      });
+      const pixel = tileCoordToPixelCoord(position, tileWidth, tileHeight);
+      sprite.setPosition(pixel.x, pixel.y - UNIT_OFFSET);
     }
   });
 
@@ -92,24 +86,18 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
     const [newPosition] = update.value;
     if (!newPosition) return;
 
-    const pixel = tileCoordToPixelCoord(newPosition, tileWidth, tileHeight);
-
-    const object = objectPool.get(update.entity, "Sprite");
-    object.setComponent({
-      id: "moving position",
-      once: (sprite) => {
-        sprite.setPosition(pixel.x, pixel.y);
-      },
-    });
+    const pixelCoord = tileCoordToPixelCoord(newPosition, tileWidth, tileHeight);
+    const sprite = globalObjectPool.get(update.entity, "Sprite");
+    sprite.setPosition(pixelCoord.x, pixelCoord.y);
   });
 
   defineExitSystem(world, [Has(LocalPosition), Has(Appearance)], ({ entity }) => {
-    objectPool.remove(entity);
+    globalObjectPool.remove(entity);
   });
 
   defineSystem(world, [Has(LocalPosition), Has(UnitType), Has(Appearance)], (update) => {
     if (update.type === UpdateType.Exit) {
-      return objectPool.remove(update.entity);
+      return globalObjectPool.remove(update.entity);
     }
 
     if (!isComponentUpdate(update, LocalPosition)) return;
@@ -117,7 +105,7 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
 
     if (!newPosition || !oldPosition) return;
 
-    const embodiedEntity = objectPool.get(update.entity, "Sprite");
+    const sprite = globalObjectPool.get(update.entity, "Sprite");
 
     if (update.type === UpdateType.Update && update.component.id === LocalPosition.id) {
       const [newPosition, oldPosition] = update.value;
@@ -129,36 +117,23 @@ export function createLocalPositionSystem(layer: PhaserLayer) {
 
       const pixelPosition = tileCoordToPixelCoord(newPosition, tileWidth, tileHeight);
 
-      embodiedEntity.setComponent({
-        id: LocalPosition.id,
-        now: async (gameObject) => {
-          if (isAdjacentMove && walkAnimations) {
-            const directionIndex = calculateDirectionIndex(oldPosition, newPosition);
-            const anim = walkAnimations[directionIndex];
-            const currentAnim = gameObject.anims.currentAnim;
+      if (isAdjacentMove && walkAnimations) {
+        const directionIndex = calculateDirectionIndex(oldPosition, newPosition);
+        const anim = walkAnimations[directionIndex];
+        const currentAnim = sprite.anims.currentAnim;
 
-            if (anim !== currentAnim?.key) {
-              playAnimationWithOwnerColor(update.entity, anim as Animations);
-            }
-          }
+        if (anim !== currentAnim?.key) {
+          playAnimationWithOwnerColor(update.entity, anim as Animations);
+        }
+      }
 
-          const moveSpeed = FAST_MOVE_SPEED;
-          await tween(
-            {
-              targets: gameObject,
-              duration: moveSpeed,
-              props: {
-                x: pixelPosition.x,
-                y: pixelPosition.y - UNIT_OFFSET,
-              },
-              ease: Phaser.Math.Easing.Linear,
-            },
-            { keepExistingTweens: true },
-          );
-        },
-        once: (gameObject) => {
-          gameObject.setPosition(pixelPosition.x, pixelPosition.y - UNIT_OFFSET);
-        },
+      const moveSpeed = FAST_MOVE_SPEED;
+      phaserScene.add.tween({
+        targets: sprite,
+        duration: moveSpeed,
+        x: pixelPosition.x,
+        y: pixelPosition.y - UNIT_OFFSET,
+        ease: Phaser.Math.Easing.Linear,
       });
     }
   });

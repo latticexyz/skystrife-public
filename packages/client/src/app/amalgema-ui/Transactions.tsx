@@ -1,112 +1,15 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Hex, decodeFunctionData } from "viem";
-import { ContractWrite } from "@latticexyz/common";
-import { usePromise } from "@latticexyz/react";
-import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
+import { Hex } from "viem";
+import { useComponentValue, useEntityQuery } from "@latticexyz/react";
 import { PendingIcon } from "../ui/Theme/PendingIcon";
 import { useAmalgema } from "../../useAmalgema";
 import { ConfirmedIcon } from "../ui/Theme/ConfirmedIcon";
 import { CrossIcon } from "../ui/Theme/CrossIcon";
-import { getTransactionReceipt } from "./utils/getTransactionReceipt";
 import { ExclaimIcon } from "../ui/Theme/ExclaimIcon";
 import { Link } from "../ui/Theme/SkyStrife/Typography";
+import { Entity, Has } from "@latticexyz/recs";
 
 const AUTOMATIC_DISMISS_TIME = 10_000;
-
-type MessageFunction = (arg: { functionName: string; args?: readonly unknown[] }) => string;
-
-const messagePending: MessageFunction = ({ functionName, args }) => {
-  if (functionName === "copyMap") {
-    return `Summoning Island`;
-  } else if (functionName === "createMatch") {
-    return `Creating Match`;
-  } else if (functionName === "createMatchSeasonPass") {
-    return `Creating Match`;
-  } else if (functionName === "register") {
-    return `Registering`;
-  } else if (functionName === "setName") {
-    return `Setting Name`;
-  } else if (functionName === "setMembers") {
-    return `Setting Members`;
-  } else if (functionName === "registerDelegation") {
-    return `Registering Delegation`;
-  } else if (functionName === "buySeasonPass") {
-    return `Buying Season Pass`;
-  } else if (functionName === "batchCall") {
-    if (args) {
-      const data = (args[0] as { callData: Hex }[]).map((arg) =>
-        messagePending(decodeFunctionData({ abi: IWorldAbi, data: arg.callData })),
-      );
-      return data.join(", ");
-    }
-
-    return functionName;
-  }
-
-  return functionName;
-};
-
-const messageConfirmed: MessageFunction = ({ functionName, args }) => {
-  if (functionName === "copyMap") {
-    return `Island Summoned`;
-  } else if (functionName === "createMatch") {
-    return `Created Match`;
-  } else if (functionName === "createMatchSeasonPass") {
-    return `Created Match`;
-  } else if (functionName === "register") {
-    return `Registered`;
-  } else if (functionName === "setName") {
-    return `Set Name`;
-  } else if (functionName === "setMembers") {
-    return `Set Members`;
-  } else if (functionName === "registerDelegation") {
-    return `Registered Delegation`;
-  } else if (functionName === "buySeasonPass") {
-    return `Bought Season Pass`;
-  } else if (functionName === "batchCall") {
-    if (args) {
-      const data = (args[0] as { callData: Hex }[]).map((arg) =>
-        messageConfirmed(decodeFunctionData({ abi: IWorldAbi, data: arg.callData })),
-      );
-      return data.join(", ");
-    }
-
-    return functionName;
-  }
-
-  return functionName;
-};
-
-const messageFailed: MessageFunction = ({ functionName, args }) => {
-  if (functionName === "copyMap") {
-    return `Island Summoning Failed`;
-  } else if (functionName === "createMatch") {
-    return `Creating Match Failed`;
-  } else if (functionName === "createMatchSeasonPass") {
-    return `Creating Match Failed`;
-  } else if (functionName === "register") {
-    return `Registering Failed`;
-  } else if (functionName === "setName") {
-    return `Setting Name Failed`;
-  } else if (functionName === "setMembers") {
-    return `Setting Members failed`;
-  } else if (functionName === "registerDelegation") {
-    return `Registering Delegation Failed`;
-  } else if (functionName === "buySeasonPass") {
-    return `Buying Season Pass Failed`;
-  } else if (functionName === "batchCall") {
-    if (args) {
-      const data = (args[0] as { callData: Hex }[]).map((arg) =>
-        messageFailed(decodeFunctionData({ abi: IWorldAbi, data: arg.callData })),
-      );
-      return data.join(", ");
-    }
-
-    return functionName;
-  }
-
-  return functionName;
-};
 
 type Props = {
   startDismiss: boolean;
@@ -173,7 +76,7 @@ const FailedTransaction = ({ startDismiss, timeUntilDismiss, onClick, message, h
         <ExclaimIcon />
         <div className="ml-2 grow">
           <div className="text-[#2E2D27]">{message}</div>
-          {blockExplorer && (
+          {blockExplorer && hash && (
             <Link className="text-ss-text-light hover:text-[#2E2D27] underline" href={`${blockExplorer}/tx/${hash}`}>
               View on block explorer
             </Link>
@@ -212,42 +115,31 @@ const PendingTransaction = ({ message }: { message: string }) => {
 
 // Inspired by MUD dev tools
 const TransactionSummary = ({
-  write,
+  txEntity,
   dismissedTransactions,
   setDismissedTransactions,
 }: {
-  write: ContractWrite;
-  dismissedTransactions: Array<string>;
-  setDismissedTransactions: Dispatch<SetStateAction<string[]>>;
+  txEntity: Entity;
+  dismissedTransactions: Array<Entity>;
+  setDismissedTransactions: Dispatch<SetStateAction<Entity[]>>;
 }) => {
   const {
+    components: { Transaction },
     network: { publicClient },
   } = useAmalgema();
+
+  const txData = useComponentValue(Transaction, txEntity);
 
   const [timeUntilDismiss, setTimeUntilDismiss] = useState(AUTOMATIC_DISMISS_TIME);
   const [startDismiss, setStartDismiss] = useState(false);
 
-  const hash = usePromise(write.result);
-  const transactionReceiptPromise = getTransactionReceipt(publicClient, write);
-  const transactionReceipt = usePromise(transactionReceiptPromise);
-
+  const hash = txData?.hash as Hex | undefined;
   const blockExplorer = publicClient.chain.blockExplorers?.default.url;
 
-  const isPending = hash.status === "pending" || transactionReceipt.status === "pending";
-  const isRevert =
-    hash.status === "rejected" ||
-    (transactionReceipt.status === "fulfilled" && transactionReceipt.value.status === "reverted");
+  const isPending = ["pending", "submitted"].includes(txData?.status ?? "");
+  const isRevert = txData?.status === "reverted";
 
-  let functionName = write.request.functionName;
-  let functionArgs = write.request.args;
-  if (functionName === "call" || functionName === "callFrom") {
-    const functionSelectorAndArgs: Hex = write.request?.args?.length
-      ? (write.request.args[write.request.args.length - 1] as Hex)
-      : `0x`;
-    const functionData = decodeFunctionData({ abi: IWorldAbi, data: functionSelectorAndArgs });
-    functionName = functionData.functionName;
-    functionArgs = functionData.args;
-  }
+  const name = txData?.systemId ?? txData?.systemCall ?? "Unknown";
 
   useEffect(() => {
     if (!startDismiss) return;
@@ -260,33 +152,33 @@ const TransactionSummary = ({
   }, [startDismiss]);
 
   useEffect(() => {
-    if (timeUntilDismiss <= 0) setDismissedTransactions([...dismissedTransactions, write.id]);
+    if (timeUntilDismiss <= 0) setDismissedTransactions([...dismissedTransactions, txEntity]);
   });
 
   useEffect(() => {
-    if (transactionReceipt.status === "fulfilled") setStartDismiss(true);
-  }, [transactionReceipt]);
+    if (txData?.status === "completed") setStartDismiss(true);
+  }, [txData]);
 
   return (
     <div>
       {isPending ? (
-        <PendingTransaction message={messagePending({ functionName, args: functionArgs })} />
+        <PendingTransaction message={name ?? ""} />
       ) : isRevert ? (
         <FailedTransaction
           startDismiss={startDismiss}
           timeUntilDismiss={timeUntilDismiss}
-          onClick={() => setDismissedTransactions([...dismissedTransactions, write.id])}
-          message={messageFailed({ functionName, args: functionArgs })}
-          hash={hash.status === "fulfilled" ? hash.value : undefined}
+          onClick={() => setDismissedTransactions([...dismissedTransactions, txEntity])}
+          message={name}
+          hash={hash}
           blockExplorer={blockExplorer}
         />
       ) : (
         <ConfirmedTransaction
           startDismiss={startDismiss}
           timeUntilDismiss={timeUntilDismiss}
-          onClick={() => setDismissedTransactions([...dismissedTransactions, write.id])}
-          message={messageConfirmed({ functionName, args: functionArgs })}
-          hash={hash.status === "fulfilled" ? hash.value : undefined}
+          onClick={() => setDismissedTransactions([...dismissedTransactions, txEntity])}
+          message={name ?? ""}
+          hash={hash}
           blockExplorer={blockExplorer}
         />
       )}
@@ -294,16 +186,21 @@ const TransactionSummary = ({
   );
 };
 
-function DisplayTransactions({ writes }: { writes: ContractWrite[] }) {
-  const [dismissedTransactions, setDismissedTransactions] = useState<Array<string>>([]);
+export function Transactions() {
+  const {
+    components: { Transaction },
+  } = useAmalgema();
 
-  const visibleWrites = writes.filter((value) => !dismissedTransactions.includes(value.id));
+  const allTransactions = useEntityQuery([Has(Transaction)]);
+
+  const [dismissedTransactions, setDismissedTransactions] = useState<Entity[]>([]);
+  const visibleTransactions = allTransactions.filter((t) => !dismissedTransactions.includes(t));
 
   return (
-    visibleWrites.length > 0 && (
+    visibleTransactions.length > 0 && (
       <div style={{ zIndex: 1500 }} className="absolute top-[8px] left-1/2 -translate-x-1/2 my-8 w-96">
-        {visibleWrites.slice(0, 3).map((write, i) => (
-          <div key={write.id} className="flex justify-center w-full">
+        {visibleTransactions.slice(0, 3).map((txEntity, i) => (
+          <div key={txEntity} className="flex justify-center w-full">
             <div
               style={{
                 top: `${i * 16}px`,
@@ -312,7 +209,7 @@ function DisplayTransactions({ writes }: { writes: ContractWrite[] }) {
               className="absolute w-80"
             >
               <TransactionSummary
-                write={write}
+                txEntity={txEntity}
                 dismissedTransactions={dismissedTransactions}
                 setDismissedTransactions={setDismissedTransactions}
               />
@@ -322,10 +219,4 @@ function DisplayTransactions({ writes }: { writes: ContractWrite[] }) {
       </div>
     )
   );
-}
-
-export function Transactions() {
-  const { writes } = useAmalgema();
-
-  return <DisplayTransactions writes={writes} />;
 }

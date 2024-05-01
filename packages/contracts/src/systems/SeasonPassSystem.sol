@@ -3,14 +3,16 @@ pragma solidity >=0.8.24;
 
 import { System } from "@latticexyz/world/src/System.sol";
 import { IERC721Mintable } from "@latticexyz/world-modules/src/modules/erc721-puppet/IERC721Mintable.sol";
+import { _tokenUriTableId } from "@latticexyz/world-modules/src/modules/erc721-puppet/utils.sol";
+import { TokenURI } from "@latticexyz/world-modules/src/modules/erc721-puppet/tables/TokenURI.sol";
 
 import { SeasonPassIndex, SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, SeasonPassSale } from "../codegen/index.sol";
 
 import { hasSeasonPass } from "../hasToken.sol";
 import { DENOMINATOR } from "../libraries/LibSkyPool.sol";
-import { SEASON_PASS_PRICE_DECREASE_DENOMINATOR } from "../../script/PostDeploy.s.sol";
+import { LibString } from "../libraries/LibString.sol";
 
-uint256 constant MAX_TOKEN_ID = 10_000_000;
+import { SEASON_PASS_NAMESPACE, SEASON_PASS_PRICE_DECREASE_DENOMINATOR } from "../../constants.sol";
 
 // The price lazily decreases based on how much time has passed.
 // eg. if the starting price is 1000, and 50 seconds have passed, the actual price is now 950.
@@ -54,11 +56,12 @@ contract SeasonPassSystem is System {
     require(_msgValue() >= price, "you must pay enough");
 
     uint256 tokenId = SeasonPassIndex.get();
-    require(tokenId < MAX_TOKEN_ID, "all season passes have been minted");
 
     // Mint season pass
     IERC721Mintable token = IERC721Mintable(SkyPoolConfig.getSeasonPassToken());
     token.mint(account, tokenId);
+
+    TokenURI.set(_tokenUriTableId(SEASON_PASS_NAMESPACE), tokenId, LibString.toString(tokenId));
 
     // Purely for analytics
     SeasonPassSale.set(account, tokenId, price, block.timestamp, address(token));

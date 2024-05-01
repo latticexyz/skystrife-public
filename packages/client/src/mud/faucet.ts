@@ -1,14 +1,17 @@
 import { Hex, PublicClient, parseEther } from "viem";
 import { createClient as createFaucetClient } from "@latticexyz/faucet";
+import { skystrifeDebug } from "../debug";
 
 const MINIMUM_BALANCE = parseEther("0.01");
 const DRIP_INTERVAL = 20_000;
+
+const debug = skystrifeDebug.extend("faucet");
 
 export function drip(address: Hex, faucetServiceUrl: string, publicClient: PublicClient) {
   console.info("[Dev Faucet]: Player address -> ", address);
 
   try {
-    console.log("creating faucet client");
+    debug("creating faucet client");
     const faucet = createFaucetClient({ url: faucetServiceUrl });
 
     const doDrip = async () => {
@@ -16,9 +19,9 @@ export function drip(address: Hex, faucetServiceUrl: string, publicClient: Publi
       console.info(`[Dev Faucet]: Player balance -> ${balance}`);
 
       if (balance < MINIMUM_BALANCE) {
-        console.log("dripping");
+        debug("dripping");
         const tx = await faucet.drip.mutate({ address });
-        console.log("got drip", tx);
+        debug("got drip", tx);
       }
     };
 

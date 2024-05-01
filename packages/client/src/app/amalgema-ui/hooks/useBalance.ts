@@ -1,38 +1,28 @@
 import { useAmalgema } from "../../../useAmalgema";
-import { Hex, formatEther, parseEther } from "viem";
-import { getBalance } from "viem/actions";
-import { useCurrentTime } from "./useCurrentTime";
-import { useEffect, useState } from "react";
+import { Hex, formatEther, numberToHex, padHex, parseEther } from "viem";
+import { addressToEntityID } from "../../../mud/setupNetwork";
+import { useComponentValue } from "@latticexyz/react";
 
+export const MINIMUM_BALANCE = parseEther("0.000006");
 export const LOW_BALANCE_THRESHOLD = parseEther("0.0005");
-export const DANGER_BALANCE_THRESHOLD = parseEther("0.000002");
+export const RECOMMENDED_BALANCE = parseEther("0.005");
+
+const zeroAddress = padHex(numberToHex(0, { size: 4 }), { size: 20, dir: "right" });
 
 export function useBalance(address: Hex) {
   const {
-    network: { walletClient },
+    components: { WalletBalance },
   } = useAmalgema();
 
-  const [balance, setBalance] = useState(0n);
-  const currentTime = useCurrentTime();
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const balance = await getBalance(walletClient, {
-          address,
-        });
-        setBalance(balance);
-      } catch (e) {
-        /* empty */
-      }
-    };
-    fetchBalance();
-  }, [walletClient, currentTime, address]);
+  const addressEntity = addressToEntityID(address);
+  const balance = useComponentValue(WalletBalance, addressEntity)?.value ?? 0n;
 
   return {
     value: balance,
     formatted: parseFloat(formatEther(balance)).toFixed(6),
-    belowMinimum: balance < LOW_BALANCE_THRESHOLD,
-    belowDanger: balance < DANGER_BALANCE_THRESHOLD,
+    unplayable: balance < MINIMUM_BALANCE,
+    danger: balance < LOW_BALANCE_THRESHOLD,
+    belowRecommended: balance < RECOMMENDED_BALANCE,
   };
 }
 
@@ -41,11 +31,11 @@ export function useBurnerBalance() {
     network: { walletClient },
   } = useAmalgema();
 
-  return useBalance(walletClient.account.address);
+  return useBalance(walletClient?.account?.address ?? zeroAddress);
 }
 
 export function useMainWalletBalance() {
   const { externalWalletClient } = useAmalgema();
 
-  return useBalance(externalWalletClient?.account?.address ?? "0x0");
+  return useBalance(externalWalletClient?.account?.address ?? zeroAddress);
 }

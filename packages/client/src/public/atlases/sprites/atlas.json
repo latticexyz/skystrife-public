@@ -5,7 +5,7 @@
     },
     "textures": [
         {
-            "image": "atlas.png?timestamp=1712884866929",
+            "image": "atlas.png?timestamp=1713755503940",
             "format": "RGBA8888",
             "size": {
                 "w": 2048,
@@ -49448,7 +49448,7 @@
                     }
                 },
                 {
-                    "filename": "sprites/greyscale/ui/bars/background.png",
+                    "filename": "sprites/entity_bars/green-bar.png",
                     "rotated": false,
                     "trimmed": false,
                     "sourceSize": {
@@ -49469,7 +49469,7 @@
                     }
                 },
                 {
-                    "filename": "sprites/greyscale/ui/bars/green.png",
+                    "filename": "sprites/entity_bars/red-bar.png",
                     "rotated": false,
                     "trimmed": false,
                     "sourceSize": {
@@ -49490,7 +49490,7 @@
                     }
                 },
                 {
-                    "filename": "sprites/greyscale/ui/bars/red.png",
+                    "filename": "sprites/greyscale/ui/bars/background.png",
                     "rotated": false,
                     "trimmed": false,
                     "sourceSize": {
@@ -49511,7 +49511,7 @@
                     }
                 },
                 {
-                    "filename": "sprites/greyscale/ui/bars/yellow.png",
+                    "filename": "sprites/greyscale/ui/bars/green.png",
                     "rotated": false,
                     "trimmed": false,
                     "sourceSize": {
@@ -49532,7 +49532,7 @@
                     }
                 },
                 {
-                    "filename": "sprites/tinted_images/blue/ui/bars/background.png",
+                    "filename": "sprites/greyscale/ui/bars/red.png",
                     "rotated": false,
                     "trimmed": false,
                     "sourceSize": {
@@ -49553,7 +49553,7 @@
                     }
                 },
                 {
-                    "filename": "sprites/tinted_images/blue/ui/bars/green.png",
+                    "filename": "sprites/greyscale/ui/bars/yellow.png",
                     "rotated": false,
                     "trimmed": false,
                     "sourceSize": {
@@ -49574,7 +49574,7 @@
                     }
                 },
                 {
-                    "filename": "sprites/tinted_images/blue/ui/bars/red.png",
+                    "filename": "sprites/tinted_images/blue/ui/bars/background.png",
                     "rotated": false,
                     "trimmed": false,
                     "sourceSize": {
@@ -50327,6 +50327,216 @@
                         "y": 1958,
                         "w": 1,
                         "h": 1
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/blue/ui/bars/green.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1001,
+                        "y": 1203,
+                        "w": 18,
+                        "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/green/ui/bars/green.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1001,
+                        "y": 1203,
+                        "w": 18,
+                        "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/red/ui/bars/green.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1001,
+                        "y": 1203,
+                        "w": 18,
+                        "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/white/ui/bars/green.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1001,
+                        "y": 1203,
+                        "w": 18,
+                        "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/yellow/ui/bars/green.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1001,
+                        "y": 1203,
+                        "w": 18,
+                        "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/blue/ui/bars/red.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1163,
+                        "y": 701,
+                        "w": 18,
+                        "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/green/ui/bars/red.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1163,
+                        "y": 701,
+                        "w": 18,
+                        "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/red/ui/bars/red.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1163,
+                        "y": 701,
+                        "w": 18,
+                        "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/white/ui/bars/red.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1163,
+                        "y": 701,
+                        "w": 18,
+                        "h": 4
+                    }
+                },
+                {
+                    "filename": "sprites/tinted_images/yellow/ui/bars/red.png",
+                    "rotated": false,
+                    "trimmed": false,
+                    "sourceSize": {
+                        "w": 18,
+                        "h": 4
+                    },
+                    "spriteSourceSize": {
+                        "x": 0,
+                        "y": 0,
+                        "w": 18,
+                        "h": 4
+                    },
+                    "frame": {
+                        "x": 1163,
+                        "y": 701,
+                        "w": 18,
+                        "h": 4
                     }
                 },
                 {
@@ -55325,174 +55535,6 @@
                         "y": 953,
                         "w": 32,
                         "h": 32
-                    }
-                },
-                {
-                    "filename": "sprites/tinted_images/green/ui/bars/green.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 18,
-                        "h": 4
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 18,
-                        "h": 4
-                    },
-                    "frame": {
-                        "x": 1163,
-                        "y": 719,
-                        "w": 18,
-                        "h": 4
-                    }
-                },
-                {
-                    "filename": "sprites/tinted_images/red/ui/bars/green.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 18,
-                        "h": 4
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 18,
-                        "h": 4
-                    },
-                    "frame": {
-                        "x": 1163,
-                        "y": 719,
-                        "w": 18,
-                        "h": 4
-                    }
-                },
-                {
-                    "filename": "sprites/tinted_images/white/ui/bars/green.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 18,
-                        "h": 4
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 18,
-                        "h": 4
-                    },
-                    "frame": {
-                        "x": 1163,
-                        "y": 719,
-                        "w": 18,
-                        "h": 4
-                    }
-                },
-                {
-                    "filename": "sprites/tinted_images/yellow/ui/bars/green.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 18,
-                        "h": 4
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 18,
-                        "h": 4
-                    },
-                    "frame": {
-                        "x": 1163,
-                        "y": 719,
-                        "w": 18,
-                        "h": 4
-                    }
-                },
-                {
-                    "filename": "sprites/tinted_images/green/ui/bars/red.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 18,
-                        "h": 4
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 18,
-                        "h": 4
-                    },
-                    "frame": {
-                        "x": 1163,
-                        "y": 725,
-                        "w": 18,
-                        "h": 4
-                    }
-                },
-                {
-                    "filename": "sprites/tinted_images/red/ui/bars/red.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 18,
-                        "h": 4
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 18,
-                        "h": 4
-                    },
-                    "frame": {
-                        "x": 1163,
-                        "y": 725,
-                        "w": 18,
-                        "h": 4
-                    }
-                },
-                {
-                    "filename": "sprites/tinted_images/white/ui/bars/red.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 18,
-                        "h": 4
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 18,
-                        "h": 4
-                    },
-                    "frame": {
-                        "x": 1163,
-                        "y": 725,
-                        "w": 18,
-                        "h": 4
-                    }
-                },
-                {
-                    "filename": "sprites/tinted_images/yellow/ui/bars/red.png",
-                    "rotated": false,
-                    "trimmed": false,
-                    "sourceSize": {
-                        "w": 18,
-                        "h": 4
-                    },
-                    "spriteSourceSize": {
-                        "x": 0,
-                        "y": 0,
-                        "w": 18,
-                        "h": 4
-                    },
-                    "frame": {
-                        "x": 1163,
-                        "y": 725,
-                        "w": 18,
-                        "h": 4
                     }
                 },
                 {

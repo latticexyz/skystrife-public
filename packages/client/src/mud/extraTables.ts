@@ -1,9 +1,9 @@
 import { resourceToHex } from "@latticexyz/common";
 import { SyncFilter } from "@latticexyz/store-sync";
 
-const SEASON_PASS_NAMESPACE = "test_season";
-const ORB_NAMESPACE = "test_orb";
-const SKY_KEY_NAMESPACE = "test_sky_key";
+const SEASON_PASS_NAMESPACE = "Season1";
+const ORB_NAMESPACE = "Orb";
+const SKY_KEY_NAMESPACE = "SkyKey";
 
 const ERC20RegistryTableId = resourceToHex({ type: "table", namespace: "erc20-puppet", name: "ERC20Registry" });
 const OrbBalancesTableId = resourceToHex({ type: "table", namespace: ORB_NAMESPACE, name: "Balances" });

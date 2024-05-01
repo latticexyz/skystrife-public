@@ -29,7 +29,7 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
     components: { HoverHighlight },
     parentLayers: {
       network: {
-        components: { OwnedBy, Combat, Action },
+        components: { OwnedBy, Combat, Action, Position, Untraversable },
         utils: { isOwnedByCurrentPlayer, getOwningPlayer },
       },
       local: {
@@ -37,17 +37,18 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
       },
       headless: {
         api: { getMovementDifficulty, isUntraversable },
-        components: { NextPosition, OnCooldown },
+        components: { NextPosition, OnCooldown, InCurrentMatch },
       },
     },
     scenes: {
-      Main: { objectPool, phaserScene },
+      Main: { phaserScene },
     },
+    globalObjectPool,
   } = layer;
 
   function removePathObjects(entity: Entity, paths: { x: number[]; y: number[] }) {
     for (let i = 0; i < paths.x.length; i++) {
-      objectPool.remove(`${entity}-path-highlight-${i}`);
+      globalObjectPool.remove(`${entity}-path-highlight-${i}`);
     }
   }
 
@@ -145,14 +146,17 @@ export function createDrawPotentialPathSystem(layer: PhaserLayer) {
 
     entityToPathObjects[entity].lines = phaserScene.add.group();
     entityToPathObjects[entity].pathLineDrawSub = HoverHighlight.update$.subscribe((update) => {
+      const hoverHighlight = getComponentValue(HoverHighlight, update.entity);
+      if (!hoverHighlight) return;
+
+      const blockingEntities = runQuery([Has(InCurrentMatch), HasValue(Position, hoverHighlight), Has(Untraversable)]);
+      if (blockingEntities.size > 0) return;
+
       if (!isOwnedByCurrentPlayer(entity) || hasComponent(OnCooldown, entity)) return;
 
       entityToPathObjects[entity].lines?.clear(true);
 
       const unitPosition = getComponentValueStrict(LocalPosition, entity);
-      const hoverHighlight = getComponentValue(HoverHighlight, update.entity);
-
-      if (!hoverHighlight) return;
 
       const hoverCoord = { x: hoverHighlight.x, y: hoverHighlight.y };
 

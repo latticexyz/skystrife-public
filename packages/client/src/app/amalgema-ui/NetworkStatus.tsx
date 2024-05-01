@@ -1,43 +1,48 @@
-import { useChainModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { useAmalgema } from "../../useAmalgema";
 import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Caption } from "../ui/Theme/SkyStrife/Typography";
+import { switchChain } from "viem/actions";
+import { twMerge } from "tailwind-merge";
 
-export function NetworkStatus() {
+export function NetworkStatus({ className }: { className?: string }) {
   const {
-    network: { publicClient },
+    network: { networkConfig },
+    externalWalletClient,
   } = useAmalgema();
 
-  const { chain } = useAccount();
-  const { openChainModal } = useChainModal();
+  const clientChain = networkConfig.chain;
+
+  const { chain: walletChain } = useAccount();
+  const walletChainId = walletChain?.id ?? 0;
+
+  if (!externalWalletClient) return <></>;
 
   return (
-    <>
-      <Button
-        buttonType="tertiary"
-        onClick={openChainModal}
-        className="h-[32px] flex justify-center items-center border-1 rounded-2xl ml-8"
-      >
-        {chain ? (
-          chain.id === publicClient.chain.id ? (
-            <div className="flex flex-row justify-center items-center">
-              <div className="w-3 h-3 bg-green-500 rounded-md m-1" />
-              <Caption>{publicClient.chain.name}</Caption>
-            </div>
-          ) : (
-            <div className="flex flex-row justify-center items-center">
-              <div className="w-3 h-3 bg-red-500 rounded-md m-1" />
-              <Caption>Wrong network</Caption>
-            </div>
-          )
+    <Button
+      buttonType="tertiary"
+      onClick={() => {
+        switchChain(externalWalletClient, {
+          id: clientChain.id,
+        });
+      }}
+      className={twMerge("h-[32px] flex justify-center items-center border-1 rounded-2xl", className)}
+    >
+      {externalWalletClient ? (
+        clientChain.id === walletChainId ? (
+          <div className="flex flex-row justify-center items-center">
+            <div className="w-3 h-3 bg-green-500 rounded-md m-1" />
+            <Caption>{clientChain.name}</Caption>
+          </div>
         ) : (
           <div className="flex flex-row justify-center items-center">
-            <div className="w-3 h-3 bg-gray-500 rounded-md m-1" />
-            <Caption>Not connected</Caption>
+            <div className="w-3 h-3 bg-red-500 rounded-md m-1" />
+            <Caption>Switch to {networkConfig.chain.name}</Caption>
           </div>
-        )}
-      </Button>
-    </>
+        )
+      ) : (
+        <></>
+      )}
+    </Button>
   );
 }

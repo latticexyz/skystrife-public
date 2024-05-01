@@ -19,6 +19,8 @@ library LibAttack {
     // the defender counterattacks
     if (!ranged) {
       (attackerDied, ) = LibCombat.dealDamage(matchEntity, defender, attacker, defenderDamage);
+    } else {
+      defenderDamage = 0;
     }
 
     // trigger kills after combat is evaluated

@@ -18,8 +18,6 @@ import {
   PublicClient,
   Transport,
   Chain,
-  WalletClient,
-  Account,
   Address,
   isHex,
   pad,
@@ -28,6 +26,7 @@ import {
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { HeadlessLayer, createHeadlessLayer } from "client/src/layers/Headless";
 import { Entity } from "@latticexyz/recs";
+import { transactionQueue } from "@latticexyz/common/actions";
 
 export const env = z
   .object({
@@ -89,7 +88,7 @@ export async function createSkyStrife(): Promise<{
 
         return val?.step === SyncStep.LIVE;
       }),
-      take(1)
+      take(1),
     );
 
     return firstValueFrom(live$);
@@ -98,7 +97,7 @@ export async function createSkyStrife(): Promise<{
   const clientOptions = {
     chain: networkConfig.chain,
     transport: transportObserver(fallback([webSocket(), http()], { retryCount: 0 })),
-    pollingInterval: 1000,
+    pollingInterval: 250,
   } as const satisfies ClientConfig;
 
   const publicClient = createPublicClient(clientOptions);
@@ -113,13 +112,17 @@ export async function createSkyStrife(): Promise<{
       ...clientOptions,
       account: burnerAccount,
     });
+    const txQueue = transactionQueue({
+      queueConcurrency: 3,
+    });
+    const extendedWalletClient = burnerWalletClient.extend(txQueue);
 
     const worldContract = getContract({
       address: networkConfig.worldAddress as Hex,
       abi: IWorldAbi,
       client: {
         public: publicClient,
-        wallet: burnerWalletClient,
+        wallet: extendedWalletClient,
       },
     });
 

@@ -5,9 +5,10 @@ import { PhaserLayer, RenderDepth } from "../../types";
 
 export function createSelectionSystem(layer: PhaserLayer) {
   const {
+    globalObjectPool,
     world,
     scenes: {
-      Main: { input, maps, objectPool },
+      Main: { input, maps },
     },
     parentLayers: {
       local: {
@@ -25,36 +26,31 @@ export function createSelectionSystem(layer: PhaserLayer) {
     (keys) => keys.has("ESC"),
     () => {
       resetSelection();
-    }
+    },
   );
 
   function drawSelection(
     update: ComponentUpdate & {
       type: UpdateType;
-    }
+    },
   ) {
     const { entity, type } = update;
     const selectEntity = `${entity}-select` as Entity;
 
     if (type === UpdateType.Exit) {
-      return objectPool.remove(selectEntity);
+      return globalObjectPool.remove(selectEntity);
     }
 
-    const obj = objectPool.get(selectEntity, "Sprite");
-    obj.setComponent({
-      id: "select",
-      once: (box) => {
-        box.play(Animations.TileHighlightYellow);
+    const sprite = globalObjectPool.get(selectEntity, "Sprite");
+    sprite.play(Animations.TileHighlightYellow);
 
-        const position = getComponentValueStrict(LocalPosition, entity);
-        const pixelCoord = tileCoordToPixelCoord(position, maps.Main.tileWidth, maps.Main.tileHeight);
+    const position = getComponentValueStrict(LocalPosition, entity);
+    const pixelCoord = tileCoordToPixelCoord(position, maps.Main.tileWidth, maps.Main.tileHeight);
 
-        box.setSize(maps.Main.tileWidth, maps.Main.tileHeight);
-        box.setPosition(pixelCoord.x, pixelCoord.y);
-        box.setDepth(RenderDepth.Background1);
-        box.setOrigin(0);
-      },
-    });
+    sprite.setSize(maps.Main.tileWidth, maps.Main.tileHeight);
+    sprite.setPosition(pixelCoord.x, pixelCoord.y);
+    sprite.setDepth(RenderDepth.Background1);
+    sprite.setOrigin(0);
   }
 
   defineSystem(world, [Has(Selected), Has(LocalPosition), Not(Path), Not(NextPosition)], (update) => {

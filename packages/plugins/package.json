@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@latticexyz/recs": "2.0.5-main-ccbb4876",
+    "@latticexyz/recs": "2.0.8",
     "client": "workspace:*",
     "serve": "14.2.1",
     "serve-handler": "6.1.5",

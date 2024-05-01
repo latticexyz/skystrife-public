@@ -1,23 +1,13 @@
-import { useComponentValue } from "@latticexyz/react";
 import { SEASON_NAME } from "../../../constants";
 import { CrossIcon } from "../../ui/Theme/CrossIcon";
 import { Card } from "../../ui/Theme/SkyStrife/Card";
-import { Heading } from "../../ui/Theme/SkyStrife/Typography";
+import { Body, Heading, Link } from "../../ui/Theme/SkyStrife/Typography";
 import useLocalStorageState from "use-local-storage-state";
-import { singletonEntity } from "@latticexyz/store-sync/recs";
-import { useAmalgema } from "../../../useAmalgema";
-import { DateTime } from "luxon";
 import { SeasonPassImg } from "../SeasonPassImg";
+import { HOW_TO_PLAY_URL, DISCORD_URL } from "../../links";
 
 export function Welcome() {
-  const {
-    components: { SeasonTimes },
-  } = useAmalgema();
-
-  const seasonTimes = useComponentValue(SeasonTimes, singletonEntity);
-  const seasonEnd = DateTime.fromSeconds(Number(seasonTimes?.seasonEnd || 0)).setZone("GMT");
-
-  const [open, setOpen] = useLocalStorageState("welcome-open", {
+  const [open, setOpen] = useLocalStorageState(`welcome1-${SEASON_NAME}`, {
     defaultValue: true,
   });
 
@@ -30,8 +20,32 @@ export function Welcome() {
               <div className="flex flex-row gap-4 items-center">
                 <SeasonPassImg className="w-[100px] -ml-2" />
                 <div className="flex flex-col">
-                  <Heading className="text-[#1A6CBC]">Welcome to {SEASON_NAME}!</Heading>
-                  <Heading>Daily matches until {seasonEnd.toLocaleString(DateTime.DATETIME_HUGE)}</Heading>
+                  <Heading className="text-[#1A6CBC]">Welcome to Sky Strife {SEASON_NAME}!</Heading>
+                  <Body className="text-ss-text-default">
+                    If you are new, be sure to read our{" "}
+                    <Link
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "16px",
+                      }}
+                      href={HOW_TO_PLAY_URL}
+                    >
+                      How to Play guide
+                    </Link>{" "}
+                    and join the official{" "}
+                    <Link
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "16px",
+                      }}
+                      href={DISCORD_URL}
+                    >
+                      Discord
+                    </Link>
+                    .
+                    <br />
+                    Start your Sky Strife journey by connecting your wallet!
+                  </Body>
                 </div>
 
                 <div className="grow" />

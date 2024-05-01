@@ -35,9 +35,8 @@ import { highlightCoord } from "./api";
 import { curry } from "lodash";
 import { Coord, ValueOf } from "@latticexyz/utils";
 import { createConstrainCameraSystem } from "./systems/ConstrainCameraSystem";
-import { Animations, Scenes, Sprites, UnitTypeAnimations } from "./phaserConstants";
+import { Animations, Scenes, Sprites, UnitTypeAnimations, UnitTypeDeathAnimations } from "./phaserConstants";
 import { createCombatSystem } from "./systems/CombatSystem";
-import { createAnimations } from "./animations";
 import { observable } from "mobx";
 import { createSmoothCameraControls } from "./camera";
 import { RenderDepth } from "./types";
@@ -45,9 +44,8 @@ import { createPreferencesSystem } from "./systems/PreferencesSystem";
 import { createDrawShadowSystem } from "./systems/DrawShadowSystem";
 import { createSounds } from "./createSounds";
 import { createTintOnCooldownSystem } from "./systems/TintOnCooldownSystem";
-import { createHideBlackBoxSystem } from "./systems/HideBlackBoxSystem";
 import { createCaptureAnimationSystem } from "./systems/CaptureAnimationSystem";
-import { EmbodiedEntity, GameObjectTypes, WorldCoord } from "phaserx/src/types";
+import { WorldCoord } from "phaserx/src/types";
 import { createCalculateCombatResultSystem } from "./systems/CalculateCombatResultSystem";
 import { Hex } from "viem";
 import { UnitTypes } from "../../Network";
@@ -58,8 +56,11 @@ import { createSkullSystem } from "./systems/SkullSystem";
 import { createShieldSystem } from "./systems/ShieldSystem";
 import { createUnitBuildSystem } from "./systems/UnitBuildSystem";
 import { createPluginAnalyticsSystem } from "./systems/PluginAnalyticsSystem";
+import { skystrifeDebug } from "../../../debug";
 
 type PhaserEngineConfig = Parameters<typeof createPhaserEngine>[0];
+
+const debug = skystrifeDebug.extend("phaser-layer");
 
 /**
  * The Phaser layer extends the Local layer.
@@ -80,6 +81,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
         components: { NextPosition, InCurrentMatch },
       },
     },
+    components: { IncomingDamage },
   } = local;
 
   // World
@@ -101,6 +103,104 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
   scenes.UI.camera.zoom$.subscribe(() => {
     scenes.UI.camera.phaserCamera.setZoom(1);
   });
+
+  const ObjectPoolTypes = {
+    Sprite: Phaser.GameObjects.Sprite,
+    Graphics: Phaser.GameObjects.Graphics,
+    Text: Phaser.GameObjects.Text,
+    Group: Phaser.GameObjects.Group,
+    Rectangle: Phaser.GameObjects.Rectangle,
+  } as const;
+
+  const createObjectPool = () => {
+    const map = new Map<string, Phaser.GameObjects.GameObject | Phaser.GameObjects.Group>();
+
+    const getSprite = (id: string) => {
+      if (!map.has(id)) {
+        const sprite = scenes.Main.phaserScene.add.sprite(0, 0, "");
+        sprite.setDepth(10);
+        sprite.setScale(1, 1);
+        sprite.setOrigin(0, 0);
+        sprite.setTexture("MainAtlas", "sprites/blank.png");
+        sprite.setData("objectPoolId", id);
+        map.set(id, sprite);
+      }
+
+      return map.get(id);
+    };
+
+    const getRect = (id: string) => {
+      if (!map.has(id)) {
+        const rect = scenes.Main.phaserScene.add.rectangle(0, 0, 0, 0, 0);
+        rect.setDepth(10);
+        rect.setOrigin(0, 0);
+        rect.setFillStyle(0x000000, 1);
+        rect.setData("objectPoolId", id);
+        map.set(id, rect);
+      }
+
+      return map.get(id);
+    };
+
+    const getGraphics = (id: string) => {
+      if (!map.has(id)) {
+        const graphics = scenes.Main.phaserScene.add.graphics();
+        map.set(id, graphics);
+      }
+
+      return map.get(id);
+    };
+
+    const getText = (id: string) => {
+      if (!map.has(id)) {
+        const text = scenes.Main.phaserScene.add.text(0, 0, "", {});
+        map.set(id, text);
+      }
+
+      return map.get(id);
+    };
+
+    const getGroup = (id: string) => {
+      if (!map.has(id)) {
+        const group = scenes.Main.phaserScene.add.group();
+        map.set(id, group);
+      }
+
+      return map.get(id);
+    };
+
+    type ObjectPoolTypes = {
+      [key in keyof typeof ObjectPoolTypes]: InstanceType<(typeof ObjectPoolTypes)[key]>;
+    };
+
+    return {
+      get: <objectType extends keyof ObjectPoolTypes>(id: string, type: objectType): ObjectPoolTypes[objectType] => {
+        if (type === "Sprite") {
+          return getSprite(id) as never;
+        } else if (type === "Text") {
+          return getText(id) as never;
+        } else if (type === "Group") {
+          return getGroup(id) as never;
+        } else if (type === "Rectangle") {
+          return getRect(id) as never;
+        } else {
+          return getGraphics(id) as never;
+        }
+      },
+      remove: (id: string) => {
+        const gameObject = map.get(id);
+        if (gameObject) {
+          gameObject.destroy(true);
+          map.delete(id);
+        }
+      },
+      exists: (id: string) => {
+        return map.has(id);
+      },
+    };
+  };
+
+  const globalObjectPool = createObjectPool();
 
   function selectAndView(entity: Entity) {
     const position = getComponentValue(LocalPosition, entity);
@@ -128,7 +228,6 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
 
   function drawTileHighlight(id: string, position: Coord, color: "red" | "yellow" | "white" | "blue", alpha = 1) {
     const {
-      objectPool,
       maps: {
         Main: { tileHeight, tileWidth },
       },
@@ -139,18 +238,13 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     if (color === "yellow") animation = Animations.TileOutlineYellow;
     if (color === "blue") animation = Animations.TileOutlineBlue;
 
-    const object = objectPool.get(id, "Sprite");
-    object.setComponent({
-      id: `tile-highlight`,
-      once: async (box) => {
-        const pixelCoord = tileCoordToPixelCoord(position, tileWidth, tileHeight);
-        box.play(animation);
-        box.setOrigin(0, 0);
-        box.setPosition(pixelCoord.x, pixelCoord.y);
-        box.setDepth(RenderDepth.Background1);
-        box.setAlpha(alpha);
-      },
-    });
+    const sprite = globalObjectPool.get(id, "Sprite");
+    const pixelCoord = tileCoordToPixelCoord(position, tileWidth, tileHeight);
+    sprite.play(animation);
+    sprite.setOrigin(0, 0);
+    sprite.setPosition(pixelCoord.x, pixelCoord.y);
+    sprite.setDepth(RenderDepth.Background1);
+    sprite.setAlpha(alpha);
   }
 
   function createMapInteractionApi() {
@@ -189,18 +283,11 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     colorName: ValueOf<typeof PLAYER_COLORS>,
     callback?: (gameObject: Phaser.GameObjects.Sprite) => void,
   ) {
-    const { objectPool } = scenes.Main;
-
-    const embodiedEntity = objectPool.get(entity, "Sprite");
-
+    const sprite = globalObjectPool.get(entity, "Sprite");
     const finalAnimation = findColoredAnimation(animation, colorName)?.key ?? animation;
-    embodiedEntity.setComponent({
-      id: `play-tinted-animation-${entity}`,
-      once: (gameObject) => {
-        gameObject.play(finalAnimation);
-        if (callback) callback(gameObject);
-      },
-    });
+
+    sprite.play(finalAnimation);
+    if (callback) callback(sprite);
 
     return finalAnimation;
   }
@@ -231,11 +318,11 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     return `${id}-${idSequence++}`;
   };
 
-  const defineGameObjectSystem = <Type extends keyof GameObjectTypes>(
+  const defineGameObjectSystem = <Type extends keyof typeof ObjectPoolTypes>(
     numGameObjects: number,
     gameObjectType: Type,
     query: QueryFragment[],
-    system: (update: ComponentUpdate & { type: UpdateType }, gameObjects: EmbodiedEntity<Type>[]) => void,
+    system: (update: ComponentUpdate & { type: UpdateType }, gameObjects: Phaser.GameObjects.GameObject[]) => void,
     idPrefix?: string,
   ) => {
     const _idPrefix = idPrefix ?? uniqueId("game-object");
@@ -245,15 +332,15 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
 
       if (type === UpdateType.Exit) {
         for (let i = 0; i < numGameObjects; i++) {
-          scenes.Main.objectPool.remove(`${_idPrefix}-${entity}-${i}`);
+          globalObjectPool.remove(`${_idPrefix}-${entity}-${i}`);
         }
         return;
       }
 
-      const gameObjects = [] as EmbodiedEntity<Type>[];
+      const gameObjects = [];
       for (let i = 0; i < numGameObjects; i++) {
-        const gameObject = scenes.Main.objectPool.get<Type>(`${_idPrefix}-${entity}-${i}`, gameObjectType);
-        gameObjects.push(gameObject as unknown as EmbodiedEntity<Type>);
+        const gameObject = globalObjectPool.get(`${_idPrefix}-${entity}-${i}`, gameObjectType);
+        gameObjects.push(gameObject);
       }
 
       system(update, gameObjects);
@@ -281,54 +368,37 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     options?: { depthPosition?: WorldCoord; yOffset?: number; xOffset?: number },
   ) => {
     const {
-      objectPool,
       maps: {
         Main: { tileWidth, tileHeight },
       },
       config: { sprites },
     } = scenes.Main;
 
-    const sprite = sprites[spriteId];
+    const spriteConfig = sprites[spriteId];
     const pixelCoord = tileCoordToPixelCoord(tileCoord, tileWidth, tileHeight);
-    const gameObject = objectPool.get(id, "Sprite");
+    const sprite = globalObjectPool.get(id, "Sprite");
 
-    let spriteObj: Phaser.GameObjects.Sprite;
+    sprite.setOrigin(0, 0);
+    sprite.setPosition(pixelCoord.x + (options?.xOffset ?? 0), pixelCoord.y + (options?.yOffset ?? 0));
+    sprite.setDepth(depthFromPosition(options?.depthPosition ?? tileCoord, depth));
+    sprite.setTexture(spriteConfig.assetKey, spriteConfig.frame);
 
-    gameObject.setComponent({
-      id: `draw-sprite-at-tile-${id}`,
-      once: (obj) => {
-        obj.setOrigin(0, 0);
-        obj.setPosition(pixelCoord.x + (options?.xOffset ?? 0), pixelCoord.y + (options?.yOffset ?? 0));
-        obj.setDepth(depthFromPosition(options?.depthPosition ?? tileCoord, depth));
-        obj.setTexture(sprite.assetKey, sprite.frame);
-
-        spriteObj = obj;
-      },
-    });
-
-    return spriteObj;
+    return sprite;
   };
 
   const drawAnimationAtTile = (id: string, animationId: Animations, tileCoord: WorldCoord, depth: RenderDepth) => {
     const {
-      objectPool,
       maps: {
         Main: { tileWidth, tileHeight },
       },
     } = scenes.Main;
 
     const pixelCoord = tileCoordToPixelCoord(tileCoord, tileWidth, tileHeight);
-    const gameObject = objectPool.get(id, "Sprite");
-
-    gameObject.setComponent({
-      id: `draw-animation-at-tile-${id}`,
-      once: (obj) => {
-        obj.setOrigin(0, 0);
-        obj.setPosition(pixelCoord.x, pixelCoord.y);
-        obj.setDepth(depthFromPosition(tileCoord, depth));
-        obj.play(animationId);
-      },
-    });
+    const sprite = globalObjectPool.get(id, "Sprite");
+    sprite.setOrigin(0, 0);
+    sprite.setPosition(pixelCoord.x, pixelCoord.y);
+    sprite.setDepth(depthFromPosition(tileCoord, depth));
+    sprite.play(animationId);
   };
 
   const buildAt = async (builderId: Entity, prototypeId: string, position: WorldCoord) => {
@@ -375,17 +445,12 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
     const position = getComponentValue(LocalPosition, entity);
     if (!position) return;
 
-    const obj = scenes.Main.objectPool.get(entity, "Sprite");
-    obj.setComponent({
-      id: "depth",
-      once: (sprite) => {
-        sprite.setDepth(depthFromPosition(position, depth));
-      },
-    });
+    const sprite = globalObjectPool.get(entity, "Sprite");
+    sprite.setDepth(depthFromPosition(position, depth));
   };
 
   const clearIncomingDamage = (attacker: Entity, defender: Entity) => {
-    const incomingDamage = getComponentValue(components.IncomingDamage, defender);
+    const incomingDamage = getComponentValue(IncomingDamage, defender);
     if (!incomingDamage) return;
 
     const commitments = incomingDamage.commitments;
@@ -403,7 +468,7 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
       }
     }
 
-    setComponent(components.IncomingDamage, defender, {
+    setComponent(IncomingDamage, defender, {
       sources,
       values,
       commitments,
@@ -411,6 +476,22 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
   };
 
   const arrowPainter = createArrowPainter(scenes.Main);
+
+  const playDeathAnimation = (entity: Entity, onDeath: () => void) => {
+    const unitType = getComponentValue(UnitType, entity)?.value;
+    if (!unitType) {
+      onDeath();
+      return;
+    }
+
+    const deathAnimation = UnitTypeDeathAnimations[unitType];
+
+    const sprite = globalObjectPool.get(entity, "Sprite");
+    playAnimationWithOwnerColor(entity, deathAnimation);
+    sprite.on(`animationcomplete-${deathAnimation}`, () => {
+      onDeath();
+    });
+  };
 
   // Layer
   const layer = {
@@ -448,12 +529,15 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
 
       clearIncomingDamage,
     },
-    animations: createAnimations(playAnimationWithOwnerColor, depthFromPosition, scenes, local),
+    animations: {
+      playDeathAnimation,
+    },
     ui: {
       isLargeScreen,
     },
     uiState,
     defineGameObjectSystem,
+    globalObjectPool,
   };
   layer.api.highlightCoord = curry(highlightCoord)(layer);
 
@@ -486,8 +570,6 @@ export async function createPhaserLayer(local: LocalLayer, phaserConfig: PhaserE
   createShieldSystem(layer);
   createUnitBuildSystem(layer);
   createPluginAnalyticsSystem(layer);
-
-  createHideBlackBoxSystem(layer);
 
   return layer;
 }

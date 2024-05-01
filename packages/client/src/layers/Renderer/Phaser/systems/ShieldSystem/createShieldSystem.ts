@@ -25,17 +25,12 @@ export function createShieldSystem(layer: PhaserLayer) {
     },
   } = layer;
 
-  function drawShields(entity: Entity, gameObjects: EmbodiedEntity<"Sprite">[], position: WorldCoord) {
+  function drawShields(entity: Entity, gameObjects: Phaser.GameObjects.Sprite[], position: WorldCoord) {
     const spriteConfig = sprites[Sprites.Armor];
 
-    gameObjects.forEach((obj) => {
-      obj.setComponent({
-        id: "tex",
-        once: (sprite) => {
-          sprite.setTexture(spriteConfig.assetKey, spriteConfig.frame);
-          sprite.setVisible(false);
-        },
-      });
+    gameObjects.forEach((sprite) => {
+      sprite.setTexture(spriteConfig.assetKey, spriteConfig.frame);
+      sprite.setVisible(false);
     });
 
     const terrainArmorBonus = getComponentValue(TerrainArmorBonus, entity)?.value;
@@ -50,22 +45,17 @@ export function createShieldSystem(layer: PhaserLayer) {
     if (numShields === 0) return;
 
     for (let i = 0; i < numShields; i++) {
-      const shieldObj = gameObjects[i];
-      shieldObj.setComponent({
-        id: "shield",
-        once: (obj) => {
-          let x = pixelCoord.x + TILE_WIDTH / 2;
-          if (numShields === 2) {
-            x += i === 0 ? -TILE_WIDTH / 6 : TILE_WIDTH / 6;
-          }
+      const shield = gameObjects[i];
+      let x = pixelCoord.x + TILE_WIDTH / 2;
+      if (numShields === 2) {
+        x += i === 0 ? -TILE_WIDTH / 6 : TILE_WIDTH / 6;
+      }
 
-          obj.setScale(0.5);
-          obj.setPosition(x, pixelCoord.y - 22);
-          obj.setDepth(depthFromPosition(position, RenderDepth.UI1));
-          obj.setOrigin(0.5, 0);
-          obj.setVisible(true);
-        },
-      });
+      shield.setScale(0.5);
+      shield.setPosition(x, pixelCoord.y - 22);
+      shield.setDepth(depthFromPosition(position, RenderDepth.UI1));
+      shield.setOrigin(0.5, 0);
+      shield.setVisible(true);
     }
   }
 
@@ -78,7 +68,7 @@ export function createShieldSystem(layer: PhaserLayer) {
       if (!position) return;
 
       drawShields(update.entity, gameObjects, position);
-    }
+    },
   );
 
   defineGameObjectSystem(
@@ -90,6 +80,6 @@ export function createShieldSystem(layer: PhaserLayer) {
       if (!position) return;
 
       drawShields(update.entity, gameObjects, position);
-    }
+    },
   );
 }

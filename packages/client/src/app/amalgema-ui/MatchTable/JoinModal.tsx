@@ -1,5 +1,5 @@
-import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Entity, Has, HasValue, getComponentValue, runQuery } from "@latticexyz/recs";
+import { useComponentValue } from "@latticexyz/react";
+import { Entity, HasValue, getComponentValue, runQuery } from "@latticexyz/recs";
 import { useMemo, useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { Hex, formatEther, hexToString } from "viem";
@@ -11,7 +11,7 @@ import { SessionWalletManager } from "../SessionWalletManager";
 import { Link, OverlineSmall } from "../../ui/Theme/SkyStrife/Typography";
 import { OrbInput, ReadOnlyTextInput } from "../SummonIsland/common";
 import { getMatchUrl } from "../../../getMatchUrl";
-import { LevelDisplay } from "../SummonIsland/LevelDisplay";
+import { MapDisplay } from "../SummonIsland/MapDisplay";
 import { useAccessList } from "../hooks/useAccessList";
 import { addressToEntityID } from "../../../mud/setupNetwork";
 import { DisplayNameWithLink } from "../CreatedBy";
@@ -77,7 +77,7 @@ export function JoinModal({
   if (hasAllowList) matchTypeString = "Private";
   else if (isSeasonPassOnly) matchTypeString = "Season Pass Only";
 
-  const joinMatch = useJoinMatch(matchEntity, hero);
+  const joinMatch = useJoinMatch(matchEntity, hero as Hex);
 
   const { address } = useExternalAccount();
   const allPlayersInMatch = useComponentValue(MatchPlayers, matchEntity)?.value ?? [];
@@ -136,7 +136,7 @@ export function JoinModal({
       }
     >
       <div className="flex flex-col justify-around">
-        {!viewOnly && burnerBalance.belowMinimum && (
+        {!viewOnly && burnerBalance.danger && (
           <>
             <SessionWalletManager /> <div className="h-4" />
           </>
@@ -199,7 +199,7 @@ export function JoinModal({
         {previewLevel && (
           <>
             <div className="h-4" />
-            <LevelDisplay levelId={matchConfig?.levelId ?? "0x"} />
+            <MapDisplay levelId={matchConfig?.levelId ?? "0x"} />
           </>
         )}
 

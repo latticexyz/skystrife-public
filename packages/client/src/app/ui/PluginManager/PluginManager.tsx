@@ -22,6 +22,7 @@ import { DocsIcon } from "./DocsIcon";
 import { CrossIcon } from "../Theme/CrossIcon";
 import { AddPlugin } from "./AddPlugin";
 import { useMUD } from "../../../useMUD";
+import { skystrifeDebug } from "../../../debug";
 
 const PLUGIN_DEV_SERVER_URL = "http://localhost:1993";
 export const PLUGIN_DOCS_URL = "https://github.com/latticexyz/skystrife-public/tree/main/packages/plugins/README.md";
@@ -32,6 +33,8 @@ export function convertTsPluginToJs(tsCode: string) {
   });
   return jsOutput.outputText;
 }
+
+const debug = skystrifeDebug.extend("plugin-manager");
 
 export function PluginManager() {
   const {
@@ -70,7 +73,7 @@ export function PluginManager() {
         return newPlugins;
       });
     },
-    [setPlugins]
+    [setPlugins],
   );
 
   const refreshPlugin = useCallback(
@@ -87,7 +90,7 @@ export function PluginManager() {
           setLastRefreshedPlugin({ pluginKey: pluginPath, time: Date.now() });
         });
     },
-    [setPlugin]
+    [setPlugin],
   );
 
   const refreshDevPlugins = useCallback(async () => {
@@ -140,17 +143,17 @@ export function PluginManager() {
         return;
       }
 
-      console.log("Connecting to plugin dev server...");
+      debug("Connecting to plugin dev server...");
       const ws = new WebSocket("ws://localhost:1993");
       setWsConnection(ws);
       ws.onopen = function () {
-        console.log("Plugin Dev Server connected.");
+        debug("Plugin Dev Server connected.");
         setDevServerConnected(true);
       };
 
       ws.onmessage = function (e) {
         const message = JSON.parse(e.data);
-        console.log(`File changed: ${message.path}, Event Type: ${message.eventType}`);
+        debug(`File changed: ${message.path}, Event Type: ${message.eventType}`);
         if (message.path) {
           // force an unmount
           setPlugin(message.path, {

@@ -53,7 +53,7 @@ function PikemanTemplate() {
   encodedLengthss[2] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[2] = dynamicData;
 
-  (staticData, encodedLengths, dynamicData) = Movable.encode(4000);
+  (staticData, encodedLengths, dynamicData) = Movable.encode(3000);
   staticDatas[3] = staticData;
   encodedLengthss[3] = EncodedLengths.unwrap(encodedLengths);
   dynamicDatas[3] = dynamicData;

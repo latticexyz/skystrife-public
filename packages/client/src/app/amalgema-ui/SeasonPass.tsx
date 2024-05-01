@@ -5,7 +5,7 @@ import { Hex, formatEther } from "viem";
 import { useSeasonPassExternalWallet } from "./hooks/useSeasonPass";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { PromiseButton } from "../ui/hooks/PromiseButton";
 import { DateTime, Duration } from "luxon";
 import { Modal } from "./Modal";
@@ -13,36 +13,7 @@ import { useMainWalletBalance } from "./hooks/useBalance";
 import { SEASON_NAME } from "../../constants";
 import { SeasonPassImg } from "./SeasonPassImg";
 import { Has, getComponentValue } from "@latticexyz/recs";
-
-function useSeasonPassPrice(atTime: bigint) {
-  const {
-    components: { SeasonPassConfig, SeasonPassLastSaleAt },
-  } = useAmalgema();
-
-  const config = useComponentValue(SeasonPassConfig, singletonEntity);
-  const lastSaleAt = useComponentValue(SeasonPassLastSaleAt, singletonEntity);
-
-  const price = useMemo(() => {
-    if (!config || !lastSaleAt) return 0n;
-
-    const { startingPrice, rate, minPrice } = config;
-    const timeSinceLastSale = atTime - lastSaleAt.lastSaleAt;
-    const decrease = ((startingPrice * rate) / 10_000_000_000n) * timeSinceLastSale;
-
-    if (startingPrice > decrease) {
-      const newPrice = startingPrice - decrease;
-      if (newPrice > minPrice) {
-        return startingPrice - decrease;
-      } else {
-        return minPrice;
-      }
-    } else {
-      return minPrice;
-    }
-  }, [config, lastSaleAt, atTime]);
-
-  return price;
-}
+import { useSeasonPassPrice } from "./hooks/useSeasonPassPrice";
 
 export function SeasonPass({ account }: { account?: Hex }) {
   const {
@@ -173,6 +144,7 @@ export function SeasonPass({ account }: { account?: Hex }) {
 
                     const tx = await executeSystemWithExternalWallet({
                       systemCall: "buySeasonPass",
+                      systemId: "Buy Season Pass",
                       args: [[account as Hex], { account, value: price }],
                     });
                     if (tx) await waitForTransaction(tx);

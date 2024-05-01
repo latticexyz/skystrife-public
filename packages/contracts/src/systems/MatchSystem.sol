@@ -14,6 +14,7 @@ import { DENOMINATOR, createMatchSkyPool, transferTokenFromEscrow, skyKeyHolderO
 import { Transactor } from "../libraries/Transactor.sol";
 import { transferToken } from "../transferToken.sol";
 import { hasSeasonPass, hasToken } from "../hasToken.sol";
+import { MATCHES_PER_DAY_HARD_CAP } from "../../constants.sol";
 
 function sum(uint256[] memory arr) pure returns (uint256 s) {
   for (uint256 i; i < arr.length; i++) {
@@ -25,8 +26,6 @@ function getCharLength(string memory str) pure returns (uint256) {
   StrCharsIter memory chars = toSlice(str).chars();
   return chars.count();
 }
-
-uint256 constant MATCHES_PER_DAY_HARD_CAP = 1000;
 
 contract MatchSystem is System {
   modifier worldUnlocked() {

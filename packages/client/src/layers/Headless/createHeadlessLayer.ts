@@ -332,7 +332,11 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     };
     if (matchEntity == null) return noColor;
 
-    const playerEntity = getOwningPlayer(entity);
+    let playerEntity: Entity | undefined;
+    if (hasComponent(UnitType, entity)) {
+      playerEntity = getComponentValue(PreviousOwner, entity)?.value;
+    }
+    if (!playerEntity) playerEntity = getOwningPlayer(entity);
     if (!playerEntity) return noColor;
 
     const reservedSpawnPointKeys = Array.from(

@@ -2,14 +2,14 @@ import { world } from "./world";
 import mudConfig from "contracts/mud.config";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { getContract } from "viem";
-import { ContractWrite, createBurnerAccount, transportObserver } from "@latticexyz/common";
+import { createBurnerAccount, getNonceManager, transportObserver } from "@latticexyz/common";
 import { encodeEntity, syncToRecs } from "@latticexyz/store-sync/recs";
-import { map, filter, Subject, share } from "rxjs";
+import { map, filter } from "rxjs";
 import { useStore } from "../useStore";
 import { NetworkConfig } from "./utils";
 import { createClock } from "./createClock";
-import { createPublicClient, fallback, webSocket, http, createWalletClient, Hex, ClientConfig, custom } from "viem";
-import { transactionQueue, writeObserver } from "@latticexyz/common/actions";
+import { createPublicClient, fallback, webSocket, http, createWalletClient, Hex, ClientConfig } from "viem";
+import { transactionQueue } from "@latticexyz/common/actions";
 import { createWaitForTransaction } from "./waitForTransaction";
 import { createSyncFilters } from "./createSyncFilters";
 import { tables as extraTables, syncFilters as extraSyncFilters } from "./extraTables";
@@ -29,25 +29,28 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
 
   const filters = [...createSyncFilters(networkConfig.matchEntity), ...extraSyncFilters];
 
+  const txReceiptClient = createPublicClient({
+    ...clientOptions,
+    transport: transportObserver(fallback([webSocket(), http()], { retryCount: 0 })),
+    pollingInterval: 250,
+  });
+
   const { components, latestBlock$, storedBlockLogs$ } = await syncToRecs({
     world,
     config: mudConfig,
     address: networkConfig.worldAddress as Hex,
-    publicClient,
+    publicClient: txReceiptClient,
     indexerUrl: networkConfig.indexerUrl,
     startBlock: networkConfig.initialBlockNumber > 0n ? BigInt(networkConfig.initialBlockNumber) : undefined,
     filters,
     tables: extraTables,
+    // making the block range very small here, as we've had problems with
+    // large Sky Strife worlds overloading the RPC
+    maxBlockRange: 100n,
   });
 
   const clock = createClock(networkConfig.clock);
   world.registerDisposer(() => clock.dispose());
-
-  const txReceiptClient = createPublicClient({
-    ...clientOptions,
-    transport: http(),
-    pollingInterval: 250,
-  });
 
   const waitForTransaction = createWaitForTransaction({
     storedBlockLogs$,
@@ -78,7 +81,7 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
         return Number(block.timestamp) * 1000 + clientTimeAhead;
       }), // Map to timestamp in ms
       filter((blockTimestamp) => blockTimestamp !== clock.lastUpdateTime), // Ignore if the clock was already refreshed with this block
-      filter((blockTimestamp) => blockTimestamp !== clock.currentTime) // Ignore if the current local timestamp is correct
+      filter((blockTimestamp) => blockTimestamp !== clock.currentTime), // Ignore if the current local timestamp is correct
     )
     .subscribe(clock.update); // Update the local clock
 
@@ -88,16 +91,17 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
     account: burnerAccount,
   });
 
-  const write$ = new Subject<ContractWrite>();
   const txQueue = transactionQueue({
     queueConcurrency: 3,
   });
-  const onWrite = (write: ContractWrite) => {
-    write$.next(write);
-    const { writes } = useStore.getState();
-    useStore.setState({ writes: [...writes, write] });
-  };
-  const customWalletClient = walletClient.extend(txQueue).extend(writeObserver({ onWrite }));
+  const customWalletClient = walletClient.extend(txQueue);
+  const walletNonceManager = await getNonceManager({
+    client: publicClient,
+    address: walletClient.account.address,
+    blockTag: "pending",
+    queueConcurrency: 3,
+  });
+  walletNonceManager.resetNonce();
 
   const worldContract = getContract({
     address: networkConfig.worldAddress as Hex,
@@ -118,13 +122,14 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
     components,
     playerEntity: encodeEntity({ address: "address" }, { address: walletClient.account.address }),
     publicClient,
+    txReceiptClient,
     walletClient,
+    walletNonceManager,
     waitForTransaction,
     worldContract,
     networkConfig,
     matchEntity: networkConfig.matchEntity,
     clock,
-    write$: write$.asObservable().pipe(share()),
     latestBlock$,
     storedBlockLogs$,
     chains: [networkConfig.chain],

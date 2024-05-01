@@ -35,11 +35,22 @@ export function createCombatSystem(layer: PhaserLayer) {
       },
     },
     scenes: {
-      Main: { objectPool, phaserScene },
+      Main: { phaserScene },
     },
-    animations: { triggerBloodSplatter },
     api: { playTintedAnimation, depthFromPosition, clearIncomingDamage },
+    globalObjectPool,
   } = layer;
+
+  const flashWhite = (entity: Entity) => {
+    const sprite = globalObjectPool.get(entity, "Sprite");
+    const originalTint = sprite.tintTopLeft;
+
+    sprite.setTintFill(0xffffff);
+    phaserScene.time.delayedCall(75, () => {
+      sprite.clearTint();
+      sprite.setTint(originalTint);
+    });
+  };
 
   function playGoldOnKillAnimation(position: { x: number; y: number }, gold: number) {
     const pixelPosition = tileCoordToPixelCoord(position, TILE_WIDTH, TILE_HEIGHT);
@@ -98,44 +109,59 @@ export function createCombatSystem(layer: PhaserLayer) {
       if (onComplete) onComplete();
       return;
     }
+
+    /**
+     * If for some reason the attack animation gets interrupted,
+     * make sure we clean up state. This seems to sometimes happen
+     * when the tab is unfocused and leaves units in incorrect states.
+     */
+    let ranStart = false;
+    let ranContact = false;
+    let ranComplete = false;
+    setTimeout(() => {
+      if (onStart && !ranStart) onStart();
+      if (onContact && !ranContact) onContact();
+      if (onComplete && !ranComplete) onComplete();
+    }, 5_000);
+
     const attackAnimation = UnitTypeAttackAnimations[unitType];
 
     const idleAnimation = UnitTypeAnimations[unitType];
 
-    const embodiedObject = objectPool.get(entity, "Sprite");
+    const sprite = globalObjectPool.get(entity, "Sprite");
     const ownerColor = getOwnerColor(entityOwner, matchEntity);
 
-    embodiedObject.setComponent({
-      id: "attack-animation",
-      once: (sprite) => {
-        if (!attackAnimation) {
-          if (onComplete) onComplete(sprite);
-          return;
-        }
+    if (!attackAnimation) {
+      if (onComplete) onComplete(sprite);
+      return;
+    }
 
-        const tintedAnimation = playTintedAnimation(entity, attackAnimation, ownerColor.name);
-        let started = false;
-        const onAttackUpdate = (anim: Phaser.Animations.Animation, frame: Phaser.Animations.AnimationFrame) => {
-          if (anim.key !== tintedAnimation) return;
+    const tintedAnimation = playTintedAnimation(entity, attackAnimation, ownerColor.name);
+    let started = false;
+    const onAttackUpdate = (anim: Phaser.Animations.Animation, frame: Phaser.Animations.AnimationFrame) => {
+      if (anim.key !== tintedAnimation) return;
 
-          if (!started && onStart) {
-            onStart(sprite);
-            started = true;
-          }
+      if (!started && onStart) {
+        onStart(sprite);
+        ranStart = true;
+        started = true;
+      }
 
-          if (frame.progress >= 1) {
-            playTintedAnimation(entity, idleAnimation, ownerColor.name);
-          }
-          if (onContact && frame.nextFrame?.isLast) onContact(sprite);
-          if (onComplete && frame.progress >= 1) {
-            onComplete(sprite);
-            sprite.removeListener("animationupdate", onAttackUpdate);
-          }
-        };
+      if (frame.progress >= 1) {
+        playTintedAnimation(entity, idleAnimation, ownerColor.name);
+      }
+      if (onContact && frame.nextFrame?.isLast) {
+        onContact(sprite);
+        ranContact = true;
+      }
+      if (onComplete && frame.progress >= 1) {
+        onComplete(sprite);
+        ranComplete = true;
+        sprite.removeListener("animationupdate", onAttackUpdate);
+      }
+    };
 
-        sprite.on(`animationupdate`, onAttackUpdate);
-      },
-    });
+    sprite.on(`animationupdate`, onAttackUpdate);
   }
 
   function playDeathAnimation(entity: Entity, entityOwner: Entity, onDeath: () => void) {
@@ -145,18 +171,19 @@ export function createCombatSystem(layer: PhaserLayer) {
       return;
     }
 
-    const deathAnimation = UnitTypeDeathAnimations[unitType];
-    const ownerColor = getOwnerColor(entityOwner);
+    let playedDeath = false;
+    setTimeout(() => {
+      if (!playedDeath) onDeath();
+    }, 5_000);
 
-    const embodiedObject = objectPool.get(entity, "Sprite");
-    embodiedObject.setComponent({
-      id: "death-animation",
-      once: (sprite) => {
-        playTintedAnimation(entity, deathAnimation, ownerColor.name);
-        sprite.on(`animationcomplete`, () => {
-          onDeath();
-        });
-      },
+    const deathAnimation = UnitTypeDeathAnimations[unitType];
+    const ownerColor = getOwnerColor(entityOwner, matchEntity);
+
+    const sprite = globalObjectPool.get(entity, "Sprite");
+    playTintedAnimation(entity, deathAnimation, ownerColor.name);
+    sprite.on(`animationcomplete`, () => {
+      onDeath();
+      playedDeath = true;
     });
   }
 
@@ -175,6 +202,8 @@ export function createCombatSystem(layer: PhaserLayer) {
 
       if (attackerDied && hasComponent(Selected, attacker)) removeComponent(Selected, attacker);
       if (defenderDied && hasComponent(Selected, defender)) removeComponent(Selected, defender);
+
+      if (defenderCaptured) clearIncomingDamage(attacker, defender);
 
       const attackerPosition = getComponentValue(LocalPosition, attacker);
       if (!attackerPosition) return;
@@ -206,7 +235,7 @@ export function createCombatSystem(layer: PhaserLayer) {
         onStart: (sprite) => {
           if (sprite) sprite.flipX = flipAttacker;
         },
-        onContact: () => {
+        onContact: (sprite) => {
           clearIncomingDamage(attacker, defender);
           clearIncomingDamage(defender, attacker);
 
@@ -217,7 +246,7 @@ export function createCombatSystem(layer: PhaserLayer) {
           }
 
           if (attackerDied || attackerTookDamage) {
-            triggerBloodSplatter(attackerPosition);
+            flashWhite(attacker);
           }
 
           if (defenderDied) {
@@ -228,7 +257,7 @@ export function createCombatSystem(layer: PhaserLayer) {
 
           if (defenderDied || defenderTookDamage) {
             if (!defenderIsStructure) {
-              triggerBloodSplatter(defenderPosition);
+              flashWhite(defender);
             }
           }
 
