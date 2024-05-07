@@ -18,6 +18,7 @@ import { MATCH_COST } from "./SummonIsland/MatchCost";
 import { useCurrentMatchReward } from "./hooks/useCurrentMatchReward";
 import { useHasSkyKeyExternalWallet } from "./hooks/useHasSkyKey";
 import { useBurnerBalance } from "./hooks/useBalance";
+import { Link } from "../ui/Theme/SkyStrife/Typography";
 
 const DECIMALS = 18;
 
@@ -148,6 +149,20 @@ export function InventorySidebar() {
             <Tutorial />
           </IconButton>
         </a>
+      </div>
+
+      <div className="h-12" />
+
+      <div className="flex gap-x-3 items-center mx-auto">
+        <Link className="uppercase text-ss-text-x-light underline" href={"/privacy-policy"}>
+          privacy policy
+        </Link>
+
+        <div className="w-6 text-center text-ss-text-x-light">|</div>
+
+        <Link className="uppercase text-ss-text-x-light underline" href={"/terms.pdf"}>
+          terms of service
+        </Link>
       </div>
     </div>
   );

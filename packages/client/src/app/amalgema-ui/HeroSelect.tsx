@@ -119,7 +119,7 @@ function HeroPreview({
       <div
         className={twMerge(
           "flex flex-col rounded-md shadow-ss-small border border-black w-full",
-          selected ? "bg-ss-bg-0" : "bg-ss-bg-1"
+          selected ? "bg-ss-bg-0" : "bg-ss-bg-1",
         )}
       >
         <div className="bg-ss-bg-2 w-full flex flex-col items-center rounded-t-md">

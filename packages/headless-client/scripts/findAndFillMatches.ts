@@ -1,4 +1,4 @@
-import { Has, Not, HasValue, getComponentValueStrict, runQuery } from "@latticexyz/recs";
+import { Has, Not, HasValue, getComponentValueStrict, runQuery, getComponentValue } from "@latticexyz/recs";
 
 import { createSkyStrife, env } from "../src/createSkyStrife";
 import fs from "fs";
@@ -7,6 +7,8 @@ import { Hex } from "viem";
 import { skystrifeDebug } from "client/src/debug";
 import { ExecaChildProcess, execa } from "execa";
 import lodash from "lodash";
+import { DateTime } from "luxon";
+
 const { shuffle } = lodash;
 
 import { z } from "zod";
@@ -28,7 +30,7 @@ const skyStrife = await createSkyStrife();
 const { networkLayer } = skyStrife;
 
 const {
-  components: { MatchConfig, MatchFinished },
+  components: { MatchConfig, MatchFinished, MatchAccessControl, MatchSweepstake },
   utils: { getAvailableLevelSpawns },
 } = networkLayer;
 
@@ -62,7 +64,14 @@ debug(`Searching for open matches...`);
 let openMatches = [...runQuery([Has(MatchConfig), HasValue(MatchConfig, { startTime: 0n }), Not(MatchFinished)])];
 openMatches = openMatches.filter((m) => {
   const matchConfig = getComponentValueStrict(MatchConfig, m);
-  return matchConfig.registrationTime === 0n;
+  const entranceFee = getComponentValue(MatchSweepstake, m)?.entranceFee;
+  const accessSystem = getComponentValue(MatchAccessControl, m)?.systemId;
+
+  return (
+    accessSystem === "0x0000000000000000000000000000000000000000000000000000000000000000" &&
+    matchConfig.registrationTime < DateTime.now().toSeconds() &&
+    !entranceFee
+  );
 });
 openMatches = openMatches.slice(0, matchFillerEnv.NUM_MATCHES);
 
@@ -79,6 +88,10 @@ for (const matchEntity of openMatches) {
 
   for (let i = 0; i < spawns.length; i++) {
     const botAccount = availableAccounts[i];
+    if (!botAccount) {
+      debug("Ran out of bot accounts, skipping join");
+      continue;
+    }
     const botProcess = execa("tsx", ["scripts/createBotPlayer.ts"], {
       extendEnv: true,
       env: {

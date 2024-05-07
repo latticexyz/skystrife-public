@@ -1,9 +1,9 @@
 import prompts from "prompts";
 import fs from "fs/promises";
 import path from "path";
-import { exec, execSync } from "child_process";
 import { supportedChains } from "client/src/mud/supportedChains";
 import worlds from "./worlds.json";
+import { runWorldScript } from "./runWorldScript";
 
 (async () => {
   const migrationsDir = path.join("./", "migrations");
@@ -70,32 +70,6 @@ import worlds from "./worlds.json";
   const worldAddress = worlds[chainChoice.chain.id as keyof typeof worlds]?.address;
   if (!worldAddress) throw new Error(`No world address found for chain ${chainChoice.chain.id}`);
 
-  const gasPriceCommand = `cast gas-price --rpc-url "${chainChoice.chain.rpcUrls.default.http[0]}"`;
-  console.log(`Running: ${gasPriceCommand}`);
-  const gasPriceOutput = execSync(gasPriceCommand).toString();
-  const gasPrice = parseInt(gasPriceOutput);
-
-  if (isNaN(gasPrice)) {
-    throw new Error("Failed to get gas price");
-  }
-  console.log(`Gas price: ${gasPrice}`);
-
-  const forgeScriptCommand = `${
-    chainChoice.chain.id === foundryChain?.id
-      ? "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 "
-      : ""
-  }forge script --with-gas-price ${gasPrice} --sig "run(address)" --rpc-url "${
-    chainChoice.chain.rpcUrls.default.http[0]
-  }"${broadcast.value ? " --broadcast" : ""} migrations/${migrationName}:${contractName} ${worldAddress}`;
-
-  // exec command
-  console.log(`Running: ${forgeScriptCommand}`);
-  exec(forgeScriptCommand, (err: any, stdout: any, stderr: any) => {
-    console.log(stdout);
-    console.log(stderr);
-
-    if (!err && broadcast.value) {
-      console.log("Migration successful!");
-    }
-  });
+  const migrationPath = path.join(migrationsDir, migrationName);
+  await runWorldScript(chainChoice.chain, contractName, migrationPath, worldAddress, broadcast.value);
 })();

@@ -71,6 +71,10 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
     return getComponentValue(UnitType, entity)?.value ?? UnitTypes.Unknown;
   }
 
+  function isUnit(entity: Entity | undefined): boolean {
+    return getUnitType(entity) !== UnitTypes.Unknown;
+  }
+
   function getStructureType(entity: Entity | undefined): StructureTypes {
     if (!entity) return StructureTypes.Unknown;
 
@@ -244,6 +248,7 @@ export function createPluginLayer(phaserLayer: PhaserLayer, namespace: string) {
       getPosition,
       isOwnedByCurrentPlayer,
       getUnitType,
+      isUnit,
       getStructureType,
       getEntityName,
 

@@ -22,7 +22,7 @@ const BUGGED_MATCHES = [] as Entity[];
 
 export function MatchTable() {
   const {
-    components: { MatchConfig, MatchFinished, MatchJoinable, MatchReady, MatchPlayers },
+    components: { MatchConfig, MatchFinished, MatchJoinable, MatchReady },
   } = useAmalgema();
 
   const [currentTab, setCurrentTab] = useState<Tabs>(Tabs.Play);
@@ -41,23 +41,7 @@ export function MatchTable() {
   ]);
   const allMatches = openMatches.concat(pendingMatches).filter((match) => !BUGGED_MATCHES.includes(match));
 
-  const joinableMatches = useMemo(() => {
-    return allMatches.sort((a, b) => {
-      const numPlayersA = getComponentValue(MatchPlayers, a)?.value.length ?? 0;
-      const numPlayersB = getComponentValue(MatchPlayers, b)?.value.length ?? 0;
-
-      if (numPlayersA !== numPlayersB) {
-        return numPlayersB - numPlayersA;
-      }
-
-      const aConfig = getComponentValue(MatchConfig, a);
-      const bConfig = getComponentValue(MatchConfig, b);
-
-      // This sort is purely so that Sky Pool created matches are shown on the first page
-      // Registration time is currently only in the admin UI so no one else can set it easily
-      return Number((bConfig?.registrationTime ?? 0n) - (aConfig?.registrationTime ?? 0n));
-    });
-  }, [MatchConfig, MatchPlayers, allMatches]);
+  const joinableMatches = allMatches;
 
   const historicalMatches = useEntityQuery([Has(MatchConfig), Has(MatchFinished)]);
   historicalMatches.sort((a, b) => {

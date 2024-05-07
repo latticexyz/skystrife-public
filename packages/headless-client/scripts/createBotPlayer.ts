@@ -305,6 +305,8 @@ async function createBotPlayer(skyStrife: SkyStrife) {
 
     if (!activePlayerEntity) return;
 
+    if (!matchIsStarted(activeMatch)) return;
+
     const allOwnedUnits = [
       ...runQuery([
         Has(UnitType),

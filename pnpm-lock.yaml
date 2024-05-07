@@ -427,9 +427,15 @@ importers:
       client:
         specifier: workspace:*
         version: link:../client
+      dotenv:
+        specifier: 16.4.4
+        version: 16.4.4
       ds-test:
         specifier: github:dapphub/ds-test#c9ce3f25bde29fc5eb9901842bf02850dfd2d084
         version: https://codeload.github.com/dapphub/ds-test/tar.gz/c9ce3f25bde29fc5eb9901842bf02850dfd2d084
+      execa:
+        specifier: 8.0.1
+        version: 8.0.1
       forge-std:
         specifier: github:foundry-rs/forge-std#b4f121555729b3afb3c5ffccb62ff4b6e2818fd3
         version: https://codeload.github.com/foundry-rs/forge-std/tar.gz/b4f121555729b3afb3c5ffccb62ff4b6e2818fd3
@@ -460,6 +466,9 @@ importers:
       viem:
         specifier: 2.9.20
         version: 2.9.20(bufferutil@4.0.8)(typescript@5.4.2)(utf-8-validate@6.0.3)(zod@3.22.2)
+      zod:
+        specifier: ^3.22.2
+        version: 3.22.2
 
   packages/discord-bot:
     dependencies:

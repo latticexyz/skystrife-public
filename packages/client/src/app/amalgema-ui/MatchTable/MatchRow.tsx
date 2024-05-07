@@ -6,11 +6,16 @@ import { MatchPlayers } from "../MatchPlayers";
 import { Hex, formatEther, hexToString } from "viem";
 import { Button } from "../../ui/Theme/SkyStrife/Button";
 import { OrbDisplay } from "./common";
-import { JoinModal } from "./JoinModal";
 import { CreatedBy } from "../CreatedBy";
 import { ConfirmedCheck } from "../../ui/Theme/SkyStrife/Icons/ConfirmedCheck";
 
-export function MatchRow({ matchEntity }: { matchEntity: Entity }) {
+export function MatchRow({
+  matchEntity,
+  setViewingMatchEntity,
+}: {
+  matchEntity: Entity;
+  setViewingMatchEntity: (m: Entity) => void;
+}) {
   const {
     components: { MatchConfig, MatchSweepstake, MatchName, MatchAccessControl, MatchIndex, OfficialLevel },
     utils: { getMatchRewards },
@@ -52,9 +57,11 @@ export function MatchRow({ matchEntity }: { matchEntity: Entity }) {
         <MatchPlayers matchEntity={matchEntity} />
       </div>
 
-      <div className="w-[120px] flex items-center gap-x-1 text-center shrink-0">
-        {levelOfficial && <ConfirmedCheck />}
-        {levelName}
+      <div className="w-[120px] flex shrink-0">
+        <div className="flex items-center gap-x-1 mx-auto">
+          {levelOfficial && <ConfirmedCheck />}
+          {levelName}
+        </div>
       </div>
 
       <div className="w-[100px] text-center shrink-0">
@@ -70,11 +77,9 @@ export function MatchRow({ matchEntity }: { matchEntity: Entity }) {
       </div>
 
       <div className="w-[100px] text-center shrink-0">
-        <JoinModal matchEntity={matchEntity}>
-          <Button buttonType="secondary" className="w-full py-1 px-2">
-            open
-          </Button>
-        </JoinModal>
+        <Button onClick={() => setViewingMatchEntity(matchEntity)} buttonType="secondary" className="w-full py-1 px-2">
+          open
+        </Button>
       </div>
     </div>
   );

@@ -52,5 +52,12 @@ export function createClientComponents({ components, world }: SetupNetworkResult
       },
       { id: "WalletBalance" },
     ),
+    AllowList: defineComponent(
+      world,
+      {
+        value: Type.StringArray,
+      },
+      { id: "AllowList" },
+    ),
   };
 }

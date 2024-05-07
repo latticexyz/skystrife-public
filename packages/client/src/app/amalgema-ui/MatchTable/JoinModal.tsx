@@ -1,6 +1,6 @@
 import { useComponentValue } from "@latticexyz/react";
 import { Entity, HasValue, getComponentValue, runQuery } from "@latticexyz/recs";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAmalgema } from "../../../useAmalgema";
 import { Hex, formatEther, hexToString } from "viem";
 import { Modal } from "../Modal";
@@ -33,10 +33,14 @@ export function JoinModal({
   matchEntity,
   children,
   viewOnly,
+  isOpen,
+  setIsOpen,
 }: {
   matchEntity: Entity;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   viewOnly?: boolean;
+  isOpen?: boolean;
+  setIsOpen?: (o: boolean) => void;
 }) {
   const {
     network: {
@@ -46,10 +50,14 @@ export function JoinModal({
     utils: { getMatchRewards },
   } = useAmalgema();
 
-  const freeHero = [...runQuery([HasValue(HeroInRotation, { value: true })])][0];
-  const [hero, setHero] = useState(freeHero);
+  const [hero, setHero] = useState<Hex | null>(null);
   const [previewLevel, setPreviewLevel] = useState(false);
   const [showAccessList, setShowAccessList] = useState(false);
+
+  useEffect(() => {
+    const freeHero = [...runQuery([HasValue(HeroInRotation, { value: true })])][0];
+    setHero(freeHero as Hex);
+  }, [isOpen, HeroInRotation]);
 
   const { totalRewards, sweepstakeRewards } = getMatchRewards(matchEntity);
   const allowedAccounts = useAccessList(matchEntity);
@@ -97,8 +105,16 @@ export function JoinModal({
 
   const burnerBalance = useBurnerBalance();
 
+  let openParams = {};
+  if (setIsOpen)
+    openParams = {
+      isOpen,
+      setOpen: setIsOpen,
+    };
+
   return (
     <Modal
+      {...openParams}
       trigger={children}
       title={`${matchInfo.matchName}`}
       footer={
@@ -142,7 +158,7 @@ export function JoinModal({
           </>
         )}
 
-        {!viewOnly && matchJoinable && (
+        {!viewOnly && matchJoinable && hero && (
           <>
             <HeroSelect hero={hero} setHero={setHero} />
             <div className="h-4" />

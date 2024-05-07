@@ -72,11 +72,6 @@ contract PostDeploy is Script {
     twoPlayerPercentages[1] = 0;
     MatchRewardPercentages.set(2, twoPlayerPercentages);
 
-    // ______________ TEMPLATES + LEVELS __________________
-
-    createTemplates();
-    createArchetypeModifiers();
-
     // Terrain templates are virtual, meaning they are not instantiated in individual matches
     // Instead, terrain-related values are inferred from the static Level data.
     VirtualLevelTemplates.set(GrassTemplateId, true);
@@ -88,75 +83,8 @@ contract PostDeploy is Script {
     HeroInSeasonPassRotation.set(DragoonTemplateId, true);
     HeroInSeasonPassRotation.set(MarksmanTemplateId, true);
 
-    // ______________ SKYPOOL __________________
-
     world.installRootModule(new StandardDelegationsModule(), new bytes(0));
-
     world.installModule(new PuppetModule(), new bytes(0));
-
-    {
-      // Initialise tokens
-      IERC20Mintable orbToken = registerERC20(
-        world,
-        ORB_NAMESPACE,
-        ERC20MetadataData({ decimals: 18, name: "Orbs", symbol: unicode"🔮" })
-      );
-      IERC721Mintable seasonPass = registerERC721(
-        world,
-        SEASON_PASS_NAMESPACE,
-        ERC721MetadataData({
-          name: SEASON_PASS_NAME,
-          symbol: SEASON_PASS_SYMBOL,
-          baseURI: "https://skystrife-metadata.latticexyz.workers.dev/metadata/"
-        })
-      );
-      IERC721Mintable skyKey = registerERC721(
-        world,
-        SKY_KEY_NAMESPACE,
-        ERC721MetadataData({
-          name: "Sky Key",
-          symbol: unicode"🔑",
-          baseURI: "https://skystrife-metadata.latticexyz.workers.dev/metadata/skykey/"
-        })
-      );
-
-      // Set SkyPool values
-      SkyPoolConfig.set(false, COST_CREATE_MATCH, WINDOW, address(orbToken), address(seasonPass), address(skyKey));
-      SeasonPassConfig.set(
-        SEASON_PASS_MIN_PRICE,
-        SEASON_PASS_STARTING_PRICE,
-        SEASON_PASS_PRICE_DECREASE_PER_SECOND,
-        SEASON_PASS_PURCHASE_MULTIPLIER_PERCENT,
-        SEASON_START_TIME + SEASON_PASS_MINT_DURATION
-      );
-      SeasonTimes.set(SEASON_START_TIME, SEASON_START_TIME + SEASON_DURATION);
-      SeasonPassLastSaleAt.set(SEASON_START_TIME);
-
-      // Mint tokens
-      orbToken.mint(worldAddress, SKYPOOL_SUPPLY);
-      skyKey.mint(admin, SKY_KEY_TOKEN_ID);
-    }
-
-    // Deploy SeasonPassOnly Match access system in the MatchAccess namespace
-    ResourceId systemId = WorldResourceIdLib.encode({
-      typeId: RESOURCE_SYSTEM,
-      namespace: "MatchAccess",
-      name: "SeasonPassOnly"
-    });
-    System systemContract = new SeasonPassOnlySystem();
-
-    ResourceId namespaceId = WorldResourceIdLib.encodeNamespace("MatchAccess");
-    world.registerNamespace(namespaceId);
-    world.registerSystem(systemId, systemContract, true);
-
-    NoTransferHook subscriber = new NoTransferHook();
-
-    // Register the non-transferability hook
-    world.registerSystemHook(_erc721SystemId(SEASON_PASS_NAMESPACE), subscriber, BEFORE_CALL_SYSTEM);
-
-    // Transfer season pass namespace to World
-    namespaceId = WorldResourceIdLib.encodeNamespace(SEASON_PASS_NAMESPACE);
-    world.transferOwnership(namespaceId, worldAddress);
 
     vm.stopBroadcast();
   }

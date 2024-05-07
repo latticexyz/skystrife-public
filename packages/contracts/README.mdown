@@ -6,7 +6,7 @@ This package contains all of the contracts that make up a Sky Strife [MUD](https
 
 - Node `>v18.16`
 - `pnpm`
-- [Foundry](https://book.getfoundry.sh/getting-started/installation): There is currently an issue with the latest version of Foundry which causes Sky Strife deployment to fail. Please revert back to an old version using this command `foundryup -C 375df5834d0fea8350a4aae9ca34a0dab55d74ac`
+- [Foundry](https://book.getfoundry.sh/getting-started/installation)
 
 ## Overview
 
@@ -29,6 +29,7 @@ There are only 3 systems that handle all gameplay within a Sky Strife match:
 Sky Strife has built-in tooling for creating/running Forge scripts that access live Worlds.
 
 Scripts are useful for:
+
 - prototyping systems with live data
 - manually editing data in a live World
 
@@ -47,9 +48,7 @@ import { StoreSwitch } from "@latticexyz/store/src/StoreSwitch.sol";
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 
 // table imports
-import {
-  MatchConfig
-} from "../src/codegen/index.sol";
+import { MatchConfig } from "../src/codegen/index.sol";
 
 contract NewMigration is Script {
   function run(address worldAddress) external {

@@ -77,9 +77,11 @@ export function ViewOnlyMatchRow({ matchEntity }: { matchEntity: Entity }) {
         <span className="text-sm">{startTime.toFormat("h:mm a")}</span>
       </div>
 
-      <div className="w-[120px] flex items-center gap-x-1 text-center shrink-0">
-        {levelOfficial && <ConfirmedCheck />}
-        {levelName}
+      <div className="w-[120px] flex shrink-0">
+        <div className="flex items-center gap-x-1 mx-auto">
+          {levelOfficial && <ConfirmedCheck />}
+          {levelName}
+        </div>
       </div>
 
       <div className="w-[240px] text-center shrink-0">

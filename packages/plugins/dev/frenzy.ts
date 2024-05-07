@@ -15,6 +15,7 @@ function createPlugin(pluginLayer: PluginLayer) {
       getPosition,
       canAttack,
       canMoveToAndAttack,
+      isUnit,
     },
     actions: { attack, move },
     hotkeyManager,
@@ -32,6 +33,9 @@ function createPlugin(pluginLayer: PluginLayer) {
     if (!attackerPosition) return;
 
     for (const target of targets) {
+      // ignore buildings
+      if (!isUnit(target)) continue;
+
       const combatResult = calculateCombatResult(attacker, target);
       if (combatResult && combatResult.attackerDamage > mostDamage) {
         mostDamage = combatResult.attackerDamage;
@@ -83,7 +87,10 @@ function createPlugin(pluginLayer: PluginLayer) {
 
       function App() {
         const selectedEntity = useSelectedEntity();
-        const attackableEntities = useMemo(() => getAllAttackableEntities(selectedEntity), [selectedEntity]);
+        const attackableEntities = useMemo(
+          () => getAllAttackableEntities(selectedEntity)?.filter((e) => isUnit(e)),
+          [selectedEntity],
+        );
 
         useEffect(() => {
           tileHighlighter.clearAll();
@@ -112,8 +119,8 @@ function createPlugin(pluginLayer: PluginLayer) {
           </p>
           ${selectedEntity
             ? html`<p>
-                There are currently <span style=${highlightStyle}>${attackableEntities?.length ?? 0}</span> enemies in
-                range.
+                There are currently <span style=${highlightStyle}>${attackableEntities?.length ?? 0}</span> enemy units
+                in range.
               </p>`
             : null}
         </div>`;

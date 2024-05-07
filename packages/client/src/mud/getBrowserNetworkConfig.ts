@@ -64,6 +64,7 @@ export function getNetworkConfig() {
     : world?.blockNumber ?? -1; // -1 will attempt to find the block number from RPC
 
   let indexerUrl = chain.indexerUrl;
+  if (params.has("indexer")) indexerUrl = params.get("indexer") as string;
   if (params.has("disableIndexer")) indexerUrl = undefined;
 
   // TODO: validate match entity param is hex and the shape of hex we expect

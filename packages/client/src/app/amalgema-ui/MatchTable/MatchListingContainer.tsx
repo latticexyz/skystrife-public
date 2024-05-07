@@ -1,6 +1,9 @@
 import { Entity } from "@latticexyz/recs";
 import { usePagination } from "../hooks/usePagination";
-import React from "react";
+import React, { useState } from "react";
+import { sleep } from "@latticexyz/utils";
+import { LoadingSpinner } from "../../ui/Theme/SkyStrife/Icons/LoadingSpinner";
+import { JoinModal } from "./JoinModal";
 
 export function MatchListingContainer({
   allMatches,
@@ -8,15 +11,28 @@ export function MatchListingContainer({
   header,
 }: {
   allMatches: Entity[];
-  matchRowComponent: React.ComponentType<{ matchEntity: Entity }>;
+  matchRowComponent: React.ComponentType<{ matchEntity: Entity; setViewingMatchEntity: (e: Entity) => void }>;
   header?: React.ReactNode;
 }) {
+  const [loading, setLoading] = useState(false);
+  const [viewingMatchEntity, setViewingMatchEntity] = useState<Entity | null>(null);
+
+  const onPageChange = async (state: "start" | "done") => {
+    setLoading(state === "start");
+    await sleep(1);
+  };
   const pageSize = 10;
-  const { page, form: paginationForm } = usePagination({ totalItems: allMatches.length, pageSize });
+  const { page, form: paginationForm } = usePagination({ totalItems: allMatches.length, pageSize, onPageChange });
   const shownMatches = allMatches.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="grow flex flex-col relative">
+      <JoinModal
+        isOpen={Boolean(viewingMatchEntity)}
+        setIsOpen={() => setViewingMatchEntity(null)}
+        matchEntity={viewingMatchEntity ?? ("0x0" as Entity)}
+      />
+
       {header && (
         <div className="flex flex-row w-full bg-ss-bg-1 h-[48px] px-4 border-b border-ss-stroke">{header}</div>
       )}
@@ -42,9 +58,17 @@ export function MatchListingContainer({
         }}
         className={`absolute left-0 overflow-y-auto w-full`}
       >
-        {shownMatches.map((matchEntity) => {
-          return React.createElement(matchRowComponent, { matchEntity, key: matchEntity });
-        })}
+        {loading ? (
+          <div className="w-full">
+            <div className="mx-auto w-fit h-[240px] flex flex-col justify-around -mb-4">
+              <LoadingSpinner />
+            </div>
+          </div>
+        ) : (
+          shownMatches.map((matchEntity) => {
+            return React.createElement(matchRowComponent, { matchEntity, key: matchEntity, setViewingMatchEntity });
+          })
+        )}
 
         <div className="w-full">
           <div className="h-4" />

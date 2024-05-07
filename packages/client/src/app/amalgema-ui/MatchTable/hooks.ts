@@ -1,14 +1,8 @@
-import { Entity, Has, getComponentValue, runQuery } from "@latticexyz/recs";
+import { Entity, getComponentValue, hasComponent, getComponentValueStrict } from "@latticexyz/recs";
 import { useCallback } from "react";
 import { useAmalgema } from "../../../useAmalgema";
-import {
-  ALLOW_LIST_SYSTEM_ID,
-  LOBBY_SYSTEM_ID,
-  PLAYER_REGISTER_SYSTEM_ID,
-  SEASON_PASS_ONLY_SYSTEM_ID,
-} from "../../../constants";
+import { LOBBY_SYSTEM_ID, PLAYER_REGISTER_SYSTEM_ID, SEASON_PASS_ONLY_SYSTEM_ID } from "../../../constants";
 import { Hex } from "viem";
-import { decodeEntity } from "@latticexyz/store-sync/recs";
 import { useOrbBalance } from "../hooks/useOrbBalance";
 import { useSeasonPassExternalWallet } from "../hooks/useSeasonPass";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
@@ -16,33 +10,26 @@ import { encodeSystemCalls } from "@latticexyz/world/internal";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { getDelegationSystemCalls } from "../../../getDelegationSystemCalls";
 import { getMatchUrl } from "../../../getMatchUrl";
+import { useExternalAccount } from "../hooks/useExternalAccount";
 
 export function useIsAllowed(matchEntity: Entity) {
   const {
-    network: {
-      components: { MatchAccessControl, MatchAllowed },
-    },
-    externalWalletClient,
+    components: { MatchAccessControl, AllowList },
   } = useAmalgema();
 
   const matchAccessControl = getComponentValue(MatchAccessControl, matchEntity);
   const hasSeasonPass = useSeasonPassExternalWallet();
+  const { address } = useExternalAccount();
 
-  const hasAllowList = matchAccessControl && matchAccessControl.systemId === ALLOW_LIST_SYSTEM_ID;
+  const hasAllowList = hasComponent(AllowList, matchEntity);
   const isSeasonPassOnly = matchAccessControl && matchAccessControl.systemId === SEASON_PASS_ONLY_SYSTEM_ID;
 
   let isAllowed = true;
 
   if (hasAllowList) {
-    isAllowed = [...runQuery([Has(MatchAllowed)])]
-      .map((entity) => decodeEntity(MatchAllowed.metadata.keySchema, entity))
-      .some(
-        ({ matchEntity: entity, account }) =>
-          externalWalletClient &&
-          externalWalletClient.account &&
-          entity === matchEntity &&
-          account === externalWalletClient.account.address,
-      );
+    const allowedAccounts = getComponentValueStrict(AllowList, matchEntity).value;
+    if (address && !allowedAccounts.includes(address)) isAllowed = false;
+    if (!address) isAllowed = false;
   }
 
   if (isSeasonPassOnly) {

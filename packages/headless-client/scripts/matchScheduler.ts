@@ -5,8 +5,11 @@ import { Entity, Has, Not, NotValue, getComponentValueStrict, runQuery } from "@
 import { createMatchEntity } from "client/src/createMatchEntity";
 import { findOldestMatchInWindow } from "client/src/app/amalgema-ui/utils/skypool";
 import { Hex, padHex, stringToHex } from "viem";
-import { SEASON_PASS_ONLY_SYSTEM_ID } from "client/src/constants";
+import { MATCH_SYSTEM_ID, SEASON_PASS_ONLY_SYSTEM_ID } from "client/src/constants";
 import { z } from "zod";
+import { toEthAddress } from "@latticexyz/utils";
+import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
+import { encodeSystemCallFrom } from "@latticexyz/world/internal";
 
 /**
  * Be sure to use the Sky Strife Holder private key for this script.
@@ -22,15 +25,20 @@ import { z } from "zod";
 
 // matchName, levelName, seasonPassOnly
 const matchesToCreate = [
-  ["Cauldron (Free)", "Cauldron-2", false],
-  ["Antelope (Free)", "Antelope 2", false],
-  ["Isle (SP)", "The Isle", true],
+  ["8H Free Match", "Vortex", false],
+  ["8H Free Match", "Vortex", false],
+  ["8H Free Match", "Vortex", false],
+  ["8H Free Match", "Vortex", false],
+  ["8H Free Match", "Vortex", false],
+  ["8H SP Match", "Isle", true],
+  ["8H SP Match", "Isle", true],
+  ["8H SP Match", "Isle", true],
 ] as const;
 
 const {
   networkLayer,
   networkLayer: {
-    components: { MatchConfig, MatchFinished },
+    components: { MatchConfig, MatchFinished, SkyKey_Balances },
     network: { worldContract, waitForTransaction },
   },
 } = await createSkyStrife();
@@ -78,7 +86,19 @@ function getScheduledMatches() {
   return matchTimesToMatches;
 }
 
+function getSkyKeyHolder() {
+  const skyKeyHolder = [...runQuery([Has(SkyKey_Balances)])][0] as Entity | undefined;
+
+  return {
+    entity: skyKeyHolder,
+    address: skyKeyHolder ? (toEthAddress(skyKeyHolder) as Hex) : undefined,
+  };
+}
+
 export async function scheduleMatches() {
+  const skyKeyHolder = getSkyKeyHolder();
+  if (!skyKeyHolder.address) throw new Error("could not find sky key holder");
+
   const scheduledMatches = getScheduledMatches();
   for (const [time, matches] of Object.entries(scheduledMatches)) {
     const parsedTime = DateTime.fromSeconds(parseInt(time)).toUTC();
@@ -103,16 +123,24 @@ export async function scheduleMatches() {
         let success = false;
         while (retryCount < 3 && !success) {
           try {
-            const tx = await worldContract.write.createMatchSkyKey([
-              name,
-              (findOldestMatchInWindow(networkLayer) ?? matchEntity) as Hex,
-              matchEntity,
-              levelHex,
-              seasonPassOnly ? SEASON_PASS_ONLY_SYSTEM_ID : padHex("0x"),
-              0n,
-              [],
-              BigInt(time),
-            ]);
+            const tx = await worldContract.write.callFrom(
+              encodeSystemCallFrom({
+                abi: IWorldAbi,
+                from: skyKeyHolder.address,
+                systemId: MATCH_SYSTEM_ID,
+                functionName: "createMatchSkyKey",
+                args: [
+                  name,
+                  (findOldestMatchInWindow(networkLayer) ?? matchEntity) as Hex,
+                  matchEntity,
+                  levelHex,
+                  seasonPassOnly ? SEASON_PASS_ONLY_SYSTEM_ID : padHex("0x"),
+                  0n,
+                  [],
+                  BigInt(time),
+                ],
+              }),
+            );
 
             await waitForTransaction(tx);
           } catch (e) {
@@ -123,7 +151,7 @@ export async function scheduleMatches() {
           success = true;
         }
 
-        await worldContract.write.copyMap([matchEntity]);
+        if (success) await worldContract.write.copyMap([matchEntity]);
       }
     }
   }

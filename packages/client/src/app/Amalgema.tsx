@@ -5,13 +5,9 @@ import { useEffect } from "react";
 import { useStore } from "../useStore";
 import { LoadingScreen } from "./amalgema-ui/LoadingScreen";
 import { AmalgemaUIRoot } from "./amalgema-ui/AmalgemaUIRoot";
-import { DateTime } from "luxon";
-
-const launchTime = DateTime.fromSeconds(1714579200);
 
 export const Amalgema = () => {
-  const params = new URLSearchParams(window.location.search);
-  const LOCK_CLIENT = !import.meta.env.DEV && !params.has("unlock") && launchTime.diffNow().toMillis() > 0;
+  const LOCK_CLIENT = false;
 
   useEffect(() => {
     document.title = `Sky Strife - Main Menu`;
@@ -51,7 +47,7 @@ const LockScreen = () => {
       <div className="h-2" />
       <div className="text-xl text-ss-text-default text-center mt-3">
         <span className="text-3xl text-ss-text-link">
-          Sky Strife launches on {launchTime.toLocaleString(DateTime.DATETIME_FULL)}!
+          Sky Strife is experienceing downtime. We will be back as soon as possible.
         </span>
         <div className="h-6" />
         <div>

@@ -13,13 +13,11 @@
     "devnode": "anvil --base-fee 0 --block-time 2",
     "test": "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 DEBUG=mud:* mud test",
     "gas-report": "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 GAS_REPORTER_ENABLED=true mud test --forgeOptions='-vvv' | gas-report --save gas-report.json --stdin",
-    "dev": "pnpm run templategen && PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 pnpm mud deploy --salt=0xb00b1e --rpc=http://127.0.0.1:8545",
-    "deploy:dev": "PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 DEBUG=mud:* mud deploy",
+    "dev": "pnpm run templategen && DEBUG=mud:* PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 pnpm mud deploy --salt 0x80081e --rpc=http://127.0.0.1:8545 && CHAIN_ID=31337 PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 pnpm  tsx ./runDeployScripts.ts",
     "----- REDSTONE -----": "---------------------------",
-    "deploy:redstone": "DEBUG=mud:* mud deploy --profile=redstone",
-    "post-deploy:redstone": "forge script PostDeploy --with-gas-price 1000001 --sig 'run(address)' --broadcast --rpc-url https://rpc.redstonechain.com/ -vvv",
+    "deploy:redstone": "DEBUG=mud:* mud deploy --profile=redstone && CHAIN_ID=690 pnpm  tsx ./runDeployScripts.ts",
     "----- REDSTONE HOLESKY -----": "---------------------------",
-    "deploy:garnet": "DEBUG=mud:* mud deploy --profile=garnet",
+    "deploy:garnet": "DEBUG=mud:* mud deploy --profile=garnet && CHAIN_ID=17069 pnpm tsx ./runDeployScripts.ts",
     "----- INTERNAL -----": "---------------------------",
     "lint": "pnpm prettier && pnpm solhint",
     "templategen": "tsx ./ts/templates/commands/templategen.ts",
@@ -45,7 +43,9 @@
     "@types/node": "^18.18.3",
     "@types/prompts": "2.4.9",
     "client": "workspace:*",
+    "dotenv": "16.4.4",
     "ds-test": "github:dapphub/ds-test#c9ce3f25bde29fc5eb9901842bf02850dfd2d084",
+    "execa": "8.0.1",
     "forge-std": "github:foundry-rs/forge-std#b4f121555729b3afb3c5ffccb62ff4b6e2818fd3",
     "hygen": "6.2.11",
     "prettier": "^2.8.8",
@@ -55,6 +55,7 @@
     "solmate": "6.2.0",
     "tsx": "^3.13.0",
     "typechain": "^8.3.1",
-    "viem": "2.9.20"
+    "viem": "2.9.20",
+    "zod": "^3.22.2"
   }
 }

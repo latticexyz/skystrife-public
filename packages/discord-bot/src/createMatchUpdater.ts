@@ -12,7 +12,7 @@ import { createSkyStrife } from "headless-client/src/createSkyStrife";
 import { MATCHMAKING_ROLE } from ".";
 import { DateTime } from "luxon";
 
-const url = process.env.CHAIN_ID === "17001" ? "https://playtest.skystrife.xyz" : "http://localhost:1337";
+const url = process.env.CHAIN_ID === "690" ? "https://play.skystrife.xyz" : "http://localhost:1337";
 
 /**
  * Update match notification messages in the notification channel

@@ -1,7 +1,7 @@
 import { MUDChain, mudFoundry, redstone as mudRedstone } from "@latticexyz/common/chains";
 import { parseGwei } from "viem";
 
-type SkyStrifeChain = MUDChain & {
+export type SkyStrifeChain = MUDChain & {
   indexerUrl?: string;
   bridgeUrl?: string;
 };

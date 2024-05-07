@@ -109,7 +109,7 @@ export function PluginManager() {
     refreshDevPlugins();
 
     const officialPlugins = [
-      ["Frenzy", frenzyCode, true, 24, 160],
+      ["Frenzy v0.2", frenzyCode, true, 24, 160],
       ["UI Example", uiExampleCode, false, 0, 0],
       ["Player Details", playerDetailsCode, false, 0, 0],
       ["Opponent Gold", opponentGoldCode, true, 24, 320],

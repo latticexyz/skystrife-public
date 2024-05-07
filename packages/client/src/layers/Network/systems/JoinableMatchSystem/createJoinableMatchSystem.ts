@@ -1,6 +1,8 @@
 import { Entity, Has, Not, defineSystem, getComponentValue, runQuery, setComponent } from "@latticexyz/recs";
 import { NetworkLayer } from "../../types";
 import { DateTime } from "luxon";
+import { ALLOW_LIST_SYSTEM_ID } from "../../../../constants";
+import { decodeEntity } from "@latticexyz/store-sync/recs";
 
 /**
  * Calculating the "liveness" of a match is an expensive operation that was
@@ -9,7 +11,7 @@ import { DateTime } from "luxon";
 export function createJoinableMatchSystem(layer: NetworkLayer) {
   const {
     world,
-    components: { MatchJoinable, MatchConfig, MatchReady, MatchFinished },
+    components: { MatchJoinable, MatchConfig, MatchReady, MatchFinished, MatchAllowed, MatchAccessControl, AllowList },
     utils: { matchIsLive },
   } = layer;
 
@@ -40,12 +42,28 @@ export function createJoinableMatchSystem(layer: NetworkLayer) {
   };
 
   updateJoinableMatches();
-  setInterval(updateJoinableMatches, 5_000);
+  setInterval(updateJoinableMatches, 30_000);
 
   defineSystem(world, [Has(MatchConfig), Has(MatchReady), Not(MatchFinished)], ({ entity }) =>
-    setMatchJoinable(entity)
+    setMatchJoinable(entity),
   );
   defineSystem(world, [Has(MatchConfig), Not(MatchReady), Not(MatchFinished)], ({ entity }) =>
-    setMatchJoinable(entity)
+    setMatchJoinable(entity),
   );
+
+  defineSystem(world, [Has(MatchAccessControl)], ({ entity }) => {
+    const matchAccessControl = getComponentValue(MatchAccessControl, entity);
+    if (!matchAccessControl) return;
+
+    const hasAllowList = matchAccessControl.systemId === ALLOW_LIST_SYSTEM_ID;
+
+    if (hasAllowList) {
+      const allowList = [...runQuery([Has(MatchAllowed)])]
+        .map((entity) => decodeEntity(MatchAllowed.metadata.keySchema, entity))
+        .filter(({ matchEntity }) => entity === matchEntity)
+        .map(({ account }) => account);
+
+      setComponent(AllowList, entity, { value: allowList });
+    }
+  });
 }

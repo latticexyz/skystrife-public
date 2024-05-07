@@ -33,17 +33,9 @@ Sky Strife is broken into several sub-packages. Here are the packages that are e
 - `node` - Version 18.16.1 or greater
 - `foundry` - Used to run your local node, run tests, and deploy contracts. [Install](https://github.com/foundry-rs/foundry#installation)
 
-  > There is currently an issue with the latest version of Foundry which causes Sky Strife deployment to fail. Please revert back to an old version using this command `foundryup -C 375df5834d0fea8350a4aae9ca34a0dab55d74ac`
-
 ## Steps
 
-1. Install the latest forge using `foundryup` (see [Foundry docs](https://book.getfoundry.sh/getting-started/installation)) and then revert to an older version that is known to work.
-
-   Note that this is a slow process because it is necessary to compile Foundry from the source code.
-
-   ```sh copy
-   foundryup -C 375df5834d0fea8350a4aae9ca34a0dab55d74ac
-   ```
+1. Install the latest forge using `foundryup` (see [Foundry docs](https://book.getfoundry.sh/getting-started/installation)).
 
    If necessary, you can update to a new version of [Rust](https://doc.rust-lang.org/book/ch01-01-installation.html).
 
@@ -51,15 +43,12 @@ Sky Strife is broken into several sub-packages. Here are the packages that are e
    rustup update
    ```
 
-2. Clone the repository, install the dependencies, and compile the contract.
+2. Clone the repository and install dependencies
 
    ```sh copy
    git clone https://github.com/latticexyz/skystrife-public.git
    cd skystrife-public
    pnpm install
-   cd packages/contracts
-   pnpm build
-   cd ../..
    ```
 
 3. Start your local node, deploy contracts, and start the client.

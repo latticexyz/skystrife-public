@@ -3,8 +3,7 @@ import { Client, Events, GatewayIntentBits, TextChannel } from "discord.js";
 import { createSkyStrife } from "headless-client/src/createSkyStrife";
 import { createMatchUpdater } from "./createMatchUpdater";
 import { createSeasonPassNotifier } from "./createSeasonPassNotifier";
-
-const LAUNCH_TIMESTAMP = 1714579200;
+import { announceUpcomingScheduledMatches } from "./announceUpcomingScheduledMatches";
 
 const skyStrife = await createSkyStrife();
 
@@ -37,7 +36,7 @@ client.once(Events.ClientReady, (readyClient) => {
     if (!message.member) return;
 
     if (message.content.includes("!wenplay")) {
-      message.reply(`🚀 Sky Strife launch: <t:${LAUNCH_TIMESTAMP}> 🚀`);
+      announceUpcomingScheduledMatches(skyStrife.networkLayer, message);
     }
 
     if (message.content.includes("!join")) {
