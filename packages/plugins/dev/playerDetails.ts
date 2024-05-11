@@ -51,7 +51,10 @@ function createPlugin(pluginLayer: PluginLayer) {
           <${TextInput} label="Address" value=${playerDetails?.walletAddress} />
           <p><${Highlight} value=${playerGold.currentGold.toString()} /> current gold</p>
           <p><${Highlight} value=${playerGold.goldPerTurn.toString()} /> gold/turn</p>
-          <p><${Highlight} highlightType=${"secondary"} value=${playerEntities.length.toString()} /> owned entities</p>
+          <p>
+            <${Highlight} highlightType=${"secondary"} value=${playerEntities.length.toString()} /> owned entities
+            (units and structures)
+          </p>
           <div
             style=${{
               width: "100%",

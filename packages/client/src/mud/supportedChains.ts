@@ -39,6 +39,7 @@ export const garnet = {
     baseFeeMultiplier: 1.2,
     defaultPriorityFee: parseGwei("0.001"),
   },
+  indexerUrl: "https://indexer.mud.garnetchain.com",
 };
 
 export const redstone = {

@@ -37,42 +37,24 @@ export const findOldestMatchInWindow = (networkLayer: NetworkLayer) => {
 
 const getReward = (cost: bigint, numberOfMatches: number) => {
   if (numberOfMatches < 300) {
-    return 5n * cost;
+    return cost * 3n;
   } else if (numberOfMatches < 500) {
-    return 4n * cost;
-  } else if (numberOfMatches < 600) {
-    return (7n * cost) / 2n;
-  } else if (numberOfMatches < 700) {
-    return 3n * cost;
+    return cost * 2n;
   } else if (numberOfMatches < 800) {
-    return (5n * cost) / 2n;
-  } else if (numberOfMatches < 900) {
-    return 2n * cost;
+    return (cost * 150n) / 100n;
   } else if (numberOfMatches < 1000) {
-    return (3n * cost) / 2n;
-  } else if (numberOfMatches < 1100) {
-    return cost;
+    return (cost * 120n) / 100n;
   } else if (numberOfMatches < 1200) {
-    return (3n * cost) / 4n;
-  } else if (numberOfMatches < 1300) {
-    return (3n * cost) / 5n;
+    return cost;
   } else if (numberOfMatches < 1400) {
-    return cost / 2n;
-  } else if (numberOfMatches < 1500) {
-    return (2n * cost) / 5n;
-  } else if (numberOfMatches < 1600) {
-    return (7n * cost) / 20n;
+    return (cost * 90n) / 100n;
   } else if (numberOfMatches < 1700) {
-    return (3n * cost) / 10n;
-  } else if (numberOfMatches < 1800) {
-    return cost / 4n;
-  } else if (numberOfMatches < 1900) {
-    return (2n * cost) / 10n;
+    return (cost * 75n) / 100n;
   } else if (numberOfMatches < 2000) {
-    return (3n * cost) / 20n;
+    return (cost * 60n) / 100n;
+  } else {
+    return (cost * 50n) / 100n;
   }
-
-  return cost / 10n;
 };
 
 export function getSkypoolConfig(layer: NetworkLayer) {

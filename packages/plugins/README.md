@@ -45,7 +45,7 @@ Currently, the examples are:
    You can use this as a starting point for a new plugin.
 1. [Player Details](tutorials/playerDetails.md): Display a more detailed view of a player in your match.
    This introduces fetching data that is not otherwise shown in the Sky Strife UI.
-1. [Frenzy](tutorials/frenzy.md): Provides a hotkey that commands one of your units to attack the nearest enemy automatically.
+1. Frenzy: Provides a hotkey that commands one of your units to attack the nearest enemy automatically.
    It has a small informational UI and also highlights the intended target in-game.
    This is a good introduction to gameplay plugins as it accesses enemy unit information, does some calculations, and issues an attack transaction on behalf of the user.
 

@@ -21,7 +21,7 @@ export async function runWorldScript(
     "forge",
     [
       "script",
-      broadcast ? "--broadcast" : "",
+      ...(broadcast ? ["--broadcast"] : []),
       "--with-gas-price",
       gasPrice.toString(),
       "--sig",

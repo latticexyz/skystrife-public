@@ -25,14 +25,16 @@ import { encodeSystemCallFrom } from "@latticexyz/world/internal";
 
 // matchName, levelName, seasonPassOnly
 const matchesToCreate = [
-  ["8H Free Match", "Vortex", false],
-  ["8H Free Match", "Vortex", false],
-  ["8H Free Match", "Vortex", false],
-  ["8H Free Match", "Vortex", false],
-  ["8H Free Match", "Vortex", false],
-  ["8H SP Match", "Isle", true],
-  ["8H SP Match", "Isle", true],
-  ["8H SP Match", "Isle", true],
+  ["4P Free", "Vortex", false],
+  ["4P Free", "Vortex", false],
+  ["4P Free", "Vortex", false],
+  ["3P Free", "Scatter", false],
+  ["3P Free", "Scatter", false],
+  ["4P Season Pass", "Cauldron", true],
+  ["4P Season Pass", "Cauldron", true],
+  ["4P Season Pass", "Cauldron", true],
+  ["2P Season Pass", "Isle", true],
+  ["2P Season Pass", "Isle", true],
 ] as const;
 
 const {

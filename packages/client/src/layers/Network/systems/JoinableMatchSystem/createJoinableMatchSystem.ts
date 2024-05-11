@@ -58,7 +58,9 @@ export function createJoinableMatchSystem(layer: NetworkLayer) {
     const hasAllowList = matchAccessControl.systemId === ALLOW_LIST_SYSTEM_ID;
 
     if (hasAllowList) {
-      const allowList = [...runQuery([Has(MatchAllowed)])]
+      // equivalent to [...runQuery([Has(MatchAllowed)])] but faster
+      const matchAllowedEntities = Array.from(MatchAllowed.entities());
+      const allowList = matchAllowedEntities
         .map((entity) => decodeEntity(MatchAllowed.metadata.keySchema, entity))
         .filter(({ matchEntity }) => entity === matchEntity)
         .map(({ account }) => account);
