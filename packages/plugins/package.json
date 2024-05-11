@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@latticexyz/recs": "2.0.8",
+    "@parcel/watcher": "2.4.1",
     "client": "workspace:*",
     "serve": "14.2.1",
     "serve-handler": "6.1.5",

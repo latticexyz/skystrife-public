@@ -4,6 +4,7 @@ import * as path from 'path';
 import handler from 'serve-handler';
 import { fileURLToPath } from 'url';
 import { WebSocketServer } from 'ws';
+import watcher from '@parcel/watcher';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -47,19 +48,23 @@ wss.on('connection', function connection(ws) {
 });
 
 // Watch the plugin directory for changes
-fs.watch(pluginPath, { recursive: true }, (eventType, filename) => {
-  if (filename) {
-    console.log(`File changed: ${filename}`);
-    console.log(`emitting: ${path.join(pluginDirName, filename)}`)
-    // Emit a message to all connected clients
-    wss.clients.forEach(function each(client) {
-      if (client.readyState === 1) {
-        client.send(JSON.stringify({
-          eventType,
-          path: path.join(pluginDirName, filename)
-        }));
-      }
-    });
+await watcher.subscribe(pluginPath, (err, events) => {
+  for (const event of events) {
+    if (event.type === 'update' || event.type === 'create') {
+      const filename = event.path;
+      console.log(`File changed: ${filename}`);
+      console.log(`emitting: ${path.join(pluginDirName, filename)}`)
+      // Emit a message to all connected clients
+      wss.clients.forEach(function each(client) {
+        if (client.readyState === 1) {
+          client.send(JSON.stringify({
+            eventType,
+            path: path.join(pluginDirName, filename)
+          }));
+        }
+      });
+    }
+    // not sure of the websocket client want to be notified about deletion ?
   }
 });
 
