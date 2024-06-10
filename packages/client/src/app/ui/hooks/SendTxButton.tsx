@@ -9,7 +9,7 @@ type Props = {
   size?: "lg" | "md";
   children: React.ReactNode;
   disabled?: boolean;
-  sendTx: () => Promise<Hex>;
+  sendTx: () => Promise<Hex> | undefined;
   network: NetworkLayer["network"];
 };
 
@@ -24,6 +24,7 @@ export function SendTxButton({ size, buttonType, sendTx, disabled, className, ch
 
     try {
       const tx = await sendTx();
+      if (!tx) throw new Error("Error sending transaction");
       await waitForTransaction(tx);
     } catch (e) {
       console.error(e);

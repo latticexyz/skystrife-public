@@ -1,15 +1,15 @@
 import { Entity, Has, HasValue } from "@latticexyz/recs";
 import { useMUD } from "../../../useMUD";
-import { useComponentValue, useEntityQuery } from "@latticexyz/react";
+import { useEntityQuery } from "@latticexyz/react";
 import { addressToEntityID } from "../../../mud/setupNetwork";
 
 export const useCurrentPlayer = (matchEntity: Entity) => {
   const {
     networkLayer: {
-      components: { Name, Match, CreatedByAddress, Player },
+      components: { Match, CreatedByAddress, Player },
     },
     headlessLayer: {
-      api: { getOwnerColor },
+      api: { getPlayerInfo },
     },
     externalWalletClient,
   } = useMUD();
@@ -25,20 +25,6 @@ export const useCurrentPlayer = (matchEntity: Entity) => {
     Has(Player),
   ])[0];
 
-  const mainWallet = (useComponentValue(CreatedByAddress, playerEntity)?.value ?? "0x00") as Entity;
-  const name = useComponentValue(Name, mainWallet)?.value;
-  const playerColor = playerEntity
-    ? getOwnerColor(playerEntity, matchEntity)
-    : {
-        name: "white",
-        color: 0xffffff,
-      };
-
-  return {
-    mainWallet,
-    player: playerEntity,
-    playerColor,
-    name,
-    matchEntity,
-  };
+  const playerInfo = getPlayerInfo(playerEntity);
+  return playerInfo;
 };

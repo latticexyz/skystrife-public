@@ -8,6 +8,7 @@ import { MatchTable } from "./MatchTable";
 import GDPR from "./GDPR";
 import { Welcome } from "./SummonIsland/WelcomeBanner";
 import { MatchCountdown } from "./SummonIsland/MatchCountdown";
+import { OngoingMatch } from "./OngoingMatch";
 
 export const AmalgemaUIRoot = () => {
   const layers = useStore((state) => {
@@ -49,6 +50,8 @@ export const AmalgemaUIRoot = () => {
 
       <Transactions />
       <WelcomeToSkyStrifeModal />
+
+      {!import.meta.env.DEV && <OngoingMatch />}
 
       <ComponentBrowser />
 

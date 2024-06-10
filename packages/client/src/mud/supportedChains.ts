@@ -3,6 +3,7 @@ import { parseGwei } from "viem";
 
 export type SkyStrifeChain = MUDChain & {
   indexerUrl?: string;
+  matchIndexerUrl?: string;
   bridgeUrl?: string;
 };
 
@@ -44,7 +45,8 @@ export const garnet = {
 
 export const redstone = {
   ...mudRedstone,
-  indexerUrl: "https://indexer.skystrife.xyz",
+  indexerUrl: "https://dozer.mud.redstonechain.com/",
+  matchIndexerUrl: "https://skystrife-indexer-api.onrender.com/",
   bridgeUrl: "https://race.redstone.xyz/deposit",
 };
 

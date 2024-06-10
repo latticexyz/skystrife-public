@@ -12,6 +12,7 @@ import { Tooltip } from "react-tooltip";
 import { Checkbox } from "../../ui/Theme/SkyStrife/Checkbox";
 import { toEthAddress } from "@latticexyz/utils";
 import { SeasonPassIcon } from "../SeasonPassIcon";
+import { RemainingPrivateMatches } from "../SeasonPass";
 
 function WorldSvg() {
   return (
@@ -78,15 +79,18 @@ export function MatchType({
   const allRegisteredAddressEntities = useEntityQuery([Has(Name)]);
   const allAddresses = allRegisteredAddressEntities.map((addressEntity) => toEthAddress(addressEntity));
   const allNames = allRegisteredAddressEntities.map((player) => getComponentValueStrict(Name, player).value);
-  const nameToAddress = allNames.reduce((acc, name, index) => {
-    acc[name] = allAddresses[index];
-    return acc;
-  }, {} as Record<string, string>);
+  const nameToAddress = allNames.reduce(
+    (acc, name, index) => {
+      acc[name] = allAddresses[index];
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
 
   const allSearchOptions = reject(
     [...allNames, ...allAddresses],
     (addressOrName) =>
-      allowedAddresses.includes(addressOrName) || allowedAddresses.includes(nameToAddress[addressOrName])
+      allowedAddresses.includes(addressOrName) || allowedAddresses.includes(nameToAddress[addressOrName]),
   );
 
   const numPlayers = getLevelSpawns(levelId).length;
@@ -120,7 +124,7 @@ export function MatchType({
           className={twMerge(
             "flex flex-col items-center justify-around w-full h-[128px] rounded-md",
             "border border-[#DDDAD0] bg-white hover:border-[#1A6CBC] hover:bg-blue-300/30",
-            matchType === "public" && "border-[#1A6CBC] bg-blue-300/30"
+            matchType === "public" && "border-[#1A6CBC] bg-blue-300/30",
           )}
         >
           <div className="flex flex-col text-center items-center p-6">
@@ -143,7 +147,7 @@ export function MatchType({
             "flex flex-col items-center justify-around w-full h-[128px] rounded-md",
             "border border-[#DDDAD0] bg-white hover:border-[#1A6CBC] hover:bg-blue-300/30",
             !hasSeasonPass && "border-[#DDDAD0] bg-white cursor-not-allowed",
-            (matchType === "private" || matchType === "season-pass") && "border-[#1A6CBC] bg-blue-300/30"
+            (matchType === "private" || matchType === "season-pass") && "border-[#1A6CBC] bg-blue-300/30",
           )}
         >
           <div
@@ -163,6 +167,11 @@ export function MatchType({
       {matchType !== "public" && (
         <>
           <div className="h-6" />
+
+          <RemainingPrivateMatches />
+
+          <div className="h-3" />
+
           <Checkbox
             isChecked={matchType === "season-pass"}
             setIsChecked={(isChecked) => {

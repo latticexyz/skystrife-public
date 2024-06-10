@@ -14,10 +14,10 @@ app.get("/metadata/:id", async (c) => {
         "Sky Strife Season Pass is a soul-bound NFT that gives the holder access to exclusive features in the Sky Strife game.",
       image: "https://play.skystrife.xyz/public/assets/season-pass.png",
       features:
-        "This Season Pass grants access to: exclusive matches, all heroes, this season’s new maps, private matches, and the ability to set 🔮 entrance fees on matches.",
+        "This Season Pass grants access to: exclusive matches, all heroes, this season's new maps, private matches, and the ability to set 🔮 entrance fees on matches.",
       external_url: "https://play.skystrife.xyz",
       disclaimer:
-        "The Sky Strife Season Pass is soul-bound (e.g. cannot be sold or traded) and is only valid for a single season of Sky Strife. Each season’s start and end dates are listed in the attributes of each NFT.",
+        "The Sky Strife Season Pass is soul-bound (e.g. cannot be sold or traded) and is only valid for a single season of Sky Strife. Each season's start and end dates are listed in the attributes of each NFT.",
       attributes: [
         { trait_type: "id", value: id },
         { trait_type: "Season Name", value: "Season 1: Sky and Stone" },
@@ -28,6 +28,57 @@ app.get("/metadata/:id", async (c) => {
     },
     200,
   );
+});
+
+app.get("/metadata/:season/:tokenId", async (c) => {
+  c.res.headers.set("Access-Control-Allow-Origin", "*");
+
+  const season = c.req.param("season");
+  const tokenId = c.req.param("tokenId");
+
+  const baseData = {
+    name: `Sky Strife Season Pass (Season ${season})`,
+    description:
+      "Sky Strife Season Pass is a soul-bound NFT that gives the holder access to exclusive features in the Sky Strife game.",
+    image: "https://play.skystrife.xyz/public/assets/season-pass.png",
+    features:
+      "This Season Pass grants access to: exclusive matches, all heroes, this season's new maps, private matches, and the ability to set 🔮 entrance fees on matches.",
+    external_url: "https://play.skystrife.xyz",
+    disclaimer:
+      "The Sky Strife Season Pass is soul-bound (e.g. cannot be sold or traded) and is only valid for a single season of Sky Strife. Each season's start and end dates are listed in the attributes of each NFT.",
+  };
+
+  if (season === "1") {
+    return c.json(
+      {
+        ...baseData,
+        attributes: [
+          { trait_type: "id", value: tokenId },
+          { trait_type: "Season Name", value: `Season ${season}: Sky and Stone` },
+          { trait_type: "Season Start Date", value: "May 1st, 2024" },
+          { trait_type: "Season End Date", value: "May 31st, 2024" },
+          { trait_type: "Mint Price", value: "0.03 ETH" },
+        ],
+      },
+      200,
+    );
+  }
+
+  if (season === "2") {
+    return c.json(
+      {
+        ...baseData,
+        attributes: [
+          { trait_type: "id", value: tokenId },
+          { trait_type: "Season Name", value: `Season ${season}: Precious Bounty` },
+          { trait_type: "Season Start Date", value: "June 10th, 2024" },
+          { trait_type: "Season End Date", value: "July 10th, 2024" },
+          { trait_type: "Mint Price", value: "0.025 ETH" },
+        ],
+      },
+      200,
+    );
+  }
 });
 
 app.get("/metadata/skykey/:skykey-id", async (c) => {

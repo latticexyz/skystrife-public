@@ -17,6 +17,14 @@ export async function runWorldScript(
   }
   console.log(`Gas price: ${gasPrice}`);
 
+  let envOverride = {} as Record<string, string | undefined>;
+  if (mudFoundry?.id === chain.id) {
+    envOverride = {
+      ...envOverride,
+      PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+    };
+  }
+
   const scriptProcess = execa(
     "forge",
     [
@@ -24,6 +32,7 @@ export async function runWorldScript(
       ...(broadcast ? ["--broadcast"] : []),
       "--with-gas-price",
       gasPrice.toString(),
+      "--legacy",
       "--sig",
       "run(address)",
       "--rpc-url",
@@ -32,15 +41,13 @@ export async function runWorldScript(
       address,
     ],
     {
-      env: {
-        PRIVATE_KEY: mudFoundry?.id ? "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" : "",
-      },
+      env: envOverride,
     },
   );
-
   console.log(`Running ${path}:${name}... with world address ${address}`);
 
   await scriptProcess;
+  console.log(`${(await scriptProcess).command}`);
   if (scriptProcess.exitCode === 0) {
     console.log(`Successfully executed ${name}! ${broadcast ? "Txs were broadcasted" : "Simulation only."}`);
   } else {

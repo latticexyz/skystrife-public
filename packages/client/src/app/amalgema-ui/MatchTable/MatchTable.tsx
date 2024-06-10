@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "../../ui/Theme/SkyStrife/Card";
 import { twMerge } from "tailwind-merge";
 import { useSummonIslandModal } from "../SummonIsland";
@@ -10,7 +10,8 @@ import { OpenMatches } from "./OpenMatches";
 import { SpectateMatches } from "./SpectateMatches";
 import { HistoricalMatches } from "./HistoricalMatches";
 import { useEntityQuery } from "@latticexyz/react";
-import { Entity, Has, HasValue, Not, getComponentValue } from "@latticexyz/recs";
+import { Entity, Has, HasValue, Not, getComponentValue, runQuery } from "@latticexyz/recs";
+import { Matchmaking } from "../Matchmaking";
 
 enum Tabs {
   Play = "play",
@@ -43,7 +44,21 @@ export function MatchTable() {
 
   const joinableMatches = allMatches;
 
-  const historicalMatches = useEntityQuery([Has(MatchConfig), Has(MatchFinished)]);
+  const [historicalMatchesUpdate, setHistoricalMatchesUpdate] = useState(0);
+  const [historicalMatches, setHistoricalMatches] = useState<Entity[]>([]);
+
+  useEffect(() => {
+    setHistoricalMatches([...runQuery([Has(MatchConfig), Has(MatchFinished)])]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historicalMatchesUpdate]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHistoricalMatchesUpdate((prev) => prev + 1);
+    }, 5_000);
+    return () => clearInterval(interval);
+  }, []);
+
   historicalMatches.sort((a, b) => {
     const aTime = getComponentValue(MatchConfig, a)?.startTime ?? 0n;
     const bTime = getComponentValue(MatchConfig, b)?.startTime ?? 0n;
@@ -119,6 +134,10 @@ export function MatchTable() {
         </Button>
 
         {summonIslandModal}
+
+        <div className="w-4" />
+
+        <Matchmaking />
       </div>
 
       <div className="h-6 shrink-0" />

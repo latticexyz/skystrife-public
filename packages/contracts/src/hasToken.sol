@@ -21,3 +21,7 @@ function hasToken(address token, address account) view returns (bool) {
 function hasSeasonPass(address account) view returns (bool) {
   return hasToken(SkyPoolConfig.getSeasonPassToken(), account);
 }
+
+function hasSkyKey(address account) view returns (bool) {
+  return hasToken(SkyPoolConfig.getSkyKeyToken(), account);
+}

@@ -28,7 +28,8 @@ client.once(Events.ClientReady, (readyClient) => {
   console.log(`Linked to channel: ${notifChannel.name} (${notifChannel.id})`);
 
   createMatchUpdater(skyStrife, notifChannel);
-  createSeasonPassNotifier(skyStrife, notifChannel);
+  // Remove for now because we do not have dynamic pricing
+  // createSeasonPassNotifier(skyStrife, notifChannel);
 
   readyClient.on(Events.MessageCreate, async (message) => {
     if (message.author.bot) return;

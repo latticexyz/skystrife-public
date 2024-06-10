@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useComponentValue, useEntityQuery } from "@latticexyz/react";
-import { Entity, Has, HasValue, runQuery } from "@latticexyz/recs";
+import { Entity, Has, HasValue, getComponentValue, runQuery } from "@latticexyz/recs";
 import { useMUD } from "../../../useMUD";
 import { useCurrentPlayer } from "../hooks/useCurrentPlayer";
 import { Button } from "../Theme/SkyStrife/Button";
@@ -26,6 +26,8 @@ import { useIsAllowed } from "../../amalgema-ui/MatchTable/hooks";
 import { SeasonPassIcon } from "../../amalgema-ui/SeasonPassIcon";
 import { JoinModal } from "../../amalgema-ui/MatchTable/JoinModal";
 import { useNameIsValid } from "../../amalgema-ui/hooks/useNameIsValid";
+import { encodeEntity } from "@latticexyz/store-sync/recs";
+import { decodeMatchEntity } from "../../../decodeMatchEntity";
 
 function ChainSVG({ onClick }: { onClick?: () => void }) {
   const [hover, setHover] = useState(false);
@@ -70,8 +72,8 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
     externalWorldContract,
     networkLayer: {
       network,
-      components: { PlayerReady },
-      utils: { getAvailableLevelSpawns, hasSystemDelegation, getMatchRewards },
+      components: { SpawnReservedBy, PlayerReady, UnitType, Position, OwnedBy },
+      utils: { getAvailableLevelSpawns, hasSystemDelegation, getMatchRewards, getLevelSpawns },
       executeSystemWithExternalWallet,
       utils: { refreshBalance },
     },
@@ -168,28 +170,53 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
   };
 
   const sendTx = () => {
-    if (externalWalletClient && externalWalletClient.account) {
-      return worldContract.write.callFrom(
-        encodeSystemCallFrom({
-          abi: IWorldAbi,
-          from: externalWalletClient.account.address,
-          systemId: LOBBY_SYSTEM_ID,
-          functionName: "toggleReady",
-          args: [matchEntity as Hex],
-        }),
-      );
-    } else {
-      // otherwise return a promise to satisfy button types
-      return worldContract.write.callFrom(
-        encodeSystemCallFrom({
-          abi: IWorldAbi,
-          from: walletClient.account.address,
-          systemId: LOBBY_SYSTEM_ID,
-          functionName: "toggleReady",
-          args: [matchEntity as Hex],
-        }),
-      );
-    }
+    if (!externalWalletClient || !externalWalletClient.account) return;
+
+    return worldContract.write.callFrom(
+      encodeSystemCallFrom({
+        abi: IWorldAbi,
+        from: externalWalletClient.account.address,
+        systemId: LOBBY_SYSTEM_ID,
+        functionName: "toggleReady",
+        args: [matchEntity as Hex],
+      }),
+    );
+  };
+
+  const sendLeaveTx = async () => {
+    if (!levelId || !currentPlayer) return;
+
+    const getReservedSpawnIndex = (levelId: string, matchEntity: Hex, playerEntity: Entity): bigint | undefined => {
+      return getLevelSpawns(levelId).filter((spawnIndex) => {
+        const reservedBy = getComponentValue(
+          SpawnReservedBy,
+          encodeEntity(SpawnReservedBy.metadata.keySchema, { matchEntity, index: spawnIndex }),
+        )?.value;
+
+        return reservedBy === decodeMatchEntity(playerEntity).entity;
+      })[0];
+    };
+    const spawnIndex = getReservedSpawnIndex(levelId, matchEntity as Hex, currentPlayer.player);
+    if (!spawnIndex) return;
+
+    const heroEntity = [
+      ...runQuery([
+        Has(UnitType),
+        Has(Position),
+        HasValue(OwnedBy, { value: decodeMatchEntity(currentPlayer.player).entity }),
+      ]),
+    ][0];
+    if (!heroEntity) return;
+
+    const { entity } = decodeMatchEntity(heroEntity);
+
+    await executeSystemWithExternalWallet({
+      systemCall: "deregister",
+      systemId: "Leave Match",
+      args: [[matchEntity as Hex, spawnIndex, entity], { account: address }],
+    });
+
+    window.location.assign(`${window.location.origin}/`);
   };
 
   const { nameValid, nameValidityMessage } = useNameIsValid(newName);
@@ -214,7 +241,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
 
   return (
     <div>
-      {!currentPlayer.player && (
+      {!currentPlayer?.player && (
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -249,7 +276,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
         </form>
       )}
 
-      {!currentPlayer.player && !registerDisabled && (
+      {!currentPlayer?.player && !registerDisabled && (
         <>
           <HeroSelect hero={hero} setHero={setHero} />
 
@@ -263,7 +290,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
 
       <div className="h-4"></div>
 
-      <div className="flex row">
+      <div className="flex flex-col gap-y-3">
         {!currentPlayer?.player && (
           <div className="grow">
             {!pendingTx ? (
@@ -283,7 +310,7 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
           </div>
         )}
 
-        {currentPlayer.player && !currentPlayerReady && (
+        {currentPlayer?.player && !currentPlayerReady && (
           <div className="grow">
             <SendTxButton buttonType="secondary" className="w-full" network={network} sendTx={sendTx}>
               ready
@@ -295,6 +322,14 @@ const RegistrationForm = ({ matchEntity, address }: { matchEntity: Entity; addre
           <div className="grow">
             <SendTxButton buttonType="secondary" className="w-full" network={network} sendTx={sendTx}>
               unready
+            </SendTxButton>
+          </div>
+        )}
+
+        {matchConfig?.startTime === 0n && currentPlayer?.player && !currentPlayerReady && (
+          <div className="grow">
+            <SendTxButton buttonType="tertiary" className="w-full" network={network} sendTx={sendLeaveTx}>
+              leave {matchRewards.entranceFee > 0n ? `(refund ${entranceFeeEth}🔮)` : ""}
             </SendTxButton>
           </div>
         )}

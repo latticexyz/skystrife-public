@@ -20,7 +20,7 @@ export const EMOJI = "🔮";
 
 export const LOCK_CLIENT = false;
 
-export const SEASON_NAME = "Season 1";
+export const SEASON_NAME = "Season 2";
 
 export const UNLIMITED_DELEGATION = resourceToHex({ type: "system", namespace: "", name: "unlimited" });
 export const SYSTEMBOUND_DELEGATION = resourceToHex({ type: "system", namespace: "", name: "systembound" });
@@ -35,7 +35,9 @@ export const SEASON_PASS_ONLY_SYSTEM_ID = resourceToHex({
 });
 export const NAME_SYSTEM_ID = resourceToHex({ type: "system", namespace: "", name: "NameSystem" });
 export const LOBBY_SYSTEM_ID = resourceToHex({ type: "system", namespace: "", name: "LobbySystem" });
+export const PLAYER_DEREGISTER_SYSTEM_ID = resourceToHex({ type: "system", namespace: "", name: "PlayerDeregister" });
 export const MATCH_SYSTEM_ID = resourceToHex({ type: "system", namespace: "", name: "MatchSystem" });
+export const CANCEL_MATCH_SYSTEM_ID = resourceToHex({ type: "system", namespace: "", name: "CancelMatchSyste" });
 export const LEVEL_UPLOAD_SYSTEM_ID = resourceToHex({ type: "system", namespace: "", name: "LevelUploadSystem" });
 export const BUILD_SYSTEM_ID = resourceToHex({ type: "system", namespace: "", name: "BuildSystem" });
 export const MOVE_SYSTEM_ID = resourceToHex({ type: "system", namespace: "", name: "MoveSystem" });

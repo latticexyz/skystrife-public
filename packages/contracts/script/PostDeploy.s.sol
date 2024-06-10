@@ -24,7 +24,7 @@ import { ResourceId, WorldResourceIdLib } from "@latticexyz/world/src/WorldResou
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
 import { createTemplates } from "../src/codegen/scripts/CreateTemplates.sol";
-import { SeasonTimes, Admin, SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, VirtualLevelTemplates, HeroInRotation, HeroInSeasonPassRotation, MatchRewardPercentages } from "../src/codegen/index.sol";
+import { SeasonTimes, Admin, SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, VirtualLevelTemplates, HeroInRotation, HeroInSeasonPassRotation, MatchRewardPercentages, SkyPoolConfig, SeasonPassPrivateMatchLimit, MatchStaleTime } from "../src/codegen/index.sol";
 import { GrassTemplateId, ForestTemplateId, MountainTemplateId, GrassTemplateId, HalberdierTemplateId, DragoonTemplateId, MarksmanTemplateId } from "../src/codegen/Templates.sol";
 
 import { SeasonPassOnlySystem } from "../src/systems/SeasonPassOnlySystem.sol";
@@ -33,7 +33,7 @@ import { NoTransferHook } from "../src/NoTransferHook.sol";
 
 import { createArchetypeModifiers } from "../src/libraries/LibArchetypes.sol";
 
-import { SEASON_START_TIME, SEASON_PASS_STARTING_PRICE, SEASON_PASS_MIN_PRICE, SEASON_PASS_PRICE_DECREASE_PER_SECOND, SEASON_PASS_PURCHASE_MULTIPLIER_PERCENT, SEASON_PASS_MINT_DURATION, SEASON_DURATION, COST_CREATE_MATCH, WINDOW, SKYPOOL_SUPPLY, SKY_KEY_TOKEN_ID, SEASON_PASS_NAMESPACE, ORB_NAMESPACE, SKY_KEY_NAMESPACE, SEASON_PASS_SYMBOL, SEASON_PASS_NAME } from "../constants.sol";
+import { SEASON_PASS_PRIVATE_MATCH_LIMIT, SEASON_START_TIME, SEASON_PASS_STARTING_PRICE, SEASON_PASS_MIN_PRICE, SEASON_PASS_PRICE_DECREASE_PER_SECOND, SEASON_PASS_PURCHASE_MULTIPLIER_PERCENT, SEASON_PASS_MINT_DURATION, SEASON_DURATION, COST_CREATE_MATCH, WINDOW, SKYPOOL_SUPPLY, SKY_KEY_TOKEN_ID, SEASON_PASS_NAMESPACE, ORB_NAMESPACE, SKY_KEY_NAMESPACE, SEASON_PASS_SYMBOL, SEASON_PASS_NAME } from "../constants.sol";
 
 contract PostDeploy is Script {
   function run(address worldAddress) external {
@@ -85,6 +85,12 @@ contract PostDeploy is Script {
 
     world.installRootModule(new StandardDelegationsModule(), new bytes(0));
     world.installModule(new PuppetModule(), new bytes(0));
+
+    // Global Configuration
+    SkyPoolConfig.setCost(COST_CREATE_MATCH);
+    SkyPoolConfig.setWindow(WINDOW);
+    SeasonPassPrivateMatchLimit.set(SEASON_PASS_PRIVATE_MATCH_LIMIT);
+    MatchStaleTime.set(1 hours);
 
     vm.stopBroadcast();
   }

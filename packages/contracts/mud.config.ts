@@ -498,6 +498,21 @@ export default defineWorld({
         skyKeyToken: "address",
       },
     },
+    SeasonPassPrivateMatchLimit: {
+      key: [],
+      schema: {
+        value: "uint256",
+      },
+    },
+    PrivateMatchesCreated: {
+      key: ["seasonPassToken", "holderAddress"],
+      schema: {
+        seasonPassToken: "address",
+        holderAddress: "address",
+        value: "uint256",
+      },
+    },
+
     /**
      * SkyPool match rewards broken down by
      * the number of players in a match.
@@ -680,6 +695,16 @@ export default defineWorld({
         matchEntity: "bytes32",
         createdAt: "uint256",
         reward: "uint256",
+      },
+    },
+
+    /**
+     * If a match is created and not started within this time, it will be considered stale and can be canceled.
+     */
+    MatchStaleTime: {
+      key: [],
+      schema: {
+        value: "uint256",
       },
     },
     /**

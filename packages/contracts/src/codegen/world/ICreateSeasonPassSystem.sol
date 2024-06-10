@@ -11,6 +11,8 @@ pragma solidity >=0.8.24;
 interface ICreateSeasonPassSystem {
   function createNewSeasonPass(
     bytes14 name,
+    string memory seasonNumber,
+    string memory symbol,
     uint256 seasonStart,
     uint256 seasonEnd,
     uint256 mintEnd,

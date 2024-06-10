@@ -41,7 +41,7 @@ contract DeploySeasonPass is Script {
       ERC721MetadataData({
         name: SEASON_PASS_NAME,
         symbol: SEASON_PASS_SYMBOL,
-        baseURI: "https://skystrife-metadata.latticexyz.workers.dev/metadata/"
+        baseURI: "https://skystrife-metadata.latticexyz.workers.dev/metadata/1/"
       })
     );
     SkyPoolConfig.setSeasonPassToken(address(seasonPass));

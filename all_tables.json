@@ -1,0 +1,2190 @@
+[
+  {
+    "tableId": "0x6f7400000000000000000000000000004d617463680000000000000000000000",
+    "name": "Match",
+    "namespace": "",
+    "type": "offchainTable",
+    "key": ["matchEntityKey", "entity"],
+    "schema": {
+      "matchEntityKey": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000041726d6f724d6f646966696572000000",
+    "name": "ArmorModifier",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "int32",
+        "internalType": "int32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000043617074757261626c65000000000000",
+    "name": "Capturable",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000043686172676564427953746172740000",
+    "name": "ChargedByStart",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000043686172676565000000000000000000",
+    "name": "Chargee",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000043686172676572730000000000000000",
+    "name": "Chargers",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "chargee"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "chargee": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "chargers": {
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000043686172676572000000000000000000",
+    "name": "Charger",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "int32",
+        "internalType": "int32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000043686172676543617000000000000000",
+    "name": "ChargeCap",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "cap": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "totalCharged": {
+        "type": "int32",
+        "internalType": "int32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000436f6d62617400000000000000000000",
+    "name": "Combat",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "health": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "maxHealth": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "strength": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "counterStrength": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "minRange": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "maxRange": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "archetype": {
+        "type": "uint8",
+        "internalType": "CombatArchetypes"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004172636865747970654d6f6469666965",
+    "name": "ArchetypeModifier",
+    "namespace": "",
+    "type": "table",
+    "key": ["attacker", "defender"],
+    "schema": {
+      "attacker": {
+        "type": "uint8",
+        "internalType": "CombatArchetypes"
+      },
+      "defender": {
+        "type": "uint8",
+        "internalType": "CombatArchetypes"
+      },
+      "mod": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "attackerArchetype": {
+        "type": "uint8",
+        "internalType": "CombatArchetypes"
+      },
+      "defenderArchetype": {
+        "type": "uint8",
+        "internalType": "CombatArchetypes"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000476f6c644f6e4b696c6c000000000000",
+    "name": "GoldOnKill",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "int32",
+        "internalType": "int32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000436f6d6261744f7574636f6d65000000",
+    "name": "CombatOutcome",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "attacker": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "defender": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "attackerDamageReceived": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "defenderDamageReceived": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "attackerDamage": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "defenderDamage": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "ranged": {
+        "type": "bool",
+        "internalType": "bool"
+      },
+      "attackerDied": {
+        "type": "bool",
+        "internalType": "bool"
+      },
+      "defenderDied": {
+        "type": "bool",
+        "internalType": "bool"
+      },
+      "defenderCaptured": {
+        "type": "bool",
+        "internalType": "bool"
+      },
+      "blockNumber": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "timestamp": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000466163746f7279000000000000000000",
+    "name": "Factory",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "prototypeIds": {
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      },
+      "goldCosts": {
+        "type": "int32[]",
+        "internalType": "int32[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004c617374416374696f6e000000000000",
+    "name": "LastAction",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d617043656e74657200000000000000",
+    "name": "MapCenter",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d6f7661626c65000000000000000000",
+    "name": "Movable",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "int32",
+        "internalType": "int32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d6f7665446966666963756c74790000",
+    "name": "MoveDifficulty",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "int32",
+        "internalType": "int32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000043726561746564427941646472657373",
+    "name": "CreatedByAddress",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "playerEntity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "playerEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004f776e65644279000000000000000000",
+    "name": "OwnedBy",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000506c6179657200000000000000000000",
+    "name": "Player",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000506c6179657252656164790000000000",
+    "name": "PlayerReady",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000506f736974696f6e0000000000000000",
+    "name": "Position",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "x": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "y": {
+        "type": "int32",
+        "internalType": "int32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000456e7469746965734174506f73697469",
+    "name": "EntitiesAtPosition",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "x", "y"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "x": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "y": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "entities": {
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000052657175697265735365747570000000",
+    "name": "RequiresSetup",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000537061776e5265736572766564427900",
+    "name": "SpawnReservedBy",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "index"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "index": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "value": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000537061776e506f696e74000000000000",
+    "name": "SpawnPoint",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000476f6c64000000000000000000000000",
+    "name": "Gold",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "current": {
+        "type": "int32",
+        "internalType": "int32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000053747275637475726554797065000000",
+    "name": "StructureType",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint8",
+        "internalType": "StructureTypes"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x6f7400000000000000000000000000005465727261696e547970650000000000",
+    "name": "TerrainType",
+    "namespace": "",
+    "type": "offchainTable",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint8",
+        "internalType": "TerrainTypes"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x6f740000000000000000000000000000556e6974547970650000000000000000",
+    "name": "UnitType",
+    "namespace": "",
+    "type": "offchainTable",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint8",
+        "internalType": "UnitTypes"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000556e7472617665727361626c65000000",
+    "name": "Untraversable",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "entity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368506c617965720000000000",
+    "name": "MatchPlayer",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "playerAddress"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "playerAddress": {
+        "type": "address",
+        "internalType": "address"
+      },
+      "playerEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004e616d65000000000000000000000000",
+    "name": "Name",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "string",
+        "internalType": "string"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004e616d65457869737473000000000000",
+    "name": "NameExists",
+    "namespace": "",
+    "type": "table",
+    "key": ["nameData"],
+    "schema": {
+      "nameData": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000041646d696e0000000000000000000000",
+    "name": "Admin",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004865726f496e526f746174696f6e0000",
+    "name": "HeroInRotation",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004865726f496e536561736f6e50617373",
+    "name": "HeroInSeasonPassRotation",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000536b79506f6f6c436f6e666967000000",
+    "name": "SkyPoolConfig",
+    "namespace": "",
+    "type": "table",
+    "key": [],
+    "schema": {
+      "locked": {
+        "type": "bool",
+        "internalType": "bool"
+      },
+      "cost": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "window": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "orbToken": {
+        "type": "address",
+        "internalType": "address"
+      },
+      "seasonPassToken": {
+        "type": "address",
+        "internalType": "address"
+      },
+      "skyKeyToken": {
+        "type": "address",
+        "internalType": "address"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d617463685265776172645065726365",
+    "name": "MatchRewardPercentages",
+    "namespace": "",
+    "type": "table",
+    "key": ["numPlayers"],
+    "schema": {
+      "numPlayers": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "percentages": {
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x6f7400000000000000000000000000004f6666696369616c4c6576656c000000",
+    "name": "OfficialLevel",
+    "namespace": "",
+    "type": "offchainTable",
+    "key": ["levelId"],
+    "schema": {
+      "levelId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004c6576656c496e5374616e6461726452",
+    "name": "LevelInStandardRotation",
+    "namespace": "",
+    "type": "table",
+    "key": ["levelId"],
+    "schema": {
+      "levelId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004c6576656c496e536561736f6e506173",
+    "name": "LevelInSeasonPassRotation",
+    "namespace": "",
+    "type": "table",
+    "key": ["levelId"],
+    "schema": {
+      "levelId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004c6173744d61746368496e6465780000",
+    "name": "LastMatchIndex",
+    "namespace": "",
+    "type": "table",
+    "key": [],
+    "schema": {
+      "matchIndex": {
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368496e646578000000000000",
+    "name": "MatchIndex",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "matchIndex": {
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368496e646578546f456e7469",
+    "name": "MatchIndexToEntity",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchIndex"],
+    "schema": {
+      "matchIndex": {
+        "type": "uint32",
+        "internalType": "uint32"
+      },
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000536561736f6e50617373496e64657800",
+    "name": "SeasonPassIndex",
+    "namespace": "",
+    "type": "table",
+    "key": [],
+    "schema": {
+      "tokenIndex": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000536561736f6e50617373436f6e666967",
+    "name": "SeasonPassConfig",
+    "namespace": "",
+    "type": "table",
+    "key": [],
+    "schema": {
+      "minPrice": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "startingPrice": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "rate": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "multiplier": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "mintCutoff": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000536561736f6e54696d65730000000000",
+    "name": "SeasonTimes",
+    "namespace": "",
+    "type": "table",
+    "key": [],
+    "schema": {
+      "seasonStart": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "seasonEnd": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x74620000000000000000000000000000536561736f6e506173734c6173745361",
+    "name": "SeasonPassLastSaleAt",
+    "namespace": "",
+    "type": "table",
+    "key": [],
+    "schema": {
+      "lastSaleAt": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x6f740000000000000000000000000000536561736f6e5061737353616c650000",
+    "name": "SeasonPassSale",
+    "namespace": "",
+    "type": "offchainTable",
+    "key": ["buyer", "tokenId"],
+    "schema": {
+      "buyer": {
+        "type": "address",
+        "internalType": "address"
+      },
+      "tokenId": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "price": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "purchasedAt": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "tokenAddress": {
+        "type": "address",
+        "internalType": "address"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368456e74697479436f756e74",
+    "name": "MatchEntityCounter",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entityCounter": {
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d617463686573506572446179000000",
+    "name": "MatchesPerDay",
+    "namespace": "",
+    "type": "table",
+    "key": ["day"],
+    "schema": {
+      "day": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "value": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368537061776e506f696e7473",
+    "name": "MatchSpawnPoints",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368506c617965727300000000",
+    "name": "MatchPlayers",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368536b790000000000000000",
+    "name": "MatchSky",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "createdAt": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "reward": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d617463684e616d6500000000000000",
+    "name": "MatchName",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "string",
+        "internalType": "string"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368436f6e6669670000000000",
+    "name": "MatchConfig",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "registrationTime": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "startTime": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "turnLength": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "levelId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "createdBy": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "escrowContract": {
+        "type": "address",
+        "internalType": "address"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368416363657373436f6e7472",
+    "name": "MatchAccessControl",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "systemId": {
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d61746368416c6c6f77656400000000",
+    "name": "MatchAllowed",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity", "account"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "account": {
+        "type": "address",
+        "internalType": "address"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d6174636846696e6973686564000000",
+    "name": "MatchFinished",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d617463684d6170436f707950726f67",
+    "name": "MatchMapCopyProgress",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d617463685265616479000000000000",
+    "name": "MatchReady",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d6174636852616e6b696e6700000000",
+    "name": "MatchRanking",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d6174636853776565707374616b6500",
+    "name": "MatchSweepstake",
+    "namespace": "",
+    "type": "table",
+    "key": ["matchEntity"],
+    "schema": {
+      "matchEntity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "entranceFee": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "rewardPercentages": {
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004d617463685265776172640000000000",
+    "name": "MatchReward",
+    "namespace": "",
+    "type": "table",
+    "key": ["entity", "rank"],
+    "schema": {
+      "entity": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "rank": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "value": {
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000054656d706c6174655461626c65730000",
+    "name": "TemplateTables",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x7462000000000000000000000000000054656d706c617465436f6e74656e7400",
+    "name": "TemplateContent",
+    "namespace": "",
+    "type": "table",
+    "key": ["templateId", "tableId"],
+    "schema": {
+      "templateId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "tableId": {
+        "type": "bytes32",
+        "internalType": "ResourceId"
+      },
+      "encodedLengths": {
+        "type": "bytes32",
+        "internalType": "EncodedLengths"
+      },
+      "staticData": {
+        "type": "bytes",
+        "internalType": "bytes"
+      },
+      "dynamicData": {
+        "type": "bytes",
+        "internalType": "bytes"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004c6576656c54656d706c617465730000",
+    "name": "LevelTemplates",
+    "namespace": "",
+    "type": "table",
+    "key": ["id"],
+    "schema": {
+      "id": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bytes32[]",
+        "internalType": "bytes32[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004c6576656c54656d706c61746573496e",
+    "name": "LevelTemplatesIndex",
+    "namespace": "",
+    "type": "table",
+    "key": ["levelId", "templateId"],
+    "schema": {
+      "levelId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "templateId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004c6576656c506f736974696f6e000000",
+    "name": "LevelPosition",
+    "namespace": "",
+    "type": "table",
+    "key": ["levelId", "index"],
+    "schema": {
+      "levelId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "index": {
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      "x": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "y": {
+        "type": "int32",
+        "internalType": "int32"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": true
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000004c6576656c506f736974696f6e496e64",
+    "name": "LevelPositionIndex",
+    "namespace": "",
+    "type": "table",
+    "key": ["levelId", "x", "y"],
+    "schema": {
+      "levelId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "x": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "y": {
+        "type": "int32",
+        "internalType": "int32"
+      },
+      "value": {
+        "type": "uint256[]",
+        "internalType": "uint256[]"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  },
+  {
+    "tableId": "0x746200000000000000000000000000005669727475616c4c6576656c54656d70",
+    "name": "VirtualLevelTemplates",
+    "namespace": "",
+    "type": "table",
+    "key": ["templateId"],
+    "schema": {
+      "templateId": {
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      "value": {
+        "type": "bool",
+        "internalType": "bool"
+      }
+    },
+    "codegen": {
+      "outputDirectory": "tables",
+      "tableIdArgument": false,
+      "storeArgument": false,
+      "dataStruct": false
+    },
+    "deploy": {
+      "disabled": false
+    }
+  }
+]

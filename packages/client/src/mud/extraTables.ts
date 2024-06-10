@@ -1,7 +1,7 @@
 import { resourceToHex } from "@latticexyz/common";
 import { SyncFilter } from "@latticexyz/store-sync";
 
-const SEASON_PASS_NAMESPACE = "Season1";
+const SEASON_PASS_NAMESPACE = "Season2";
 const ORB_NAMESPACE = "Orb";
 const SKY_KEY_NAMESPACE = "SkyKey";
 

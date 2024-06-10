@@ -63,6 +63,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
         MatchConfig,
         Name,
         Match,
+        MatchRanking,
       },
     },
   } = network;
@@ -372,11 +373,15 @@ export async function createHeadlessLayer(network: NetworkLayer) {
     const ownerName = getComponentValue(Name, owner as Entity);
     const name = ownerName ? ownerName.value : formatAddress(toEthAddress(owner) as Hex);
 
-    const matchEntity = getComponentValue(Match, player)?.matchEntity;
+    const matchEntity = getComponentValue(Match, player)?.matchEntity as Entity | undefined;
     if (!matchEntity) return;
 
-    const playerColor = getOwnerColor(player, matchEntity as Entity);
+    const playerColor = getOwnerColor(player, matchEntity);
     const playerId = player;
+
+    const { entity: playerEntity } = decodeMatchEntity(player);
+    const matchRanking = getComponentValue(MatchRanking, matchEntity)?.value ?? [];
+    const playerEliminated = matchRanking?.includes(playerEntity);
 
     return {
       player,
@@ -385,6 +390,7 @@ export async function createHeadlessLayer(network: NetworkLayer) {
       playerColor,
       matchEntity: matchEntity as Entity,
       wallet: toEthAddress(owner),
+      playerEliminated,
     };
   }
 

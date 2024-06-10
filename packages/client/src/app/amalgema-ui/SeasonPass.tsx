@@ -14,11 +14,32 @@ import { SEASON_NAME } from "../../constants";
 import { SeasonPassImg } from "./SeasonPassImg";
 import { Has, getComponentValue } from "@latticexyz/recs";
 import { useSeasonPassPrice } from "./hooks/useSeasonPassPrice";
+import { ReadOnlyTextInput } from "./SummonIsland/common";
+import { usePrivateMatchLimit } from "./hooks/usePrivateMatchLimit";
+import { twMerge } from "tailwind-merge";
+import WarningSection from "../ui/Theme/SkyStrife/WarningSection";
+
+export function RemainingPrivateMatches() {
+  const { limit, created } = usePrivateMatchLimit();
+
+  return (
+    <div className="text-center w-full">
+      <ReadOnlyTextInput
+        symbolClassName={twMerge(created >= limit ? "text-ss-warning" : "text-ss-text-default")}
+        value=""
+        label="private matches created"
+        symbol={`${created.toString()} / ${limit.toString()}`}
+      />
+
+      {created >= limit && <div className="text-ss-warning mt-1">Private match creation limit reached.</div>}
+    </div>
+  );
+}
 
 export function SeasonPass({ account }: { account?: Hex }) {
   const {
     network: { publicClient, waitForTransaction },
-    components: { SeasonPassConfig, SeasonPassLastSaleAt, SeasonTimes, SeasonPassSale },
+    components: { SeasonPassConfig, SeasonPassLastSaleAt, SeasonTimes, SeasonPassSale, SeasonPassPrivateMatchLimit },
     executeSystemWithExternalWallet,
   } = useAmalgema();
 
@@ -30,7 +51,7 @@ export function SeasonPass({ account }: { account?: Hex }) {
     .map((entity) => getComponentValue(SeasonPassSale, entity))
     .filter((sale) => Boolean(sale))
     .sort((a, b) => Number(b?.purchasedAt) - Number(a?.purchasedAt));
-  const mostRecentSale = seasonPassSales[0]!;
+  const mostRecentSale = seasonPassSales[0];
 
   const [enlarge, setEnlarge] = useState(false);
   useEffect(() => {
@@ -75,9 +96,11 @@ export function SeasonPass({ account }: { account?: Hex }) {
   let disabledMessage = "";
   if (!canBuy) disabledMessage = "not enough funds";
 
+  const privateMatchLimit = useComponentValue(SeasonPassPrivateMatchLimit, singletonEntity)?.value ?? 0n;
+
   const formatEthPrice = useCallback(
     (price: bigint) => {
-      return `${parseFloat(formatEther(price)).toFixed(2)} ${nativeCurrency.symbol}`;
+      return `${parseFloat(formatEther(price)).toFixed(3)} ${nativeCurrency.symbol}`;
     },
     [nativeCurrency.symbol],
   );
@@ -183,6 +206,13 @@ export function SeasonPass({ account }: { account?: Hex }) {
 
             <div className="h-8" />
 
+            <WarningSection>
+              The Season Pass is soulbound (non-transferable) and can only be minted once per account. Any offers to buy
+              or sell Sky Strife Season Passes are fraudulent.
+            </WarningSection>
+
+            <div className="h-4" />
+
             <Body className="text-ss-text-default">
               The <span className="font-bold">Sky Strife Season Pass</span>, for {SEASON_NAME}, gives you access to
               exclusive perks and features:
@@ -192,10 +222,14 @@ export function SeasonPass({ account }: { account?: Hex }) {
               <li>Access to exclusive free matches summoned from the Sky Pool.</li>
               <li>Unlock additional features for creating matches.</li>
               <ul className="pl-8 list-disc list-inside">
-                <li>Create private matches with a custom access list.</li>
+                <li>
+                  Create private matches with a custom access list{" "}
+                  <strong>(limited to {privateMatchLimit.toString()} private matches per Pass)</strong>
+                </li>
                 <li>Set entrance fees and custom rewards.</li>
               </ul>
               <li>Exclusive maps from the current season.</li>
+              <li>Access to all in-game Heroes.</li>
             </ul>
 
             <div className="h-4" />
@@ -206,16 +240,12 @@ export function SeasonPass({ account }: { account?: Hex }) {
                 <span className="font-mono">{formatEthPrice(price)}</span>
               </div>
             </div>
-
-            <div className="h-3" />
-
-            <Body className="text-ss-text-default">
-              The Season Pass is non-transferable and can only be minted once per account.
-            </Body>
           </Modal>
         ) : (
           <></>
         )}
+
+        {hasSeasonPass && <RemainingPrivateMatches />}
 
         {seasonPassSales.length > 0 && (
           <div className="w-full">
@@ -228,7 +258,7 @@ export function SeasonPass({ account }: { account?: Hex }) {
                   <div className="flex flex-col items-start">
                     <Caption className="text-ss-text-light font-bold font-mono">Last Purchased:</Caption>
                     <Caption className="text-ss-text-light font-mono">
-                      {DateTime.fromSeconds(Number(mostRecentSale.purchasedAt)).toRelative()}
+                      {DateTime.fromSeconds(Number(mostRecentSale?.purchasedAt ?? 0n)).toRelative()}
                     </Caption>
                   </div>
                 </div>
@@ -270,6 +300,8 @@ export function SeasonPass({ account }: { account?: Hex }) {
             </div>
           </div>
         )}
+
+        {hasSeasonPass && <RemainingPrivateMatches />}
       </div>
     </div>
   );

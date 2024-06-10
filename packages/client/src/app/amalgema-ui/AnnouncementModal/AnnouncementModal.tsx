@@ -5,7 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import useLocalStorageState from "use-local-storage-state";
 
 export function AnnouncementModal() {
-  const [seenPatchNotes, setSeenPatchNotes] = useLocalStorageState("viewed-patch-notes-mainnet", {
+  const [seenPatchNotes, setSeenPatchNotes] = useLocalStorageState("viewed-patch-notes-season-2", {
     defaultValue: false,
   });
 
@@ -30,6 +30,48 @@ export function AnnouncementModal() {
           </div>
         }
       >
+        <Heading>Season 2</Heading>
+        <OverlineSmall>June 1st, 2024</OverlineSmall>
+
+        <Heading className="mt-6 mb-4 font-bold text-ss-text-default">🌟 Season 2 Begins 🌟</Heading>
+        <p className="text-ss-text-light">
+          Get ready for another exciting season! Sky Strife Season 2 kicks off on June 10th and runs through July 10th.
+        </p>
+
+        <br />
+
+        <p className="text-ss-text-light">
+          The Season Pass for Season 2 is available to mint until June 13th for a fixed price of 0.025 ETH.
+        </p>
+
+        <br />
+
+        <p className="text-ss-text-light">
+          Here are the changes in this season:
+          <p>🚧 Joining multiple matches simultaneously is blocked in the client</p>
+          <p>
+            {" "}
+            <strong>
+              ⚠️ Each Season Pass now has a lifetime limit of 30 private matches created (All other Season Pass benefits
+              remain the same){" "}
+            </strong>
+          </p>
+          <p>❌ Match creators can cancel their own matches (before they are full)</p>
+          <p>🏃🏻‍♂️ Players can now leave matches (all entrance fees refunded)</p>
+          <p>⏳ Matches are considered stale after an hour and will be cancelled (full refund provided)</p>
+          <p>
+            ▶️ Experimental: Play Now button added to home screen. This allows players to join a pool of players who are
+            also interested in playing. When 4 players are found, a match is created on demand.{" "}
+            <strong>There is an entrance fee of 25🔮 per match to cover the cost of match creation.</strong>
+          </p>
+        </p>
+
+        <div className="h-3" />
+
+        <img src="/public/assets/play-now.png" />
+
+        <div className="h-32"></div>
+
         <Heading>Redstone mainnet launch!</Heading>
         <OverlineSmall>May 1st, 2024</OverlineSmall>
 

@@ -1,7 +1,6 @@
 import { Entity, Has, Not, defineSystem, getComponentValue, runQuery, setComponent } from "@latticexyz/recs";
 import { NetworkLayer } from "../../types";
 import { DateTime } from "luxon";
-import { ALLOW_LIST_SYSTEM_ID } from "../../../../constants";
 import { decodeEntity } from "@latticexyz/store-sync/recs";
 
 /**
@@ -11,7 +10,7 @@ import { decodeEntity } from "@latticexyz/store-sync/recs";
 export function createJoinableMatchSystem(layer: NetworkLayer) {
   const {
     world,
-    components: { MatchJoinable, MatchConfig, MatchReady, MatchFinished, MatchAllowed, MatchAccessControl, AllowList },
+    components: { MatchJoinable, MatchConfig, MatchReady, MatchFinished, MatchAllowed, AllowList },
     utils: { matchIsLive },
   } = layer;
 
@@ -51,21 +50,14 @@ export function createJoinableMatchSystem(layer: NetworkLayer) {
     setMatchJoinable(entity),
   );
 
-  defineSystem(world, [Has(MatchAccessControl)], ({ entity }) => {
-    const matchAccessControl = getComponentValue(MatchAccessControl, entity);
-    if (!matchAccessControl) return;
+  // unfuck the contract data model and build up the local AllowList
+  defineSystem(world, [Has(MatchAllowed), Not(MatchFinished)], ({ entity }) => {
+    const matchAllowed = getComponentValue(MatchAllowed, entity);
+    if (!matchAllowed) return;
 
-    const hasAllowList = matchAccessControl.systemId === ALLOW_LIST_SYSTEM_ID;
+    const { matchEntity, account } = decodeEntity(MatchAllowed.metadata.keySchema, entity);
+    const allowList = getComponentValue(AllowList, matchEntity as Entity)?.value ?? ([] as string[]);
 
-    if (hasAllowList) {
-      // equivalent to [...runQuery([Has(MatchAllowed)])] but faster
-      const matchAllowedEntities = Array.from(MatchAllowed.entities());
-      const allowList = matchAllowedEntities
-        .map((entity) => decodeEntity(MatchAllowed.metadata.keySchema, entity))
-        .filter(({ matchEntity }) => entity === matchEntity)
-        .map(({ account }) => account);
-
-      setComponent(AllowList, entity, { value: allowList });
-    }
+    setComponent(AllowList, matchEntity as Entity, { value: [...allowList, account] });
   });
 }

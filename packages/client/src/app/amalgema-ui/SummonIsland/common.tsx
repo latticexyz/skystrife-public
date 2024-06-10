@@ -93,10 +93,12 @@ export function ReadOnlyTextInput({
   className,
   label,
   symbol,
+  symbolClassName,
 }: DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> & {
   value: string;
   label?: string;
   symbol?: React.ReactNode;
+  symbolClassName?: string;
 }) {
   return (
     <div className="relative w-full">
@@ -116,7 +118,7 @@ export function ReadOnlyTextInput({
         value={value}
       />
 
-      <span className="absolute right-3 top-[8px]">{symbol}</span>
+      <span className={twMerge("absolute right-3 top-[8px]", symbolClassName)}>{symbol}</span>
     </div>
   );
 }

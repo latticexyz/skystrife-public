@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { sleep } from "@latticexyz/utils";
 import { LoadingSpinner } from "../../ui/Theme/SkyStrife/Icons/LoadingSpinner";
 import { JoinModal } from "./JoinModal";
+import { DISCORD_URL } from "../../links";
+import { Link } from "../../ui/Theme/SkyStrife/Typography";
 
 export function MatchListingContainer({
   allMatches,
@@ -68,6 +70,18 @@ export function MatchListingContainer({
           shownMatches.map((matchEntity) => {
             return React.createElement(matchRowComponent, { matchEntity, key: matchEntity, setViewingMatchEntity });
           })
+        )}
+
+        {shownMatches.length === 0 && (
+          <div className="w-full h-full flex flex-col justify-around items-center">
+            <div className="text-ss-text-light text-xl text-center">
+              No matches found (may be hidden by filter). <br /> You can wait for the next free match timeslot, ask on{" "}
+              <Link style={{ fontSize: "20px" }} href={DISCORD_URL}>
+                Discord
+              </Link>{" "}
+              if anyone wants to play, or create one yourself!
+            </div>
+          </div>
         )}
 
         <div className="w-full">

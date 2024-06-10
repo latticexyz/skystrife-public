@@ -48,7 +48,7 @@ contract SeasonPassSystem is System {
     _;
   }
 
-  function buySeasonPass(address account) public payable worldUnlocked {
+  function buySeasonPass(address account) public payable {
     require(!hasSeasonPass(account), "this account already has a season pass");
     require(block.timestamp < SeasonPassConfig.getMintCutoff(), "season pass minting has ended");
 

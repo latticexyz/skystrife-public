@@ -27,6 +27,8 @@ export function PreGame({ matchEntity }: { matchEntity: Entity }) {
             <div className="h-4" />
             <div>This match has either not been created yet or it has been cancelled by the host.</div>
             <div className="h-4" />
+            <div>If you paid an entrance fee to join this match it has been refunded.</div>
+            <div className="h-4" />
             <div>Please return home to continue playing Sky Strife.</div>
             <div className="h-4" />
             <a href="/">

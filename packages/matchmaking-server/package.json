@@ -1,0 +1,37 @@
+{
+  "name": "matchmaking-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "mint-orbs:dev": "cd ../contracts && PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 forge script --broadcast --with-gas-price 1000000000 --legacy --sig 'run(address)' --rpc-url http://127.0.0.1:8545 migrations/1716765474_MintOrbs.sol:MintOrbs 0xf18058eaf60e826f0afdf2859a80716b587d5359",
+    "dev": "pnpm mint-orbs:dev && PORT=5201 PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 CHAIN_ID=31337 DEBUG=match* tsx ./src/main.ts",
+    "start:redstone": "CHAIN_ID=690 DEBUG=match* tsx ./src/main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@latticexyz/recs": "2.0.10-main-a3f8d77d",
+    "@latticexyz/world": "2.0.10-main-a3f8d77d",
+    "@types/cors": "2.8.17",
+    "@types/debug": "4.1.12",
+    "@types/express": "4.17.21",
+    "axios": "1.7.2",
+    "client": "workspace:*",
+    "contracts": "workspace:*",
+    "cors": "2.8.5",
+    "debug": "^4.3.4",
+    "dotenv": "16.4.4",
+    "express": "4.19.2",
+    "headless-client": "workspace:*",
+    "sqlite": "5.1.1",
+    "sqlite3": "5.1.7",
+    "tsx": "^3.13.0",
+    "typescript": "5.4.5",
+    "viem": "2.9.20",
+    "zod": "^3.22.2"
+  }
+}

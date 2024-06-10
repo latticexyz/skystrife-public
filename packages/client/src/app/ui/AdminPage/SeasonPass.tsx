@@ -52,7 +52,11 @@ function BuySeasonPassForAddress() {
 export function SeasonPass() {
   const { externalWorldContract, externalWalletClient } = useAmalgema();
 
-  const [name, setName] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  const [namespace, setNamespace] = useState("");
+  const [seasonNumber, setSeasonNumber] = useState("");
+  const [symbol, setSymbol] = useState("");
   const [seasonStart, setSeasonStart] = useState(0);
   const [seasonEnd, setSeasonEnd] = useState(0);
 
@@ -61,9 +65,9 @@ export function SeasonPass() {
 
   const [percentLossPerHour, setPercentLossPerHour] = useState(0);
   const [decreaseRate, setDecreaseRate] = useState(0);
-  const [startingPrice, setStartingPrice] = useState(0);
-  const [minPrice, setMinPrice] = useState(0);
-  const [priceIncreasePercent, setPriceIncreasePercent] = useState(0);
+  const [startingPrice, setStartingPrice] = useState(0.03);
+  const [minPrice, setMinPrice] = useState(0.03);
+  const [priceIncreasePercent, setPriceIncreasePercent] = useState(100);
 
   useEffect(() => {
     if (mintDuration) {
@@ -107,13 +111,35 @@ export function SeasonPass() {
           change SEASON_PASS_NAMESPACE to the name you chose here. The name does not matter as long as it is unique.
         </div>
         <div className="flex gap-x-2">
-          <label>Name</label>
+          <label>Namespace</label>
           <input
             className="bg-slate-300"
             type="text"
             maxLength={14}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={namespace}
+            onChange={(e) => setNamespace(e.target.value)}
+          />
+        </div>
+        <br />
+        <div className="flex gap-x-2">
+          <label>Season Number</label>
+          <input
+            className="bg-slate-300"
+            type="text"
+            maxLength={4}
+            value={seasonNumber}
+            onChange={(e) => setSeasonNumber(e.target.value)}
+          />
+        </div>
+        <br />
+        <div className="flex gap-x-2">
+          <label>Symbol</label>
+          <input
+            className="bg-slate-300"
+            type="text"
+            maxLength={4}
+            value={symbol}
+            onChange={(e) => setSymbol(e.target.value)}
           />
         </div>
         <br />
@@ -198,7 +224,7 @@ export function SeasonPass() {
           />
         </div>
         <div className="flex gap-x-2">
-          <label>Price Increase Percent</label>
+          <label>Buy Multiplier</label>
           <input
             className="bg-slate-300"
             type="number"
@@ -206,15 +232,16 @@ export function SeasonPass() {
             onChange={(e) => setPriceIncreasePercent(Number(e.target.value))}
           />
         </div>
+        {success && <div className="text-green-500">Season Pass created successfully!</div>}
         <PromiseButton
           buttonType="primary"
           className="w-[120px]"
           disabled={
-            !name ||
+            !namespace ||
+            !symbol ||
             !seasonStart ||
             !seasonEnd ||
             !mintEnd ||
-            !decreaseRate ||
             !startingPrice ||
             !minPrice ||
             !priceIncreasePercent
@@ -225,7 +252,9 @@ export function SeasonPass() {
 
             await externalWorldContract.write.createNewSeasonPass(
               [
-                stringToHex(name, { size: 14 }),
+                stringToHex(namespace, { size: 14 }),
+                seasonNumber,
+                symbol,
                 BigInt(seasonStart),
                 BigInt(seasonEnd),
                 BigInt(mintEnd),
@@ -238,6 +267,7 @@ export function SeasonPass() {
                 account: externalWalletClient.account,
               },
             );
+            setSuccess(true);
           }}
         >
           Create Pass

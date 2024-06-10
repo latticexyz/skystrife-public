@@ -137,22 +137,13 @@ export function Chat() {
       await app.actions.createMessage({
         content: newMessage,
         name,
-        color: currentPlayer.playerColor.color.toString(16),
+        color: currentPlayer?.playerColor.color.toString(16),
       });
       sendAnalyticsEvent("sent-message", { matchEntity });
     } catch (err) {
       console.error(err);
     }
-  }, [
-    Name,
-    app,
-    blurInput,
-    currentPlayer.playerColor.color,
-    externalWalletClient.address,
-    matchEntity,
-    newMessage,
-    sendAnalyticsEvent,
-  ]);
+  }, [Name, app, blurInput, currentPlayer, externalWalletClient.address, matchEntity, newMessage, sendAnalyticsEvent]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

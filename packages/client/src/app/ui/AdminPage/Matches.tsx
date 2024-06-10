@@ -92,7 +92,7 @@ const Row = ({ matchEntity }: { matchEntity: Entity }) => {
             if (!externalWorldContract) return;
             if (!externalWalletClient?.account) return;
 
-            externalWorldContract.write.adminDestroyMatch([matchEntity as Hex], {
+            externalWorldContract.write.cancelMatch([matchEntity as Hex], {
               account: externalWalletClient.account,
             });
           }}

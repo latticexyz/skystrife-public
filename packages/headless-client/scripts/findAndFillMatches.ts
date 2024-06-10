@@ -68,7 +68,7 @@ openMatches = openMatches.filter((m) => {
   const accessSystem = getComponentValue(MatchAccessControl, m)?.systemId;
 
   return (
-    accessSystem === "0x0000000000000000000000000000000000000000000000000000000000000000" &&
+    (!accessSystem || accessSystem === "0x0000000000000000000000000000000000000000000000000000000000000000") &&
     matchConfig.registrationTime < DateTime.now().toSeconds() &&
     !entranceFee
   );

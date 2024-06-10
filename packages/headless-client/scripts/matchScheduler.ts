@@ -7,9 +7,12 @@ import { findOldestMatchInWindow } from "client/src/app/amalgema-ui/utils/skypoo
 import { Hex, padHex, stringToHex } from "viem";
 import { MATCH_SYSTEM_ID, SEASON_PASS_ONLY_SYSTEM_ID } from "client/src/constants";
 import { z } from "zod";
-import { toEthAddress } from "@latticexyz/utils";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { encodeSystemCallFrom } from "@latticexyz/world/internal";
+import { singletonEntity } from "@latticexyz/store-sync/recs";
+import { skystrifeDebug } from "client/src/debug";
+
+const debug = skystrifeDebug.extend("matchScheduler");
 
 /**
  * Be sure to use the Sky Strife Holder private key for this script.
@@ -19,8 +22,8 @@ import { encodeSystemCallFrom } from "@latticexyz/world/internal";
  * 24 hour window. Running it multiple times in the same window will not create
  * duplicate matches.
  *
- * It currently cannot recover from a failed match creation, and will ignore the time
- * period on a subsequent run (because it already sees the time as having matches).
+ * It attempts to recover from failed match creation by filling in missing matches in the
+ * current window.
  */
 
 // matchName, levelName, seasonPassOnly
@@ -28,8 +31,10 @@ const matchesToCreate = [
   ["4P Free", "Vortex", false],
   ["4P Free", "Vortex", false],
   ["4P Free", "Vortex", false],
+  ["4P Free", "Vortex", false],
   ["3P Free", "Scatter", false],
   ["3P Free", "Scatter", false],
+  ["4P Season Pass", "Cauldron", true],
   ["4P Season Pass", "Cauldron", true],
   ["4P Season Pass", "Cauldron", true],
   ["4P Season Pass", "Cauldron", true],
@@ -40,8 +45,9 @@ const matchesToCreate = [
 const {
   networkLayer,
   networkLayer: {
-    components: { MatchConfig, MatchFinished, SkyKey_Balances },
+    components: { MatchConfig, MatchFinished, MatchName, SeasonTimes },
     network: { worldContract, waitForTransaction },
+    utils: { getSkyKeyHolder },
   },
 } = await createSkyStrife();
 
@@ -55,13 +61,23 @@ const args = z
     }),
   });
 
-/**
- * Get all matches that are scheduled to start in the current 24 hour window.
- */
 function getScheduledMatches() {
   const now = DateTime.now().toUTC();
+  const seasonTimes = getComponentValueStrict(SeasonTimes, singletonEntity);
+  const seasonStart = DateTime.fromSeconds(Number(seasonTimes.seasonStart));
+  const seasonEnd = DateTime.fromSeconds(Number(seasonTimes.seasonEnd));
 
-  const matchTimes = createMatchTimes(now, 2);
+  const matchTimes = createMatchTimes(now, 2).filter((time) => {
+    return time >= seasonStart && time <= seasonEnd;
+  });
+  if (matchTimes.length === 0) {
+    debug(`No match times found for current season.`);
+    return {};
+  } else {
+    debug(`Found ${matchTimes.length} match times for current season.`);
+    debug(`First match time: ${matchTimes[0].toISO()}`);
+    debug(`Last match time: ${matchTimes[matchTimes.length - 1].toISO()}`);
+  }
   const matchTimesToMatches = {} as Record<string, Entity[]>;
 
   for (const time of matchTimes) {
@@ -72,7 +88,7 @@ function getScheduledMatches() {
   const scheduledMatches = [
     ...runQuery([Has(MatchConfig), Not(MatchFinished), NotValue(MatchConfig, { registrationTime: BigInt(0) })]),
   ];
-  console.log(`Found ${scheduledMatches.length} scheduled matches.`);
+  debug(`Found ${scheduledMatches.length} scheduled matches.`);
 
   for (const match of scheduledMatches) {
     const registrationTime = getComponentValueStrict(MatchConfig, match).registrationTime;
@@ -88,15 +104,6 @@ function getScheduledMatches() {
   return matchTimesToMatches;
 }
 
-function getSkyKeyHolder() {
-  const skyKeyHolder = [...runQuery([Has(SkyKey_Balances)])][0] as Entity | undefined;
-
-  return {
-    entity: skyKeyHolder,
-    address: skyKeyHolder ? (toEthAddress(skyKeyHolder) as Hex) : undefined,
-  };
-}
-
 export async function scheduleMatches() {
   const skyKeyHolder = getSkyKeyHolder();
   if (!skyKeyHolder.address) throw new Error("could not find sky key holder");
@@ -104,20 +111,29 @@ export async function scheduleMatches() {
   const scheduledMatches = getScheduledMatches();
   for (const [time, matches] of Object.entries(scheduledMatches)) {
     const parsedTime = DateTime.fromSeconds(parseInt(time)).toUTC();
-    console.log(`${matches.length} matches scheduled for ${parsedTime.toISO()}.`);
+    debug(`${matches.length} matches scheduled for ${parsedTime.toISO()}.`);
 
-    // if match creation fails for a specific time, this has no way of recovering from that
-    // and will ignore the time period on a subsequent run
-    if (matches.length === 0) {
-      console.log(`No matches scheduled for ${parsedTime.toISO()}.`);
+    // if the matches scheduled for a specified time do not match what is expected,
+    // we attempt to fill in the missing matches
+    if (matches.length !== matchesToCreate.length) {
+      debug(`Number of scheduled matches does not match expected number for ${parsedTime.toISO()}.`);
+      const remainingMatchesToCreate = [...matchesToCreate];
+      for (const match of matches) {
+        const matchName = getComponentValueStrict(MatchName, match).value;
+        const foundMatchIndex = remainingMatchesToCreate.findIndex(([name]) => name === matchName);
+        if (foundMatchIndex === -1) {
+          continue;
+        }
+        remainingMatchesToCreate.splice(foundMatchIndex, 1);
+      }
 
-      for (const [name, levelId, seasonPassOnly] of matchesToCreate) {
-        console.log(`Creating match ${name} at ${parsedTime.toISO()}.`);
+      for (const [name, levelId, seasonPassOnly] of remainingMatchesToCreate) {
+        debug(`Creating match ${name} at ${parsedTime.toISO()}.`);
         const matchEntity = createMatchEntity();
         const levelHex = stringToHex(levelId, { size: 32 });
 
         if (!args.BROADCAST) {
-          console.log(`Dry run only, no tx sent.`);
+          debug(`Dry run only, no tx sent.`);
           continue;
         }
 

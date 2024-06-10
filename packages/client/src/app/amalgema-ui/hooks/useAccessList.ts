@@ -1,20 +1,11 @@
-import { useEntityQuery } from "@latticexyz/react";
-import { Entity, Has } from "@latticexyz/recs";
+import { Entity, getComponentValue } from "@latticexyz/recs";
 import { useAmalgema } from "../../../useAmalgema";
-import { decodeEntity } from "@latticexyz/store-sync/recs";
+import { Hex } from "viem";
 
 export function useAccessList(matchEntity: Entity) {
   const {
-    components: { MatchAllowed },
+    components: { AllowList },
   } = useAmalgema();
 
-  const allowedAccounts = useEntityQuery([Has(MatchAllowed)])
-    .map((entity) => {
-      return decodeEntity(MatchAllowed.metadata.keySchema, entity);
-    })
-    .filter(({ matchEntity: myMatchEntity }) => {
-      return myMatchEntity === matchEntity;
-    });
-
-  return allowedAccounts;
+  return (getComponentValue(AllowList, matchEntity)?.value ?? []) as Hex[];
 }

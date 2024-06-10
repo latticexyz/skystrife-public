@@ -11,6 +11,7 @@
     "libraries/=packages/contracts/src/libraries",
     "systems/=packages/contracts/src/systems",
     "@dk1a/solidity-stringutils/=node_modules/@dk1a/solidity-stringutils/",
+    "@latticexyz/=node_modules/@latticexyz/"
   ],
   "Lua.diagnostics.globals": [
     "getFilenameFromPath"

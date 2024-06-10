@@ -4,8 +4,19 @@ import { Card } from "../Theme/SkyStrife/Card";
 import { PlayerCard } from "./PlayerCard";
 import { Entity } from "@latticexyz/recs";
 import { useMatchStarted } from "../hooks/useMatchStarted";
+import { useMUD } from "../../../useMUD";
+import { useComponentValue } from "@latticexyz/react";
 
 export const Leaderboard = ({ matchEntity }: { matchEntity: Entity }) => {
+  const {
+    networkLayer: {
+      components: { MatchRanking },
+    },
+  } = useMUD();
+  // needed to re-render when a player is eliminated
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const matchRanking = useComponentValue(MatchRanking, matchEntity);
+
   const playerData = useAllPlayerDetails(matchEntity);
 
   const matchStarted = useMatchStarted(matchEntity);

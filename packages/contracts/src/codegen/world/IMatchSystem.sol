@@ -38,6 +38,4 @@ interface IMatchSystem {
     uint256[] memory rewardPercentages,
     uint256 registrationTime
   ) external;
-
-  function adminDestroyMatch(bytes32 matchEntity) external;
 }

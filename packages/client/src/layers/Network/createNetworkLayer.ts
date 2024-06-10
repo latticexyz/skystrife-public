@@ -41,11 +41,12 @@ import {
 import { decodeMatchEntity } from "../../decodeMatchEntity";
 import { encodeMatchEntity } from "../../encodeMatchEntity";
 import { ANALYTICS_URL } from "./utils";
-import { sleep, uuid } from "@latticexyz/utils";
+import { toEthAddress, uuid } from "@latticexyz/utils";
 import { createJoinableMatchSystem } from "./systems/JoinableMatchSystem";
 import lodash from "lodash";
 import { skystrifeDebug } from "../../debug";
 import { createWalletBalanceSystem } from "./systems/WalletBalanceSystem";
+import { createMatchRankRewardsSystem } from "./systems/MatchRankRewardsSystem";
 
 const debug = skystrifeDebug.extend("network-layer");
 
@@ -129,6 +130,9 @@ export async function createNetworkLayer(config: NetworkConfig) {
           functionName: "move",
           args: [currentMatchEntity as Hex, decodeMatchEntity(entity).entity, path],
         }),
+        {
+          account: externalWalletClient.account.address,
+        },
       ],
     });
   }
@@ -168,6 +172,9 @@ export async function createNetworkLayer(config: NetworkConfig) {
           functionName: "fight",
           args: [currentMatchEntity as Hex, decodeMatchEntity(attacker).entity, decodeMatchEntity(defender).entity],
         }),
+        {
+          account: externalWalletClient.account.address,
+        },
       ],
     });
   }
@@ -216,6 +223,9 @@ export async function createNetworkLayer(config: NetworkConfig) {
             decodeMatchEntity(defender).entity,
           ],
         }),
+        {
+          account: externalWalletClient.account.address,
+        },
       ],
     });
   }
@@ -245,6 +255,9 @@ export async function createNetworkLayer(config: NetworkConfig) {
             { x: position.x, y: position.y },
           ],
         }),
+        {
+          account: externalWalletClient.account.address,
+        },
       ],
     });
   }
@@ -285,21 +298,25 @@ export async function createNetworkLayer(config: NetworkConfig) {
     return owningPlayer && owningPlayer === player;
   }
 
+  function getSkyKeyHolder() {
+    const skyKeyHolder = [...runQuery([Has(components.SkyKey_Balances)])][0] as Entity | undefined;
+
+    return {
+      entity: skyKeyHolder,
+      address: skyKeyHolder ? (toEthAddress(skyKeyHolder) as Hex) : undefined,
+    };
+  }
+
   function getMatchRewards(matchEntity: Entity) {
-    const { MatchReward, MatchConfig, MatchSweepstake } = components;
+    const { MatchConfig, MatchSweepstake, MatchRankRewards } = components;
 
-    const skypoolRewards = [...runQuery([Has(MatchReward)])]
-      .map((key) => {
-        const { entity, rank } = decodeEntity(MatchReward.metadata.keySchema, key);
-        if (entity !== matchEntity) return;
-
-        const { value } = getComponentValueStrict(MatchReward, key);
-
-        const emoji = EMOJI;
-
-        return { rank, value, emoji };
-      })
-      .filter(isDefined);
+    const matchRankRewards = getComponentValue(MatchRankRewards, matchEntity);
+    const skypoolRewards = matchRankRewards
+      ? matchRankRewards.ranks.map((rank, i) => {
+          const value = matchRankRewards.rewards[i];
+          return { rank, value };
+        })
+      : [];
 
     const matchConfig = getComponentValue(MatchConfig, matchEntity);
     const levelSpawns = getLevelSpawns(matchConfig?.levelId ?? "0");
@@ -489,7 +506,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
     const matchConfig = getComponentValue(MatchConfig, matchEntity);
     if (!matchConfig) return false;
 
-    return matchConfig.startTime > 0;
+    return matchConfig.startTime !== 0n;
   };
 
   function decodeData(tableId: Hex, staticData: Hex) {
@@ -615,7 +632,6 @@ export async function createNetworkLayer(config: NetworkConfig) {
 
   const refreshBalance = async (address: Hex) => {
     try {
-      debug(`Refreshing wallet balance for address: ${address}`);
       const balance = await getBalance(network.walletClient, {
         address,
       });
@@ -686,6 +702,8 @@ export async function createNetworkLayer(config: NetworkConfig) {
       matchIsLive,
       getMaxPlayers,
 
+      getSkyKeyHolder,
+
       getVirtualLevelData,
       getAnalyticsConsent,
 
@@ -711,7 +729,10 @@ export async function createNetworkLayer(config: NetworkConfig) {
   //   const txDb = new TransactionDB(network.networkConfig.worldAddress, network.networkConfig.chainId);
   //   createTransactionCacheSystem(layer, txDb);
   // }
-  if (!currentMatchEntity) createJoinableMatchSystem(layer);
+  if (!currentMatchEntity) {
+    createJoinableMatchSystem(layer);
+  }
+  createMatchRankRewardsSystem(layer);
   createWalletBalanceSystem(layer);
 
   return layer;

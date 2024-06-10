@@ -46,9 +46,7 @@ const LockScreen = () => {
       />
       <div className="h-2" />
       <div className="text-xl text-ss-text-default text-center mt-3">
-        <span className="text-3xl text-ss-text-link">
-          Sky Strife is experienceing downtime. We will be back as soon as possible.
-        </span>
+        <span className="text-3xl text-ss-text-link">Sky Strife will be back for Season 2 on June 10th!</span>
         <div className="h-6" />
         <div>
           Follow along on{" "}

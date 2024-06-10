@@ -29,7 +29,9 @@ contract LobbySystemTest is SkyStrifeTest {
     prankAdmin();
 
     world.createNewSeasonPass(
-      "SeasonPass0",
+      "SeasonPass1",
+      "1",
+      unicode"✅-1",
       block.timestamp,
       block.timestamp + 100,
       block.timestamp + 100,

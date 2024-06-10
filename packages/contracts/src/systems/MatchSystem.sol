@@ -6,14 +6,14 @@ import { toSlice, StrCharsIter } from "@dk1a/solidity-stringutils/src/StrSlice.s
 import { System } from "@latticexyz/world/src/System.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-import { Admin, Match, MatchName, MatchIndex, MatchSweepstake, LevelTemplatesIndex, LevelInStandardRotation, LevelInSeasonPassRotation, MatchAccessControl, MatchConfig, MatchSky, MatchConfigData, SkyPoolConfig, MatchesPerDay } from "../codegen/index.sol";
+import { Admin, Match, MatchName, MatchIndex, MatchSweepstake, LevelTemplatesIndex, LevelInStandardRotation, LevelInSeasonPassRotation, MatchAccessControl, MatchConfig, MatchSky, MatchConfigData, SkyPoolConfig, MatchesPerDay, SeasonPassPrivateMatchLimit, PrivateMatchesCreated } from "../codegen/index.sol";
 import { SpawnSettlementTemplateId } from "../codegen/Templates.sol";
 
 import { addressToEntity, entityToAddress } from "../libraries/LibUtils.sol";
 import { DENOMINATOR, createMatchSkyPool, transferTokenFromEscrow, skyKeyHolderOnly } from "../libraries/LibSkyPool.sol";
 import { Transactor } from "../libraries/Transactor.sol";
 import { transferToken } from "../transferToken.sol";
-import { hasSeasonPass, hasToken } from "../hasToken.sol";
+import { hasSeasonPass, hasToken, hasSkyKey } from "../hasToken.sol";
 import { MATCHES_PER_DAY_HARD_CAP } from "../../constants.sol";
 
 function sum(uint256[] memory arr) pure returns (uint256 s) {
@@ -29,7 +29,7 @@ function getCharLength(string memory str) pure returns (uint256) {
 
 contract MatchSystem is System {
   modifier worldUnlocked() {
-    require(!SkyPoolConfig.getLocked(), "world is locked");
+    require(!SkyPoolConfig.getLocked() || hasSkyKey(_msgSender()), "world is locked");
     _;
   }
 
@@ -120,7 +120,19 @@ contract MatchSystem is System {
     uint256 entranceFee,
     uint256[] memory rewardPercentages
   ) public worldUnlocked {
-    require(hasSeasonPass(_msgSender()), "caller does not have the season pass");
+    address caller = _msgSender();
+    require(hasSeasonPass(caller), "caller does not have the season pass");
+
+    // creating private match...
+    if (systemId.getType() != "" || systemId.getResourceName() != "") {
+      address seasonPassToken = SkyPoolConfig.getSeasonPassToken();
+      uint256 privateMatchLimit = SeasonPassPrivateMatchLimit.get();
+      uint256 privateMatchesCreated = PrivateMatchesCreated.get(seasonPassToken, caller);
+      require(privateMatchesCreated < privateMatchLimit, "private match limit reached");
+
+      PrivateMatchesCreated.set(seasonPassToken, caller, privateMatchesCreated + 1);
+    }
+
     require(
       LevelInStandardRotation.get(levelId) || LevelInSeasonPassRotation.get(levelId),
       "this level is not in rotation"
@@ -160,35 +172,5 @@ contract MatchSystem is System {
       rewardPercentages,
       registrationTime
     );
-  }
-
-  /**
-   * Destroying matches in general is a pretty big problem. Especially now that it refunds the creator.
-   * This is only here during development to allow us to destroy bugged matches and refund players.
-   * Problem 1. Creating a match increments the match index. Destroying a match cannot decrement the match index.
-   *         This means that repeatedly creating and destroying matches affects the reward curve. It is a way
-   *         to attack the protocol by tanking reward curves without actually playing the game.
-   * Problem 2. Destroying a match refunds the creator. SkyKey holder does not pay to create matches.
-   *         This means you could create a match as the SkyKey holder, transfer away the SkyKey, and then
-   *         destroy it to get a refund, draining the Sky Pool.
-   * All in all I don't know if match destruction ever makes sense. It's better if we allow people
-   * to modify matches after they've been created instead (also a huge pain, but I think easier to solve).
-   */
-  function adminDestroyMatch(bytes32 matchEntity) public {
-    bytes32 entity = addressToEntity(_msgSender());
-    require(Admin.get(entity), "caller is not admin");
-
-    // This leaves extra tokens in the escrow contract that were used for rewards.
-    // Punting on this for now, the highest priority is to prevent people from
-    // losing tokens when a match gets bugged for some reason.
-    bytes32 createdBy = MatchConfig.getCreatedBy(matchEntity);
-    Transactor escrowContract = Transactor(MatchConfig.getEscrowContract(matchEntity));
-    address createdByAddress = entityToAddress(createdBy);
-    transferTokenFromEscrow(address(escrowContract), createdByAddress, SkyPoolConfig.getCost());
-
-    MatchName.deleteRecord(matchEntity);
-    MatchIndex.deleteRecord(matchEntity);
-    MatchConfig.deleteRecord(matchEntity);
-    MatchSky.deleteRecord(matchEntity);
   }
 }

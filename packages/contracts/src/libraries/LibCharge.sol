@@ -27,3 +27,12 @@ function charge(bytes32 matchEntity, bytes32 charger, bytes32 chargee) {
   Chargee.set(matchEntity, charger, chargee);
   ChargedByStart.set(matchEntity, charger, block.timestamp);
 }
+
+function uncharge(bytes32 matchEntity, bytes32 charger, bytes32 chargee) {
+  bytes32 previousChargee = Chargee.get(matchEntity, charger);
+  if (previousChargee == chargee) {
+    Chargers.deleteRecord(matchEntity, charger);
+    Chargee.deleteRecord(matchEntity, charger);
+    ChargedByStart.deleteRecord(matchEntity, charger);
+  }
+}

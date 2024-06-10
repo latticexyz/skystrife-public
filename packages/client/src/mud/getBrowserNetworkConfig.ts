@@ -63,13 +63,13 @@ export function getNetworkConfig() {
     ? Number(params.get("initialBlockNumber"))
     : world?.blockNumber ?? -1; // -1 will attempt to find the block number from RPC
 
-  let indexerUrl = chain.indexerUrl;
-  if (params.has("indexer")) indexerUrl = params.get("indexer") as string;
-  if (params.has("disableIndexer")) indexerUrl = undefined;
-
   // TODO: validate match entity param is hex and the shape of hex we expect
   const matchParam = params.get("match");
   const matchEntity = matchParam != null ? (matchParam as Entity) : null;
+
+  let indexerUrl = matchEntity && chain.matchIndexerUrl ? chain.matchIndexerUrl : chain.indexerUrl;
+  if (params.has("indexer")) indexerUrl = params.get("indexer") as string;
+  if (params.has("disableIndexer")) indexerUrl = undefined;
 
   const useBurner = (import.meta.env.DEV && !params.has("useExternalWallet")) || params.has("useBurner");
   const burnerWalletPrivateKey = params.has("anon") ? Wallet.createRandom().privateKey : getBurnerWallet();

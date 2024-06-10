@@ -59,5 +59,9 @@ export function createClientComponents({ components, world }: SetupNetworkResult
       },
       { id: "AllowList" },
     ),
+    MatchRankRewards: defineComponent(world, {
+      ranks: Type.NumberArray,
+      rewards: Type.BigIntArray,
+    }),
   };
 }

@@ -5,6 +5,7 @@ import Color from "color";
 import { useMUD } from "../../../useMUD";
 import { Has, HasValue } from "@latticexyz/recs";
 import { decodeMatchEntity } from "../../../decodeMatchEntity";
+import { twMerge } from "tailwind-merge";
 
 export function PlayerCard(props: { playerData: NonNullable<ReturnType<typeof useCurrentPlayer>> }) {
   const {
@@ -16,7 +17,7 @@ export function PlayerCard(props: { playerData: NonNullable<ReturnType<typeof us
     },
   } = useMUD();
 
-  const { playerColor, name } = props.playerData;
+  const { playerColor, name, playerEliminated } = props.playerData;
 
   const playerGold = usePlayerGold(props.playerData);
   const allPlayerUnits = useEntityQuery([
@@ -38,7 +39,14 @@ export function PlayerCard(props: { playerData: NonNullable<ReturnType<typeof us
             borderRadius: "2px",
           }}
         ></div>
-        <div className="ml-[8px] overflow-hidden text-ellipsis whitespace-nowrap">{name}</div>
+        <div
+          className={twMerge(
+            "ml-[8px] overflow-hidden text-ellipsis whitespace-nowrap",
+            playerEliminated ? "text-gray-500 line-through" : "",
+          )}
+        >
+          {name}
+        </div>
       </div>
       <div
         style={{

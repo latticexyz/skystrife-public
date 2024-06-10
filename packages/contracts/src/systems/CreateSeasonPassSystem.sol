@@ -27,6 +27,8 @@ import { skyKeyHolderOnly } from "../libraries/LibSkyPool.sol";
 contract CreateSeasonPassSystem is System {
   function createNewSeasonPass(
     bytes14 name,
+    string memory seasonNumber,
+    string memory symbol,
     uint256 seasonStart,
     uint256 seasonEnd,
     uint256 mintEnd,
@@ -37,17 +39,21 @@ contract CreateSeasonPassSystem is System {
   ) public {
     skyKeyHolderOnly(_msgSender());
 
-    deploySeasonPass(name);
+    deploySeasonPass(name, seasonNumber, symbol);
     setSeasonPassParams(seasonStart, seasonEnd, mintEnd, priceDecreaseRate, startingPrice, minPrice, buyMultiplier);
   }
 
-  function deploySeasonPass(bytes14 name) internal {
+  function deploySeasonPass(bytes14 name, string memory seasonNumber, string memory symbol) internal {
     IWorld world = IWorld(_world());
 
     IERC721Mintable seasonPass = registerERC721(
       world,
       name,
-      ERC721MetadataData({ name: "Season Pass", symbol: unicode"🎫", baseURI: "" })
+      ERC721MetadataData({
+        name: "Season Pass",
+        symbol: symbol,
+        baseURI: string.concat("https://skystrife-metadata.latticexyz.workers.dev/metadata/", seasonNumber, "/")
+      })
     );
     SkyPoolConfig.setSeasonPassToken(address(seasonPass));
 

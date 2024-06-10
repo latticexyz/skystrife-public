@@ -192,8 +192,7 @@ export function HeroModal({
   trigger?: React.ReactNode;
 }) {
   const {
-    components: { HeroInRotation, HeroInSeasonPassRotation, UnitType },
-    utils: { getTemplateValueStrict },
+    components: { HeroInRotation, HeroInSeasonPassRotation },
   } = useAmalgema();
 
   const freeHeroes = useEntityQuery([HasValue(HeroInRotation, { value: true })]);
@@ -202,7 +201,17 @@ export function HeroModal({
   const allHeroes = uniq([...freeHeroes, ...seasonPassHeroes]);
 
   return (
-    <Modal title="select a hero" footer={footer} trigger={trigger || <Button buttonType="primary">switch hero</Button>}>
+    <Modal
+      title="select a hero"
+      footer={footer}
+      trigger={
+        trigger || (
+          <Button buttonType="primary">
+            choose <br /> hero
+          </Button>
+        )
+      }
+    >
       <div className="w-full">
         <div className="flex justify-around space-x-6">
           {allHeroes.map((heroEntity, i) => {

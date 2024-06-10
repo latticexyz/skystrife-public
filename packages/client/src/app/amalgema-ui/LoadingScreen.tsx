@@ -10,14 +10,17 @@ import { Card } from "../ui/Theme/SkyStrife/Card";
 import { DISCORD_URL, HOW_TO_PLAY_URL, LATTICE_URL, MUD_URL } from "../links";
 import { SyncStep } from "@latticexyz/store-sync";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
-import { EMOJI } from "../../constants";
-import { DateTime } from "luxon";
 import { useStore } from "../../useStore";
+import { DateTime } from "luxon";
 
 type Props = {
   networkLayer: NetworkLayer | null;
   usePrepTime?: boolean;
 };
+
+function getNowSeconds() {
+  return Math.floor(DateTime.now().toSeconds());
+}
 
 function createAnalyticsSender(networkLayer: NetworkLayer) {
   const {
@@ -28,10 +31,6 @@ function createAnalyticsSender(networkLayer: NetworkLayer) {
       networkConfig: { indexerUrl },
     },
   } = networkLayer;
-
-  function getNowSeconds() {
-    return Math.floor(DateTime.now().toSeconds());
-  }
 
   sendAnalyticsEvent("loading-screen", {
     startTime: getNowSeconds(),
@@ -158,7 +157,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
     },
   );
 
-  const [worldValid, setWorldValid] = useState(false);
+  const [worldValid, setWorldValid] = useState(true);
   useEffect(() => {
     if (!networkLayer) return;
     if (loadingState.step !== SyncStep.LIVE) return;
@@ -227,7 +226,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
         backgroundPosition: "right",
         backgroundSize: "cover",
       }}
-      className="fixed items-center justify-center w-screen h-screen bg-black p-12 flex flex-col"
+      className="fixed items-center justify-center w-screen h-screen bg-black p-12 flex flex-col pointer-events-none"
     >
       <Card primary className="flex flex-col w-[540px] p-8 justify-items">
         {isMatch && (
@@ -275,7 +274,7 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
         )}
 
         {doneLoading && worldValid && (
-          <div className="flex flex-col grow">
+          <div className="flex flex-col grow pointer-events-auto">
             <Body className="px-4 mt-4 text-center text-sm font-thin">
               By clicking &apos;I agree&apos;, you acknowledge that you (i) agree to the{" "}
               <Link className="" href={"/terms.pdf"}>
@@ -290,6 +289,12 @@ export const LoadingScreen = ({ networkLayer, usePrepTime }: Props) => {
               buttonType="primary"
               size="lg"
               onClick={() => {
+                if (networkLayer)
+                  networkLayer.utils.sendAnalyticsEvent("loading-screen", {
+                    hideClicked: getNowSeconds(),
+                    matchEntity: networkLayer.network.matchEntity,
+                    blockNumber: loadingState.lastBlockNumberProcessed.toString(),
+                  });
                 setHide(true);
               }}
               className="w-full"

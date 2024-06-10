@@ -18,6 +18,7 @@ import {
 } from "../../../constants";
 import { getDelegationSystemCalls } from "../../../getDelegationSystemCalls";
 import { useHasSkyKeyExternalWallet } from "../hooks/useHasSkyKey";
+import { usePrivateMatchLimit } from "../hooks/usePrivateMatchLimit";
 import { findOldestMatchInWindow } from "../utils/skypool";
 import { HeroModal } from "../HeroSelect";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -54,6 +55,7 @@ export function Footer({
   const orbBalance = useOrbBalance();
 
   const hasSkyKey = useHasSkyKeyExternalWallet();
+  const privateMatchLimit = usePrivateMatchLimit();
 
   const [txPending, setTxPending] = useState(false);
 
@@ -439,9 +441,16 @@ export function Footer({
   const notEnoughAllowedAddresses = matchType === "private" && allowedAddresses.length !== numPlayers;
   const invalidRewardPercentages = entranceFee > 0 && rewardPercentages.reduce((acc, curr) => acc + curr, 0n) !== 100n;
   const notEnoughOrbs = !hasSkyKey && (orbBalance ?? 0n) < (skypoolConfig?.cost ?? 0n);
+  const privateMatchLimitReached = matchType !== "public" && privateMatchLimit.created >= privateMatchLimit.limit;
 
   const disabled =
-    notEnoughOrbs || blankName || blankLevel || notEnoughAllowedAddresses || txPending || invalidRewardPercentages;
+    notEnoughOrbs ||
+    blankName ||
+    blankLevel ||
+    notEnoughAllowedAddresses ||
+    txPending ||
+    invalidRewardPercentages ||
+    privateMatchLimitReached;
 
   let error = "";
   if (blankLevel) error = "Please select a level";

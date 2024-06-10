@@ -25,7 +25,7 @@ export const useSeasonPassExternalWallet = (): boolean => {
     SeasonPass_Balances,
     externalWalletClient && externalWalletClient.account
       ? addressToEntityID(externalWalletClient.account.address)
-      : ("0" as Entity)
+      : ("0" as Entity),
   );
 
   if (!balance) return false;
