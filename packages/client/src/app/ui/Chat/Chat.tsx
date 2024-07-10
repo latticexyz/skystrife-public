@@ -67,7 +67,6 @@ export function Chat() {
       "/dns4/canvas-chat-discovery-p0.fly.dev/tcp/443/wss/p2p/12D3KooWG1zzEepzv5ib5Rz16Z4PXVfNRffXBGwf7wM8xoNAbJW7",
       "/dns4/canvas-chat-discovery-p1.fly.dev/tcp/443/wss/p2p/12D3KooWNfH4Z4ayppVFyTKv8BBYLLvkR1nfWkjcSTqYdS4gTueq",
       "/dns4/canvas-chat-discovery-p2.fly.dev/tcp/443/wss/p2p/12D3KooWRBdFp5T1fgjWdPSCf9cDqcCASMBgcLqjzzBvptjAfAxN",
-      "/dns4/peer.canvasjs.org/tcp/443/wss/p2p/12D3KooWFYvDDRpXtheKXgQyPf7sfK2DxS1vkripKQUS2aQz5529",
     ],
   });
 
@@ -137,7 +136,7 @@ export function Chat() {
       await app.actions.createMessage({
         content: newMessage,
         name,
-        color: currentPlayer?.playerColor.color.toString(16),
+        color: currentPlayer?.playerColor.color.toString(16) || "",
       });
       sendAnalyticsEvent("sent-message", { matchEntity });
     } catch (err) {
