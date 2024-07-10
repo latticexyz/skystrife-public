@@ -409,7 +409,8 @@ export function Matchmaking() {
             <div className="h-4" />
 
             <WarningSection>
-              By entering matchmaking, you commit to pay 25🔮 as an entrance fee to cover the cost of match creation.
+              By entering matchmaking, you commit to pay 25🔮 as an entrance fee that will cover the cost of match
+              creation and be used as rewards for the winners of the match.
             </WarningSection>
           </>
         )}

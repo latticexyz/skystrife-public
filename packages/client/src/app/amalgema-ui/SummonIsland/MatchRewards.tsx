@@ -17,11 +17,13 @@ export function MatchRewards({
   rewardPercentages,
   setRewardPercentages,
   levelId,
+  practiceMatch,
 }: {
   levelId: Hex;
   entranceFee: bigint;
   rewardPercentages: bigint[];
   setRewardPercentages: (rewardPercentages: bigint[]) => void;
+  practiceMatch: boolean;
 }) {
   const {
     components: { MatchRewardPercentages },
@@ -43,6 +45,10 @@ export function MatchRewards({
     error = "Total percentage cannot exceed 100%";
   } else if (totalPercentage < 100) {
     error = "Total percentage must be 100%";
+  }
+
+  if (practiceMatch && entranceFee === 0n) {
+    return <></>;
   }
 
   if (entranceFee === 0n) {
@@ -114,10 +120,12 @@ export function MatchRewards({
             <Row key={index}>
               <div className="w-1/2 flex items-center justify-between">
                 <Body className="text-ss-text-default underline">{ordinalSuffix(index + 1)} place</Body>
-                <div className="flex items-center w-1/2 space-x-4">
-                  <OrbInput amount={defaultAmount} />
-                  <div>+</div>
-                </div>
+                {!practiceMatch && (
+                  <div className="flex items-center w-1/2 space-x-4">
+                    <OrbInput amount={defaultAmount} />
+                    <div>+</div>
+                  </div>
+                )}
               </div>
               <div className="w-1/2 flex">
                 <PercentageInput

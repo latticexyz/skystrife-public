@@ -5,9 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "mint-orbs:dev": "cd ../contracts && PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 forge script --broadcast --with-gas-price 1000000000 --legacy --sig 'run(address)' --rpc-url http://127.0.0.1:8545 migrations/1716765474_MintOrbs.sol:MintOrbs 0xf18058eaf60e826f0afdf2859a80716b587d5359",
-    "dev": "pnpm mint-orbs:dev && PORT=5201 PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 CHAIN_ID=31337 DEBUG=match* tsx ./src/main.ts",
+    "mint-orbs:dev": "cd ../contracts && PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 forge script --broadcast --with-gas-price 1000000000 --legacy --sig 'run(address)' --rpc-url http://127.0.0.1:8545 migrations/1719781945_SetupMatchmakingDevAccount.sol:SetupMatchmakingDevAccount 0xf18058eaf60e826f0afdf2859a80716b587d5359",
+    "dev": "pnpm mint-orbs:dev && PORT=5201 PRIVATE_KEY=0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d CHAIN_ID=31337 DEBUG=match* tsx ./src/main.ts",
     "start:redstone": "CHAIN_ID=690 DEBUG=match* tsx ./src/main.ts"
   },
   "keywords": [],

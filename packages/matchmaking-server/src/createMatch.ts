@@ -1,9 +1,9 @@
 import { createSkyStrife } from "headless-client/src/createSkyStrife";
 import { createMatchEntity } from "client/src/createMatchEntity";
 import { getOldestMatchInWindow, getSkypoolConfig } from "client/src/app/amalgema-ui/utils/skypool";
-import { COPY_MAP_SYSTEM_ID, MATCH_SYSTEM_ID } from "client/src/constants";
+import { ALLOW_LIST_SYSTEM_ID, COPY_MAP_SYSTEM_ID, MATCH_SYSTEM_ID } from "client/src/constants";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
-import { Hex, stringToHex, padHex, parseEther } from "viem";
+import { Hex, stringToHex, parseEther } from "viem";
 import { encodeSystemCalls } from "@latticexyz/world/internal";
 import { debug } from "./main";
 
@@ -11,6 +11,7 @@ export const createMatch = async (
   skyStrife: Awaited<ReturnType<typeof createSkyStrife>>,
   levelName: string,
   matchName: string,
+  allowedAddresses: Hex[],
 ): Promise<Hex | undefined> => {
   const { networkLayer } = skyStrife;
 
@@ -37,10 +38,16 @@ export const createMatch = async (
         (oldestMatchInWindow as Hex) ?? matchEntity,
         matchEntity,
         levelId,
-        padHex("0x"),
+        ALLOW_LIST_SYSTEM_ID,
         parseEther("25"),
-        [0n, 0n, 0n, 0n, 100n],
+        [60n, 25n, 10n, 0n, 5n],
+        true, // casual match
       ],
+    },
+    {
+      systemId: ALLOW_LIST_SYSTEM_ID,
+      functionName: "setMembers",
+      args: [matchEntity, allowedAddresses],
     },
     {
       systemId: COPY_MAP_SYSTEM_ID,

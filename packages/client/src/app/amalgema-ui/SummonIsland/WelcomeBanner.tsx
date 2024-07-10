@@ -1,26 +1,30 @@
-import { SEASON_NAME } from "../../../constants";
 import { CrossIcon } from "../../ui/Theme/CrossIcon";
 import { Card } from "../../ui/Theme/SkyStrife/Card";
 import { Body, Heading, Link } from "../../ui/Theme/SkyStrife/Typography";
 import useLocalStorageState from "use-local-storage-state";
 import { SeasonPassImg } from "../SeasonPassImg";
 import { HOW_TO_PLAY_URL, DISCORD_URL } from "../../links";
+import { useSeasonName } from "../hooks/useSeasonName";
+import { useSeasonTimes } from "../hooks/useSeasonTimes";
 
 export function Welcome() {
-  const [open, setOpen] = useLocalStorageState(`welcome1-${SEASON_NAME}`, {
+  const seasonName = useSeasonName();
+  const { isSeasonActive } = useSeasonTimes();
+
+  const [open, setOpen] = useLocalStorageState(`welcome1-${seasonName}`, {
     defaultValue: true,
   });
 
   return (
     <>
-      {open && (
+      {open && isSeasonActive && (
         <>
           <Card primary className="p-0 px-4">
             <div className="flex flex-col gap-2">
               <div className="flex flex-row gap-4 items-center">
                 <SeasonPassImg className="w-[100px] -ml-2" />
                 <div className="flex flex-col">
-                  <Heading className="text-[#1A6CBC]">Welcome to Sky Strife {SEASON_NAME}!</Heading>
+                  <Heading className="text-[#1A6CBC]">Welcome to Sky Strife {seasonName}!</Heading>
                   <Body className="text-ss-text-default">
                     If you are new, be sure to read our{" "}
                     <Link

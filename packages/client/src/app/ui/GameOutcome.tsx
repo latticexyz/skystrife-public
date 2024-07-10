@@ -92,8 +92,6 @@ export const GameOutcome = ({ matchEntity }: { matchEntity: Entity }) => {
   const winner = finalRankings.filter((x) => x).length === totalLevelSpawns ? finalRankings[0] : null;
   const winnerInfo = winner ? getPlayerInfo(encodeMatchEntity(matchEntity, winner)) : null;
 
-  console.log(winner);
-
   if (!ranking) return <></>;
 
   return (

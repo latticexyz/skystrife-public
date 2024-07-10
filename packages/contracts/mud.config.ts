@@ -614,6 +614,17 @@ export default defineWorld({
     },
 
     /**
+     * Store the namespace the season pass token is deployed in.
+     * The client needs to fetch this before syncing.
+     */
+    SeasonPassNamespace: {
+      key: [],
+      schema: {
+        value: "bytes14",
+      },
+    },
+
+    /**
      * Store timing information for a season.
      * This is separate from SeasonPassConfig because adding columns
      * to an existing World is not well-supported in MUD yet.
@@ -788,6 +799,18 @@ export default defineWorld({
         entity: "bytes32",
         rank: "uint256",
         value: "uint256",
+      },
+    },
+
+    /**
+     * Marks a match as a practice match.
+     * No rewards given, reduced creation cost.
+     */
+    PracticeMatch: {
+      key: ["matchEntity"],
+      schema: {
+        matchEntity: "bytes32",
+        value: "bool",
       },
     },
 

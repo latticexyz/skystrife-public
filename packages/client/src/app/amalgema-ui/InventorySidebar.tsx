@@ -1,10 +1,10 @@
+import { parseEther } from "viem";
 import { Entity } from "@latticexyz/recs";
 import { useAmalgema } from "../../useAmalgema";
 import { IconButton } from "../ui/Theme/SkyStrife/IconButton";
 import { Discord } from "../ui/Theme/SkyStrife/Icons/Discord";
-import { Button } from "../ui/Theme/SkyStrife/Button";
 import { Twitter } from "../ui/Theme/SkyStrife/Icons/Twitter";
-import { DISCORD_URL, FEEDBACK_URL, HOW_TO_PLAY_URL, TWITTER_URL } from "../links";
+import { DISCORD_URL, HOW_TO_PLAY_URL, TWITTER_URL } from "../links";
 import { CurrentProfile } from "./CurrentProfile";
 import { addressToEntityID } from "../../mud/setupNetwork";
 import { Tutorial } from "../ui/Theme/SkyStrife/Icons/Tutorial";
@@ -14,7 +14,6 @@ import { LabeledOrbInput } from "./SummonIsland/common";
 import { SessionWalletManager } from "./SessionWalletManager";
 import { SeasonPass } from "./SeasonPass";
 import { useExternalAccount } from "./hooks/useExternalAccount";
-import { MATCH_COST } from "./SummonIsland/MatchCost";
 import { useCurrentMatchReward } from "./hooks/useCurrentMatchReward";
 import { useHasSkyKeyExternalWallet } from "./hooks/useHasSkyKey";
 import { useBurnerBalance } from "./hooks/useBalance";
@@ -101,7 +100,7 @@ export function InventorySidebar() {
 
       <div className="h-2 shrink-0" />
 
-      <LabeledOrbInput amount={MATCH_COST} label="Match Creation Cost" />
+      <LabeledOrbInput amount={parseEther("100")} label="Match Creation Cost" />
 
       <div className="h-2 shrink-0" />
 
@@ -113,36 +112,18 @@ export function InventorySidebar() {
 
       <div className="h-6 shrink-0" />
 
-      <div className="flex h-fit">
-        <a href={FEEDBACK_URL} className="grow" target="_blank" rel="noreferrer">
-          <Button
-            style={{
-              fontSize: "12px",
-            }}
-            className="w-full text-sm"
-            buttonType="tertiary"
-          >
-            Submit Feedback
-          </Button>
-        </a>
-
-        <div className="w-8" />
-
+      <div className="flex h-fit justify-around mb-4">
         <a href={DISCORD_URL} target="_blank" rel="noreferrer">
           <IconButton>
             <Discord />
           </IconButton>
         </a>
 
-        <div className="w-2" />
-
         <a href={TWITTER_URL} target="_blank" rel="noreferrer">
           <IconButton>
             <Twitter />
           </IconButton>
         </a>
-
-        <div className="w-2" />
 
         <a href={HOW_TO_PLAY_URL} target="_blank" rel="noreferrer">
           <IconButton>

@@ -32,6 +32,7 @@ export function Footer({
   rewardPercentages,
   allowedAddresses,
   close,
+  practiceMatch,
 }: {
   matchName: string;
   levelId: Hex;
@@ -40,6 +41,7 @@ export function Footer({
   entranceFee: bigint;
   rewardPercentages: bigint[];
   close: () => void;
+  practiceMatch: boolean;
 }) {
   const networkLayer = useAmalgema();
   const {
@@ -90,7 +92,13 @@ export function Footer({
         {
           systemId: MATCH_SYSTEM_ID,
           functionName: "createMatch",
-          args: [matchName, (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex, matchEntity, levelId],
+          args: [
+            matchName,
+            (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex,
+            matchEntity,
+            levelId,
+            practiceMatch,
+          ],
         },
         {
           systemId: COPY_MAP_SYSTEM_ID,
@@ -123,6 +131,7 @@ export function Footer({
             SEASON_PASS_ONLY_SYSTEM_ID,
             entranceFee,
             rewardPercentages,
+            practiceMatch,
           ],
         },
         {
@@ -155,7 +164,13 @@ export function Footer({
         {
           systemId: MATCH_SYSTEM_ID,
           functionName: "createMatch",
-          args: [matchName, (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex, matchEntity, levelId],
+          args: [
+            matchName,
+            (findOldestMatchInWindow(networkLayer) || matchEntity) as Hex,
+            matchEntity,
+            levelId,
+            practiceMatch,
+          ],
         },
         // register the match creator
         {
@@ -209,6 +224,7 @@ export function Footer({
                   ALLOW_LIST_SYSTEM_ID,
                   entranceFee,
                   rewardPercentages,
+                  practiceMatch,
                 ],
               },
               // set the access list
@@ -233,6 +249,8 @@ export function Footer({
     executeMatchSystem(async () => {
       const matchEntity = createMatchEntity();
 
+      console.log(rewardPercentages);
+
       const systemCalls: readonly Omit<SystemCall<typeof IWorldAbi>, "abi">[] = [
         // create a match
         {
@@ -246,6 +264,7 @@ export function Footer({
             padHex("0x", { size: 32 }),
             entranceFee,
             rewardPercentages,
+            practiceMatch,
           ],
         },
         {
@@ -287,6 +306,7 @@ export function Footer({
             padHex("0x", { size: 32 }),
             entranceFee,
             rewardPercentages,
+            practiceMatch,
           ],
         },
         // register the match creator
@@ -342,6 +362,7 @@ export function Footer({
             ALLOW_LIST_SYSTEM_ID,
             entranceFee,
             rewardPercentages,
+            practiceMatch,
           ],
         },
         // set the access list
@@ -403,6 +424,7 @@ export function Footer({
             SEASON_PASS_ONLY_SYSTEM_ID,
             entranceFee,
             rewardPercentages,
+            practiceMatch,
           ],
         },
         // register the match creator
@@ -441,7 +463,8 @@ export function Footer({
   const notEnoughAllowedAddresses = matchType === "private" && allowedAddresses.length !== numPlayers;
   const invalidRewardPercentages = entranceFee > 0 && rewardPercentages.reduce((acc, curr) => acc + curr, 0n) !== 100n;
   const notEnoughOrbs = !hasSkyKey && (orbBalance ?? 0n) < (skypoolConfig?.cost ?? 0n);
-  const privateMatchLimitReached = matchType !== "public" && privateMatchLimit.created >= privateMatchLimit.limit;
+  const privateMatchLimitReached =
+    (matchType !== "public" || entranceFee != 0n) && privateMatchLimit.created >= privateMatchLimit.limit;
 
   const disabled =
     notEnoughOrbs ||
@@ -453,8 +476,8 @@ export function Footer({
     privateMatchLimitReached;
 
   let error = "";
-  if (blankLevel) error = "Please select a level";
-  if (notEnoughAllowedAddresses) error = "Please select enough players to fill the match";
+  if (notEnoughOrbs) error = "insufficient 🔮";
+  if (blankName) error = "enter a name";
 
   let createAction = createPublicMatch;
   if (entranceFee > 0) createAction = createPublicMatchSeasonPass;
@@ -474,7 +497,7 @@ export function Footer({
         disabled={disabled}
         onClick={createAction}
       >
-        {txPending ? "creating..." : "create match"}
+        {txPending ? "creating..." : disabled ? error : "create match"}
       </Button>
 
       <div className="w-8" />
@@ -484,7 +507,7 @@ export function Footer({
         setHero={setHero}
         trigger={
           <Button disabled={disabled} buttonType="secondary" className="w-full">
-            create and join match
+            {disabled ? error : "create and join match"}
           </Button>
         }
         footer={

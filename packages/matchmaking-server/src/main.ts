@@ -279,7 +279,12 @@ async function checkPendingMatches() {
       // All users have confirmed, proceed to create the actual match
       debug("All users confirmed for match:", match.id);
       try {
-        const matchEntity = await createMatch(skyStrife, "Vortex", `Play Now (${match.id})`);
+        const matchEntity = await createMatch(skyStrife, "Vortex", `Play Now (${match.id})`, [
+          match.user1,
+          match.user2,
+          match.user3,
+          match.user4,
+        ]);
 
         await db.run(
           `INSERT INTO confirmed_matches (

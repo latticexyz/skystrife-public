@@ -1,10 +1,9 @@
 import { OverlineSmall } from "../../ui/Theme/SkyStrife/Typography";
 import { OrbInput } from "./common";
 import { useOrbBalance } from "../hooks/useOrbBalance";
+import { parseEther } from "viem";
 
-export const MATCH_COST = 100_000_000_000_000_000_000n;
-
-export function MatchCost() {
+export function MatchCost({ isPractice }: { isPractice: boolean }) {
   const orbBalance = useOrbBalance();
 
   return (
@@ -18,7 +17,7 @@ export function MatchCost() {
 
       <div className="w-full">
         <OverlineSmall className="text-ss-text-x-light">Match Cost</OverlineSmall>
-        <OrbInput amount={MATCH_COST} />
+        <OrbInput amount={isPractice ? parseEther("5") : parseEther("100")} />
       </div>
     </div>
   );

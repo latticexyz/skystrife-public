@@ -9,6 +9,7 @@ import GDPR from "./GDPR";
 import { Welcome } from "./SummonIsland/WelcomeBanner";
 import { MatchCountdown } from "./SummonIsland/MatchCountdown";
 import { OngoingMatch } from "./OngoingMatch";
+import { SeasonInactiveModal } from "./SeasonInactiveModal";
 
 export const AmalgemaUIRoot = () => {
   const layers = useStore((state) => {
@@ -50,6 +51,7 @@ export const AmalgemaUIRoot = () => {
 
       <Transactions />
       <WelcomeToSkyStrifeModal />
+      <SeasonInactiveModal />
 
       {!import.meta.env.DEV && <OngoingMatch />}
 

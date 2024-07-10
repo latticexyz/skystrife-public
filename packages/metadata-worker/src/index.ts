@@ -79,6 +79,14 @@ app.get("/metadata/:season/:tokenId", async (c) => {
       200,
     );
   }
+
+  return c.json(
+    {
+      ...baseData,
+      attributes: [{ trait_type: "id", value: tokenId }],
+    },
+    200,
+  );
 });
 
 app.get("/metadata/skykey/:skykey-id", async (c) => {

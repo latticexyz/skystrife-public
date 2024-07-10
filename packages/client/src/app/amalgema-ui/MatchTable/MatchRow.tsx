@@ -47,7 +47,7 @@ export function MatchRow({
           <div className="flex items-center gap-x-1">
             {isSeasonPassOnly && <SeasonPassIcon />}
             {hasAllowList && <span>🔒</span>}
-            {matchName} <span className="text-ss-text-x-light">#{matchIndex}</span>
+            {matchName} {matchIndex !== 0 && <span className="text-ss-text-x-light">#{matchIndex}</span>}
           </div>
           {matchConfig && <CreatedBy createdBy={matchConfig.createdBy as Hex} />}
         </div>

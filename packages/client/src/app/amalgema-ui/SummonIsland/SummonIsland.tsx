@@ -15,6 +15,7 @@ import { EntranceFee } from "./EntranceFee";
 import { MatchRewards } from "./MatchRewards";
 import { useSeasonPassExternalWallet } from "../hooks/useSeasonPass";
 import { MatchName } from "./MatchName";
+import { PracticeMatch } from "./PracticeMatch";
 
 function ArrowSvg() {
   return (
@@ -67,6 +68,7 @@ function SummonIslandForm({ closeModal, modalOpen }: { closeModal: () => void; m
   const [levelId, setLevelId] = useState<string>(standardLevels[0] ?? "");
 
   const [matchType, setMatchType] = useState<"public" | "private" | "season-pass">("public");
+  const [practiceMatch, setPracticeMatch] = useState(false);
   const [allowedAddresses, setAllowedAddresses] = useState<string[]>([]);
 
   const [entranceFee, setEntranceFee] = useState(0n);
@@ -100,7 +102,11 @@ function SummonIslandForm({ closeModal, modalOpen }: { closeModal: () => void; m
 
           <div className="h-12" />
 
-          <MatchCost />
+          <PracticeMatch practiceMatch={practiceMatch} setPracticeMatch={setPracticeMatch} />
+
+          <div className="h-12" />
+
+          <MatchCost isPractice={practiceMatch} />
 
           <div className="h-12" />
 
@@ -109,6 +115,7 @@ function SummonIslandForm({ closeModal, modalOpen }: { closeModal: () => void; m
             entranceFee={entranceFee}
             setEntranceFee={setEntranceFee}
             levelId={levelId as Hex}
+            practiceMatch={practiceMatch}
           />
 
           <div className="h-12" />
@@ -118,6 +125,7 @@ function SummonIslandForm({ closeModal, modalOpen }: { closeModal: () => void; m
             rewardPercentages={rewardPercentages}
             setRewardPercentages={setRewardPercentages}
             levelId={levelId as Hex}
+            practiceMatch={practiceMatch}
           />
 
           <div className="h-6" />
@@ -129,6 +137,7 @@ function SummonIslandForm({ closeModal, modalOpen }: { closeModal: () => void; m
             setAllowedAddresses={setAllowedAddresses}
             levelId={levelId as Hex}
             hasSeasonPass={hasSeasonPass}
+            practiceMatch={practiceMatch}
           />
 
           <div
@@ -161,6 +170,7 @@ function SummonIslandForm({ closeModal, modalOpen }: { closeModal: () => void; m
           allowedAddresses={allowedAddresses as Hex[]}
           entranceFee={entranceFee}
           rewardPercentages={rewardPercentages}
+          practiceMatch={practiceMatch}
         />
       </Card>
     </div>

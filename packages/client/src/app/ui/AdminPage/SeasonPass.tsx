@@ -96,22 +96,8 @@ export function SeasonPass() {
   return (
     <div className="flex gap-x-8">
       <div className="flex flex-col w-[400px] max-auto h-fit border-4">
-        <div
-          className="
-          bg-red-500
-          text-white
-          text-center
-          text-2xl
-          font-bold
-          p-2
-          border-b-4
-        "
-        >
-          WARNING: Creating this Season Pass will require a client deploy to update the UI. Go to extraTables.ts and
-          change SEASON_PASS_NAMESPACE to the name you chose here. The name does not matter as long as it is unique.
-        </div>
         <div className="flex gap-x-2">
-          <label>Namespace</label>
+          <label>Season Name (will be displayed in client)</label>
           <input
             className="bg-slate-300"
             type="text"

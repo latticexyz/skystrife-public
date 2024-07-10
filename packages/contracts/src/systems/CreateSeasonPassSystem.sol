@@ -21,7 +21,7 @@ import { SystemHooks } from "@latticexyz/world/src/codegen/tables/SystemHooks.so
 
 import { NoTransferHook } from "../NoTransferHook.sol";
 
-import { SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, SeasonTimes } from "../codegen/index.sol";
+import { SeasonPassConfig, SeasonPassLastSaleAt, SkyPoolConfig, SeasonTimes, SeasonPassNamespace } from "../codegen/index.sol";
 import { skyKeyHolderOnly } from "../libraries/LibSkyPool.sol";
 
 contract CreateSeasonPassSystem is System {
@@ -46,6 +46,7 @@ contract CreateSeasonPassSystem is System {
   function deploySeasonPass(bytes14 name, string memory seasonNumber, string memory symbol) internal {
     IWorld world = IWorld(_world());
 
+    SeasonPassNamespace.set(name);
     IERC721Mintable seasonPass = registerERC721(
       world,
       name,

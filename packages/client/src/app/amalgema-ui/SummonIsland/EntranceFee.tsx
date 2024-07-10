@@ -7,6 +7,7 @@ import { useAmalgema } from "../../../useAmalgema";
 import { Tooltip } from "react-tooltip";
 import { Checkbox } from "../../ui/Theme/SkyStrife/Checkbox";
 import { SeasonPassIcon } from "../SeasonPassIcon";
+import { RemainingPrivateMatches } from "../SeasonPass";
 
 const INITIAL_FEE = 50_000_000_000_000_000_000n;
 
@@ -15,11 +16,13 @@ export function EntranceFee({
   setEntranceFee,
   levelId,
   hasSeasonPass,
+  practiceMatch,
 }: {
   entranceFee: bigint;
   setEntranceFee: (entranceFee: bigint) => void;
   levelId: Hex;
   hasSeasonPass: boolean;
+  practiceMatch: boolean;
 }) {
   const {
     utils: { getLevelSpawns },
@@ -81,6 +84,14 @@ export function EntranceFee({
           </>
         )}
       </div>
+
+      {hasFee && !practiceMatch && (
+        <div>
+          <div className="h-8" />
+
+          <RemainingPrivateMatches />
+        </div>
+      )}
 
       <Tooltip
         variant="light"

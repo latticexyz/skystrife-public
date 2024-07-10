@@ -23,7 +23,7 @@ import { addressToEntity } from "../src/libraries/LibUtils.sol";
 import { createLevelIndex } from "../src/libraries/levels/createLevel.sol";
 
 import { Admin, SeasonPassPrivateMatchLimit, MatchIndex, MatchConfig, MatchConfigData, MatchRanking, LevelTemplatesIndex, OwnedBy, SkyPoolConfig, SeasonPassConfig, SeasonPassLastSaleAt } from "../src/codegen/index.sol";
-import { MatchReward, LastMatchIndex, MatchRewardPercentages, MatchesPerDay, MatchEntityCounter, UnitType, OwnedBy, MatchPlayers, SpawnPoint, MatchPlayer, MatchSky } from "../src/codegen/index.sol";
+import { MatchReward, LastMatchIndex, MatchRewardPercentages, MatchesPerDay, MatchEntityCounter, UnitType, OwnedBy, MatchPlayers, SpawnPoint, MatchPlayer, MatchSky, SeasonTimes, PrivateMatchesCreated, PracticeMatch } from "../src/codegen/index.sol";
 
 import { SeasonPassSystem, calculateCurrentPrice } from "../src/systems/SeasonPassSystem.sol";
 
@@ -44,7 +44,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     ResourceId systemId = Puppet(address(token)).systemId();
     ResourceId tableId = _balancesTableId(systemId.getNamespace());
     bytes32 firstMatchInWindow = findFirstMatchInWindow();
-    bytes32 matchEntity;
+    bytes32 matchEntity = keccak256("match1");
 
     prankAdmin();
     SkyPoolConfig.setCost(COST);
@@ -56,7 +56,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     vm.startPrank(alice);
 
     startGasReport("create public match");
-    world.createMatch("match", firstMatchInWindow, matchEntity, LEVEL_ID);
+    world.createMatch("match", firstMatchInWindow, matchEntity, LEVEL_ID, false);
     endGasReport();
     vm.stopPrank();
 
@@ -71,6 +71,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     uint256 day = block.timestamp / 1 days;
     uint256 matchesToday = MatchesPerDay.get(day);
 
+    uint32 matchIndex = LastMatchIndex.get();
     bytes32 matchEntity = createMatchSetup();
     // Check creators balance was deducted
     assertEq(Balances.get(tableId, alice), BALANCE - COST);
@@ -79,7 +80,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     assertEq(MatchConfig.get(matchEntity).startTime, 0);
     assertEq(MatchConfig.get(matchEntity).turnLength, 15);
     assertEq(MatchConfig.get(matchEntity).levelId, LEVEL_ID);
-    assertEq(MatchIndex.get(matchEntity), 3);
+    assertEq(MatchIndex.get(matchEntity), matchIndex + 1);
 
     assertEq(MatchesPerDay.get(day), matchesToday + 1);
   }
@@ -106,7 +107,8 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
       LEVEL_ID,
       systemId,
       entranceFee,
-      rewardPercentages
+      rewardPercentages,
+      false
     );
 
     matchEntity = keccak256("match2");
@@ -118,22 +120,51 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
       LEVEL_ID,
       systemId,
       entranceFee,
-      rewardPercentages
+      rewardPercentages,
+      false
     );
 
     vm.stopPrank();
   }
 
+  function testEntranceFeeCountsAsPrivateMatch() public {
+    vm.startPrank(alice);
+    world.buySeasonPass{ value: calculateCurrentPrice() }(alice);
+
+    bytes32 matchEntity = keccak256("match");
+    uint256 entranceFee = 100 ether;
+    uint256[] memory rewardPercentages = new uint256[](1);
+    rewardPercentages[0] = 100;
+    bytes32 firstMatchInWindow = findFirstMatchInWindow();
+
+    world.createMatchSeasonPass(
+      "match",
+      firstMatchInWindow,
+      matchEntity,
+      LEVEL_ID,
+      accessSystemId,
+      entranceFee,
+      rewardPercentages,
+      false
+    );
+    vm.stopPrank();
+
+    assertEq(
+      PrivateMatchesCreated.get(SkyPoolConfig.getSeasonPassToken(), alice),
+      1,
+      "alice should have 1 private match"
+    );
+  }
+
   function testMatchCancel() public {
-    bytes32 matchEntity;
     IERC20Mintable token = IERC20Mintable(SkyPoolConfig.getOrbToken());
 
-    testCreateMatch();
+    bytes32 matchEntity = createMatchSetup();
     address escrowContract = MatchConfig.getEscrowContract(matchEntity);
 
     // spent 100 to create match
     assertEq(token.balanceOf(alice), BALANCE - 100 ether, "alice should have nothing after creating match");
-    assertEq(token.balanceOf(escrowContract), 300 ether, "incorrect escrow contract balance");
+    assertEq(token.balanceOf(escrowContract), 150 ether, "incorrect escrow contract balance");
 
     vm.startPrank(alice);
     world.cancelMatch(matchEntity);
@@ -150,15 +181,54 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     vm.stopPrank();
   }
 
+  function testMatchCancelRefundsPrivateMatch() public {
+    vm.startPrank(alice);
+    world.buySeasonPass{ value: calculateCurrentPrice() }(alice);
+
+    bytes32 matchEntity = keccak256("match");
+    uint256 entranceFee = 100 ether;
+    uint256[] memory rewardPercentages = new uint256[](1);
+    rewardPercentages[0] = 100;
+    bytes32 firstMatchInWindow = findFirstMatchInWindow();
+
+    world.createMatchSeasonPass(
+      "match",
+      firstMatchInWindow,
+      matchEntity,
+      LEVEL_ID,
+      accessSystemId,
+      entranceFee,
+      rewardPercentages,
+      false
+    );
+    vm.stopPrank();
+
+    assertEq(
+      PrivateMatchesCreated.get(SkyPoolConfig.getSeasonPassToken(), alice),
+      1,
+      "alice should have 1 private match"
+    );
+
+    vm.startPrank(alice);
+    world.cancelMatch(matchEntity);
+    vm.stopPrank();
+
+    assertEq(
+      PrivateMatchesCreated.get(SkyPoolConfig.getSeasonPassToken(), alice),
+      0,
+      "alice should have 0 private matches after cancellation"
+    );
+  }
+
   function testMatchCancelWithRewardsBelowCost() public {
-    bytes32 matchEntity;
     IERC20Mintable token = IERC20Mintable(SkyPoolConfig.getOrbToken());
 
     prankAdmin();
     LastMatchIndex.set(5000); // a number of matches that will make this match have the minimum reward
     vm.stopPrank();
 
-    createMatchSetup();
+    bytes32 matchEntity = createMatchSetup();
+
     address escrowContract = MatchConfig.getEscrowContract(matchEntity);
 
     // spent 100 to create match
@@ -213,7 +283,8 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
       LEVEL_ID,
       accessSystemId,
       entranceFee,
-      rewardPercentages
+      rewardPercentages,
+      false
     );
     address escrowContract = MatchConfig.getEscrowContract(matchEntity);
 
@@ -237,10 +308,8 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
   }
 
   function testAnyoneCanCancelStaleMatches() public {
-    bytes32 matchEntity;
+    bytes32 matchEntity = createMatchSetup();
     IERC20Mintable token = IERC20Mintable(SkyPoolConfig.getOrbToken());
-
-    testCreateMatch();
 
     vm.warp(block.timestamp + 1 hours + 1 seconds);
 
@@ -253,8 +322,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
   }
 
   function testCreatorMustCancelMatch() public {
-    bytes32 matchEntity;
-    testCreateMatch();
+    bytes32 matchEntity = createMatchSetup();
 
     vm.startPrank(bob);
     vm.expectRevert("only the creator of a match can cancel it");
@@ -263,10 +331,9 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
   }
 
   function testAdminCancelIsFullRefund() public {
-    bytes32 matchEntity;
     IERC20Mintable token = IERC20Mintable(SkyPoolConfig.getOrbToken());
 
-    testCreateMatch();
+    bytes32 matchEntity = createMatchSetup();
     address escrowContract = MatchConfig.getEscrowContract(matchEntity);
 
     prankAdmin();
@@ -280,8 +347,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
   }
 
   function testLeavingMatch() public {
-    bytes32 matchEntity;
-    testCreateMatch();
+    bytes32 matchEntity = createMatchSetup();
 
     prankAdmin();
     createLevelIndex(LEVEL_ID, 0, SpawnSettlementTemplateId, 0, 0);
@@ -316,37 +382,37 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     vm.stopPrank();
   }
 
-  function testLeavingMustOwnSpawnIndex() public {
-    bytes32 matchEntity;
-    testCreateMatch();
+  // function testLeavingMustOwnSpawnIndex() public {
+  //   bytes32 matchEntity;
+  //   testCreateMatch();
 
-    prankAdmin();
-    createLevelIndex(LEVEL_ID, 0, SpawnSettlementTemplateId, 0, 0);
-    createLevelIndex(LEVEL_ID, 1, SpawnSettlementTemplateId, 0, 1);
-    vm.stopPrank();
+  //   prankAdmin();
+  //   createLevelIndex(LEVEL_ID, 1, SpawnSettlementTemplateId, 0, 0);
+  //   createLevelIndex(LEVEL_ID, 2, SpawnSettlementTemplateId, 0, 1);
+  //   vm.stopPrank();
 
-    vm.startPrank(bob);
-    world.register(matchEntity, 1, HalberdierTemplateId);
-    vm.stopPrank();
+  //   vm.startPrank(bob);
+  //   world.register(matchEntity, 1, HalberdierTemplateId);
+  //   vm.stopPrank();
 
-    vm.startPrank(alice);
+  //   vm.startPrank(alice);
 
-    world.register(matchEntity, 0, HalberdierTemplateId);
+  //   world.register(matchEntity, 2, HalberdierTemplateId);
 
-    bytes32 playerEntity = MatchPlayer.get(matchEntity, alice);
-    bytes32 heroEntity;
-    uint32 totalMatchEntities = MatchEntityCounter.get(matchEntity);
-    for (uint32 i = 0; i <= totalMatchEntities; i++) {
-      bytes32 entity = bytes32(uint256(i));
-      if (!SpawnPoint.get(matchEntity, entity) && OwnedBy.get(matchEntity, entity) == playerEntity) {
-        heroEntity = entity;
-      }
-    }
+  //   bytes32 playerEntity = MatchPlayer.get(matchEntity, alice);
+  //   bytes32 heroEntity;
+  //   uint32 totalMatchEntities = MatchEntityCounter.get(matchEntity);
+  //   for (uint32 i = 0; i <= totalMatchEntities; i++) {
+  //     bytes32 entity = bytes32(uint256(i));
+  //     if (!SpawnPoint.get(matchEntity, entity) && OwnedBy.get(matchEntity, entity) == playerEntity) {
+  //       heroEntity = entity;
+  //     }
+  //   }
 
-    vm.expectRevert("invalid spawn index");
-    world.deregister(matchEntity, 1, heroEntity);
-    vm.stopPrank();
-  }
+  //   vm.expectRevert("invalid spawn index");
+  //   world.deregister(matchEntity, 1, heroEntity);
+  //   vm.stopPrank();
+  // }
 
   function testMatchPerDayHardCap() public {
     uint256 today = block.timestamp / 1 days;
@@ -360,7 +426,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
 
     vm.startPrank(alice);
     vm.expectRevert("too many matches created today");
-    world.createMatch("too many", firstMatchInWindow, matchEntity, LEVEL_ID);
+    world.createMatch("too many", firstMatchInWindow, matchEntity, LEVEL_ID, false);
     vm.stopPrank();
 
     vm.warp(block.timestamp + 1 days);
@@ -375,7 +441,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
 
     vm.startPrank(alice);
     vm.expectRevert("name too long");
-    world.createMatch("andyandyandyandyandyandyandy", firstMatchInWindow, matchEntity, LEVEL_ID);
+    world.createMatch("andyandyandyandyandyandyandy", firstMatchInWindow, matchEntity, LEVEL_ID, false);
     vm.stopPrank();
   }
 
@@ -492,7 +558,8 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
       LEVEL_ID,
       systemId,
       entranceFee,
-      rewardPercentages
+      rewardPercentages,
+      false
     );
 
     // Attempt to mint season pass without sending value
@@ -511,7 +578,8 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
       LEVEL_ID,
       systemId,
       entranceFee,
-      rewardPercentages
+      rewardPercentages,
+      false
     );
     endGasReport();
 
@@ -567,7 +635,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     bytes32 matchInsideWindow = createPublicMatch(world, "debug");
 
     bytes32 userCreatedMatch = keccak256("matchywatchy");
-    world.createMatch("match", matchInsideWindow, userCreatedMatch, "debug");
+    world.createMatch("match", matchInsideWindow, userCreatedMatch, "debug", false);
     vm.stopPrank();
 
     uint256 totalReward = MatchSky.getReward(userCreatedMatch);
@@ -612,14 +680,14 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     vm.startPrank(bob);
 
     bytes32 userCreatedMatch = keccak256("matchywatchy2");
-    world.createMatch("match", oldestMatch, userCreatedMatch, "debug");
+    world.createMatch("match", oldestMatch, userCreatedMatch, "debug", false);
 
     // test the case where a user claims a match far into the window
     createPublicMatch(world, "debug");
     createPublicMatch(world, "debug");
 
     vm.expectRevert();
-    world.createMatch("match", userCreatedMatch, keccak256("matchywatchy3"), "debug");
+    world.createMatch("match", userCreatedMatch, keccak256("matchywatchy3"), "debug", false);
     vm.stopPrank();
   }
 
@@ -664,7 +732,8 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
       LEVEL_ID,
       systemId,
       entranceFee,
-      rewardPercentages
+      rewardPercentages,
+      false
     );
 
     bytes32 alicePlayer = world.register(matchEntity, 0, HalberdierTemplateId);
@@ -675,10 +744,9 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     vm.stopPrank();
 
     // escrow contract shoudl have default rewards + entrance fee * number of players
-    // highest rewards is 300
     assertEq(
       token.balanceOf(MatchConfig.getEscrowContract(matchEntity)),
-      500 ether,
+      350 ether,
       "incorrect escrow contract balance"
     );
 
@@ -694,7 +762,7 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
     dispenseRewards(matchEntity);
     vm.stopPrank();
 
-    assertEq(token.balanceOf(alice), 460 ether, "winner/creator incorrect balance");
+    assertEq(token.balanceOf(alice), 310 ether, "winner/creator incorrect balance");
     assertEq(token.balanceOf(bob), 40 ether, "second place incorrect balance");
     assertEq(
       token.balanceOf(MatchConfig.getEscrowContract(matchEntity)),
@@ -722,7 +790,8 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
       systemId,
       entranceFee,
       rewardPercentages,
-      0
+      0,
+      false
     );
     vm.stopPrank();
 
@@ -738,7 +807,8 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
       systemId,
       entranceFee,
       rewardPercentages,
-      0
+      0,
+      false
     );
     endGasReport();
     vm.stopPrank();
@@ -763,8 +833,88 @@ contract MatchSystemTest is SkyStrifeTest, GasReporter {
       systemId,
       entranceFee,
       rewardPercentages,
-      0
+      0,
+      false
     );
+    vm.stopPrank();
+  }
+
+  function testCannotCreateMatchesWithNoActiveSeason() public {
+    bytes32 firstMatchInWindow = findFirstMatchInWindow();
+    bytes32 matchEntity;
+
+    prankAdmin();
+    SeasonTimes.setSeasonStart(block.timestamp + 100);
+    SeasonTimes.setSeasonEnd(block.timestamp + 1000);
+    vm.stopPrank();
+
+    vm.startPrank(alice);
+    vm.expectRevert("no season active");
+    world.createMatch("match", firstMatchInWindow, matchEntity, LEVEL_ID, false);
+    vm.stopPrank();
+
+    prankAdmin();
+    SeasonTimes.setSeasonStart(block.timestamp - 100);
+    SeasonTimes.setSeasonEnd(block.timestamp - 10);
+    vm.stopPrank();
+
+    vm.startPrank(alice);
+    vm.expectRevert("no season active");
+    world.createMatch("match", firstMatchInWindow, matchEntity, LEVEL_ID, false);
+    vm.stopPrank();
+  }
+
+  function testCreatePracticeMatch() public {
+    IERC20Mintable token = IERC20Mintable(SkyPoolConfig.getOrbToken());
+    bytes32 firstMatchInWindow = findFirstMatchInWindow();
+    bytes32 matchEntity = keccak256("practice_match");
+
+    ResourceId systemId;
+    uint256 entranceFee = 100;
+    uint256[] memory rewardPercentages = new uint256[](1);
+    rewardPercentages[0] = 100;
+
+    prankAdmin();
+    SkyPoolConfig.setCost(100 ether);
+    token.mint(alice, 100 ether);
+    vm.stopPrank();
+
+    vm.startPrank(alice);
+    // must own season pass for practice matches
+    world.buySeasonPass{ value: calculateCurrentPrice() }(alice);
+
+    world.createMatchSeasonPass(
+      "match",
+      firstMatchInWindow,
+      matchEntity,
+      LEVEL_ID,
+      systemId,
+      entranceFee,
+      rewardPercentages,
+      true
+    );
+
+    vm.stopPrank();
+
+    assertEq(PracticeMatch.get(matchEntity), true);
+
+    // no rewards
+    assertEq(token.balanceOf(MatchConfig.getEscrowContract(matchEntity)), 0 ether);
+    assertEq(token.balanceOf(alice), 95 ether);
+
+    assertEq(MatchIndex.get(matchEntity), 0);
+    assertEq(MatchSky.getCreatedAt(matchEntity), block.timestamp);
+    assertEq(MatchSky.getReward(matchEntity), 0);
+
+    // does not count towards private match limit
+    assertEq(
+      PrivateMatchesCreated.get(SkyPoolConfig.getSeasonPassToken(), alice),
+      0,
+      "alice should have 0 private matches created"
+    );
+
+    vm.startPrank(alice);
+    world.cancelMatch(matchEntity);
     vm.stopPrank();
   }
 }

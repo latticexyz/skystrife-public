@@ -111,6 +111,7 @@ export function Levels() {
   } = useAmalgema();
 
   const [visible, setVisible] = useState(false);
+  const [refreshNonce, setRefreshNonce] = useState(0);
   const levels = useEntityQuery([Has(LevelTemplates)])
     .map((levelId) => {
       const { value } = getComponentValueStrict(LevelTemplates, levelId);
@@ -157,7 +158,7 @@ export function Levels() {
             <tr key={levelId} className="border-4">
               <td>{hexToString(levelId as Hex)}</td>
               <td className="w-[360px]">
-                <MapDisplay levelId={levelId} />
+                <MapDisplay levelId={levelId} refreshNonce={refreshNonce} />
               </td>
               <StandardRotation levelId={levelId} />
               <SeasonPassRotation levelId={levelId} />
@@ -167,7 +168,7 @@ export function Levels() {
           ))}
         </tbody>
       </table>
-      {visible && <CreateLevel close={() => setVisible(false)} />}
+      {visible && <CreateLevel close={() => setVisible(false)} setRefreshNonce={setRefreshNonce} />}
     </div>
   );
 }

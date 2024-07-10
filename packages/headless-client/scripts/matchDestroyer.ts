@@ -1,10 +1,7 @@
-import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { createSkyStrife } from "../src/createSkyStrife";
 import { DateTime, Duration } from "luxon";
 import { Entity, Has, Not, HasValue, getComponentValueStrict, runQuery, getComponentValue } from "@latticexyz/recs";
 import { Hex } from "viem";
-import { CANCEL_MATCH_SYSTEM_ID } from "client/src/constants";
-import { encodeSystemCallFrom } from "@latticexyz/world/internal";
 import { skystrifeDebug } from "client/src/debug";
 import { singletonEntity } from "@latticexyz/store-sync/recs";
 
@@ -28,15 +25,7 @@ const cancelMatch = async (matchEntity: Entity) => {
   const matchName = getComponentValue(MatchName, matchEntity)?.value || matchEntity.toString();
   debug(`Canceling match ${matchName}`);
   try {
-    const tx = await worldContract.write.callFrom(
-      encodeSystemCallFrom({
-        abi: IWorldAbi,
-        from: skyKeyHolder.address,
-        systemId: CANCEL_MATCH_SYSTEM_ID,
-        functionName: "cancelMatch",
-        args: [matchEntity as Hex],
-      }),
-    );
+    const tx = await worldContract.write.cancelMatch([matchEntity as Hex]);
 
     await waitForTransaction(tx);
     debug(`Canceled match ${matchName}`);
@@ -54,8 +43,12 @@ const findStaleMatches = () => {
   ];
 
   return unstartedMatches.filter((match) => {
+    const registrationTime = getComponentValueStrict(MatchConfig, match).registrationTime;
     const createdAtTime = getComponentValueStrict(MatchSky, match).createdAt;
-    return Number(createdAtTime) < DateTime.now().minus(staleAfterDuration).toSeconds();
+
+    const time = Math.max(Number(createdAtTime), Number(registrationTime));
+
+    return time < DateTime.now().minus(staleAfterDuration).toSeconds();
   });
 };
 

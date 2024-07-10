@@ -6,7 +6,13 @@ import { CrossIcon } from "../Theme/CrossIcon";
 import { Button } from "../Theme/SkyStrife/Button";
 import { MapUpload } from "../Admin/MapUpload";
 
-export const CreateLevel = ({ close }: { close: () => void }) => {
+export const CreateLevel = ({
+  close,
+  setRefreshNonce,
+}: {
+  close: () => void;
+  setRefreshNonce: (n: number) => void;
+}) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,7 +50,7 @@ export const CreateLevel = ({ close }: { close: () => void }) => {
             </div>
           </div>
 
-          <MapUpload />
+          <MapUpload setRefreshNonce={setRefreshNonce} />
         </BrutalistCard>
       </div>
     </div>

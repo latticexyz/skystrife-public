@@ -15,7 +15,8 @@ interface IMatchSystem {
     string memory name,
     bytes32 claimedFirstMatchInWindow,
     bytes32 matchEntity,
-    bytes32 levelId
+    bytes32 levelId,
+    bool isPractice
   ) external;
 
   function createMatchSeasonPass(
@@ -25,7 +26,8 @@ interface IMatchSystem {
     bytes32 levelId,
     ResourceId systemId,
     uint256 entranceFee,
-    uint256[] memory rewardPercentages
+    uint256[] memory rewardPercentages,
+    bool isPractice
   ) external;
 
   function createMatchSkyKey(
@@ -36,6 +38,7 @@ interface IMatchSystem {
     ResourceId systemId,
     uint256 entranceFee,
     uint256[] memory rewardPercentages,
-    uint256 registrationTime
+    uint256 registrationTime,
+    bool isPractice
   ) external;
 }

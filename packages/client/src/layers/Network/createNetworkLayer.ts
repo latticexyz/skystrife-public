@@ -12,13 +12,11 @@ import { setup } from "../../mud/setup";
 import { BigNumber } from "ethers";
 import { WorldCoord } from "phaserx/src/types";
 import { manhattan } from "../../utils/distance";
-import { Hex } from "viem";
+import { Hex, hexToString, stringToHex } from "viem";
 import { getBalance } from "viem/actions";
 import { NetworkConfig } from "../../mud/utils";
-import { decodeEntity, encodeEntity } from "@latticexyz/store-sync/recs";
+import { decodeEntity, encodeEntity, singletonEntity } from "@latticexyz/store-sync/recs";
 import { createSystemExecutor } from "./createSystemExecutor";
-import { createTransactionCacheSystem } from "./systems/TransactionCacheSystem";
-import { TransactionDB } from "./TransactionDB";
 import { decodeValue, KeySchema } from "@latticexyz/protocol-parser/internal";
 import { hexToResource } from "@latticexyz/common";
 import { useStore } from "../../useStore";
@@ -27,12 +25,10 @@ import { encodeSystemCallFrom } from "@latticexyz/world/internal";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { matchIdFromEntity } from "../../matchIdFromEntity";
 import { matchIdToEntity } from "../../matchIdToEntity";
-import { isDefined } from "@latticexyz/common/utils";
 import {
   ALLOW_LIST_SYSTEM_ID,
   BUILD_SYSTEM_ID,
   BYTES32_ZERO,
-  EMOJI,
   MOVE_SYSTEM_ID,
   SEASON_PASS_ONLY_SYSTEM_ID,
   SPAWN_SETTLEMENT,
@@ -131,7 +127,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
           args: [currentMatchEntity as Hex, decodeMatchEntity(entity).entity, path],
         }),
         {
-          account: externalWalletClient.account.address,
+          account: network.walletClient.account,
         },
       ],
     });
@@ -173,7 +169,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
           args: [currentMatchEntity as Hex, decodeMatchEntity(attacker).entity, decodeMatchEntity(defender).entity],
         }),
         {
-          account: externalWalletClient.account.address,
+          account: network.walletClient.account,
         },
       ],
     });
@@ -224,7 +220,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
           ],
         }),
         {
-          account: externalWalletClient.account.address,
+          account: network.walletClient.account,
         },
       ],
     });
@@ -256,7 +252,7 @@ export async function createNetworkLayer(config: NetworkConfig) {
           ],
         }),
         {
-          account: externalWalletClient.account.address,
+          account: network.walletClient.account,
         },
       ],
     });
@@ -630,6 +626,14 @@ export async function createNetworkLayer(config: NetworkConfig) {
     return;
   }
 
+  const getSeasonName = () => {
+    const hex =
+      (getComponentValue(components.SeasonPassNamespace, singletonEntity)?.value as Hex) ||
+      stringToHex("UNKNOWN", { size: 14 });
+
+    return hexToString(hex, { size: 14 });
+  };
+
   const refreshBalance = async (address: Hex) => {
     try {
       const balance = await getBalance(network.walletClient, {
@@ -720,6 +724,8 @@ export async function createNetworkLayer(config: NetworkConfig) {
       refreshBalance,
 
       hasPendingAction,
+
+      getSeasonName,
     },
     isBrowser,
   };

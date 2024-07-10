@@ -15,11 +15,17 @@ export type Level = Array<{
 
 const STATE_UPDATES_PER_TX = 50;
 
-export async function bulkUploadMap(layer: NetworkLayer, from: Hex, level: Level, name: string) {
+export async function bulkUploadMap(
+  layer: NetworkLayer,
+  from: Hex,
+  level: Level,
+  name: string,
+  onProgress?: (chunk: number, total: number) => void,
+) {
   debug(`Uploading ${name} level`);
 
   const chunkedState = Array.from(chunk(level, STATE_UPDATES_PER_TX));
-
+  let chunksSucceeded = 0;
   for (let i = 0; i < chunkedState.length; i++) {
     const stateChunk = chunkedState[i];
     debug(`Level: ${name}, Uploading chunk ${i + 1} of ${chunkedState.length}`);
@@ -45,6 +51,8 @@ export async function bulkUploadMap(layer: NetworkLayer, from: Hex, level: Level
         );
         await layer.network.waitForTransaction(tx);
         success = true;
+        chunksSucceeded++;
+        if (onProgress) onProgress(chunksSucceeded, chunkedState.length);
       } catch (e) {
         debug(`Error uploading chunk ${i + 1}:`, e);
         retryCount++;

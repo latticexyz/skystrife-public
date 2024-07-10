@@ -1,5 +1,4 @@
 import { NetworkConfig, getChain, getWorldFromChainId } from "client/src/mud/utils";
-import { env } from "./createSkyStrife";
 import { Entity } from "@latticexyz/recs";
 
 export function createNetworkConfig(
@@ -7,10 +6,12 @@ export function createNetworkConfig(
   {
     disableIndexer,
     matchEntity,
+    privateKey,
   }: {
     disableIndexer?: boolean;
     matchEntity?: Entity;
-  } = {}
+    privateKey?: string;
+  } = {},
 ): NetworkConfig {
   const chain = getChain(chainId);
   const world = getWorldFromChainId(chain.id);
@@ -35,7 +36,7 @@ export function createNetworkConfig(
       jsonRpcUrl: chain.rpcUrls.default.http[0],
       wsRpcUrl: chain.rpcUrls.default.webSocket?.[0],
     },
-    privateKey: env.PRIVATE_KEY || "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+    privateKey: privateKey || "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
     chainId,
     faucetServiceUrl: chain.faucetUrl,
     worldAddress,

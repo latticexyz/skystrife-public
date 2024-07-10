@@ -2,16 +2,22 @@ import { Entity } from "@latticexyz/recs";
 import { useAmalgema } from "../../../useAmalgema";
 import { Hex, stringToHex } from "viem";
 import { Tooltip } from "react-tooltip";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
-export function MapDisplay({ levelId }: { levelId: string }) {
+export function MapDisplay({ levelId, refreshNonce }: { levelId: string; refreshNonce: number }) {
   const {
     utils: { getVirtualLevelData, getLevelSpawns, getLevelPositionStrict, getLevelIndices },
   } = useAmalgema();
 
+  const [forceRefresh, setForceRefresh] = useState(0);
+  useEffect(() => {
+    setForceRefresh((r) => r + 1);
+  }, [refreshNonce]);
+
   const levelData = useMemo(
     () => (levelId.length > 0 ? getVirtualLevelData(levelId as Entity) : []),
-    [getVirtualLevelData, levelId],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [getVirtualLevelData, levelId, forceRefresh],
   );
 
   const levelPreview =
@@ -36,11 +42,13 @@ export function MapDisplay({ levelId }: { levelId: string }) {
 
   const levelSpawnIndices = useMemo(
     () => (levelId.length > 0 ? getLevelSpawns(levelId as Entity) : []),
-    [levelId, getLevelSpawns],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [levelId, getLevelSpawns, forceRefresh],
   );
   const levelSpawnPositions = useMemo(
     () => levelSpawnIndices.map((index) => getLevelPositionStrict(levelId as Hex, index)),
-    [levelSpawnIndices, getLevelPositionStrict, levelId],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [levelSpawnIndices, getLevelPositionStrict, levelId, forceRefresh],
   );
   levelSpawnPositions.forEach((data) => {
     const position = data as unknown as { x: number; y: number };
@@ -62,7 +70,8 @@ export function MapDisplay({ levelId }: { levelId: string }) {
 
   const levelGoldMineIndices = useMemo(
     () => (levelId.length > 0 ? getLevelIndices(levelId as Entity, stringToHex("GoldMine", { size: 32 })) : []),
-    [levelId, getLevelIndices],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [levelId, getLevelIndices, forceRefresh],
   );
   const levelGoldMinePositions = levelGoldMineIndices.map((index) => getLevelPositionStrict(levelId as Hex, index));
   levelGoldMinePositions.forEach((data) => {

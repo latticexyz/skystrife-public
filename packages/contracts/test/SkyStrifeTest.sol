@@ -14,7 +14,7 @@ import { getMatch, addressToEntity } from "../src/libraries/LibUtils.sol";
 import { getStartTimeOfWindow } from "../src/libraries/LibSkyPool.sol";
 
 import { IWorld } from "../src/codegen/world/IWorld.sol";
-import { LevelInStandardRotation, MatchConfig, SkyPoolConfig, MatchReady, LastMatchIndex, MatchSky } from "../src/codegen/index.sol";
+import { LevelInStandardRotation, MatchConfig, SkyPoolConfig, MatchReady, LastMatchIndex, MatchSky, SeasonTimes } from "../src/codegen/index.sol";
 
 // ONLY FOR TESTING
 // incredibly expensive to run because it needs to loop through all existing matches
@@ -51,7 +51,7 @@ function createPublicMatch(IWorld world, bytes32 levelId) returns (bytes32 match
     firstMatchInWindow = matchEntity;
   }
 
-  world.createMatch("match", firstMatchInWindow, matchEntity, levelId);
+  world.createMatch("match", firstMatchInWindow, matchEntity, levelId, false);
 
   return matchEntity;
 }
@@ -73,6 +73,8 @@ contract SkyStrifeTest is MudTest {
     bytes32 levelId = "debug";
 
     prankAdmin();
+    SeasonTimes.setSeasonStart(block.timestamp - 1000 weeks);
+    SeasonTimes.setSeasonEnd(block.timestamp + 1000 weeks);
     SkyPoolConfig.setCost(0); // make matches free to create in tests
     world.setRotationStandard(levelId, true); // add the level to the rotation
     testMatch = createPublicMatch(world, levelId);

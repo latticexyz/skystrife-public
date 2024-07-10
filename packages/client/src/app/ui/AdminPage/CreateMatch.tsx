@@ -261,6 +261,7 @@ export const CreateMatch = ({ close }: { close: () => void }) => {
                           0n,
                           [],
                           BigInt(registrationTime),
+                          false,
                         ],
                       }),
                     );

@@ -28,29 +28,40 @@ import { HeadlessLayer, createHeadlessLayer } from "client/src/layers/Headless";
 import { Entity } from "@latticexyz/recs";
 import { transactionQueue } from "@latticexyz/common/actions";
 
-export const env = z
-  .object({
-    CHAIN_ID: z.coerce.number().positive(),
-    PRIVATE_KEY: z
-      .string()
-      .optional()
-      .transform((val) => (val ? (isHex(val) ? val : stringToHex(val, { size: 64 })) : undefined)),
-    DISABLE_INDEXER: z
-      .string()
-      .optional()
-      .transform((val) => (val ? val === "true" : undefined)),
-    LEVEL_ID: z.string().optional(),
-    MATCH_ENTITY: z.string().optional(),
-  })
-  .parse(process.env, {
-    errorMap: (issue) => ({
-      message: `Missing or invalid environment variable: ${issue.path.join(".")}`,
-    }),
-  });
+let env: Record<string, string | number | boolean | undefined>;
+if (typeof process !== "undefined" && process.env) {
+  env = z
+    .object({
+      CHAIN_ID: z.coerce.number().positive().optional(),
+      PRIVATE_KEY: z
+        .string()
+        .optional()
+        .transform((val) => (val ? (isHex(val) ? val : stringToHex(val, { size: 64 })) : undefined)),
+      DISABLE_INDEXER: z
+        .string()
+        .optional()
+        .transform((val) => (val ? val === "true" : undefined)),
+      LEVEL_ID: z.string().optional(),
+      MATCH_ENTITY: z.string().optional(),
+    })
+    .parse(process.env, {
+      errorMap: (issue) => ({
+        message: `Missing or invalid environment variable: ${issue.path.join(".")}`,
+      }),
+    });
+} else {
+  env = {};
+}
 
 export type SkyStrife = Awaited<ReturnType<typeof createSkyStrife>>;
 
-export async function createSkyStrife(): Promise<{
+export async function createSkyStrife(
+  props: {
+    chainId?: number;
+    disableIndexer?: boolean;
+    matchEntity?: Entity | undefined;
+  } = {},
+): Promise<{
   networkLayer: NetworkLayer;
   headlessLayer: HeadlessLayer;
   createPlayer: (privateKey?: Hex) => {
@@ -60,14 +71,23 @@ export async function createSkyStrife(): Promise<{
     entity: Hex;
   };
 }> {
-  const networkConfig = createNetworkConfig(env.CHAIN_ID, {
-    disableIndexer: env.DISABLE_INDEXER,
-    matchEntity: env.MATCH_ENTITY as Entity | undefined,
+  const chainId = props?.chainId || env.CHAIN_ID;
+  const disableIndexer = props?.disableIndexer || env.DISABLE_INDEXER;
+  const matchEntity = props?.matchEntity || (env.MATCH_ENTITY as Entity | undefined);
+
+  if (!chainId) {
+    throw new Error("CHAIN_ID is required");
+  }
+
+  const networkConfig = createNetworkConfig(chainId as number, {
+    disableIndexer: Boolean(disableIndexer),
+    matchEntity,
+    privateKey: env.PRIVATE_KEY as string,
   });
 
   console.log(`Connecting to ${networkConfig.chain.name}...`);
-  if (env.MATCH_ENTITY) {
-    console.log(`Loading Match: ${env.MATCH_ENTITY}`);
+  if (matchEntity) {
+    console.log(`Loading Match: ${matchEntity}`);
   }
 
   const networkLayer = await createNetworkLayer(networkConfig);

@@ -49,6 +49,7 @@ export function MatchType({
   allowedAddresses,
   setAllowedAddresses,
   hasSeasonPass,
+  practiceMatch,
 }: {
   matchType: "public" | "private" | "season-pass";
   setMatchType: (matchType: "public" | "private" | "season-pass") => void;
@@ -56,6 +57,7 @@ export function MatchType({
   setAllowedAddresses: (allowedAddresses: string[]) => void;
   levelId: Hex;
   hasSeasonPass: boolean;
+  practiceMatch: boolean;
 }) {
   const {
     components: { Name },
@@ -168,7 +170,7 @@ export function MatchType({
         <>
           <div className="h-6" />
 
-          <RemainingPrivateMatches />
+          {!practiceMatch && <RemainingPrivateMatches />}
 
           <div className="h-3" />
 

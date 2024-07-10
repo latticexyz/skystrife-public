@@ -12,6 +12,7 @@ import { HistoricalMatches } from "./HistoricalMatches";
 import { useEntityQuery } from "@latticexyz/react";
 import { Entity, Has, HasValue, Not, getComponentValue, runQuery } from "@latticexyz/recs";
 import { Matchmaking } from "../Matchmaking";
+import { useSeasonTimes } from "../hooks/useSeasonTimes";
 
 enum Tabs {
   Play = "play",
@@ -27,6 +28,7 @@ export function MatchTable() {
   } = useAmalgema();
 
   const [currentTab, setCurrentTab] = useState<Tabs>(Tabs.Play);
+  const { isSeasonActive } = useSeasonTimes();
 
   const openMatches = useEntityQuery([
     Has(MatchConfig),
@@ -106,7 +108,7 @@ export function MatchTable() {
   return (
     <div className="grow flex flex-col p-0">
       <div className="flex w-full">
-        <Card primary={false} className="w-1/2 p-0 flex">
+        <Card primary={false} className="w-1/2 p-0 flex min-h-[50px]">
           {tabButton(Tabs.Play, "Play", joinableMatches.length)}
 
           {tabButton(Tabs.Spectate, "Spectate", sortedLiveMatches.length)}
@@ -116,28 +118,32 @@ export function MatchTable() {
 
         <div className="grow" />
 
-        <Button
-          buttonType="primary"
-          size="lg"
-          onClick={() => {
-            if (!externalWalletClient) {
-              if (openConnectModal) openConnectModal();
-              return;
-            }
+        {isSeasonActive && (
+          <div className="flex">
+            <Button
+              buttonType="primary"
+              size="lg"
+              onClick={() => {
+                if (!externalWalletClient) {
+                  if (openConnectModal) openConnectModal();
+                  return;
+                }
 
-            setModalOpen(true);
-          }}
-        >
-          <div className="flex flex-row items-center justify-center h-fit">
-            <Plus /> <div className="w-4" /> <span>create match</span>
+                setModalOpen(true);
+              }}
+            >
+              <div className="flex flex-row items-center justify-center h-fit">
+                <Plus /> <div className="w-4" /> <span>create match</span>
+              </div>
+            </Button>
+
+            {summonIslandModal}
+
+            <div className="w-4" />
+
+            <Matchmaking />
           </div>
-        </Button>
-
-        {summonIslandModal}
-
-        <div className="w-4" />
-
-        <Matchmaking />
+        )}
       </div>
 
       <div className="h-6 shrink-0" />

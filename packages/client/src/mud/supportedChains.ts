@@ -1,5 +1,5 @@
 import { MUDChain, mudFoundry, redstone as mudRedstone } from "@latticexyz/common/chains";
-import { parseGwei } from "viem";
+import { chainConfig } from "viem/op-stack";
 
 export type SkyStrifeChain = MUDChain & {
   indexerUrl?: string;
@@ -7,41 +7,54 @@ export type SkyStrifeChain = MUDChain & {
   bridgeUrl?: string;
 };
 
+const sourceId = 17000;
 export const garnet = {
+  ...chainConfig,
   id: 17069,
-  name: "Redstone Garnet Testnet",
-  network: "garnet",
-  summary: {
-    location: "Holesky",
-  },
-  description: "Redstone Garnet Testnet",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Holesky Ether",
-    symbol: "ETH",
-  },
+  sourceId,
+  name: "Garnet Holesky",
+  testnet: true,
+  nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
   rpcUrls: {
     default: {
-      http: ["https://rpc.garnet.qry.live"],
-      webSocket: ["wss://rpc.garnet.qry.live"],
-    },
-    public: {
-      http: ["https://rpc.garnet.qry.live"],
-      webSocket: ["wss://rpc.garnet.qry.live"],
+      http: ["https://rpc.garnetchain.com"],
+      webSocket: ["wss://rpc.garnetchain.com"],
     },
   },
   blockExplorers: {
     default: {
       name: "Blockscout",
-      url: "https://explorer.garnet.qry.live",
+      url: "https://explorer.garnetchain.com",
     },
   },
-  fees: {
-    baseFeeMultiplier: 1.2,
-    defaultPriorityFee: parseGwei("0.001"),
+  contracts: {
+    ...chainConfig.contracts,
+    multicall3: {
+      address: "0xca11bde05977b3631167028862be2a173976ca11",
+    },
+    portal: {
+      [sourceId]: {
+        address: "0x57ee40586fbE286AfC75E67cb69511A6D9aF5909",
+        blockCreated: 1274684,
+      },
+    },
+    l2OutputOracle: {
+      [sourceId]: {
+        address: "0xCb8E7AC561b8EF04F2a15865e9fbc0766FEF569B",
+        blockCreated: 1274684,
+      },
+    },
+    l1StandardBridge: {
+      [sourceId]: {
+        address: "0x09bcDd311FE398F80a78BE37E489f5D440DB95DE",
+        blockCreated: 1274684,
+      },
+    },
   },
+  iconUrls: ["https://redstone.xyz/chain-icons/garnet.png"],
   indexerUrl: "https://indexer.mud.garnetchain.com",
-};
+  faucetUrl: "https://garnetchain.com/faucet",
+} as const satisfies MUDChain;
 
 export const redstone = {
   ...mudRedstone,

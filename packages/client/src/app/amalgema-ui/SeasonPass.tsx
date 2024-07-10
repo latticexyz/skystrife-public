@@ -10,14 +10,15 @@ import { PromiseButton } from "../ui/hooks/PromiseButton";
 import { DateTime, Duration } from "luxon";
 import { Modal } from "./Modal";
 import { useMainWalletBalance } from "./hooks/useBalance";
-import { SEASON_NAME } from "../../constants";
 import { SeasonPassImg } from "./SeasonPassImg";
 import { Has, getComponentValue } from "@latticexyz/recs";
 import { useSeasonPassPrice } from "./hooks/useSeasonPassPrice";
+import { useSeasonName } from "./hooks/useSeasonName";
 import { ReadOnlyTextInput } from "./SummonIsland/common";
 import { usePrivateMatchLimit } from "./hooks/usePrivateMatchLimit";
 import { twMerge } from "tailwind-merge";
 import WarningSection from "../ui/Theme/SkyStrife/WarningSection";
+import { useSeasonTimes } from "./hooks/useSeasonTimes";
 
 export function RemainingPrivateMatches() {
   const { limit, created } = usePrivateMatchLimit();
@@ -27,11 +28,11 @@ export function RemainingPrivateMatches() {
       <ReadOnlyTextInput
         symbolClassName={twMerge(created >= limit ? "text-ss-warning" : "text-ss-text-default")}
         value=""
-        label="private matches created"
+        label="custom matches created"
         symbol={`${created.toString()} / ${limit.toString()}`}
       />
 
-      {created >= limit && <div className="text-ss-warning mt-1">Private match creation limit reached.</div>}
+      {created >= limit && <div className="text-ss-warning mt-1">Custom match creation limit reached.</div>}
     </div>
   );
 }
@@ -42,6 +43,9 @@ export function SeasonPass({ account }: { account?: Hex }) {
     components: { SeasonPassConfig, SeasonPassLastSaleAt, SeasonTimes, SeasonPassSale, SeasonPassPrivateMatchLimit },
     executeSystemWithExternalWallet,
   } = useAmalgema();
+
+  const seasonName = useSeasonName();
+  const { isSeasonActive, seasonStart, seasonEnd } = useSeasonTimes();
 
   const [now, setNow] = useState(DateTime.now().toSeconds());
   const [modalOpen, setModalOpen] = useState(false);
@@ -84,9 +88,6 @@ export function SeasonPass({ account }: { account?: Hex }) {
 
   const mainWalletBalance = useMainWalletBalance();
 
-  const seasonStart = DateTime.fromSeconds(Number(seasonTimes?.seasonStart ?? 0n));
-  const seasonEnd = DateTime.fromSeconds(Number(seasonTimes?.seasonEnd ?? 0n));
-
   const hasSeasonPass = useSeasonPassExternalWallet();
   const price = useSeasonPassPrice(BigInt(Math.floor(now)));
   const { nativeCurrency } = publicClient.chain;
@@ -105,204 +106,214 @@ export function SeasonPass({ account }: { account?: Hex }) {
     [nativeCurrency.symbol],
   );
 
-  return secondsUntilMintCutoff > 0 ? (
-    <div className="flex flex-col items-start self-stretch rounded-sm border border-ss-stroke bg-ss-bg-0">
-      <div className="flex flex-col justify-center items-center self-stretch py-3 px-4 border-b border-ss-stroke">
-        <div className="flex flex-col justify-center items-center">
-          <Caption className="text-ss-text-x-light leading-6">Minting ends in:</Caption>
-          <div className="text-ss-text-default text-[2rem] font-medium font-mono leading-8 uppercase">
-            {timeUntilMintCutoff.toFormat("dd:hh:mm:ss")}
+  if (isSeasonActive && secondsUntilMintCutoff > 0) {
+    return (
+      <div className="flex flex-col items-start self-stretch rounded-sm border border-ss-stroke bg-ss-bg-0">
+        <div className="flex flex-col justify-center items-center self-stretch py-3 px-4 border-b border-ss-stroke">
+          <div className="flex flex-col justify-center items-center">
+            <Caption className="text-ss-text-x-light leading-6">Minting ends in:</Caption>
+            <div className="text-ss-text-default text-[2rem] font-medium font-mono leading-8 uppercase">
+              {timeUntilMintCutoff.toFormat("dd:hh:mm:ss")}
+            </div>
           </div>
         </div>
-      </div>
-      <div className="flex flex-col items-start gap-3 self-stretch p-4">
-        {hasSeasonPass ? (
-          <div className="flex items-center gap-3 self-stretch">
-            <SeasonPassImg className="w-[100px]" />
-            <div className="frame_530 flex flex-col items-start">
-              <Heading className="text-ss-text-default"> Season Pass</Heading>
-              <Caption className="text-ss-text-light">You have the Season Pass for this Season!</Caption>
+        <div className="flex flex-col items-start gap-3 self-stretch p-4">
+          {hasSeasonPass ? (
+            <div className="flex items-center gap-3 self-stretch">
+              <SeasonPassImg className="w-[100px]" />
+              <div className="frame_530 flex flex-col items-start">
+                <Heading className="text-ss-text-default"> Season Pass</Heading>
+                <Caption className="text-ss-text-light">You have the Season Pass for this Season!</Caption>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 self-stretch">
-            <SeasonPassImg className="w-[100px]" colored={false} />
-            <div className="frame_530 flex flex-col items-start">
-              <Heading className="text-ss-text-default">Season Pass</Heading>
-              <Caption className="text-ss-text-light">
-                Mint a Season Pass to gain access exclusive perks and features!
-              </Caption>
+          ) : (
+            <div className="flex items-center gap-3 self-stretch">
+              <SeasonPassImg className="w-[100px]" colored={false} />
+              <div className="frame_530 flex flex-col items-start">
+                <Heading className="text-ss-text-default">Season Pass</Heading>
+                <Caption className="text-ss-text-light">
+                  Mint a Season Pass to gain access exclusive perks and features!
+                </Caption>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {!hasSeasonPass ? (
-          <Modal
-            isOpen={modalOpen}
-            setOpen={setModalOpen}
-            title={`Season Pass (${SEASON_NAME})`}
-            trigger={
-              <Button
-                style={{
-                  transition: "all 0.1s ease-in-out",
-                  transform: enlarge ? "scale(1.2)" : "scale(1)",
-                }}
-                buttonType="primary"
-                size="md"
-                className="w-full"
-                disabled={!account}
-              >
-                mint - {formatEthPrice(price)}
-              </Button>
-            }
-            footer={
-              <div className="flex space-x-4 w-full">
-                <Button onClick={() => setModalOpen(false)} buttonType="tertiary" className="w-full">
-                  cancel
-                </Button>
-                <PromiseButton
-                  disabled={!canBuy}
-                  promise={async () => {
-                    if (!account) return;
-
-                    const tx = await executeSystemWithExternalWallet({
-                      systemCall: "buySeasonPass",
-                      systemId: "Buy Season Pass",
-                      args: [[account as Hex], { account, value: price }],
-                    });
-                    if (tx) await waitForTransaction(tx);
+          {!hasSeasonPass ? (
+            <Modal
+              isOpen={modalOpen}
+              setOpen={setModalOpen}
+              title={`Season Pass (${seasonName})`}
+              trigger={
+                <Button
+                  style={{
+                    transition: "all 0.1s ease-in-out",
+                    transform: enlarge ? "scale(1.2)" : "scale(1)",
                   }}
-                  buttonType="secondary"
+                  buttonType="primary"
                   size="md"
                   className="w-full"
+                  disabled={!account}
                 >
-                  {canBuy ? `mint - ${formatEthPrice(price)}` : disabledMessage}
-                </PromiseButton>
-              </div>
-            }
-          >
-            <div className="flex space-x-6">
-              <div className="flex flex-col items-center justify-around border border-ss-stroke bg-white w-fit p-2 rounded-md">
-                <SeasonPassImg className="w-[180px]" />
-              </div>
+                  mint - {formatEthPrice(price)}
+                </Button>
+              }
+              footer={
+                <div className="flex space-x-4 w-full">
+                  <Button onClick={() => setModalOpen(false)} buttonType="tertiary" className="w-full">
+                    cancel
+                  </Button>
+                  <PromiseButton
+                    disabled={!canBuy}
+                    promise={async () => {
+                      if (!account) return;
 
-              <div className="grow flex flex-col justify-between">
-                <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2">
-                  <span className="text-ss-text-x-light">Season Starts</span>
-                  <span>{seasonStart.toFormat("LLL dd")}</span>
+                      const tx = await executeSystemWithExternalWallet({
+                        systemCall: "buySeasonPass",
+                        systemId: "Buy Season Pass",
+                        args: [[account as Hex], { account, value: price }],
+                      });
+                      if (tx) await waitForTransaction(tx);
+                    }}
+                    buttonType="secondary"
+                    size="md"
+                    className="w-full"
+                  >
+                    {canBuy ? `mint - ${formatEthPrice(price)}` : disabledMessage}
+                  </PromiseButton>
+                </div>
+              }
+            >
+              <div className="flex space-x-6">
+                <div className="flex flex-col items-center justify-around border border-ss-stroke bg-white w-fit p-2 rounded-md">
+                  <SeasonPassImg className="w-[180px]" />
                 </div>
 
-                <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2">
-                  <span className="text-ss-text-x-light">Minting Ends</span>
-                  <span>{DateTime.fromSeconds(mintCutoff).toFormat("LLL dd")}</span>
-                </div>
+                <div className="grow flex flex-col justify-between">
+                  <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2">
+                    <span className="text-ss-text-x-light">Season Starts</span>
+                    <span>{seasonStart.toFormat("LLL dd")}</span>
+                  </div>
 
-                <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2">
-                  <span className="text-ss-text-x-light">Season Ends</span>
-                  <span>{seasonEnd.toFormat("LLL dd")}</span>
+                  <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2">
+                    <span className="text-ss-text-x-light">Minting Ends</span>
+                    <span>{DateTime.fromSeconds(mintCutoff).toFormat("LLL dd")}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2">
+                    <span className="text-ss-text-x-light">Season Ends</span>
+                    <span>{seasonEnd.toFormat("LLL dd")}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="h-8" />
+              <div className="h-8" />
 
-            <WarningSection>
-              The Season Pass is soulbound (non-transferable) and can only be minted once per account. Any offers to buy
-              or sell Sky Strife Season Passes are fraudulent.
-            </WarningSection>
+              <WarningSection>
+                The Season Pass is soulbound (non-transferable) and can only be minted once per account. Any offers to
+                buy or sell Sky Strife Season Passes are fraudulent.
+              </WarningSection>
 
-            <div className="h-4" />
+              <div className="h-4" />
 
-            <Body className="text-ss-text-default">
-              The <span className="font-bold">Sky Strife Season Pass</span>, for {SEASON_NAME}, gives you access to
-              exclusive perks and features:
-            </Body>
+              <Body className="text-ss-text-default">
+                The <span className="font-bold">Sky Strife Season Pass</span>, for {seasonName}, gives you access to
+                exclusive perks and features:
+              </Body>
 
-            <ul className="list-disc list-inside text-ss-text-light p-4">
-              <li>Access to exclusive free matches summoned from the Sky Pool.</li>
-              <li>Unlock additional features for creating matches.</li>
-              <ul className="pl-8 list-disc list-inside">
-                <li>
-                  Create private matches with a custom access list{" "}
-                  <strong>(limited to {privateMatchLimit.toString()} private matches per Pass)</strong>
-                </li>
-                <li>Set entrance fees and custom rewards.</li>
+              <ul className="list-disc list-inside text-ss-text-light p-4">
+                <li>Access to exclusive free matches created every 8 hours.</li>
+                <li>Create unlimited practice matches to play with friends (no rewards, 5🔮 creation cost).</li>
+                <li>Unlock additional features for creating matches:</li>
+                <ul className="pl-8 list-disc list-inside">
+                  <li>Create private matches with a custom access list</li>
+                  <li>Set entrance fees and custom rewards.</li>
+                  <li>
+                    <strong>NOTE:</strong> Limited to {privateMatchLimit.toString()} custom matches with rewards per
+                    Pass.
+                  </li>
+                </ul>
+                <li>Exclusive maps from the current season.</li>
+                <li>Access to all in-game Heroes.</li>
               </ul>
-              <li>Exclusive maps from the current season.</li>
-              <li>Access to all in-game Heroes.</li>
-            </ul>
 
-            <div className="h-4" />
+              <div className="h-4" />
 
-            <div className="flex w-full space-x-4">
-              <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2 grow">
-                <span className="text-ss-text-x-light">Price</span>
-                <span className="font-mono">{formatEthPrice(price)}</span>
+              <div className="flex w-full space-x-4">
+                <div className="flex justify-between items-center px-3 py-2 bg-ss-bg-2 grow">
+                  <span className="text-ss-text-x-light">Price</span>
+                  <span className="font-mono">{formatEthPrice(price)}</span>
+                </div>
               </div>
-            </div>
-          </Modal>
-        ) : (
-          <></>
-        )}
+            </Modal>
+          ) : (
+            <></>
+          )}
 
-        {hasSeasonPass && <RemainingPrivateMatches />}
+          {hasSeasonPass && <RemainingPrivateMatches />}
 
-        {seasonPassSales.length > 0 && (
-          <div className="w-full">
-            <div className="h-2" />
+          {seasonPassSales.length > 0 && (
+            <div className="w-full">
+              <div className="h-2" />
 
-            <div className="flex flex-col items-center gap-2 w-full">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <SeasonPassImg className="w-[50px]" />
-                  <div className="flex flex-col items-start">
-                    <Caption className="text-ss-text-light font-bold font-mono">Last Purchased:</Caption>
-                    <Caption className="text-ss-text-light font-mono">
-                      {DateTime.fromSeconds(Number(mostRecentSale?.purchasedAt ?? 0n)).toRelative()}
-                    </Caption>
+              <div className="flex flex-col items-center gap-2 w-full">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <SeasonPassImg className="w-[50px]" />
+                    <div className="flex flex-col items-start">
+                      <Caption className="text-ss-text-light font-bold font-mono">Last Purchased:</Caption>
+                      <Caption className="text-ss-text-light font-mono">
+                        {DateTime.fromSeconds(Number(mostRecentSale?.purchasedAt ?? 0n)).toRelative()}
+                      </Caption>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-    </div>
-  ) : (
-    <div className="flex flex-col items-start self-stretch rounded-sm border border-ss-stroke bg-ss-bg-0">
-      <div className="flex flex-col justify-center items-center self-stretch py-3 px-4 border-b border-ss-stroke">
-        <div className="flex flex-col justify-center items-center">
-          <Caption className="text-ss-text-x-light leading-6">{SEASON_NAME} ends in:</Caption>
-          <div className="text-ss-text-default text-[2rem] font-medium font-mono leading-8">
-            {timeUntilSeasonEnds.toFormat("dd:hh:mm:ss")}
-          </div>
+          )}
         </div>
       </div>
-      <div className="flex flex-col items-start gap-3 self-stretch p-4">
-        {hasSeasonPass ? (
-          <div className="flex items-center gap-3 self-stretch">
-            <SeasonPassImg className="w-[100px]" />
-            <div className="frame_530 flex flex-col items-start">
-              <Heading className="text-ss-text-default">Season Pass</Heading>
-              <Caption className="text-ss-text-light">
-                Minting has ended. You are a Season Pass holder this season!
-              </Caption>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-3 self-stretch">
-            <SeasonPassImg className="w-[100px]" colored={false} />
-            <div className="frame_530 flex flex-col items-start">
-              <Heading className="text-ss-text-default">Season Pass</Heading>
-              <Caption className="text-ss-text-light">
-                Minting has ended. You are not a Season Pass holder this season.
-              </Caption>
-            </div>
-          </div>
-        )}
+    );
+  }
 
-        {hasSeasonPass && <RemainingPrivateMatches />}
+  if (isSeasonActive && secondsUntilMintCutoff <= 0) {
+    return (
+      <div className="flex flex-col items-start self-stretch rounded-sm border border-ss-stroke bg-ss-bg-0">
+        <div className="flex flex-col justify-center items-center self-stretch py-3 px-4 border-b border-ss-stroke">
+          <div className="flex flex-col justify-center items-center">
+            <Caption className="text-ss-text-x-light leading-6">{seasonName} ends in:</Caption>
+            <div className="text-ss-text-default text-[2rem] font-medium font-mono leading-8">
+              {timeUntilSeasonEnds.toFormat("dd:hh:mm:ss")}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col items-start gap-3 self-stretch p-4">
+          {hasSeasonPass ? (
+            <div className="flex items-center gap-3 self-stretch">
+              <SeasonPassImg className="w-[100px]" />
+              <div className="frame_530 flex flex-col items-start">
+                <Heading className="text-ss-text-default">Season Pass</Heading>
+                <Caption className="text-ss-text-light">
+                  Minting has ended. You are a Season Pass holder this season!
+                </Caption>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 self-stretch">
+              <SeasonPassImg className="w-[100px]" colored={false} />
+              <div className="frame_530 flex flex-col items-start">
+                <Heading className="text-ss-text-default">Season Pass</Heading>
+                <Caption className="text-ss-text-light">
+                  Minting has ended. You are not a Season Pass holder this season.
+                </Caption>
+              </div>
+            </div>
+          )}
+
+          {hasSeasonPass && <RemainingPrivateMatches />}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return <></>;
 }

@@ -6,7 +6,8 @@ import { toSlice, StrCharsIter } from "@dk1a/solidity-stringutils/src/StrSlice.s
 import { System } from "@latticexyz/world/src/System.sol";
 import { ResourceId } from "@latticexyz/store/src/ResourceId.sol";
 
-import { Admin, Match, MatchName, MatchIndex, MatchSweepstake, LevelTemplatesIndex, LevelInStandardRotation, LevelInSeasonPassRotation, MatchAccessControl, MatchConfig, MatchSky, MatchConfigData, SkyPoolConfig, MatchesPerDay, SeasonPassPrivateMatchLimit, PrivateMatchesCreated } from "../codegen/index.sol";
+import { Admin, Match, MatchName, MatchIndex, MatchSweepstake, LevelTemplatesIndex, LevelInStandardRotation, LevelInSeasonPassRotation } from "../codegen/index.sol";
+import { MatchAccessControl, MatchConfig, MatchSky, MatchConfigData, SkyPoolConfig, MatchesPerDay, SeasonPassPrivateMatchLimit, PrivateMatchesCreated, SeasonTimes, PracticeMatch } from "../codegen/index.sol";
 import { SpawnSettlementTemplateId } from "../codegen/Templates.sol";
 
 import { addressToEntity, entityToAddress } from "../libraries/LibUtils.sol";
@@ -28,8 +29,11 @@ function getCharLength(string memory str) pure returns (uint256) {
 }
 
 contract MatchSystem is System {
-  modifier worldUnlocked() {
-    require(!SkyPoolConfig.getLocked() || hasSkyKey(_msgSender()), "world is locked");
+  modifier seasonActive() {
+    require(
+      block.timestamp >= SeasonTimes.getSeasonStart() && block.timestamp <= SeasonTimes.getSeasonEnd(),
+      "no season active"
+    );
     _;
   }
 
@@ -38,7 +42,8 @@ contract MatchSystem is System {
     bytes32 claimedFirstMatchInWindow,
     bytes32 matchEntity,
     bytes32 levelId,
-    uint256 registrationTime
+    uint256 registrationTime,
+    bool isPractice
   ) internal {
     require(getCharLength(name) <= 24, "name too long");
     require(MatchConfig.getTurnLength(matchEntity) == 0, "this match already exists");
@@ -52,8 +57,13 @@ contract MatchSystem is System {
     bytes32 createdBy = addressToEntity(_msgSender());
 
     // SkyKey holder does not pay to create matches
-    if (!hasToken(SkyPoolConfig.getSkyKeyToken(), _msgSender())) {
+    if (!isPractice && !hasToken(SkyPoolConfig.getSkyKeyToken(), _msgSender())) {
       transferToken(_world(), _world(), SkyPoolConfig.getCost());
+    }
+
+    if (isPractice) {
+      PracticeMatch.set(matchEntity, true);
+      transferToken(_world(), _world(), 5 ether);
     }
 
     Transactor escrowContract = new Transactor(_world());
@@ -70,7 +80,12 @@ contract MatchSystem is System {
     MatchConfig.set(matchEntity, config);
     MatchName.set(matchEntity, name);
 
-    createMatchSkyPool(matchEntity, claimedFirstMatchInWindow);
+    if (!isPractice) {
+      createMatchSkyPool(matchEntity, claimedFirstMatchInWindow);
+    } else {
+      MatchSky.setCreatedAt(matchEntity, block.timestamp);
+      MatchSky.setReward(matchEntity, 0);
+    }
   }
 
   function _createMatchSeasonPass(
@@ -81,7 +96,8 @@ contract MatchSystem is System {
     ResourceId systemId,
     uint256 entranceFee,
     uint256[] memory rewardPercentages,
-    uint256 registrationTime
+    uint256 registrationTime,
+    bool isPractice
   ) internal {
     require(entranceFee == 0 || sum(rewardPercentages) == DENOMINATOR, "percentages must add up to 100");
     require(
@@ -90,7 +106,7 @@ contract MatchSystem is System {
       "there must be percentages for each entity"
     );
 
-    _createMatch(name, claimedFirstMatchInWindow, matchEntity, levelId, registrationTime);
+    _createMatch(name, claimedFirstMatchInWindow, matchEntity, levelId, registrationTime, isPractice);
     MatchAccessControl.set(matchEntity, systemId);
     MatchSweepstake.set(matchEntity, entranceFee, rewardPercentages);
   }
@@ -100,14 +116,15 @@ contract MatchSystem is System {
     string memory name,
     bytes32 claimedFirstMatchInWindow,
     bytes32 matchEntity,
-    bytes32 levelId
-  ) public worldUnlocked {
+    bytes32 levelId,
+    bool isPractice
+  ) public seasonActive {
     require(
       LevelInStandardRotation.get(levelId) || (hasSeasonPass(_msgSender()) && LevelInSeasonPassRotation.get(levelId)),
       "this level is not in rotation"
     );
 
-    _createMatch(name, claimedFirstMatchInWindow, matchEntity, levelId, 0);
+    _createMatch(name, claimedFirstMatchInWindow, matchEntity, levelId, 0, isPractice);
   }
 
   // Create a match with a predefined match entity, access control system, and sweepstake reward configuration
@@ -118,13 +135,14 @@ contract MatchSystem is System {
     bytes32 levelId,
     ResourceId systemId,
     uint256 entranceFee,
-    uint256[] memory rewardPercentages
-  ) public worldUnlocked {
+    uint256[] memory rewardPercentages,
+    bool isPractice
+  ) public seasonActive {
     address caller = _msgSender();
     require(hasSeasonPass(caller), "caller does not have the season pass");
 
     // creating private match...
-    if (systemId.getType() != "" || systemId.getResourceName() != "") {
+    if (!isPractice && (systemId.getType() != "" || systemId.getResourceName() != "" || entranceFee != 0)) {
       address seasonPassToken = SkyPoolConfig.getSeasonPassToken();
       uint256 privateMatchLimit = SeasonPassPrivateMatchLimit.get();
       uint256 privateMatchesCreated = PrivateMatchesCreated.get(seasonPassToken, caller);
@@ -146,7 +164,8 @@ contract MatchSystem is System {
       systemId,
       entranceFee,
       rewardPercentages,
-      0
+      0,
+      isPractice
     );
   }
 
@@ -158,8 +177,9 @@ contract MatchSystem is System {
     ResourceId systemId,
     uint256 entranceFee,
     uint256[] memory rewardPercentages,
-    uint256 registrationTime
-  ) public worldUnlocked {
+    uint256 registrationTime,
+    bool isPractice
+  ) public seasonActive {
     skyKeyHolderOnly(_msgSender());
 
     _createMatchSeasonPass(
@@ -170,7 +190,8 @@ contract MatchSystem is System {
       systemId,
       entranceFee,
       rewardPercentages,
-      registrationTime
+      registrationTime,
+      isPractice
     );
   }
 }

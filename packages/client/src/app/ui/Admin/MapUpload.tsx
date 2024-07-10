@@ -9,7 +9,7 @@ import { LEVEL_UPLOAD_SYSTEM_ID, SYSTEMBOUND_DELEGATION } from "../../../constan
 import { useExternalAccount } from "../../amalgema-ui/hooks/useExternalAccount";
 import { DelegationAbi } from "./delegationAbi";
 
-export const MapUpload = () => {
+export const MapUpload = ({ setRefreshNonce }: { setRefreshNonce: (n: number) => void }) => {
   const networkLayer = useAmalgema();
   const {
     externalWalletClient,
@@ -24,6 +24,7 @@ export const MapUpload = () => {
   });
   const [sendingTxs, setSendingTxs] = useState(false);
   const [name, setName] = useState("");
+  const [progress, setProgress] = useState<{ chunk: number; total: number } | null>(null);
 
   const { filesContent, loading } = fileData;
 
@@ -38,16 +39,26 @@ export const MapUpload = () => {
         event.preventDefault();
         if (externalWalletClient && externalWalletClient.account) {
           setSendingTxs(true);
-          try {
-            await bulkUploadMap(
-              networkLayer,
-              externalWalletClient.account.address,
-              JSON.parse(filesContent[0].content) as Level,
-              name
-            );
-          } finally {
-            setSendingTxs(false);
-          }
+          const promise = bulkUploadMap(
+            networkLayer,
+            externalWalletClient.account.address,
+            JSON.parse(filesContent[0].content) as Level,
+            name,
+            (chunk, total) => setProgress({ chunk, total }),
+          );
+
+          promise
+            .then(() => {
+              setSendingTxs(false);
+              setProgress(null);
+              setRefreshNonce(Math.random());
+            })
+            .catch((e) => {
+              console.error(e);
+              setSendingTxs(false);
+              setProgress(null);
+              setRefreshNonce(Math.random());
+            });
         }
       }}
     >
@@ -72,7 +83,7 @@ export const MapUpload = () => {
                     ],
                     {
                       account: externalWalletClient.account,
-                    }
+                    },
                   );
                 }
               }}
@@ -106,7 +117,7 @@ export const MapUpload = () => {
       {loading && <div>Loading...</div>}
 
       <Button type="submit" disabled={sendingTxs || name === "" || !filesContent[0]} buttonType="primary">
-        Upload!
+        {sendingTxs && progress ? `${progress.chunk}/${progress.total} chunks uploaded` : "Upload!"}
       </Button>
     </form>
   );

@@ -2,7 +2,7 @@ import { world } from "./world";
 import mudConfig from "contracts/mud.config";
 import IWorldAbi from "contracts/out/IWorld.sol/IWorld.abi.json";
 import { getContract } from "viem";
-import { createBurnerAccount, getNonceManager, transportObserver } from "@latticexyz/common";
+import { createBurnerAccount, getNonceManager, resourceToHex, transportObserver } from "@latticexyz/common";
 import { encodeEntity, syncToRecs } from "@latticexyz/store-sync/recs";
 import { map, filter } from "rxjs";
 import { useStore } from "../useStore";
@@ -12,7 +12,10 @@ import { createPublicClient, fallback, webSocket, http, createWalletClient, Hex,
 import { transactionQueue } from "@latticexyz/common/actions";
 import { createWaitForTransaction } from "./waitForTransaction";
 import { createSyncFilters } from "./createSyncFilters";
-import { tables as extraTables, syncFilters as extraSyncFilters } from "./extraTables";
+import { tables as extraTables, syncFilters as extraSyncFilters, SEASON_PASS_NAMESPACE } from "./extraTables";
+import { createIndexerClient } from "@latticexyz/store-sync/indexer-client";
+import { decodeValueArgs, ValueArgs } from "@latticexyz/protocol-parser/internal";
+import { hexToString } from "viem";
 
 export const addressToEntityID = (address: Hex) => encodeEntity({ address: "address" }, { address });
 
@@ -27,14 +30,42 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
 
   const publicClient = createPublicClient(clientOptions);
 
-  const filters = [...createSyncFilters(networkConfig.matchEntity), ...extraSyncFilters];
-
   const txReceiptClient = createPublicClient({
     ...clientOptions,
     transport: transportObserver(fallback([webSocket(), http()], { retryCount: 0 })),
     pollingInterval: 250,
   });
 
+  // defaulting to a namespace here for easy development, but we cannot use this namespace in production
+  let seasonPassNamespace = SEASON_PASS_NAMESPACE;
+  const indexerClient = networkConfig.indexerUrl ? createIndexerClient({ url: networkConfig.indexerUrl }) : undefined;
+  if (indexerClient) {
+    let retriesRemaining = 3;
+    while (retriesRemaining > 0) {
+      try {
+        const seasonPassNamespaceTable = resourceToHex({ type: "table", namespace: "", name: "SeasonPassNamesp" });
+        const result = await indexerClient.getLogs({
+          chainId: networkConfig.chain.id,
+          address: networkConfig.worldAddress as Hex,
+          filters: [{ tableId: seasonPassNamespaceTable }],
+        });
+
+        if (!("error" in result)) {
+          const log = result.ok.logs.find((l) => l.args.tableId === seasonPassNamespaceTable);
+          if (log) {
+            const val = decodeValueArgs({ value: "bytes14" }, log.args as ValueArgs).value;
+            seasonPassNamespace = hexToString(val, { size: 14 });
+          }
+        }
+        break; // Exit loop if successful
+      } catch (e) {
+        console.error("Error fetching season pass namespace from indexer", e);
+        retriesRemaining -= 1;
+      }
+    }
+  }
+
+  const filters = [...createSyncFilters(networkConfig.matchEntity), ...extraSyncFilters(seasonPassNamespace)];
   const { components, latestBlock$, storedBlockLogs$ } = await syncToRecs({
     world,
     config: mudConfig,
@@ -43,7 +74,7 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
     indexerUrl: networkConfig.indexerUrl,
     startBlock: networkConfig.initialBlockNumber > 0n ? BigInt(networkConfig.initialBlockNumber) : undefined,
     filters,
-    tables: extraTables,
+    tables: extraTables(seasonPassNamespace),
     // making the block range very small here, as we've had problems with
     // large Sky Strife worlds overloading the RPC
     maxBlockRange: 100n,
