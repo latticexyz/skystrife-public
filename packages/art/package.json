@@ -5,10 +5,12 @@
   "types": "./types",
   "scripts": {
     "generate-multiatlas-sprites": "node ./scripts/cli.js --project ./config-sprites.json",
-    "compile-extensions": "tsc ./tiled/extensions/*.ts --outDir ./tiled/extensions/",
+    "compile-plugins": "tsc ./tiled/extensions/*.ts --outDir ./tiled/extensions/ --noEmitOnError --skipLibCheck",
     "export-tiled-types": "ts-node ./scripts/export-tiled-types.ts && cp tilesets/images/* ../client/src/public/tilesets/",
     "generate-tinted-images": "cd ./scripts && ./generate_tinted_images.sh cd ..",
-    "generate": "pnpm generate-tinted-images && pnpm generate-multiatlas-sprites && pnpm export-tiled-types"
+    "generate": "pnpm generate-tinted-images && pnpm generate-multiatlas-sprites && pnpm export-tiled-types",
+    "move-plugins": "ts-node ./scripts/move-plugins.ts",
+    "install-plugins": "pnpm compile-plugins && pnpm move-plugins"
   },
   "devDependencies": {
     "@mapeditor/tiled-api": "^1.10.1",

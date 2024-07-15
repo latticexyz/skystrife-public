@@ -42,3 +42,11 @@ sprites
 Any images placed in the `greyscale/` folder will have 4 different versions generated of it during the `generate` command. One version for each player color. These are used to color the units during gameplay based on who owns them.
 
 If you do not want the images to be colored, place them in the top level `sprites/` folder instead.
+
+# Tiled
+
+## MUD Teplate Export Plugin
+
+There is a Tiled plugin that can export your map to a JSON format that MUD can understand. It requires you to setup your project with a specific structure. The easiest way to achieve this is to copy the existing Tiled map files and use that as your starting point.
+
+When you are ready to export, run `pnpm install-plugins`. This will compile the plugin and move it to the correct location. Then you'll find the "MUD Template Format` as an option when exporting from Tiled.

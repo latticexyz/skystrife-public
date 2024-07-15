@@ -179,7 +179,7 @@ contract MatchSystem is System {
     uint256[] memory rewardPercentages,
     uint256 registrationTime,
     bool isPractice
-  ) public seasonActive {
+  ) public {
     skyKeyHolderOnly(_msgSender());
 
     _createMatchSeasonPass(

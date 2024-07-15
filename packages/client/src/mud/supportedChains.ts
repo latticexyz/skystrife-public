@@ -53,8 +53,9 @@ export const garnet = {
   },
   iconUrls: ["https://redstone.xyz/chain-icons/garnet.png"],
   indexerUrl: "https://indexer.mud.garnetchain.com",
+  matchIndexerUrl: "https://garnet.dozer.skystrife.xyz",
   faucetUrl: "https://garnetchain.com/faucet",
-} as const satisfies MUDChain;
+} as const satisfies SkyStrifeChain;
 
 export const redstone = {
   ...mudRedstone,
