@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@latticexyz/recs": "2.0.10-main-a3f8d77d",
+    "@latticexyz/recs": "link:../../../mud/packages/recs",
     "client": "workspace:*",
     "serve": "14.2.1",
     "serve-handler": "6.1.5",

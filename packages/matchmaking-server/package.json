@@ -13,8 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@latticexyz/recs": "2.0.10-main-a3f8d77d",
-    "@latticexyz/world": "2.0.10-main-a3f8d77d",
+    "@latticexyz/recs": "link:../../../mud/packages/recs",
+    "@latticexyz/world": "link:../../../mud/packages/world",
     "@types/cors": "2.8.17",
     "@types/debug": "4.1.12",
     "@types/express": "4.17.21",

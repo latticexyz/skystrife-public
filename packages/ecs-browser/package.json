@@ -22,9 +22,9 @@
     "test": "tsc --noEmit"
   },
   "dependencies": {
-    "@latticexyz/react": "2.0.10-main-a3f8d77d",
-    "@latticexyz/recs": "2.0.10-main-a3f8d77d",
-    "@latticexyz/utils": "2.0.10-main-a3f8d77d",
+    "@latticexyz/react": "link:../../../mud/packages/react",
+    "@latticexyz/recs": "link:../../../mud/packages/recs",
+    "@latticexyz/utils": "link:../../../mud/packages/utils",
     "goober": "^2.1.13",
     "lodash": "^4.17.21",
     "mobx": "^6.10.2",

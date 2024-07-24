@@ -29,11 +29,19 @@ const MATCH_TABLES_NEEDED_EVERYWHERE = [
   "MatchAllowed",
   "MatchIndex",
   "Player",
-];
+].map((s) => s.slice(0, 16));
+
+const CONTRACT_ONLY_TABLES = [
+  "LevelPositionIndex",
+  "EntitiesAtPosition",
+  "LevelTemplatesIndex",
+  "MatchRewardPercentages",
+  "MatchIndexToEntity",
+].map((s) => s.slice(0, 16));
 
 const MATCH_SPECIFIC_TABLES_NEEDED_IN_AMALGEMA = ["LevelContent"];
 
-const EXTRA_MATCH_SPECIFIC_TABLES = ["EntitiesAtPosition", "Match", "Chargers"];
+const EXTRA_MATCH_SPECIFIC_TABLES = ["Match", "Chargers"];
 
 const tables = Object.values(mudConfig.tables).map((table) => {
   const tableId = resourceToHex({
@@ -49,13 +57,19 @@ const matchSpecificTables = tables.filter((table) => {
   if (EXTRA_MATCH_SPECIFIC_TABLES.includes(table.name) || MATCH_TABLES_NEEDED_EVERYWHERE.includes(table.name))
     return true;
 
+  if (CONTRACT_ONLY_TABLES.includes(table.name)) return false;
+
   const keyNames = table.key;
   return keyNames[0] === "matchEntity" && keyNames[1] === "entity";
 });
 const nonMatchSpecificTables = tables.filter((table) => {
+  if (CONTRACT_ONLY_TABLES.includes(table.name)) return false;
+
   return !matchSpecificTables.includes(table) || MATCH_SPECIFIC_TABLES_NEEDED_IN_AMALGEMA.includes(table.name);
 });
-const nonMatchSpecificFilters: SyncFilter[] = nonMatchSpecificTables.map((table) => ({ tableId: table.tableId }));
+const nonMatchSpecificFilters: SyncFilter[] = nonMatchSpecificTables.map((table) => ({
+  tableId: table.tableId,
+}));
 
 const amalgemaTableFilters = nonMatchSpecificFilters.concat(
   tables.filter((t) => MATCH_TABLES_NEEDED_EVERYWHERE.includes(t.name)).map((table) => ({ tableId: table.tableId })),

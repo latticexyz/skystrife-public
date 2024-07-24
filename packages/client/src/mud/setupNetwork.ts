@@ -80,6 +80,11 @@ export async function setupNetwork(networkConfig: NetworkConfig) {
     maxBlockRange: 100n,
   });
 
+  const ext = extraTables(seasonPassNamespace);
+  ext.ERC20Registry;
+
+  components.SkyKey_Balances;
+
   const clock = createClock(networkConfig.clock);
   world.registerDisposer(() => clock.dispose());
 

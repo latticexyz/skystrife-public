@@ -35,7 +35,7 @@
     "ci:build-contracts": "cd packages/contracts && ~/.foundry/bin/forge build && cd ../.."
   },
   "devDependencies": {
-    "@latticexyz/cli": "2.0.10-main-a3f8d77d",
+    "@latticexyz/cli": "link:../mud/packages/cli",
     "@typescript-eslint/eslint-plugin": "5.46.1",
     "@typescript-eslint/parser": "6.6.0",
     "eslint": "8.29.0",

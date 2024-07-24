@@ -1,5 +1,6 @@
 import { resourceToHex } from "@latticexyz/common";
 import { SyncFilter } from "@latticexyz/store-sync";
+import { defineTable } from "@latticexyz/store/config/v2";
 
 // this is only a default used for development
 export const SEASON_PASS_NAMESPACE = "Season2";
@@ -36,77 +37,73 @@ export const syncFilters = (seasonPassNamespace: string): SyncFilter[] => [
 
 export const tables = (seasonPassNamespace: string) =>
   ({
-    ERC20Registry: {
+    ERC20Registry: defineTable({
       namespace: "erc20-puppet",
       name: "ERC20Registry",
+      label: "ERC20Registry",
       tableId: ERC20RegistryTableId,
-      keySchema: {
-        namespaceId: { type: "bytes32" },
+      key: ["namespaceId"],
+      schema: {
+        namespaceId: "bytes32",
+        erc20Address: "address",
       },
-      valueSchema: {
-        erc20Address: { type: "address" },
-      },
-    },
-    Orb_Balances: {
+    }),
+    Orb_Balances: defineTable({
       namespace: ORB_NAMESPACE,
       name: "Balances",
+      label: "Orb_Balances",
       tableId: OrbBalancesTableId,
-      keySchema: {
-        account: { type: "address" },
+      key: ["account"],
+      schema: {
+        account: "address",
+        value: "uint256",
       },
-      valueSchema: {
-        value: { type: "uint256" },
-      },
-    },
-    SeasonPass_Balances: {
+    }),
+    SeasonPass_Balances: defineTable({
       namespace: SEASON_PASS_NAMESPACE,
       name: "Balances",
+      label: "SeasonPass_Balances",
       tableId: resourceToHex({ type: "table", namespace: seasonPassNamespace, name: "Balances" }),
-      keySchema: {
-        account: { type: "address" },
+      key: ["account"],
+      schema: {
+        account: "address",
+        value: "uint256",
       },
-      valueSchema: {
-        value: { type: "uint256" },
-      },
-    },
-    SkyKey_Balances: {
+    }),
+    SkyKey_Balances: defineTable({
       namespace: SKY_KEY_NAMESPACE,
       name: "Balances",
+      label: "SkyKey_Balances",
       tableId: SkyKeyBalancesTableId,
-      keySchema: {
-        account: { type: "address" },
+      key: ["account"],
+      schema: {
+        account: "address",
+        value: "uint256",
       },
-      valueSchema: {
-        value: { type: "uint256" },
-      },
-    },
-    UserDelegationControl: {
+    }),
+    UserDelegationControl: defineTable({
       namespace: "",
-      name: "UserDelegationControl",
+      name: "UserDelegationCo",
+      label: "UserDelegationControl",
       tableId: UserDelegationControlTableId,
-      keySchema: {
-        delegator: { type: "address" },
-        delegatee: { type: "address" },
+      key: ["delegator", "delegatee"],
+      schema: {
+        delegator: "address",
+        delegatee: "address",
+        delegationControlId: "bytes32",
       },
-      valueSchema: {
-        delegationControlId: {
-          type: "bytes32",
-        },
-      },
-    },
-    SystemboundDelegations: {
+    }),
+    SystemboundDelegations: defineTable({
       namespace: "",
-      name: "SystemboundDelegations",
+      name: "SystemboundDeleg",
+      label: "SystemboundDelegations",
       tableId: SystemboundDelegationsTableId,
-      keySchema: {
-        delegator: { type: "address" },
-        delegatee: { type: "address" },
-        systemId: { type: "bytes32" },
+      key: ["delegator", "delegatee", "systemId"],
+      schema: {
+        delegator: "address",
+        delegatee: "address",
+        systemId: "bytes32",
+        availableCalls: "uint256",
       },
-      valueSchema: {
-        availableCalls: {
-          type: "uint256",
-        },
-      },
-    },
+    }),
   }) as const;

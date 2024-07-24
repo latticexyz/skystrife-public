@@ -59,8 +59,8 @@ export const garnet = {
 
 export const redstone = {
   ...mudRedstone,
-  indexerUrl: "https://dozer.mud.redstonechain.com/",
-  matchIndexerUrl: "https://skystrife-indexer-api.onrender.com/",
+  indexerUrl: "https://redstone2.dozer.skystrife.xyz/",
+  matchIndexerUrl: "https://redstone2.dozer.skystrife.xyz/",
   bridgeUrl: "https://race.redstone.xyz/deposit",
 };
 
